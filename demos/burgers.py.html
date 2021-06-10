@@ -92,7 +92,9 @@ such a simple problem, but it comes in handy when solving
 adjoint problems associated with coupled systems of equations.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
+        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">ic</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
         <span class="n">dtc</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>

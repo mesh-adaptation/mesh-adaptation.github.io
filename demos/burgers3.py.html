@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Adjoint of Burgers equation on two meshes &#8212; Pyroteus 0.1 documentation</title>
+    <title>Adjoint of Burgers equation with a time integrated QoI &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
@@ -18,8 +18,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Adjoint of Burgers equation with a time integrated QoI" href="burgers3.py.html" />
-    <link rel="prev" title="Adjoint of Burgers equation" href="burgers.py.html" /> 
+    <link rel="prev" title="Adjoint of Burgers equation on two meshes" href="burgers2.py.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -31,13 +30,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="burgers3.py.html" title="Adjoint of Burgers equation with a time integrated QoI"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="burgers.py.html" title="Adjoint of Burgers equation"
+          <a href="burgers2.py.html" title="Adjoint of Burgers equation on two meshes"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Adjoint of Burgers equation on two meshes</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Adjoint of Burgers equation with a time integrated QoI</a></li> 
       </ul>
     </div>  
 
@@ -46,23 +42,75 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="adjoint-of-burgers-equation-on-two-meshes">
-<h1>Adjoint of Burgers equation on two meshes<a class="headerlink" href="#adjoint-of-burgers-equation-on-two-meshes" title="Permalink to this headline">¶</a></h1>
-<p>This demo solves the same problem as <a class="reference external" href="./burgers.py.html">the previous one</a>, but now using two subintervals. There is
-still no mesh adaptation; the same mesh is used in each
-case to verify that the framework works.</p>
-<p>Again, begin by importing Pyroteus.</p>
+  <section id="adjoint-of-burgers-equation-with-a-time-integrated-qoi">
+<h1>Adjoint of Burgers equation with a time integrated QoI<a class="headerlink" href="#adjoint-of-burgers-equation-with-a-time-integrated-qoi" title="Permalink to this headline">¶</a></h1>
+<p>So far, we only considered a quantity of interest
+corresponding to a spatial integral at the end time.
+For some problems, it is more suitable to have a QoI
+which integrates in time as well as space.</p>
+<p>Begin by importing from Pyroteus and the first Burgers
+demo.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">burgers</span> <span class="kn">import</span> <span class="n">get_initial_condition</span><span class="p">,</span> <span class="n">get_function_spaces</span>
 </pre></div>
 </div>
-<p>The solver, initial condition and QoI may be imported from the
-previous demo. The same basic setup is used. The only difference
-is that there are <strong>two</strong> function spaces associated with the
-velocity space (which actually coincide). They are represented
-in a list.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">burgers</span> <span class="kn">import</span> <span class="n">get_solver</span><span class="p">,</span> <span class="n">get_initial_condition</span><span class="p">,</span> <span class="n">get_qoi</span><span class="p">,</span> <span class="n">get_function_spaces</span>
+<p>The solver needs to be modified slightly in order to take
+account of time dependent QoIs. The Burgers solver
+uses backward Euler timestepping. The corresponding
+quadrature routine is like the midpoint rule, but takes
+the value from the next timestep, rather than the average
+between that and the current value. As such, the QoI may
+be computed by simply incrementing as follows.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
 
-<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
+        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">function_space</span> <span class="o">=</span> <span class="n">ic</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+        <span class="n">dtc</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
+
+        <span class="c1"># Set initial condition</span>
+        <span class="n">u_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Setup variational problem</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">TestFunction</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">inner</span><span class="p">((</span><span class="n">u</span> <span class="o">-</span> <span class="n">u_</span><span class="p">)</span><span class="o">/</span><span class="n">dtc</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span> \
+            <span class="o">+</span> <span class="n">inner</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">nabla_grad</span><span class="p">(</span><span class="n">u</span><span class="p">)),</span> <span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span> \
+            <span class="o">+</span> <span class="n">nu</span><span class="o">*</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="o">*</span><span class="n">dx</span>
+
+        <span class="c1"># Time integrate from t_start to t_end</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t_start</span>
+        <span class="n">qoi</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi</span>
+        <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">t_end</span> <span class="o">-</span> <span class="mf">1.0e-05</span><span class="p">:</span>
+            <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+            <span class="n">mesh_seq</span><span class="o">.</span><span class="n">J</span> <span class="o">+=</span> <span class="n">qoi</span><span class="p">({</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">},</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u_</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">solver</span>
+</pre></div>
+</div>
+<p>The QoI is effectively just a time-integrated version
+of the one previously seen.</p>
+<div class="math notranslate nohighlight">
+\[J(u) = \int_0^{T_{\mathrm{end}}} \int_0^1
+\mathbf u(1,y,t) \cdot \mathbf u(1,y,t)
+\;\mathrm dy\;\mathrm dt.\]</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">time_integrated_qoi</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">inner</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">ds</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">time_integrated_qoi</span>
+</pre></div>
+</div>
+<p>We use the same mesh setup as in <a class="reference external" href="./burgers2.py.html">the previous demo</a> and the same time partitioning.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
 <span class="n">n</span> <span class="o">=</span> <span class="mi">32</span>
 <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">diagonal</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">),</span>
@@ -70,11 +118,8 @@ in a list.</p>
 <span class="p">]</span>
 <span class="n">end_time</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">n</span>
-</pre></div>
-</div>
-<p>This time, the <code class="docutils literal notranslate"><span class="pre">TimePartition</span></code> is defined on <strong>two</strong> subintervals,
-associated with the two function spaces.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
     <span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
     <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span>
@@ -84,15 +129,12 @@ associated with the two function spaces.</p>
     <span class="n">get_solver</span><span class="p">,</span> <span class="n">get_qoi</span><span class="p">,</span> <span class="n">qoi_type</span><span class="o">=</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">solutions</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Solution plotting is much the same, but with some minor tweaks to
-get the two subintervals side by side.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="n">rows</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
 <span class="n">cols</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_subintervals</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="s1">&#39;col&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="o">*</span><span class="n">cols</span><span class="p">,</span> <span class="mi">24</span><span class="o">//</span><span class="n">cols</span><span class="p">))</span>
-<span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">adj_sols_step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">solutions</span><span class="o">.</span><span class="n">uv_2d</span><span class="o">.</span><span class="n">adjoint</span><span class="p">):</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mesh </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -104,27 +146,16 @@ get the two subintervals side by side.</p>
             <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
         <span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;burgers2-end_time.jpg&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;burgers3-time_integrated.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/burgers2-end_time.jpg" src="../_images/burgers2-end_time.jpg" />
+<img alt="../_images/burgers3-time_integrated.jpg" src="../_images/burgers3-time_integrated.jpg" />
 </figure>
-<p>The adjoint solution fields at each time level appear to match
-those due to the previous demo at each timestep. That they actually
-do coincide is checked in Pyroteus’ test suite.</p>
-<p class="rubric">Exercise</p>
-<p>Note that the keyword argument <code class="docutils literal notranslate"><span class="pre">diagonal='left'</span></code> was passed to the
-<code class="docutils literal notranslate"><span class="pre">UnitSquareMesh</span></code> constructor in this example, defining which way
-the diagonal lines in the uniform mesh should go. Instead of having
-both function spaces defined on this mesh, try defining the second
-one in a <span class="math notranslate nohighlight">\(\mathbb P2\)</span> space defined on a <strong>different</strong> mesh
-which is constructed with <code class="docutils literal notranslate"><span class="pre">diagonal='right'</span></code>. How does the adjoint
-solution change when the solution is trasferred between different
-meshes?</p>
-<p>In the <a class="reference external" href="./burgers3.py.html">next demo</a>, we solve the same problem
-but with a QoI involving an integral in time, as well as space.</p>
-<p>This demo can also be accessed as a <a class="reference external" href="burgers2.py">Python script</a>.</p>
+<p>With a time-integrated QoI, the adjoint problem
+has a source term at the right hand boundary, rather
+than a instantaneous pulse at the terminal time.</p>
+<p>This demo can also be accessed as a <a class="reference external" href="burgers3.py">Python script</a>.</p>
 </section>
 
 
@@ -135,15 +166,12 @@ but with a QoI involving an integral in time, as well as space.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="burgers.py.html"
-                        title="previous chapter">Adjoint of Burgers equation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="burgers3.py.html"
-                        title="next chapter">Adjoint of Burgers equation with a time integrated QoI</a></p>
+  <p class="topless"><a href="burgers2.py.html"
+                        title="previous chapter">Adjoint of Burgers equation on two meshes</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/demos/burgers2.py.rst.txt"
+      <li><a href="../_sources/demos/burgers3.py.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -171,13 +199,10 @@ but with a QoI involving an integral in time, as well as space.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="burgers3.py.html" title="Adjoint of Burgers equation with a time integrated QoI"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="burgers.py.html" title="Adjoint of Burgers equation"
+          <a href="burgers2.py.html" title="Adjoint of Burgers equation on two meshes"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Adjoint of Burgers equation on two meshes</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Adjoint of Burgers equation with a time integrated QoI</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
