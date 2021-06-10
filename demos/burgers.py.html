@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Adjoint of Burgers equation on two meshes" href="burgers2.py.html" />
-    <link rel="prev" title="Pyroteus Goal-Oriented Mesh Adaptation Toolkit" href="../index.html" /> 
+    <link rel="prev" title="Partitioning a time interval" href="time_partition.py.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -34,7 +34,7 @@
           <a href="burgers2.py.html" title="Adjoint of Burgers equation on two meshes"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../index.html" title="Pyroteus Goal-Oriented Mesh Adaptation Toolkit"
+          <a href="time_partition.py.html" title="Partitioning a time interval"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Adjoint of Burgers equation</a></li> 
@@ -74,11 +74,11 @@ fields.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>First, we specify how to build <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace`s.</span> <span class="pre">::</span>
-<span class="pre">Function</span> <span class="pre">spaces</span> <span class="pre">are</span> <span class="pre">given</span> <span class="pre">as</span> <span class="pre">a</span> <span class="pre">dictionary,</span> <span class="pre">indexed</span> <span class="pre">by</span> <span class="pre">the</span>
-<span class="pre">prognostic</span> <span class="pre">solution</span> <span class="pre">field</span> <span class="pre">names.</span> <span class="pre">The</span> <span class="pre">function</span> <span class="pre">spaces</span>
-<span class="pre">will</span> <span class="pre">be</span> <span class="pre">built</span> <span class="pre">upon</span> <span class="pre">the</span> <span class="pre">meshes</span> <span class="pre">contained</span> <span class="pre">inside</span> <span class="pre">a</span>
-<span class="pre">:class:`GoalOrientedMeshSeq</span></code> object.</p>
+<p>First, we specify how to build a <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>,
+given some mesh. Function spaces are given as a dictionary,
+labelled by the prognostic solution field names. The
+function spaces will be built upon the meshes contained
+inside a <code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code> object.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)}</span>
 </pre></div>
@@ -136,7 +136,6 @@ condition from a function space.</p>
 <span class="math notranslate nohighlight">\(\mathbf u(x,y,t)\)</span> at the final time over the right
 hand boundary.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">go_mesh_seq</span><span class="p">):</span>
-    <span class="k">assert</span> <span class="n">go_mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">==</span> <span class="s1">&#39;end_time&#39;</span>
 
     <span class="k">def</span> <span class="nf">end_time_qoi</span><span class="p">(</span><span class="n">sol</span><span class="p">):</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
@@ -220,8 +219,8 @@ on two subintervals and check that the results match.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../index.html"
-                        title="previous chapter">Pyroteus Goal-Oriented Mesh Adaptation Toolkit</a></p>
+  <p class="topless"><a href="time_partition.py.html"
+                        title="previous chapter">Partitioning a time interval</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="burgers2.py.html"
                         title="next chapter">Adjoint of Burgers equation on two meshes</a></p>
@@ -259,7 +258,7 @@ on two subintervals and check that the results match.</p>
           <a href="burgers2.py.html" title="Adjoint of Burgers equation on two meshes"
              >next</a> |</li>
         <li class="right" >
-          <a href="../index.html" title="Pyroteus Goal-Oriented Mesh Adaptation Toolkit"
+          <a href="time_partition.py.html" title="Partitioning a time interval"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Adjoint of Burgers equation</a></li> 

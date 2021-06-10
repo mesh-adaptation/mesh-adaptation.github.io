@@ -306,7 +306,7 @@ the subintervals of the <code class="xref py py-class docutils literal notransla
 or a single mesh to use for all subintervals</p></li>
 <li><p><strong>get_function_spaces</strong> – a function, whose only
 argument is a <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which constructs
-prognostic :class:<a href="#id1"><span class="problematic" id="id2">`</span></a>FunctionSpace`s for each
+prognostic <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code> s for each
 subinterval</p></li>
 <li><p><strong>get_initial_condition</strong> – a function, whose only
 argument is a <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which specifies
@@ -370,11 +370,11 @@ the solver</p>
 <span id="pyroteus-metric-module"></span><h2>pyroteus.metric module<a class="headerlink" href="#module-pyroteus.metric" title="Permalink to this headline">¶</a></h2>
 <p>Driver functions for metric-based mesh adaptation.</p>
 <p class="rubric">References</p>
-<p id="id3"><dl class="citation">
-<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id6">CPB13</a></span></dt>
+<p id="id1"><dl class="citation">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id4">CPB13</a></span></dt>
 <dd><p>Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. <em>SIAM Journal on Scientific Computing</em>, 35(2):A861–A885, 2013.</p>
 </dd>
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id7">PPP+06</a></span></dt>
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id5">PPP+06</a></span></dt>
 <dd><p>PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. <em>Computers &amp; Mathematics with Applications</em>, 52(8-9):1213–1242, 2006.</p>
 </dd>
 </dl>
@@ -387,9 +387,9 @@ error indicator, given a Hessian field.</p>
 <dl class="simple">
 <dt>Two formulations are currently available:</dt><dd><ul class="simple">
 <li><p>the element-wise formulation presented
-in <span id="id6">[<a class="reference internal" href="#id5" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013.">CPB13</a>]</span>; and</p></li>
+in <span id="id4">[<a class="reference internal" href="#id3" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013.">CPB13</a>]</span>; and</p></li>
 <li><p>the vertex-wise formulation presented in
-<span id="id7">[<a class="reference internal" href="#id4" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006.">PPP+06</a>]</span>.</p></li>
+<span id="id5">[<a class="reference internal" href="#id2" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006.">PPP+06</a>]</span>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -701,12 +701,9 @@ on a given <code class="docutils literal notranslate"><span class="pre">subinter
 <dt class="sig sig-object py" id="pyroteus.utility.AttrDict">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">AttrDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#AttrDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.AttrDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
-<p>Dictionary that provides both self[‘key’]
-and self.key access to members.</p>
-<dl class="simple">
-<dt><a href="#id8"><span class="problematic" id="id9">**</span></a>Disclaimer:: Copied from</dt><dd><p><a class="reference external" href="http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python">http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python</a></p>
-</dd>
-</dl>
+<p>Dictionary that provides both <code class="docutils literal notranslate"><span class="pre">self['key']</span></code>
+and <code class="docutils literal notranslate"><span class="pre">self.key</span></code> access to members.</p>
+<p><strong>Disclaimer</strong>: Copied from <a class="reference external" href="http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python">stackoverflow</a>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -759,8 +756,8 @@ endow the output mesh with useful quantities.</p>
 </ul>
 </dd>
 <dt>Extra quantities can be computed using the flags:</dt><dd><ul class="simple">
-<li><p><cite>compute_aspect_ratio</cite>;</p></li>
-<li><p><cite>compute_scaled_jacobian</cite>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_aspect_ratio</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_scaled_jacobian</span></code>.</p></li>
 </ul>
 </dd>
 </dl>

@@ -57,8 +57,8 @@
 <span class="sd">        * facet area.</span>
 
 <span class="sd">    Extra quantities can be computed using the flags:</span>
-<span class="sd">        * `compute_aspect_ratio`;</span>
-<span class="sd">        * `compute_scaled_jacobian`.</span>
+<span class="sd">        * ``compute_aspect_ratio``;</span>
+<span class="sd">        * ``compute_scaled_jacobian``.</span>
 
 <span class="sd">    The argument and keyword arguments are passed to</span>
 <span class="sd">    Firedrake&#39;s ``Mesh`` constructor, modified so</span>
@@ -254,11 +254,10 @@
 
 <div class="viewcode-block" id="AttrDict"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.AttrDict">[docs]</a><span class="k">class</span> <span class="nc">AttrDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Dictionary that provides both self[&#39;key&#39;]</span>
-<span class="sd">    and self.key access to members.</span>
+<span class="sd">    Dictionary that provides both ``self[&#39;key&#39;]``</span>
+<span class="sd">    and ``self.key`` access to members.</span>
 
-<span class="sd">    **Disclaimer:: Copied from</span>
-<span class="sd">        http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python</span>
+<span class="sd">    **Disclaimer**: Copied from `stackoverflow &lt;http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python&gt;`__.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AttrDict</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>

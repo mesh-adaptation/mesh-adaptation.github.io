@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Partitioning a time interval &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adjoint of Burgers equation" href="burgers.py.html" />
+    <link rel="prev" title="Pyroteus Goal-Oriented Mesh Adaptation Toolkit" href="../index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="burgers.py.html" title="Adjoint of Burgers equation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Pyroteus Goal-Oriented Mesh Adaptation Toolkit"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Partitioning a time interval</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="partitioning-a-time-interval">
+<h1>Partitioning a time interval<a class="headerlink" href="#partitioning-a-time-interval" title="Permalink to this headline">¶</a></h1>
+<p>Pyroteus is focused on solving PDEs and
+their adjoints over some time interval
+on sequences of meshes.</p>
+<p>Suppose we have a time interval</p>
+<div class="math notranslate nohighlight">
+\[\mathcal T := (0, T],\]</div>
+<p>for some simulation end time <span class="math notranslate nohighlight">\(T &gt; 0\)</span>.
+One of the fundamental objects in
+Pyroteus is the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>,
+which subdivides <span class="math notranslate nohighlight">\(\mathcal T\)</span> into
+subintervals.</p>
+<p>We always begin by importing Pyroteus.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>To create a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>, we
+need at least four ingredients:
+* the end time;
+* the number of subintervals;
+* the timestep on each subinterval;
+* a list of field names for the solution components.
+The simplest possible partition is to
+consider a single subinterval.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">end_time</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.125</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;solution&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>With these definitions, we should get
+a subinterval of <span class="math notranslate nohighlight">\((0,1]\)</span> containing
+eight timesteps. When constructing a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>, it is often useful
+to use the <code class="docutils literal notranslate"><span class="pre">debug</span></code> flag to check that it
+is constructed correctly.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Notice that one of the things which is printed
+out is <code class="docutils literal notranslate"><span class="pre">solves_per_timestep</span></code>. This value
+defaults to one, but can be set to larger
+values to account for the case where your
+PDE has multiple linear or nonlinear solves
+per timestep.</p>
+<p>There is also a quantity <code class="docutils literal notranslate"><span class="pre">timesteps_per_export</span></code>,
+which controls how frequently data is to be
+exported to file during a simulation. It
+also defaults to one, but may be specified
+as a keyword argument.</p>
+<p>Based on the above values, the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> computes the number
+of exports per subinterval. Note that this
+number assumes that exports occur at both
+the start and end of the subinterval, so the
+value may be one larger than you expect.</p>
+<p>This partition isn’t particularly interesting.
+Let’s try constructing a new one with more
+than one subinterval.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">solves_per_timestep</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In some problems, the dynamics evolve such
+that different timesteps are suitable during
+different parts of the simulation. To account
+for that, it is possible to specify a list of
+timesteps corresponding to each subinterval.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.125</span><span class="p">,</span> <span class="mf">0.0625</span><span class="p">]</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that this means that there are more
+exports in the second subinterval than the first.
+This can be remedied by also setting
+<code class="docutils literal notranslate"><span class="pre">timesteps_per_export</span></code> as a list.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>So far, we have assumed that the subintervals
+are of uniform length. This need not be the case.
+However, to set up a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> with
+non-uniform subintervals, they need to be passed
+to the constructor as a list of tuples.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">subintervals</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">subintervals</span><span class="o">=</span><span class="n">subintervals</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the <a class="reference external" href="./mesh_seq.py.html">next demo</a>, we
+learn how to build a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> object
+on top of a partitioned time interval, so that
+we can solve PDEs on multiple meshes.</p>
+<p>This demo can also be accessed as a <a class="reference external" href="time_partition.py">Python script</a>.</p>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Pyroteus Goal-Oriented Mesh Adaptation Toolkit</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="burgers.py.html"
+                        title="next chapter">Adjoint of Burgers equation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/demos/time_partition.py.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="burgers.py.html" title="Adjoint of Burgers equation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Pyroteus Goal-Oriented Mesh Adaptation Toolkit"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Partitioning a time interval</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>
