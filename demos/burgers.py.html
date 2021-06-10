@@ -78,7 +78,7 @@ fields.</p>
 given some mesh. Function spaces are given as a dictionary,
 labelled by the prognostic solution field names. The
 function spaces will be built upon the meshes contained
-inside a <code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code> object.</p>
+inside an <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code> object.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)}</span>
 </pre></div>
@@ -90,7 +90,7 @@ pattern is used for the QoI, which will be specified later.
 The dictionary usage may seem cumbersome when applied to
 such a simple problem, but it comes in handy when solving
 adjoint problems associated with coupled systems of equations.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">go_mesh_seq</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">ic</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">ic</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
@@ -121,9 +121,9 @@ adjoint problems associated with coupled systems of equations.</p>
 </div>
 <p>Pyroteus also requires a function for generating an initial
 condition from a function space.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="n">go_mesh_seq</span><span class="p">):</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">go_mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">go_mesh_seq</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">interpolate</span><span class="p">(</span><span class="n">as_vector</span><span class="p">([</span><span class="n">sin</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="n">x</span><span class="p">),</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">fs</span><span class="p">)}</span>
 </pre></div>
 </div>
@@ -135,7 +135,7 @@ condition from a function space.</p>
 <p>which integrates the square of the solution
 <span class="math notranslate nohighlight">\(\mathbf u(x,y,t)\)</span> at the final time over the right
 hand boundary.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">go_mesh_seq</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">end_time_qoi</span><span class="p">(</span><span class="n">sol</span><span class="p">):</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
@@ -161,7 +161,7 @@ is trivial.</p>
 <span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Finally, we are able to construct a <code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code> and
+<p>Finally, we are able to construct an <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code> and
 thereby call its <code class="docutils literal notranslate"><span class="pre">solve_adjoint</span></code> method. This computes the QoI
 value and returns a dictionary of solutions for the forward and adjoint
 problems. The solution dictionary has keys <cite>‘forward’</cite>, <cite>‘forward_old’</cite>,
@@ -170,11 +170,11 @@ an index corresponding to a particular exported timestep, the array
 entries correspond to the current forward solution, the forward
 solution at the previous timestep, the current adjoint solution and
 the adjoint solution at the next timestep, respectively.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">go_mesh_seq</span> <span class="o">=</span> <span class="n">GoalOrientedMeshSeq</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
     <span class="n">P</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">get_function_spaces</span><span class="p">,</span> <span class="n">get_initial_condition</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="p">,</span> <span class="n">get_qoi</span><span class="p">,</span> <span class="n">qoi_type</span><span class="o">=</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">solutions</span> <span class="o">=</span> <span class="n">go_mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">()</span>
+<span class="n">solutions</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Finally, we plot the adjoint solution at each exported timestep by

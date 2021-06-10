@@ -69,16 +69,17 @@ in a list.</p>
 </pre></div>
 </div>
 <p>This time, the <code class="docutils literal notranslate"><span class="pre">TimePartition</span></code> is defined on <strong>two</strong> subintervals,
-associated with the two function spaces. The <code class="docutils literal notranslate"><span class="pre">debug=True</span></code> keyword
-argument is useful for checking that the partition has been created
-as desired.</p>
+associated with the two function spaces.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">go_mesh_seq</span> <span class="o">=</span> <span class="n">GoalOrientedMeshSeq</span><span class="p">(</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
+    <span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
+    <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
     <span class="n">P</span><span class="p">,</span> <span class="n">meshes</span><span class="p">,</span> <span class="n">get_function_spaces</span><span class="p">,</span> <span class="n">get_initial_condition</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="p">,</span> <span class="n">get_qoi</span><span class="p">,</span> <span class="n">qoi_type</span><span class="o">=</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">solutions</span> <span class="o">=</span> <span class="n">go_mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">()</span>
+<span class="n">solutions</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Solution plotting is much the same, but with some minor tweaks to

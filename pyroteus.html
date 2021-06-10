@@ -43,55 +43,29 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </section>
-<section id="module-pyroteus.enrichment">
-<span id="pyroteus-enrichment-module"></span><h2>pyroteus.enrichment module<a class="headerlink" href="#module-pyroteus.enrichment" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.enrichment.global_enrichment">
-<span class="sig-prename descclassname"><span class="pre">pyroteus.enrichment.</span></span><span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/enrichment.html#global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.enrichment.global_enrichment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve the forward and adjoint problems
-associated with some <code class="docutils literal notranslate"><span class="pre">solver</span></code> in a
-sequence of globally enriched spaces.</p>
-<p>Currently, global enrichment may be
-achieved using one of:
-* h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
-* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>);
-* hp-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'hp'</span></code>).</p>
-<p>The number of refinements in each direction
-may be controlled by the keyword arguments
-<code class="docutils literal notranslate"><span class="pre">num_enrichments_h</span></code> and <code class="docutils literal notranslate"><span class="pre">num_enrichments_p</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>solve_adjoint</strong> – optional adjoint solver
-which should have the same calling
-sequence as that found in pyroteus.adjoint</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-<section id="module-pyroteus.go_mesh_seq">
-<span id="pyroteus-go-mesh-seq-module"></span><h2>pyroteus.go_mesh_seq module<a class="headerlink" href="#module-pyroteus.go_mesh_seq" title="Permalink to this headline">¶</a></h2>
+<section id="module-pyroteus.adjoint">
+<span id="pyroteus-adjoint-module"></span><h2>pyroteus.adjoint module<a class="headerlink" href="#module-pyroteus.adjoint" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.go_mesh_seq.</span></span><span class="sig-name descname"><span class="pre">GoalOrientedMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.adjoint.</span></span><span class="sig-name descname"><span class="pre">AdjointMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyroteus.mesh_seq.MeshSeq</span></code></a></p>
 <p>An extension of <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> to account for
-goal-oriented problems.</p>
-<p>For goal-oriented problems, the solver should
-access and modify <code class="xref py py-attr docutils literal notranslate"><span class="pre">J</span></code>, which holds the
-QoI value.</p>
+solving adjoint problems on a sequence of meshes.</p>
+<p>For time-dependent quantities of interest, the
+solver should access and modify <code class="xref py py-attr docutils literal notranslate"><span class="pre">J</span></code>, which
+holds the QoI value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>get_qoi</strong> – a function, whose only argument is
-a <a class="reference internal" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq" title="pyroteus.go_mesh_seq.GoalOrientedMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code></a>, which returns
+a <a class="reference internal" href="#pyroteus.adjoint.AdjointMeshSeq" title="pyroteus.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a>, which returns
 a function of either one or two variables,
 corresponding to either an end time or time
 integrated quantity of interest, respectively</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_checkpoints">
-<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.get_checkpoints">
+<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_checkpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve forward on the sequence of meshes,
 extracting checkpoints corresponding to
 the starting fields on each subinterval.</p>
@@ -106,23 +80,23 @@ the solver</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_qoi">
-<span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.get_qoi">
+<span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.initial_condition">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">initial_condition</span></span><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.initial_condition">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">initial_condition</span></span><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.qoi">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">qoi</span></span><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.qoi" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.qoi">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">qoi</span></span><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.qoi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.solve_adjoint">
-<span class="sig-name descname"><span class="pre">solve_adjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_adj_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.solve_adjoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.solve_adjoint" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.solve_adjoint">
+<span class="sig-name descname"><span class="pre">solve_adjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_adj_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.solve_adjoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.solve_adjoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve an adjoint problem on a sequence of subintervals.</p>
 <p>As well as the quantity of interest value, a dictionary
 of solution fields is computed, the contents of which
@@ -168,6 +142,45 @@ actions at exported timesteps</p></li>
 solution fields and their lagged versions.</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.go_mesh_seq">
+<span id="pyroteus-go-mesh-seq-module"></span><h2>pyroteus.go_mesh_seq module<a class="headerlink" href="#module-pyroteus.go_mesh_seq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.go_mesh_seq.</span></span><span class="sig-name descname"><span class="pre">GoalOrientedMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyroteus.adjoint.AdjointMeshSeq" title="pyroteus.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyroteus.adjoint.AdjointMeshSeq</span></code></a></p>
+<p>An extension of <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code> to account for
+goal-oriented problems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>get_qoi</strong> – a function, whose only argument is
+a <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code>, which returns
+a function of either one or two variables,
+corresponding to either an end time or time
+integrated quantity of interest, respectively</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">
+<span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments_h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the forward and adjoint problems
+associated with <code class="xref py py-attr docutils literal notranslate"><span class="pre">solver</span></code> in a
+sequence of globally enriched spaces.</p>
+<p>Currently, global enrichment may be
+achieved using one of:
+* h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
+* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>);
+* hp-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'hp'</span></code>).</p>
+<p>The number of refinements in each direction
+may be controlled by the keyword arguments
+<code class="docutils literal notranslate"><span class="pre">num_enrichments_h</span></code> and <code class="docutils literal notranslate"><span class="pre">num_enrichments_p</span></code>.</p>
+<p>Any additional keyword arguments are passed
+to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">solve_adjoint</span></code> method of the
+enriched <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -774,6 +787,26 @@ associated with some finite element <code class="docutils literal notranslate"><
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.effectivity_index">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">effectivity_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Je</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#effectivity_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.effectivity_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overestimation factor of some error estimator
+for the QoI error.</p>
+<p>Note that this is only typically used for simple
+steady-state problems with analytical solutions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – a <span class="math notranslate nohighlight">\(\mathbb P0\)</span>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> which localises
+contributions to an error estimator to
+individual elements</p></li>
+<li><p><strong>Je</strong> – error in quantity of interest</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.utility.errornorm">
 <span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">errornorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#errornorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.errornorm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overload Firedrake’s <code class="docutils literal notranslate"><span class="pre">errornorm</span></code> function
@@ -830,7 +863,7 @@ by <code class="docutils literal notranslate"><span class="pre">angle</span></co
   <ul>
 <li><a class="reference internal" href="#">pyroteus package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-pyroteus.enrichment">pyroteus.enrichment module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.adjoint">pyroteus.adjoint module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.go_mesh_seq">pyroteus.go_mesh_seq module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.interpolation">pyroteus.interpolation module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.kernel">pyroteus.kernel module</a></li>

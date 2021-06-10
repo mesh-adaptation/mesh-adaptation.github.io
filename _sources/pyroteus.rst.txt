@@ -4,10 +4,10 @@ pyroteus package
 Submodules
 ----------
 
-pyroteus.enrichment module
---------------------------
+pyroteus.adjoint module
+-----------------------
 
-.. automodule:: pyroteus.enrichment
+.. automodule:: pyroteus.adjoint
    :members:
    :undoc-members:
    :show-inheritance:

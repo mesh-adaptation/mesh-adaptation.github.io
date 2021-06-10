@@ -38,7 +38,7 @@
           <div class="body" role="main">
             
   <h1>Source code for pyroteus.mesh_seq</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span></span><span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Mesh</span>
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">project</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
@@ -75,13 +75,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">time_partition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">fields</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">subintervals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">num_subintervals</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span> <span class="o">=</span> <span class="n">initial_meshes</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="n">initial_meshes</span><span class="p">)</span> <span class="k">for</span> <span class="n">subinterval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="o">=</span> <span class="n">get_function_spaces</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="o">=</span> <span class="n">get_initial_condition</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">get_solver</span>
+        <span class="k">if</span> <span class="n">get_function_spaces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="o">=</span> <span class="n">get_function_spaces</span>
+        <span class="k">if</span> <span class="n">get_initial_condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="o">=</span> <span class="n">get_initial_condition</span>
+        <span class="k">if</span> <span class="n">get_solver</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">get_solver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warnings</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -111,18 +115,22 @@
                 <span class="n">mesh</span> <span class="o">==</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
             <span class="p">)</span>
+            <span class="n">consistent</span> <span class="o">&amp;=</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span> <span class="o">==</span> <span class="n">fs</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">consistent</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_spaces_consistent</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">({</span>
                 <span class="n">field</span><span class="p">:</span> <span class="p">[</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
                 <span class="p">]</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
-            <span class="p">}</span>
+            <span class="p">})</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_spaces_consistent</span><span class="p">,</span> <span class="s2">&quot;Meshes and function spaces are inconsistent&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span>
 
@@ -132,7 +140,7 @@
         <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;`get_initial_condition` should return a dict&quot;</span>
         <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="s2">&quot;missing fields in initial condition&quot;</span>
         <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)),</span> <span class="s2">&quot;more initial conditions than fields&quot;</span>
-        <span class="k">return</span> <span class="n">ic</span>
+        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
