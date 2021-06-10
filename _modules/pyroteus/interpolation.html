@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyroteus.interpolation &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.interpolation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyroteus.interpolation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Driver functions for mesh-to-mesh data transfer.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">]</span>
+
+
+<span class="c1"># --- Linear interpolation</span>
+
+<span class="c1"># TODO</span>
+
+<span class="c1"># --- Conservative interpolation by supermesh projection</span>
+
+<div class="viewcode-block" id="project"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.interpolation.project">[docs]</a><span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload Firedrake&#39;s ``project`` function to account</span>
+<span class="sd">    for the case of two mixed function spaces defined on</span>
+<span class="sd">    different meshes and for the adjoint projection</span>
+<span class="sd">    operator.</span>
+
+<span class="sd">    Extra keyword arguments are passed to Firedrake&#39;s</span>
+<span class="sd">    ``project`` function.</span>
+
+<span class="sd">    :arg source: the :class:`Function` to be projected</span>
+<span class="sd">    :arg target_space: the :class:`FunctionSpace` which</span>
+<span class="sd">        we seek to project into</span>
+<span class="sd">    :kwarg adjoint: apply the transposed projection</span>
+<span class="sd">        operator?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Can only currently project Functions&quot;</span><span class="p">)</span>  <span class="c1"># TODO</span>
+    <span class="n">source_space</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">target_space</span>
+        <span class="n">target_space</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">target_space</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_space</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">==</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mesh2mesh_project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="n">adjoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">mesh2mesh_project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a mesh-to-mesh conservative projection to some</span>
+<span class="sd">    ``source``, mapping to a ``target``.</span>
+
+<span class="sd">    This function extends to the case of mixed spaces.</span>
+
+<span class="sd">    Extra keyword arguments are passed to Firedrake&#39;s</span>
+<span class="sd">    ``project`` function.</span>
+
+<span class="sd">    :arg source: the :class:`Function` to be projected</span>
+<span class="sd">    :arg target: the :class:`Function` which we</span>
+<span class="sd">        seek to project onto</span>
+<span class="sd">    :kwarg adjoint: apply the transposed projection</span>
+<span class="sd">        operator?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">adjoint</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mesh2mesh_project_adjoint</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    <span class="n">source_space</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span>
+    <span class="n">target_space</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
+        <span class="n">target</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">==</span> <span class="n">source_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">target</span><span class="o">.</span><span class="n">split</span><span class="p">()):</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target</span>
+
+
+<span class="k">def</span> <span class="nf">mesh2mesh_project_adjoint</span><span class="p">(</span><span class="n">target_b</span><span class="p">,</span> <span class="n">source_b</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply the adjoint of a mesh-to-mesh conservative</span>
+<span class="sd">    projection to some seed ``target_b``, mapping to</span>
+<span class="sd">    ``source_b``.</span>
+
+<span class="sd">    The notation used here is in terms of the adjoint of</span>
+<span class="sd">    ``mesh2mesh_project``. However, this function may also</span>
+<span class="sd">    be interpreted as a projector in its own right,</span>
+<span class="sd">    mapping ``target_b`` to ``source_b``.</span>
+
+<span class="sd">    Extra keyword arguments are passed to Firedrake&#39;s</span>
+<span class="sd">    ``project`` function.</span>
+
+<span class="sd">    :arg target_b: seed :class:`Function` from the target</span>
+<span class="sd">        space of the forward projection</span>
+<span class="sd">    :arg source_b: the :class:`Function` from the source</span>
+<span class="sd">        space of the forward projection</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">firedrake.supermeshing</span> <span class="kn">import</span> <span class="n">assemble_mixed_mass_matrix</span>
+
+    <span class="n">target_space</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_b</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span>
+    <span class="n">source_space</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+
+    <span class="c1"># Get subspaces</span>
+    <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
+        <span class="n">source_b</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">target_b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">source_b</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">==</span> <span class="n">source_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">target_b_split</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">source_b_split</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target_b_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_b</span><span class="p">]</span>
+        <span class="n">source_b_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">source_b</span><span class="p">]</span>
+
+    <span class="c1"># Apply adjoint projection operator to each component</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">t_b</span><span class="p">,</span> <span class="n">s_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">target_b_split</span><span class="p">,</span> <span class="n">source_b_split</span><span class="p">)):</span>
+        <span class="n">ksp</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">KSP</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="n">ksp</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="n">assemble_mass_matrix</span><span class="p">(</span><span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()))</span>
+        <span class="n">mixed_mass</span> <span class="o">=</span> <span class="n">assemble_mixed_mass_matrix</span><span class="p">(</span><span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="n">s_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">t_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">tb</span><span class="p">,</span> <span class="n">s_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_wo</span> <span class="k">as</span> <span class="n">sb</span><span class="p">:</span>
+            <span class="n">residual</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">ksp</span><span class="o">.</span><span class="n">solveTranspose</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
+            <span class="n">mixed_mass</span><span class="o">.</span><span class="n">mult</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">sb</span><span class="p">)</span>  <span class="c1"># NOTE: mixed mass already transposed</span>
+
+    <span class="k">return</span> <span class="n">source_b</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.interpolation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

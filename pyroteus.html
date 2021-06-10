@@ -1,0 +1,889 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>pyroteus package &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="pyroteus-package">
+<h1>pyroteus package<a class="headerlink" href="#pyroteus-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-pyroteus.enrichment">
+<span id="pyroteus-enrichment-module"></span><h2>pyroteus.enrichment module<a class="headerlink" href="#module-pyroteus.enrichment" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.enrichment.global_enrichment">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.enrichment.</span></span><span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qoi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/enrichment.html#global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.enrichment.global_enrichment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the forward and adjoint problems
+associated with some <code class="docutils literal notranslate"><span class="pre">solver</span></code> in a
+sequence of globally enriched spaces.</p>
+<p>Currently, global enrichment may be
+achieved using one of:
+* h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
+* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>);
+* hp-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'hp'</span></code>).</p>
+<p>The number of refinements in each direction
+may be controlled by the keyword arguments
+<code class="docutils literal notranslate"><span class="pre">num_enrichments_h</span></code> and <code class="docutils literal notranslate"><span class="pre">num_enrichments_p</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solve_adjoint</strong> – optional adjoint solver
+which should have the same calling
+sequence as that found in pyroteus.adjoint</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.go_mesh_seq">
+<span id="pyroteus-go-mesh-seq-module"></span><h2>pyroteus.go_mesh_seq module<a class="headerlink" href="#module-pyroteus.go_mesh_seq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.go_mesh_seq.</span></span><span class="sig-name descname"><span class="pre">GoalOrientedMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyroteus.mesh_seq.MeshSeq</span></code></a></p>
+<p>An extension of <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> to account for
+goal-oriented problems.</p>
+<p>For goal-oriented problems, the solver should
+access and modify <code class="xref py py-attr docutils literal notranslate"><span class="pre">J</span></code>, which holds the
+QoI value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>get_qoi</strong> – a function, whose only argument is
+a <a class="reference internal" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq" title="pyroteus.go_mesh_seq.GoalOrientedMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code></a>, which returns
+a function of either one or two variables,
+corresponding to either an end time or time
+integrated quantity of interest, respectively</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_checkpoints">
+<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve forward on the sequence of meshes,
+extracting checkpoints corresponding to
+the starting fields on each subinterval.</p>
+<p>The QoI is also evaluated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solver_kwargs</strong> – additional keyword
+arguments which will be passed to
+the solver</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_qoi">
+<span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.initial_condition">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">initial_condition</span></span><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.qoi">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">qoi</span></span><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.qoi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.solve_adjoint">
+<span class="sig-name descname"><span class="pre">solve_adjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_adj_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.solve_adjoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.solve_adjoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve an adjoint problem on a sequence of subintervals.</p>
+<p>As well as the quantity of interest value, a dictionary
+of solution fields is computed, the contents of which
+give values at all exported timesteps, indexed first by
+the field label and then by type. The contents of these
+nested dictionaries are lists which are indexed first by
+subinterval and then by export. For a given exported
+timestep, the solution types are:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'forward'</span></code>: the forward solution after taking the</dt><dd><p>timestep;</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>: the forward solution before taking</dt><dd><p>the timestep;</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'adjoint'</span></code>: the adjoint solution after taking the</dt><dd><p>timestep;</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'adjoint_next'</span></code>: the adjoint solution before taking</dt><dd><p>the timestep (backwards).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solver_kwargs</strong> – a dictionary providing parameters
+to the solver. Any keyword arguments for the QoI
+should be included as a subdict with label ‘qoi_kwargs’</p></li>
+<li><p><strong>get_adj_values</strong> – additionally output adjoint
+actions at exported timesteps</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return solution</dt>
+<dd class="field-even"><p>an <code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code> containing
+solution fields and their lagged versions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.interpolation">
+<span id="pyroteus-interpolation-module"></span><h2>pyroteus.interpolation module<a class="headerlink" href="#module-pyroteus.interpolation" title="Permalink to this headline">¶</a></h2>
+<p>Driver functions for mesh-to-mesh data transfer.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.interpolation.project">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.interpolation.</span></span><span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/interpolation.html#project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.interpolation.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overload Firedrake’s <code class="docutils literal notranslate"><span class="pre">project</span></code> function to account
+for the case of two mixed function spaces defined on
+different meshes and for the adjoint projection
+operator.</p>
+<p>Extra keyword arguments are passed to Firedrake’s
+<code class="docutils literal notranslate"><span class="pre">project</span></code> function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> to be projected</p></li>
+<li><p><strong>target_space</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code> which
+we seek to project into</p></li>
+<li><p><strong>adjoint</strong> – apply the transposed projection
+operator?</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.kernel">
+<span id="pyroteus-kernel-module"></span><h2>pyroteus.kernel module<a class="headerlink" href="#module-pyroteus.kernel" title="Permalink to this headline">¶</a></h2>
+<p>Functions which generate C kernels for dense numerical linear algebra.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.kernel.eigen_kernel">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.kernel.</span></span><span class="sig-name descname"><span class="pre">eigen_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/kernel.html#eigen_kernel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.kernel.eigen_kernel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to easily pass Eigen kernels
+to Firedrake via PyOP2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kernel</strong> – a string containing C code which
+is to be formatted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.kernel.get_eigendecomposition">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.kernel.</span></span><span class="sig-name descname"><span class="pre">get_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/kernel.html#get_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.kernel.get_eigendecomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract eigenvectors/eigenvalues from a
+metric field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – spatial dimension</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.kernel.get_reordered_eigendecomposition">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.kernel.</span></span><span class="sig-name descname"><span class="pre">get_reordered_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/kernel.html#get_reordered_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.kernel.get_reordered_eigendecomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract eigenvectors/eigenvalues from a
+metric field, with eigenvalues
+<strong>decreasing</strong> in magnitude.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.kernel.intersect">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.kernel.</span></span><span class="sig-name descname"><span class="pre">intersect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/kernel.html#intersect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.kernel.intersect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intersect two metric fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – spatial dimension</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.kernel.metric_from_hessian">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.kernel.</span></span><span class="sig-name descname"><span class="pre">metric_from_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/kernel.html#metric_from_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.kernel.metric_from_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify the eigenvalues of a Hessian matrix so
+that it is positive-definite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – spatial dimension</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.kernel.postproc_metric">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.kernel.</span></span><span class="sig-name descname"><span class="pre">postproc_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/kernel.html#postproc_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.kernel.postproc_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post-process a metric field in order to enforce
+max/min element sizes and anisotropy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> – spatial dimension</p></li>
+<li><p><strong>a_max</strong> – maximum element anisotropy</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.kernel.set_eigendecomposition">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.kernel.</span></span><span class="sig-name descname"><span class="pre">set_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/kernel.html#set_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.kernel.set_eigendecomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a metric from eigenvectors
+and eigenvalues as an orthogonal
+eigendecomposition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>d</strong> – spatial dimension</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.mesh_seq">
+<span id="pyroteus-mesh-seq-module"></span><h2>pyroteus.mesh_seq module<a class="headerlink" href="#module-pyroteus.mesh_seq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.mesh_seq.</span></span><span class="sig-name descname"><span class="pre">MeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A sequence of meshes for solving a PDE associated
+with a particular <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> of the
+temporal domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_partition</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> which
+partitions the temporal domain</p></li>
+<li><p><strong>initial_meshes</strong> – list of meshes corresponding to
+the subintervals of the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>,
+or a single mesh to use for all subintervals</p></li>
+<li><p><strong>get_function_spaces</strong> – a function, whose only
+argument is a <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which constructs
+prognostic :class:<a href="#id1"><span class="problematic" id="id2">`</span></a>FunctionSpace`s for each
+subinterval</p></li>
+<li><p><strong>get_initial_condition</strong> – a function, whose only
+argument is a <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which specifies
+initial conditions on the first mesh</p></li>
+<li><p><strong>get_solver</strong> – a function, whose only argument is
+a <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which returns a function
+that integrates initial data over a subinterval</p></li>
+<li><p><strong>warnings</strong> – print warnings?</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.function_spaces">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">function_spaces</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.function_spaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_checkpoints">
+<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve forward on the sequence of meshes,
+extracting checkpoints corresponding to
+the starting fields on each subinterval.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solver_kwargs</strong> – additional keyword
+arguments which will be passed to
+the solver</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_function_spaces">
+<span class="sig-name descname"><span class="pre">get_function_spaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_function_spaces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_function_spaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_initial_condition">
+<span class="sig-name descname"><span class="pre">get_initial_condition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_initial_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_initial_condition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_solver">
+<span class="sig-name descname"><span class="pre">get_solver</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_solver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_solver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.initial_condition">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">initial_condition</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.solver">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.solver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.metric">
+<span id="pyroteus-metric-module"></span><h2>pyroteus.metric module<a class="headerlink" href="#module-pyroteus.metric" title="Permalink to this headline">¶</a></h2>
+<p>Driver functions for metric-based mesh adaptation.</p>
+<p class="rubric">References</p>
+<p id="id3"><dl class="citation">
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id6">CPB13</a></span></dt>
+<dd><p>Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. <em>SIAM Journal on Scientific Computing</em>, 35(2):A861–A885, 2013.</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id7">PPP+06</a></span></dt>
+<dd><p>PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. <em>Computers &amp; Mathematics with Applications</em>, 52(8-9):1213–1242, 2006.</p>
+</dd>
+</dl>
+</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.anisotropic_metric">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">anisotropic_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessian</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#anisotropic_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.anisotropic_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute an element-wise anisotropic metric from some
+error indicator, given a Hessian field.</p>
+<dl class="simple">
+<dt>Two formulations are currently available:</dt><dd><ul class="simple">
+<li><p>the element-wise formulation presented
+in <span id="id6">[<a class="reference internal" href="#id5" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013.">CPB13</a>]</span>; and</p></li>
+<li><p>the vertex-wise formulation presented in
+<span id="id7">[<a class="reference internal" href="#id4" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006.">PPP+06</a>]</span>.</p></li>
+</ul>
+</dd>
+</dl>
+<p>In both cases, a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> metric is
+returned by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – (list of) error indicator(s)</p></li>
+<li><p><strong>hessian</strong> – (list of) Hessian(s)</p></li>
+<li><p><strong>target_space</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TensorFunctionSpace</span></code> in
+which the metric will exist</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.check_spd">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">check_spd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#check_spd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.check_spd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify that a tensor field is symmetric positive-definite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>M</strong> – the tensor field</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.combine_metrics">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">combine_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#combine_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.combine_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a list of metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>average</strong> – combination by averaging or intersection?</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.density_and_quotients">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">density_and_quotients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#density_and_quotients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.density_and_quotients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the density and anisotropy quotients from a
+metric.</p>
+<p>By symmetry, Riemannian metrics admit an orthogonal
+eigendecomposition,</p>
+<div class="math notranslate nohighlight">
+\[\underline{\mathbf M}(\mathbf x)
+= \underline{\mathbf V}(\mathbf x)\:
+\underline{\boldsymbol\Lambda}(\mathbf x)\:
+\underline{\mathbf V}(\mathbf x)^T,\]</div>
+<p>at each point <span class="math notranslate nohighlight">\(\mathbf x\in\Omega\)</span>, where
+<span class="math notranslate nohighlight">\(\underline{\mathbf V}\)</span> and
+<span class="math notranslate nohighlight">\(\underline{\boldsymbol\Sigma}\)</span> are matrices
+holding the eigenvectors and eigenvalues, respectively.
+By positive-definiteness, entries of
+<span class="math notranslate nohighlight">\(\underline{\boldsymbol\Lambda}\)</span> are all positive.</p>
+<p>An alternative decomposition,</p>
+<div class="math notranslate nohighlight">
+\[\underline{\mathbf M}(\mathbf x)
+= d(\mathbf x)^\frac2n
+\underline{\mathbf V}(\mathbf x)\:
+\underline{\mathbf R}(\mathbf x)^{-\frac2n}
+\underline{\mathbf V}(\mathbf x)^T\]</div>
+<p>can also be deduced, in terms of the &lt;em&gt;metric density&lt;/em&gt;
+and &lt;em&gt;anisotropy quotients&lt;/em&gt;,</p>
+<div class="math notranslate nohighlight">
+\[d = \sum_{i=1}^n h_i,\qquad
+r_i = \frac{h_i^n}d,\qquad \forall i=1:n,\]</div>
+<p>where <span class="math notranslate nohighlight">\(h_i := \frac1{\sqrt{\lambda_i}}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metric</strong> – the metric to extract density and
+quotients from</p></li>
+<li><p><strong>reorder</strong> – should the eigendecomposition be
+reordered?</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.enforce_element_constraints">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">enforce_element_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#enforce_element_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.enforce_element_constraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post-process a list of metrics to enforce minimum and
+maximum element sizes, as well as maximum anisotropy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> – the metrics</p></li>
+<li><p><strong>h_min</strong> – minimum tolerated element size,
+which could be a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> or a number.</p></li>
+<li><p><strong>h_max</strong> – maximum tolerated element size,
+which could be a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> or a number.</p></li>
+<li><p><strong>a_max</strong> – maximum tolerated element anisotropy
+(default 1000).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.hessian_metric">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">hessian_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hessian</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#hessian_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.hessian_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify the eigenvalues of a Hessian matrix so
+that it is positive-definite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>hessian</strong> – the Hessian matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.isotropic_metric">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">isotropic_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#isotropic_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.isotropic_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute an isotropic metric from some error indicator.</p>
+<p>The result is a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> diagonal tensor
+field whose entries are projections of the error
+indicator in modulus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – the error indicator</p></li>
+<li><p><strong>target_space</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TensorFunctionSpace</span></code> in
+which the metric will exist</p></li>
+<li><p><strong>f_min</strong> – minimum tolerated function value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.metric_average">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">metric_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#metric_average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.metric_average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a list of metrics by averaging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> – the metrics to be combined</p></li>
+<li><p><strong>function_space</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
+the averaged metric should live in</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.metric_complexity">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">metric_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#metric_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.metric_complexity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the complexity of a metric.</p>
+<p>This is the continuous analogue of the
+(discrete) mesh vertex count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>boundary</strong> – compute metric on domain
+interior or boundary?</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.metric_intersection">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">metric_intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#metric_intersection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.metric_intersection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a list of metrics by intersection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> – the metrics to be combined</p></li>
+<li><p><strong>function_space</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
+the intersected metric should live in</p></li>
+<li><p><strong>boundary_tag</strong> – boundary segment physical
+ID for boundary intersection</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.metric_relaxation">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">metric_relaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#metric_relaxation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.metric_relaxation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine a list of metrics with a weighted average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> – the metrics to be combined</p></li>
+<li><p><strong>weights</strong> – a list of weights</p></li>
+<li><p><strong>function_space</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
+the relaxed metric should live in</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.space_normalise">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">space_normalise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#space_normalise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.space_normalise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply <span class="math notranslate nohighlight">\(L^p\)</span> normalisation in space alone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metric</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> s corresponding to the
+metric to be normalised.</p></li>
+<li><p><strong>target</strong> – target metric complexity <em>in space alone</em>.</p></li>
+<li><p><strong>p</strong> – normalisation order.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.metric.space_time_normalise">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.metric.</span></span><span class="sig-name descname"><span class="pre">space_time_normalise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#space_time_normalise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.space_time_normalise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply <span class="math notranslate nohighlight">\(L^p\)</span> normalisation in both space and time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> s
+corresponding to the metric associated with
+each subinterval</p></li>
+<li><p><strong>end_time</strong> – end time of simulation</p></li>
+<li><p><strong>timesteps</strong> – list of timesteps specified in each
+subinterval</p></li>
+<li><p><strong>target</strong> – target <em>space-time</em> metric complexity</p></li>
+<li><p><strong>p</strong> – normalisation order</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.recovery">
+<span id="pyroteus-recovery-module"></span><h2>pyroteus.recovery module<a class="headerlink" href="#module-pyroteus.recovery" title="Permalink to this headline">¶</a></h2>
+<p>Driver functions for derivative recovery.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.recovery.recover_hessian">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.recovery.</span></span><span class="sig-name descname"><span class="pre">recover_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/recovery.html#recover_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.recovery.recover_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover the Hessian of a scalar field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – the scalar field whose Hessian we seek to recover</p></li>
+<li><p><strong>method</strong> – recovery method</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.time_partition">
+<span id="pyroteus-time-partition-module"></span><h2>pyroteus.time_partition module<a class="headerlink" href="#module-pyroteus.time_partition" title="Permalink to this headline">¶</a></h2>
+<p>Partitioning for the temporal domain.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.time_partition.</span></span><span class="sig-name descname"><span class="pre">TimePartition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_subintervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Object describing the partition of the time
+interval of interest into subintervals.</p>
+<p>For now, the subintervals are assumed to be
+uniform in length. However, different values
+may be used of the timestep on each.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>end_time</strong> – end time of the interval
+of interest</p></li>
+<li><p><strong>num_subintervals</strong> – number of
+subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> – (list of values for the)
+timestep used on each subinterval</p></li>
+<li><p><strong>fields</strong> – (list of) field names ordered
+by call sequence</p></li>
+<li><p><strong>timesteps_per_export</strong> – (list of)
+timesteps per export (default 1)</p></li>
+<li><p><strong>start_time</strong> – start time of the
+interval of interest (default 0.0)</p></li>
+<li><p><strong>solves_per_timestep</strong> – (list of)
+(non)linear solves per timestep
+corresponding to the fields (defaults
+to 1 for each)</p></li>
+<li><p><strong>subinterals</strong> – user-provided sequence
+of subintervals, which need not be of
+uniform length (defaults to None)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition.get_solve_blocks">
+<span class="sig-name descname"><span class="pre">get_solve_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subinterval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition.get_solve_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition.get_solve_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all blocks of the tape corresponding to
+solve steps for prognostic solution <code class="docutils literal notranslate"><span class="pre">field</span></code>
+on a given <code class="docutils literal notranslate"><span class="pre">subinterval</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition.print">
+<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition.print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print attribute ‘msg’ for debugging purposes.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyroteus.utility">
+<span id="pyroteus-utility-module"></span><h2>pyroteus.utility module<a class="headerlink" href="#module-pyroteus.utility" title="Permalink to this headline">¶</a></h2>
+<p>Utility functions and classes for mesh adaptation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.utility.AttrDict">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">AttrDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#AttrDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.AttrDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+<p>Dictionary that provides both self[‘key’]
+and self.key access to members.</p>
+<dl class="simple">
+<dt><a href="#id8"><span class="problematic" id="id9">**</span></a>Disclaimer:: Copied from</dt><dd><p><a class="reference external" href="http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python">http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.utility.File">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">File</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#File"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.File" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://firedrakeproject.org/firedrake.html#firedrake.output.File" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.output.File</span></code></a></p>
+<p>Overload Firedrake’s <code class="docutils literal notranslate"><span class="pre">File</span></code> class so that
+it uses <code class="docutils literal notranslate"><span class="pre">adaptive</span></code> mode by default. Whilst
+this means that the mesh topology is
+recomputed at every export, it removes any
+need for the user to reset it manually.</p>
+<p>Create an object for outputting data for visualisation.</p>
+<p>This produces output in VTU format, suitable for visualisation
+with Paraview or other VTK-capable visualisation packages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – The name of the output file (must end in
+<code class="docutils literal notranslate"><span class="pre">.pvd</span></code>).</p></li>
+<li><p><strong>project_output</strong> – Should the output be projected to
+a computed output space?  Default is to use interpolation.</p></li>
+<li><p><strong>comm</strong> – The MPI communicator to use.</p></li>
+<li><p><strong>mode</strong> – “w” to overwrite any existing file, “a” to append to an existing file.</p></li>
+<li><p><strong>target_degree</strong> – override the degree of the output space.</p></li>
+<li><p><strong>target_continuity</strong> – override the continuity of the output space;
+A UFL <code class="xref py py-class docutils literal notranslate"><span class="pre">SobolevSpace</span></code> object: <cite>H1</cite> for a
+continuous output and <cite>L2</cite> for a discontinuous output.</p></li>
+<li><p><strong>adaptive</strong> – allow different meshes at different exports if <cite>True</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Visualisation is only possible for Lagrange fields (either
+continuous or discontinuous).  All other fields are first
+either projected or interpolated to Lagrange elements
+before storing for visualisation purposes.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.Mesh">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">Mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.Mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overload Firedrake’s <code class="docutils literal notranslate"><span class="pre">Mesh</span></code> constructor to
+endow the output mesh with useful quantities.</p>
+<dl class="simple">
+<dt>The following quantities are computed by default:</dt><dd><ul class="simple">
+<li><p>cell size;</p></li>
+<li><p>facet area.</p></li>
+</ul>
+</dd>
+<dt>Extra quantities can be computed using the flags:</dt><dd><ul class="simple">
+<li><p><cite>compute_aspect_ratio</cite>;</p></li>
+<li><p><cite>compute_scaled_jacobian</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The argument and keyword arguments are passed to
+Firedrake’s <code class="docutils literal notranslate"><span class="pre">Mesh</span></code> constructor, modified so
+that the argument could also be a mesh.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.assemble_mass_matrix">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">assemble_mass_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#assemble_mass_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.assemble_mass_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assemble the <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> mass matrix
+associated with some finite element <code class="docutils literal notranslate"><span class="pre">space</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.errornorm">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">errornorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#errornorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.errornorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overload Firedrake’s <code class="docutils literal notranslate"><span class="pre">errornorm</span></code> function
+to allow for <span class="math notranslate nohighlight">\(\ell^p\)</span> norms.</p>
+<p>Note that this version is case sensitive,
+i.e. <code class="docutils literal notranslate"><span class="pre">'l2'</span></code> and <code class="docutils literal notranslate"><span class="pre">'L2'</span></code> will give
+different results in general.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.norm">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overload Firedrake’s <code class="docutils literal notranslate"><span class="pre">norm</span></code> function to
+allow for <span class="math notranslate nohighlight">\(\ell^p\)</span> norms.</p>
+<p>Note that this version is case sensitive,
+i.e. <code class="docutils literal notranslate"><span class="pre">'l2'</span></code> and <code class="docutils literal notranslate"><span class="pre">'L2'</span></code> will give
+different results in general.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.prod">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">prod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#prod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.prod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take the product over elements in an array.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.rotate">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate a UFL <code class="xref py py-class docutils literal notranslate"><span class="pre">as_vector</span></code> <code class="docutils literal notranslate"><span class="pre">v</span></code>
+by <code class="docutils literal notranslate"><span class="pre">angle</span></code> about an <code class="docutils literal notranslate"><span class="pre">origin</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.utility.rotation_matrix_2d">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.utility.</span></span><span class="sig-name descname"><span class="pre">rotation_matrix_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/utility.html#rotation_matrix_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.utility.rotation_matrix_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotation matrix associated with some
+<code class="docutils literal notranslate"><span class="pre">angle</span></code>, as a UFL matrix.</p>
+</dd></dl>
+
+</section>
+<section id="module-pyroteus">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyroteus" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyroteus package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pyroteus.enrichment">pyroteus.enrichment module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.go_mesh_seq">pyroteus.go_mesh_seq module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.interpolation">pyroteus.interpolation module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.kernel">pyroteus.kernel module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.mesh_seq">pyroteus.mesh_seq module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.metric">pyroteus.metric module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.recovery">pyroteus.recovery module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.time_partition">pyroteus.time_partition module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.utility">pyroteus.utility module</a></li>
+<li><a class="reference internal" href="#module-pyroteus">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pyroteus.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

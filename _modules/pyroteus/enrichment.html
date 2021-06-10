@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyroteus.enrichment &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.enrichment</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyroteus.enrichment</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;global_enrichment&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="global_enrichment"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.enrichment.global_enrichment">[docs]</a><span class="k">def</span> <span class="nf">global_enrichment</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">initial_condition</span><span class="p">,</span> <span class="n">qoi</span><span class="p">,</span> <span class="n">function_spaces</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solve the forward and adjoint problems</span>
+<span class="sd">    associated with some ``solver`` in a</span>
+<span class="sd">    sequence of globally enriched spaces.</span>
+
+<span class="sd">    Currently, global enrichment may be</span>
+<span class="sd">    achieved using one of:</span>
+<span class="sd">    * h-refinement (``enrichment_method = &#39;h&#39;``);</span>
+<span class="sd">    * p-refinement (``enrichment_method = &#39;p&#39;``);</span>
+<span class="sd">    * hp-refinement (``enrichment_method = &#39;hp&#39;``).</span>
+
+<span class="sd">    The number of refinements in each direction</span>
+<span class="sd">    may be controlled by the keyword arguments</span>
+<span class="sd">    ``num_enrichments_h`` and ``num_enrichments_p``.</span>
+
+<span class="sd">    :kwarg solve_adjoint: optional adjoint solver</span>
+<span class="sd">        which should have the same calling</span>
+<span class="sd">        sequence as that found in pyroteus.adjoint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">enriched_spaces</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">function_space</span> <span class="ow">in</span> <span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">solve_adjoint</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;solve_adjoint&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">solve_adjoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">.adjoint</span> <span class="kn">import</span> <span class="n">solve_adjoint</span>
+        <span class="n">enrichment_method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;enrichment_method&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">enrichment_method</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;hp&#39;</span><span class="p">)</span>
+        <span class="n">num_enrichments_h</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;num_enrichments_h&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">num_enrichments_p</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;num_enrichments_p&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Check consistency of FunctionSpaces</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">function_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_space</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">element</span> <span class="o">==</span> <span class="n">fs</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">(),</span> <span class="s2">&quot;Finite elements are not identical&quot;</span>
+
+        <span class="c1"># Apply h-refinement</span>
+        <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span> <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_space</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;h&#39;</span> <span class="ow">in</span> <span class="n">enrichment_method</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">MeshHierarchy</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">num_enrichments_h</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="n">meshes</span><span class="p">]</span>
+
+        <span class="c1"># Apply p-refinement</span>
+        <span class="k">if</span> <span class="s1">&#39;p&#39;</span> <span class="ow">in</span> <span class="n">enrichment_method</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">num_enrichments_p</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">+</span> <span class="n">num_enrichments_p</span><span class="p">)</span>
+
+        <span class="c1"># Construct enriched space</span>
+        <span class="n">enriched_spaces</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="n">meshes</span><span class="p">]</span>
+
+    <span class="c1"># Solve adjoint in higher order space</span>
+    <span class="k">return</span> <span class="n">solve_adjoint</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">initial_condition</span><span class="p">,</span> <span class="n">qoi</span><span class="p">,</span> <span class="n">enriched_spaces</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">effectivity_index</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">Je</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overestimation factor of some error estimator</span>
+<span class="sd">    for the QoI error.</span>
+
+<span class="sd">    Note that this is only typically used for simple</span>
+<span class="sd">    steady-state problems with analytical solutions.</span>
+
+<span class="sd">    :arg error_indicator: a :math:`\mathbb P0`</span>
+<span class="sd">        :class:`Function` which localises</span>
+<span class="sd">        contributions to an error estimator to</span>
+<span class="sd">        individual elements</span>
+<span class="sd">    :arg Je: error in quantity of interest</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">Function</span><span class="p">),</span> <span class="s2">&quot;Error indicator must return a Function&quot;</span>
+    <span class="n">el</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">family</span><span class="p">(),</span> <span class="n">el</span><span class="o">.</span><span class="n">degree</span><span class="p">())</span> <span class="o">==</span> <span class="p">(</span><span class="s1">&#39;Discontinuous Lagrange&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;Error indicator must be P0&quot;</span>
+    <span class="n">eta</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eta</span><span class="o">/</span><span class="n">Je</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.enrichment</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

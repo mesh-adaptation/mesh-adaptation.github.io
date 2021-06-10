@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyroteus.recovery &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.recovery</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyroteus.recovery</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Driver functions for derivative recovery.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;recover_hessian&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="recover_hessian"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.recovery.recover_hessian">[docs]</a><span class="k">def</span> <span class="nf">recover_hessian</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;L2&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recover the Hessian of a scalar field.</span>
+
+<span class="sd">    :arg f: the scalar field whose Hessian we seek to recover</span>
+<span class="sd">    :kwarg method: recovery method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;L2&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">double_l2_projection</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<span class="k">def</span> <span class="nf">double_l2_projection</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_spaces</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recover the gradient and Hessian of a scalar field using a</span>
+<span class="sd">    double :math:`L^2` projection.</span>
+
+<span class="sd">    :arg f: the scalar field whose derivatives we seek to recover</span>
+<span class="sd">    :kwarg mesh: the underlying mesh</span>
+<span class="sd">    :kwarg target_spaces: the :class:`VectorFunctionSpace` and</span>
+<span class="sd">        :class:`TensorFunctionSpace` the recovered gradient and</span>
+<span class="sd">        Hessian should live in</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">target_spaces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">P1_vec</span> <span class="o">=</span> <span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">P1_vec</span><span class="p">,</span> <span class="n">P1_ten</span> <span class="o">=</span> <span class="n">target_spaces</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">P1_vec</span><span class="o">*</span><span class="n">P1_ten</span>
+    <span class="n">g</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="n">TrialFunctions</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+    <span class="n">phi</span><span class="p">,</span> <span class="n">tau</span> <span class="o">=</span> <span class="n">TestFunctions</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+    <span class="n">l2_projection</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">FacetNormal</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+
+    <span class="c1"># The formulation is chosen such that f does not need to have any</span>
+    <span class="c1"># finite element derivatives</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">inner</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span> <span class="o">+</span> <span class="n">inner</span><span class="p">(</span><span class="n">div</span><span class="p">(</span><span class="n">tau</span><span class="p">),</span> <span class="n">g</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span> <span class="o">-</span> <span class="n">dot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">dot</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">*</span><span class="n">ds</span>
+    <span class="n">a</span> <span class="o">+=</span> <span class="n">inner</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">f</span><span class="o">*</span><span class="n">dot</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">ds</span> <span class="o">-</span> <span class="n">f</span><span class="o">*</span><span class="n">div</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span>
+
+    <span class="c1"># Apply stationary preconditioners in the Schur complement to get away</span>
+    <span class="c1"># with applying GMRES to the whole mixed system</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;mat_type&quot;</span><span class="p">:</span> <span class="s2">&quot;aij&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;gmres&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ksp_max_it&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;fieldsplit&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_fieldsplit_type&quot;</span><span class="p">:</span> <span class="s2">&quot;schur&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_fieldsplit_0_fields&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_fieldsplit_1_fields&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_fieldsplit_schur_precondition&quot;</span><span class="p">:</span> <span class="s2">&quot;selfp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fieldsplit_0_ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fieldsplit_1_ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fieldsplit_1_pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;gamg&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fieldsplit_1_mg_levels_ksp_max_it&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_0_pc_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ilu&quot;</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_1_mg_levels_pc_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ilu&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_0_pc_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bjacobi&quot;</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_0_sub_ksp_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;preonly&quot;</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_0_sub_pc_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ilu&quot;</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_1_mg_levels_pc_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bjacobi&quot;</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_1_mg_levels_sub_ksp_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;preonly&quot;</span>
+        <span class="n">sp</span><span class="p">[</span><span class="s2">&quot;fieldsplit_1_mg_levels_sub_pc_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ilu&quot;</span>
+    <span class="n">solve</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">L</span><span class="p">,</span> <span class="n">l2_projection</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">l2_projection</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.recovery</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>
