@@ -52,6 +52,14 @@ pyroteus.metric module
    :undoc-members:
    :show-inheritance:
 
+pyroteus.plot module
+--------------------
+
+.. automodule:: pyroteus.plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyroteus.recovery module
 ------------------------
 

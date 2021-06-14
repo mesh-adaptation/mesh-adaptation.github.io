@@ -41,11 +41,12 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Partitioning for the temporal domain.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimePartition&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimePartition&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeInterval&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="TimePartition"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimePartition">[docs]</a><span class="k">class</span> <span class="nc">TimePartition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -84,7 +85,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;debug&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">timesteps_per_export</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timesteps_per_export&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">start_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Non-integer number of subintervals </span><span class="si">{</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -96,22 +98,22 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">solves_per_timestep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Non-integer number of solves per timestep </span><span class="si">{</span><span class="n">solves_per_timestep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;solves_per_timestep&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;interval&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get subintervals</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subintervals&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">subinterval_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span><span class="o">/</span><span class="n">num_subintervals</span>
+            <span class="n">subinterval_time</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="o">/</span><span class="n">num_subintervals</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">subinterval_time</span><span class="p">,</span> <span class="n">start_time</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">subinterval_time</span><span class="p">)</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">subinterval_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">subinterval_time</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">)</span>
             <span class="p">]</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_subintervals</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">):</span>
             <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">end_time</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;subintervals&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get timestep on each subinterval</span>
@@ -166,15 +168,15 @@
         <span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;exports_per_subinterval&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TimePartition.print"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimePartition.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<div class="viewcode-block" id="TimePartition.print"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimePartition.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print attribute &#39;msg&#39; for debugging purposes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2"> cannot be printed because it doesn&#39;t exist&quot;</span><span class="p">)</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2"> cannot be printed because it doesn&#39;t exist&quot;</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TimePartition: </span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">25s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
@@ -187,9 +189,14 @@
 <span class="sd">        :return: subinterval bounds and timestep</span>
 <span class="sd">            associated with that index</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">({</span>
+            <span class="s1">&#39;subinterval&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;timestep&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;timesteps_per_export&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;num_exports&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="p">})</span>
 
-<div class="viewcode-block" id="TimePartition.get_solve_blocks"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimePartition.get_solve_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_solve_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="TimePartition.get_solve_blocks"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimePartition.get_solve_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_solve_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">has_adj_sol</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all blocks of the tape corresponding to</span>
 <span class="sd">        solve steps for prognostic solution ``field``</span>
@@ -198,13 +205,23 @@
         <span class="kn">from</span> <span class="nn">firedrake.adjoint.blocks</span> <span class="kn">import</span> <span class="n">GenericSolveBlock</span><span class="p">,</span> <span class="n">ProjectBlock</span>
         <span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">get_working_tape</span>
 
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">get_working_tape</span><span class="p">()</span><span class="o">.</span><span class="n">get_blocks</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: tape has no blocks!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">blocks</span>
+
         <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">block</span>
-            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">get_working_tape</span><span class="p">()</span><span class="o">.</span><span class="n">get_blocks</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span>
             <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">GenericSolveBlock</span><span class="p">)</span>
             <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">ProjectBlock</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">]</span>
+        <span class="k">if</span> <span class="n">has_adj_sol</span><span class="p">:</span>
+            <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">block</span>
+                <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span>
+                <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">]</span>
         <span class="n">stride</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span><span class="p">)</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">field</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
         <span class="n">offset</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">[</span><span class="n">subinterval</span><span class="p">]</span><span class="o">*</span><span class="n">stride</span>
@@ -220,6 +237,29 @@
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">block</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">solve_blocks</span></div></div>
+
+
+<div class="viewcode-block" id="TimeInterval"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimeInterval">[docs]</a><span class="k">class</span> <span class="nc">TimeInterval</span><span class="p">(</span><span class="n">TimePartition</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A trivial :class:`TimePartition`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TimeInterval</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">timestep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 </pre></div>
 
             <div class="clearer"></div>
