@@ -80,23 +80,18 @@ consider a single subinterval.</p>
 <p>With these definitions, we should get
 a subinterval of <span class="math notranslate nohighlight">\((0,1]\)</span> containing
 eight timesteps. When constructing a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>, it is often useful
-to use the <code class="docutils literal notranslate"><span class="pre">debug</span></code> flag to check that it
-is constructed correctly.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> (or any other object),
+it is often useful to use Pyroteus’ debugging
+mode. This is specified using <code class="docutils literal notranslate"><span class="pre">set_log_level</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">set_log_level</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Notice that one of the things which is printed
-out is <code class="docutils literal notranslate"><span class="pre">solves_per_timestep</span></code>. This value
-defaults to one, but can be set to larger
-values to account for the case where your
-PDE has multiple linear or nonlinear solves
-per timestep.</p>
-<p>There is also a quantity <code class="docutils literal notranslate"><span class="pre">timesteps_per_export</span></code>,
-which controls how frequently data is to be
-exported to file during a simulation. It
-also defaults to one, but may be specified
-as a keyword argument.</p>
+out is <code class="docutils literal notranslate"><span class="pre">timesteps_per_export</span></code>, which controls
+how frequently data is to be exported to file
+during a simulation. It defaults to one, but may
+be specified as a keyword argument.</p>
 <p>Based on the above values, the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> computes the number
 of exports per subinterval. Note that this
@@ -107,9 +102,8 @@ value may be one larger than you expect.</p>
 Let’s try constructing a new one with more
 than one subinterval.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                  <span class="n">solves_per_timestep</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
+                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In some problems, the dynamics evolve such
@@ -117,9 +111,8 @@ that different timesteps are suitable during
 different parts of the simulation. To account
 for that, it is possible to specify a list of
 timesteps corresponding to each subinterval.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-<span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.125</span><span class="p">,</span> <span class="mf">0.0625</span><span class="p">]</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.125</span><span class="p">,</span> <span class="mf">0.0625</span><span class="p">]</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
                   <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -127,8 +120,7 @@ timesteps corresponding to each subinterval.</p>
 exports in the second subinterval than the first.
 This can be remedied by also setting
 <code class="docutils literal notranslate"><span class="pre">timesteps_per_export</span></code> as a list.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
                   <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -137,9 +129,8 @@ are of uniform length. This need not be the case.
 However, to set up a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> with
 non-uniform subintervals, they need to be passed
 to the constructor as a list of tuples.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-<span class="n">subintervals</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subintervals</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
                   <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">subintervals</span><span class="o">=</span><span class="n">subintervals</span><span class="p">)</span>
 </pre></div>
 </div>

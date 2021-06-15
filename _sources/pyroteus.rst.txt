@@ -36,6 +36,14 @@ pyroteus.kernel module
    :undoc-members:
    :show-inheritance:
 
+pyroteus.log module
+-------------------
+
+.. automodule:: pyroteus.log
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyroteus.mesh\_seq module
 -------------------------
 
@@ -64,6 +72,14 @@ pyroteus.recovery module
 ------------------------
 
 .. automodule:: pyroteus.recovery
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyroteus.thetis\_compat module
+------------------------------
+
+.. automodule:: pyroteus.thetis_compat
    :members:
    :undoc-members:
    :show-inheritance:

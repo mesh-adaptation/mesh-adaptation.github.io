@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyroteus.thetis_compat &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.thetis_compat</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyroteus.thetis_compat</h1><div class="highlight"><pre>
+<span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">thetis</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Thetis is not installed!&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="FlowSolver2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d">[docs]</a><span class="k">class</span> <span class="nc">FlowSolver2d</span><span class="p">(</span><span class="n">thetis</span><span class="o">.</span><span class="n">solver2d</span><span class="o">.</span><span class="n">FlowSolver2d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Augmented version of Thetis&#39; ``FlowSolver2d``</span>
+<span class="sd">    class which accounts for restarting the</span>
+<span class="sd">    simulation on a new mesh and modifying</span>
+<span class="sd">    options prefixes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FlowSolver2d.update_options_prefixes"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.update_options_prefixes">[docs]</a>    <span class="k">def</span> <span class="nf">update_options_prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;timestepper&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_timesteppers</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="p">,</span> <span class="s1">&#39;timesteppers&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">ts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">field</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">update_solver</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;swe2d&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">update_solver</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="FlowSolver2d.iterate"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.iterate">[docs]</a>    <span class="k">def</span> <span class="nf">iterate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_options_prefixes</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FlowSolver2d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">iterate</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlowSolver2d.correct_counters"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.correct_counters">[docs]</a>    <span class="k">def</span> <span class="nf">correct_counters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts_data</span><span class="p">):</span>
+        <span class="n">i_export</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span><span class="o">/</span><span class="n">ts_data</span><span class="o">.</span><span class="n">timestep</span><span class="o">/</span><span class="n">ts_data</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_time</span> <span class="o">=</span> <span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i_export</span> <span class="o">=</span> <span class="n">i_export</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_export_t</span> <span class="o">=</span> <span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span><span class="o">/</span><span class="n">ts_data</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_initial_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">no_exports</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fields_to_export</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exporters</span><span class="p">[</span><span class="s1">&#39;vtk&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">exporters</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exporters</span><span class="p">[</span><span class="s1">&#39;vtk&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">exporters</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">.</span><span class="n">set_next_export_ix</span><span class="p">(</span><span class="n">i_export</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.thetis_compat</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>

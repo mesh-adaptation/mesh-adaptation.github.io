@@ -362,6 +362,70 @@ eigendecomposition.</p>
 </dd></dl>
 
 </section>
+<section id="module-pyroteus.log">
+<span id="pyroteus-log-module"></span><h2>pyroteus.log module<a class="headerlink" href="#module-pyroteus.log" title="Permalink to this headline">¶</a></h2>
+<p>Loggers for Pyroteus.</p>
+<p>Code mostly copied from [the Thetis project](<a class="reference external" href="https://thetisproject.org">https://thetisproject.org</a>).</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.log.critical">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.log.</span></span><span class="sig-name descname"><span class="pre">critical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logging.html#critical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.log.critical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘CRITICAL’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.critical(“Houston, we have a %s”, “major disaster”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.log.debug">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.log.</span></span><span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logging.html#debug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.log.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘DEBUG’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.debug(“Houston, we have a %s”, “thorny problem”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.log.error">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.log.</span></span><span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logging.html#error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.log.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘ERROR’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.error(“Houston, we have a %s”, “major problem”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.log.info">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.log.</span></span><span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logging.html#info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.log.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘INFO’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.info(“Houston, we have a %s”, “interesting problem”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.log.pyrint">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.log.</span></span><span class="sig-name descname"><span class="pre">pyrint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyroteus.log.pyrint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘INFO’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.info(“Houston, we have a %s”, “interesting problem”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.log.set_log_level">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.log.</span></span><span class="sig-name descname"><span class="pre">set_log_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/log.html#set_log_level"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.log.set_log_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.log.warning">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.log.</span></span><span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/logging.html#warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.log.warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘WARNING’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.warning(“Houston, we have a %s”, “bit of a problem”, exc_info=1)</p>
+</dd></dl>
+
+</section>
 <section id="module-pyroteus.mesh_seq">
 <span id="pyroteus-mesh-seq-module"></span><h2>pyroteus.mesh_seq module<a class="headerlink" href="#module-pyroteus.mesh_seq" title="Permalink to this headline">¶</a></h2>
 <p>Sequences of meshes corresponding to a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>.</p>
@@ -426,7 +490,7 @@ the solver</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">
-<span class="sig-name descname"><span class="pre">get_lagged_dependency_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_lagged_dependency_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_lagged_dependency_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_lagged_dependency_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the dependency index corresponding
 to the lagged forward solution for a
 solve block.</p>
@@ -436,6 +500,14 @@ solve block.</p>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSolveBlocks</span></code></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_solve_blocks">
+<span class="sig-name descname"><span class="pre">get_solve_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subinterval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_adj_sol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_solve_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_solve_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all blocks of the tape corresponding to
+solve steps for prognostic solution <code class="docutils literal notranslate"><span class="pre">field</span></code>
+on a given <code class="docutils literal notranslate"><span class="pre">subinterval</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -792,6 +864,71 @@ object used to solve the problem</p></li>
 </dd></dl>
 
 </section>
+<section id="module-pyroteus.thetis_compat">
+<span id="pyroteus-thetis-compat-module"></span><h2>pyroteus.thetis_compat module<a class="headerlink" href="#module-pyroteus.thetis_compat" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyroteus.thetis_compat.</span></span><span class="sig-name descname"><span class="pre">FlowSolver2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">thetis.solver2d.FlowSolver2d</span></code></p>
+<p>Augmented version of Thetis’ <code class="docutils literal notranslate"><span class="pre">FlowSolver2d</span></code>
+class which accounts for restarting the
+simulation on a new mesh and modifying
+options prefixes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh2d</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code> object of the 2D mesh</p></li>
+<li><p><strong>bathymetry_2d</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>) – Bathymetry of the domain. Bathymetry stands for
+the mean water depth (positive downwards).</p></li>
+<li><p><strong>options</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ModelOptions2d</span></code> instance) – Model options (optional). Model options can also be
+changed directly via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">options</span></code> class property.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d.correct_counters">
+<span class="sig-name descname"><span class="pre">correct_counters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d.correct_counters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d.correct_counters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d.iterate">
+<span class="sig-name descname"><span class="pre">iterate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d.iterate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d.iterate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the simulation</p>
+<p>Iterates over the time loop until time <code class="docutils literal notranslate"><span class="pre">options.simulation_end_time</span></code> is reached.
+Exports fields to disk on <code class="docutils literal notranslate"><span class="pre">options.simulation_export_time</span></code> intervals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>update_forcings</strong> – User-defined function that takes simulation
+time as an argument and updates time-dependent boundary conditions
+(if any).</p></li>
+<li><p><strong>export_func</strong> – User-defined function (with no arguments) that will
+be called on every export.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d.update_options_prefixes">
+<span class="sig-name descname"><span class="pre">update_options_prefixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d.update_options_prefixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d.update_options_prefixes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.thetis_compat.timed_region">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.thetis_compat.</span></span><span class="sig-name descname"><span class="pre">timed_region</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyroteus.thetis_compat.timed_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log.Event(type cls, name, klass=None)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.thetis_compat.timed_stage">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.thetis_compat.</span></span><span class="sig-name descname"><span class="pre">timed_stage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyroteus.thetis_compat.timed_stage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log.Stage(type cls, name)</p>
+</dd></dl>
+
+</section>
 <section id="module-pyroteus.time_partition">
 <span id="pyroteus-time-partition-module"></span><h2>pyroteus.time_partition module<a class="headerlink" href="#module-pyroteus.time_partition" title="Permalink to this headline">¶</a></h2>
 <p>Partitioning for the temporal domain.</p>
@@ -815,10 +952,6 @@ by call sequence</p></li>
 timesteps per export (default 1)</p></li>
 <li><p><strong>start_time</strong> – start time of the
 interval of interest (default 0.0)</p></li>
-<li><p><strong>solves_per_timestep</strong> – (list of)
-(non)linear solves per timestep
-corresponding to the fields (defaults
-to 1 for each)</p></li>
 <li><p><strong>subinterals</strong> – user-provided sequence
 of subintervals, which need not be of
 uniform length (defaults to None)</p></li>
@@ -856,10 +989,6 @@ by call sequence</p></li>
 timesteps per export (default 1)</p></li>
 <li><p><strong>start_time</strong> – start time of the
 interval of interest (default 0.0)</p></li>
-<li><p><strong>solves_per_timestep</strong> – (list of)
-(non)linear solves per timestep
-corresponding to the fields (defaults
-to 1 for each)</p></li>
 <li><p><strong>subinterals</strong> – user-provided sequence
 of subintervals, which need not be of
 uniform length (defaults to None)</p></li>
@@ -867,16 +996,8 @@ uniform length (defaults to None)</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition.get_solve_blocks">
-<span class="sig-name descname"><span class="pre">get_solve_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subinterval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_adj_sol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition.get_solve_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition.get_solve_blocks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all blocks of the tape corresponding to
-solve steps for prognostic solution <code class="docutils literal notranslate"><span class="pre">field</span></code>
-on a given <code class="docutils literal notranslate"><span class="pre">subinterval</span></code>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition.print">
-<span class="sig-name descname"><span class="pre">print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition.print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition.print" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition.debug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition.debug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print attribute ‘msg’ for debugging purposes.</p>
 </dd></dl>
 
@@ -1043,10 +1164,12 @@ by <code class="docutils literal notranslate"><span class="pre">angle</span></co
 <li><a class="reference internal" href="#module-pyroteus.go_mesh_seq">pyroteus.go_mesh_seq module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.interpolation">pyroteus.interpolation module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.kernel">pyroteus.kernel module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.log">pyroteus.log module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.mesh_seq">pyroteus.mesh_seq module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.metric">pyroteus.metric module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.plot">pyroteus.plot module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.recovery">pyroteus.recovery module</a></li>
+<li><a class="reference internal" href="#module-pyroteus.thetis_compat">pyroteus.thetis_compat module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.time_partition">pyroteus.time_partition module</a></li>
 <li><a class="reference internal" href="#module-pyroteus.utility">pyroteus.utility module</a></li>
 <li><a class="reference internal" href="#module-pyroteus">Module contents</a></li>

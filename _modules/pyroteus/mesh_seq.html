@@ -42,9 +42,10 @@
 <span class="sd">Sequences of meshes corresponding to a :class:`TimePartition`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">firedrake</span>
-<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Mesh</span>
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">project</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">warning</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MeshSeq&quot;</span><span class="p">]</span>
@@ -174,7 +175,63 @@
                 <span class="p">})</span>
         <span class="k">return</span> <span class="n">checkpoints</span></div>
 
-<div class="viewcode-block" id="MeshSeq.get_lagged_dependency_index"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_lagged_dependency_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutions</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">,</span> <span class="n">warned</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MeshSeq.get_solve_blocks"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_solve_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_solve_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">has_adj_sol</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all blocks of the tape corresponding to</span>
+<span class="sd">        solve steps for prognostic solution ``field``</span>
+<span class="sd">        on a given ``subinterval``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">firedrake.adjoint.blocks</span> <span class="kn">import</span> <span class="n">GenericSolveBlock</span><span class="p">,</span> <span class="n">ProjectBlock</span>
+        <span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">get_working_tape</span>
+
+        <span class="c1"># Get all blocks</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">get_working_tape</span><span class="p">()</span><span class="o">.</span><span class="n">get_blocks</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tape has no blocks!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">blocks</span>
+
+        <span class="c1"># Restrict to solve blocks</span>
+        <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">block</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">GenericSolveBlock</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">ProjectBlock</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tape has no solve blocks!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">solve_blocks</span>
+
+        <span class="c1"># Restrict to solve blocks with adjoint solutions</span>
+        <span class="k">if</span> <span class="n">has_adj_sol</span><span class="p">:</span>
+            <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">block</span>
+                <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span>
+                <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No block has an adjoint solution. Has the adjoint equation been solved?&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">solve_blocks</span>
+
+        <span class="c1"># Slice solve blocks by field</span>
+        <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">block</span>
+            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">options_prefix</span> <span class="o">==</span> <span class="n">field</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tape has no solve blocks associated with field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Has the options&quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot; prefix been applied correctly?&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">solve_blocks</span>
+
+        <span class="c1"># Check FunctionSpaces are consistent across solve blocks</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="o">!=</span> <span class="n">block</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solve block list for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> contains mismatching elements&quot;</span>
+                                 <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">block</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">solve_blocks</span></div>
+
+<div class="viewcode-block" id="MeshSeq.get_lagged_dependency_index"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_lagged_dependency_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">,</span> <span class="n">warned</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the dependency index corresponding</span>
 <span class="sd">        to the lagged forward solution for a</span>
@@ -183,29 +240,25 @@
 <span class="sd">        :arg solve_blocks: list of taped</span>
 <span class="sd">            :class:`GenericSolveBlocks`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="s1">&#39;forward_old&#39;</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
-            <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-            <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">dep_index</span>
-                <span class="k">for</span> <span class="n">dep_index</span><span class="p">,</span> <span class="n">dep</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_dependencies</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s1">&#39;function_space&#39;</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">==</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span> <span class="o">==</span> <span class="n">fs</span>
-            <span class="p">]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Solve block has no dependencies&quot;</span><span class="p">)</span>  <span class="c1"># FIXME</span>
-                    <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;forward_old&#39;</span><span class="p">)</span>
-                    <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Solve block has dependencies in the prognostic space&quot;</span>
-                          <span class="o">+</span> <span class="s2">&quot; other</span><span class="se">\n</span><span class="s2">  than the PDE solution at the previous timestep.&quot;</span>
-                          <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; (Dep indices </span><span class="si">{</span><span class="n">fwd_old_idx</span><span class="si">}</span><span class="s2">).</span><span class="se">\n</span><span class="s2">  Naively assuming the first&quot;</span>
-                          <span class="o">+</span> <span class="s2">&quot; to be the right one.&quot;</span><span class="p">)</span>  <span class="c1"># FIXME</span>
-                    <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="n">fwd_old_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">dep_index</span>
+            <span class="k">for</span> <span class="n">dep_index</span><span class="p">,</span> <span class="n">dep</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_dependencies</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s1">&#39;function_space&#39;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">==</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span> <span class="o">==</span> <span class="n">fs</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
+                <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Solve block has no dependencies&quot;</span><span class="p">)</span>  <span class="c1"># FIXME</span>
+                <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
+                <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Solve block has dependencies in the prognostic space other than the</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; PDE solution at the previous timestep. (Dep indices </span><span class="si">{</span><span class="n">fwd_old_idx</span><span class="si">}</span><span class="s2">).</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="o">+</span> <span class="s2">&quot; Naively assuming the first to be the right one.&quot;</span><span class="p">)</span>  <span class="c1"># FIXME</span>
+                <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="n">fwd_old_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">fwd_old_idx</span><span class="p">,</span> <span class="n">warned</span></div>
 
 <div class="viewcode-block" id="MeshSeq.solve_forward"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.solve_forward">[docs]</a>    <span class="k">def</span> <span class="nf">solve_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{}):</span>
@@ -265,23 +318,33 @@
             <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
                 <span class="c1"># Get solve blocks</span>
-                <span class="n">solve_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span>
-                    <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">has_adj_sol</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="p">)</span>
+                <span class="n">solve_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">has_adj_sol</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">num_solve_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span>
                 <span class="k">assert</span> <span class="n">num_solve_blocks</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Looks like no solves were written to tape!&quot;</span> \
                                              <span class="o">+</span> <span class="s2">&quot; Does the solution depend on the initial condition?&quot;</span>
-                <span class="n">fwd_old_idx</span><span class="p">,</span> <span class="n">warned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lagged_dependency_index</span><span class="p">(</span>
-                    <span class="n">solutions</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">,</span> <span class="n">warned</span><span class="o">=</span><span class="n">warned</span><span class="p">,</span>
-                <span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;forward_old&#39;</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
+                    <span class="n">fwd_old_idx</span><span class="p">,</span> <span class="n">warned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lagged_dependency_index</span><span class="p">(</span>
+                        <span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">,</span> <span class="n">warned</span><span class="o">=</span><span class="n">warned</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">fwd_old_idx</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;forward_old&#39;</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
+                    <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;forward_old&#39;</span><span class="p">)</span>
 
                 <span class="c1"># Extract solution data</span>
                 <span class="n">sols</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
                 <span class="n">stride</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;More solve blocks than expected&quot;</span>
+                                     <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">])</span><span class="si">}</span><span class="s2"> vs.&quot;</span>
+                                     <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">]):</span>
                     <span class="n">sols</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">fwd_old_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">sols</span><span class="o">.</span><span class="n">forward_old</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">_dependencies</span><span class="p">[</span><span class="n">fwd_old_idx</span><span class="p">]</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
+
+            <span class="c1"># Clear tape</span>
+            <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">solutions</span></div></div>
 </pre></div>
