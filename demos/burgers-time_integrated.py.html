@@ -89,7 +89,7 @@ be computed by simply incrementing as follows.</p>
             <span class="n">mesh_seq</span><span class="o">.</span><span class="n">J</span> <span class="o">+=</span> <span class="n">qoi</span><span class="p">({</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">},</span> <span class="n">t</span><span class="p">)</span>
             <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u_</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 </pre></div>

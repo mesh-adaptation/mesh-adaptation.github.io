@@ -56,7 +56,9 @@ def get_function_spaces(mesh):
 # solving adjoint problems associated with coupled systems of
 # equations. It is important that the PDE solve is labelled
 # with an ``options_prefix`` which matches the corresponding
-# prognostic variable name. ::
+# prognostic variable name. It is also important that the
+# lagged solution field be given a name which is the field name,
+# appended by ``'_old'``. ::
 
 
 def get_solver(mesh_seq):
@@ -72,7 +74,7 @@ def get_solver(mesh_seq):
         nu = Constant(0.0001)
 
         # Set initial condition
-        u_ = Function(function_space)
+        u_ = Function(function_space, name='uv_2d_old')
         u_.assign(ic['uv_2d'])
 
         # Setup variational problem
@@ -88,7 +90,7 @@ def get_solver(mesh_seq):
             solve(F == 0, u, options_prefix='uv_2d')
             u_.assign(u)
             t += dt
-        return {'uv_2d': u_}
+        return {'uv_2d': u}
 
     return solver
 

@@ -246,17 +246,19 @@
             <span class="k">for</span> <span class="n">dep_index</span><span class="p">,</span> <span class="n">dep</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_dependencies</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s1">&#39;function_space&#39;</span><span class="p">)</span>
             <span class="ow">and</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">==</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span> <span class="o">==</span> <span class="n">fs</span>
+            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="n">field</span> <span class="o">+</span> <span class="s1">&#39;_old&#39;</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
-                <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Solve block has no dependencies&quot;</span><span class="p">)</span>  <span class="c1"># FIXME</span>
+                <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Solve block has no dependencies&quot;</span><span class="p">)</span>
                 <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
                 <span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Solve block has dependencies in the prognostic space other than the</span><span class="se">\n</span><span class="s2">&quot;</span>
                         <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; PDE solution at the previous timestep. (Dep indices </span><span class="si">{</span><span class="n">fwd_old_idx</span><span class="si">}</span><span class="s2">).</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="o">+</span> <span class="s2">&quot; Naively assuming the first to be the right one.&quot;</span><span class="p">)</span>  <span class="c1"># FIXME</span>
+                        <span class="o">+</span> <span class="s2">&quot; Naively assuming the first to be the right one.&quot;</span><span class="p">)</span>
                 <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="n">fwd_old_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">fwd_old_idx</span><span class="p">,</span> <span class="n">warned</span></div>

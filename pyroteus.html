@@ -888,31 +888,26 @@ changed directly via the <code class="xref py py-attr docutils literal notransla
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d.correct_counters">
 <span class="sig-name descname"><span class="pre">correct_counters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d.correct_counters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d.correct_counters" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Adjust Thetis’ 2D solver internal counters
+so that they agree with the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d.iterate">
 <span class="sig-name descname"><span class="pre">iterate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d.iterate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d.iterate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs the simulation</p>
-<p>Iterates over the time loop until time <code class="docutils literal notranslate"><span class="pre">options.simulation_end_time</span></code> is reached.
-Exports fields to disk on <code class="docutils literal notranslate"><span class="pre">options.simulation_export_time</span></code> intervals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>update_forcings</strong> – User-defined function that takes simulation
-time as an argument and updates time-dependent boundary conditions
-(if any).</p></li>
-<li><p><strong>export_func</strong> – User-defined function (with no arguments) that will
-be called on every export.</p></li>
-</ul>
-</dd>
-</dl>
+<dd><p>Overload Thetis’ 2D solve call so that it
+additionally updates the options prefixes
+associated with its solvers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d.update_options_prefixes">
 <span class="sig-name descname"><span class="pre">update_options_prefixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d.update_options_prefixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d.update_options_prefixes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Modify the options prefixes which Thetis
+gives to the solvers associated with its
+timesteppers so that they match the field
+names used by Pyroteus.</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -98,8 +98,8 @@ single mesh, so the partition is trivial and we can use the
 <p>Finally, we are able to construct an <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code> and
 thereby call its <code class="xref py py-attr docutils literal notranslate"><span class="pre">solve_adjoint</span></code> method. This computes the QoI
 value and returns a dictionary of solutions for the forward and adjoint
-problems. The solution dictionary has keys <cite>‘forward’</cite>, <cite>‘forward_old’</cite>,
-<cite>‘adjoint’</cite> and <cite>‘adjoint_next’</cite> and arrays as values. When passed
+problems. The solution dictionary has keys <code class="docutils literal notranslate"><span class="pre">'forward'</span></code>, <code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'adjoint'</span></code> and <code class="docutils literal notranslate"><span class="pre">'adjoint_next'</span></code> and arrays as values. When passed
 an index corresponding to a particular exported timestep, the array
 entries correspond to the current forward solution, the forward
 solution at the previous timestep, the current adjoint solution and
