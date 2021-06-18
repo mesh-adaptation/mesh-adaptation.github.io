@@ -57,11 +57,12 @@ solver should access and modify <code class="xref py py-attr docutils literal no
 holds the QoI value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>get_qoi</strong> – a function, whose only argument is
+<dd class="field-odd"><p><strong>get_qoi</strong> – a function, with two arguments,
 a <a class="reference internal" href="#pyroteus.adjoint.AdjointMeshSeq" title="pyroteus.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a>, which returns
 a function of either one or two variables,
 corresponding to either an end time or time
-integrated quantity of interest, respectively</p>
+integrated quantity of interest, respectively,
+as well as an index for the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -87,17 +88,12 @@ final subinterval</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.get_qoi">
-<span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.initial_condition">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">initial_condition</span></span><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.qoi">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">qoi</span></span><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.qoi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -177,11 +173,12 @@ initial conditions on the first mesh</p></li>
 <li><p><strong>get_solver</strong> – a function, whose only argument is
 a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>, which returns a function
 that integrates initial data over a subinterval</p></li>
-<li><p><strong>get_qoi</strong> – a function, whose only argument is
+<li><p><strong>get_qoi</strong> – a function, with two arguments,
 a <a class="reference internal" href="#pyroteus.adjoint.AdjointMeshSeq" title="pyroteus.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a>, which returns
 a function of either one or two variables,
 corresponding to either an end time or time
-integrated quantity of interest, respectively</p></li>
+integrated quantity of interest, respectively,
+as well as an index for the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></p></li>
 <li><p><strong>warnings</strong> – print warnings?</p></li>
 <li><p><strong>solver_kwargs</strong> – a dictionary providing parameters
 to the solver. Any keyword arguments for the QoI
@@ -212,11 +209,12 @@ solution fields and their lagged versions.</p>
 goal-oriented problems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>get_qoi</strong> – a function, whose only argument is
+<dd class="field-odd"><p><strong>get_qoi</strong> – a function, with two arguments,
 a <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code>, which returns
 a function of either one or two variables,
 corresponding to either an end time or time
-integrated quantity of interest, respectively</p>
+integrated quantity of interest, respectively,
+as well as an index for the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -458,6 +456,11 @@ that integrates initial data over a subinterval</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.debug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.function_spaces">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">function_spaces</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.function_spaces" title="Permalink to this definition">¶</a></dt>
@@ -490,14 +493,38 @@ the solver</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">
-<span class="sig-name descname"><span class="pre">get_lagged_dependency_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_lagged_dependency_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_lagged_dependency_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subinterval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_lagged_dependency_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the dependency index corresponding
 to the lagged forward solution for a
 solve block.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>solve_blocks</strong> – list of taped
-<code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSolveBlocks</span></code></p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> – field of interest</p></li>
+<li><p><strong>subinterval</strong> – subinterval index</p></li>
+<li><p><strong>solve_blocks</strong> – list of taped
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSolveBlocks</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_rk_blocks">
+<span class="sig-name descname"><span class="pre">get_rk_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subinterval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_blocks</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_rk_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_rk_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the <code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSolveBlock`s</span> <span class="pre">corresponding</span>
+<span class="pre">to</span> <span class="pre">a</span> <span class="pre">``field`</span></code> and <code class="docutils literal notranslate"><span class="pre">index</span></code> in the case of
+Runge-Kutta timestepping, as well as the associated
+quadrature weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> – field of interest</p></li>
+<li><p><strong>subinterval</strong> – the subinterval index</p></li>
+<li><p><strong>index</strong> – index for the timestep within the subinterval</p></li>
+<li><p><strong>solve_blocks</strong> – list of taped
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GenericSolveBlocks</span></code></p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -558,6 +585,11 @@ solution fields and their lagged versions.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.solver">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">solver</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.solver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.warning">
+<span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.warning" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

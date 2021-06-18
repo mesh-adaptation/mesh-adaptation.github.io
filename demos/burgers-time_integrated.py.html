@@ -66,24 +66,26 @@ be computed by simply incrementing as follows.</p>
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
         <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">function_space</span> <span class="o">=</span> <span class="n">ic</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+        <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="c1"># Specify constants</span>
         <span class="n">dtc</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
 
         <span class="c1"># Set initial condition</span>
-        <span class="n">u_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">u_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;uv_2d_old&#39;</span><span class="p">)</span>
         <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">])</span>
 
         <span class="c1"># Setup variational problem</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">TestFunction</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">)</span>
         <span class="n">F</span> <span class="o">=</span> <span class="n">inner</span><span class="p">((</span><span class="n">u</span> <span class="o">-</span> <span class="n">u_</span><span class="p">)</span><span class="o">/</span><span class="n">dtc</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span> \
             <span class="o">+</span> <span class="n">inner</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">nabla_grad</span><span class="p">(</span><span class="n">u</span><span class="p">)),</span> <span class="n">v</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span> \
             <span class="o">+</span> <span class="n">nu</span><span class="o">*</span><span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="o">*</span><span class="n">dx</span>
 
         <span class="c1"># Time integrate from t_start to t_end</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t_start</span>
-        <span class="n">qoi</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi</span>
+        <span class="n">qoi</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">t_end</span> <span class="o">-</span> <span class="mf">1.0e-05</span><span class="p">:</span>
             <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">options_prefix</span><span class="o">=</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">)</span>
             <span class="n">mesh_seq</span><span class="o">.</span><span class="n">J</span> <span class="o">+=</span> <span class="n">qoi</span><span class="p">({</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">},</span> <span class="n">t</span><span class="p">)</span>
@@ -100,11 +102,15 @@ of the one previously seen.</p>
 \[J(u) = \int_0^{T_{\mathrm{end}}} \int_0^1
 \mathbf u(1,y,t) \cdot \mathbf u(1,y,t)
 \;\mathrm dy\;\mathrm dt.\]</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
+<p>Note that in this case we multiply by the timestep.
+It is wrapped in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code> to avoid
+recompilation if the value is changed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="n">dtc</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">time_integrated_qoi</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">inner</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">ds</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dtc</span><span class="o">*</span><span class="n">inner</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span><span class="o">*</span><span class="n">ds</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">time_integrated_qoi</span>
 </pre></div>
@@ -122,17 +128,17 @@ of the one previously seen.</p>
 <span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
     <span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
-    <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span>
 <span class="p">)</span>
 <span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
     <span class="n">P</span><span class="p">,</span> <span class="n">meshes</span><span class="p">,</span> <span class="n">get_function_spaces</span><span class="p">,</span> <span class="n">get_initial_condition</span><span class="p">,</span>
-    <span class="n">get_solver</span><span class="p">,</span> <span class="n">get_qoi</span><span class="p">,</span> <span class="n">qoi_type</span><span class="o">=</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span>
+    <span class="n">get_solver</span><span class="p">,</span> <span class="n">get_qoi</span><span class="p">,</span> <span class="n">qoi_type</span><span class="o">=</span><span class="s1">&#39;time_integrated&#39;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">solutions</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Finally, plot snapshots of the adjoint solution.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_snapshots</span><span class="p">(</span><span class="n">solutions</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="s1">&#39;uv_2d&#39;</span><span class="p">,</span> <span class="s1">&#39;adjoint&#39;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_snapshots</span><span class="p">(</span><span class="n">solutions</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="s1">&#39;uv_2d&#39;</span><span class="p">,</span> <span class="s1">&#39;adjoint&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;burgers-time_integrated.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>

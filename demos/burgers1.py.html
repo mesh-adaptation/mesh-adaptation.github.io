@@ -71,7 +71,7 @@ imported from the previous demo.</p>
 <p>which integrates the square of the solution
 <span class="math notranslate nohighlight">\(\mathbf u(x,y,t)\)</span> at the final time over the right
 hand boundary.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">end_time_qoi</span><span class="p">(</span><span class="n">sol</span><span class="p">):</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">]</span>
