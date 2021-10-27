@@ -39,7 +39,7 @@
             
   <h1>Source code for pyroteus.kernel</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Functions which generate C kernels for dense numerical linear algebra.</span>
+<span class="sd">Functions which generate C++ kernels for dense numerical linear algebra.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="n">op2</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -62,282 +62,700 @@
     <span class="k">return</span> <span class="n">op2</span><span class="o">.</span><span class="n">Kernel</span><span class="p">(</span><span class="n">kernel</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">kernel</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">cpp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_dirs</span><span class="o">=</span><span class="n">include_dir</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="postproc_metric"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.postproc_metric">[docs]</a><span class="k">def</span> <span class="nf">postproc_metric</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">a_max</span><span class="p">):</span>
+<div class="viewcode-block" id="EigenKernelHandler"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.EigenKernelHandler">[docs]</a><span class="k">class</span> <span class="nc">EigenKernelHandler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Post-process a metric field in order to enforce</span>
-<span class="sd">    max/min element sizes and anisotropy.</span>
+<span class="sd">    Class for generating PyOP2 :class:`Kernel`</span>
+<span class="sd">    objects from Eigen C++ code that exists in</span>
+<span class="sd">    Pyroteus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg name: the name of the routine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">name</span>
 
-<span class="sd">    :arg d: spatial dimension</span>
-<span class="sd">    :arg a_max: maximum element anisotropy</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg d: the spatial dimension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Spatial dimension </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2"> not supported.&quot;</span>
+        <span class="n">eigen_kernels</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;eigen_kernels</span><span class="si">{:d}</span><span class="s2">d.cxx&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">eigen_kernels</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+
+<span class="c1"># Currently implemented kernels</span>
+<span class="n">set_eigendecomposition</span> <span class="o">=</span> <span class="n">EigenKernelHandler</span><span class="p">(</span><span class="s2">&quot;set_eigendecomposition&quot;</span><span class="p">)</span>
+<span class="n">get_eigendecomposition</span> <span class="o">=</span> <span class="n">EigenKernelHandler</span><span class="p">(</span><span class="s2">&quot;get_eigendecomposition&quot;</span><span class="p">)</span>
+<span class="n">get_reordered_eigendecomposition</span> <span class="o">=</span> <span class="n">EigenKernelHandler</span><span class="p">(</span><span class="s2">&quot;get_reordered_eigendecomposition&quot;</span><span class="p">)</span>
+<span class="n">metric_from_hessian</span> <span class="o">=</span> <span class="n">EigenKernelHandler</span><span class="p">(</span><span class="s2">&quot;metric_from_hessian&quot;</span><span class="p">)</span>
+<span class="n">postproc_metric</span> <span class="o">=</span> <span class="n">EigenKernelHandler</span><span class="p">(</span><span class="s2">&quot;postproc_metric&quot;</span><span class="p">)</span>
+<span class="n">intersect</span> <span class="o">=</span> <span class="n">EigenKernelHandler</span><span class="p">(</span><span class="s2">&quot;intersect&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_min_angle2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_min_angle2d">[docs]</a><span class="k">def</span> <span class="nf">get_min_angle2d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the minimum angle of each cell</span>
+<span class="sd">    in a 2D triangular mesh.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#include &lt;Eigen/Dense&gt;</span>
 
 <span class="s2">using namespace Eigen;</span>
 
-<span class="s2">void postproc_metric(double A_[</span><span class="si">%d</span><span class="s2">], const double * h_min_, const double * h_max_)</span>
-<span class="s2">{</span>
-
-<span class="s2">  // Map input/output metric onto an Eigen object and map h_min/h_max to doubles</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; A((double *)A_);</span>
-<span class="s2">  double h_min = *h_min_;</span>
-<span class="s2">  double h_max = *h_max_;</span>
-
-<span class="s2">  // Solve eigenvalue problem</span>
-<span class="s2">  SelfAdjointEigenSolver&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt;&gt; eigensolver(A);</span>
-<span class="s2">  Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; Q = eigensolver.eigenvectors();</span>
-<span class="s2">  Vector</span><span class="si">%d</span><span class="s2">d D = eigensolver.eigenvalues();</span>
-
-<span class="s2">  // Scale eigenvalues appropriately</span>
-<span class="s2">  int i;</span>
-<span class="s2">  double max_eig = 0.0;</span>
-<span class="s2">  for (i=0; i&lt;</span><span class="si">%d</span><span class="s2">; i++) {</span>
-<span class="s2">    D(i) = fmin(pow(h_min, -2), fmax(pow(h_max, -2), abs(D(i))));</span>
-<span class="s2">    max_eig = fmax(max_eig, D(i));</span>
-<span class="s2">  }</span>
-<span class="s2">  for (i=0; i&lt;</span><span class="si">%d</span><span class="s2">; i++) D(i) = fmax(D(i), pow(</span><span class="si">%f</span><span class="s2">, -2) * max_eig);</span>
-
-<span class="s2">  // Build metric from eigendecomposition</span>
-<span class="s2">  A = Q * D.asDiagonal() * Q.transpose();</span>
+<span class="s2">double distance(Vector2d p1, Vector2d p2)  {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">a_max</span><span class="p">)</span></div>
 
+<span class="s2">void get_min_angle2d(double *MinAngles, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector2d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p2((double *) &amp;Coords[2]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p3((double *) &amp;Coords[4]);</span>
 
-<div class="viewcode-block" id="intersect"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.intersect">[docs]</a><span class="k">def</span> <span class="nf">intersect</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Intersect two metric fields.</span>
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector2d v12 = p2 - p1;</span>
+<span class="s2">  Vector2d v23 = p3 - p2;</span>
+<span class="s2">  Vector2d v13 = p3 - p1;</span>
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
 
-<span class="sd">    :arg d: spatial dimension</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">#include &lt;Eigen/Dense&gt;</span>
-
-<span class="s2">using namespace Eigen;</span>
-
-<span class="s2">void intersect(double M_[</span><span class="si">%d</span><span class="s2">], const double * A_, const double * B_) {</span>
-
-<span class="s2">  // Map inputs and outputs onto Eigen objects</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; M((double *)M_);</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; A((double *)A_);</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; B((double *)B_);</span>
-
-<span class="s2">  // Solve eigenvalue problem of first metric, taking square root of eigenvalues</span>
-<span class="s2">  SelfAdjointEigenSolver&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt;&gt; eigensolver(A);</span>
-<span class="s2">  Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; Q = eigensolver.eigenvectors();</span>
-<span class="s2">  Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; D = eigensolver.eigenvalues().array().sqrt().matrix().asDiagonal();</span>
-
-<span class="s2">  // Compute square root and inverse square root metrics</span>
-<span class="s2">  Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; Sq = Q * D * Q.transpose();</span>
-<span class="s2">  Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; Sqi = Q * D.inverse() * Q.transpose();</span>
-
-<span class="s2">  // Solve eigenvalue problem for triple product of inverse square root metric and the second metric</span>
-<span class="s2">  SelfAdjointEigenSolver&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt;&gt; eigensolver2(Sqi.transpose() * B * Sqi);</span>
-<span class="s2">  Q = eigensolver2.eigenvectors();</span>
-<span class="s2">  D = eigensolver2.eigenvalues().array().max(1).matrix().asDiagonal();</span>
-
-<span class="s2">  // Compute metric intersection</span>
-<span class="s2">  M = Sq.transpose() * Q * D * Q.transpose() * Sq;</span>
-<span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="get_eigendecomposition"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_eigendecomposition">[docs]</a><span class="k">def</span> <span class="nf">get_eigendecomposition</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract eigenvectors/eigenvalues from a</span>
-<span class="sd">    metric field.</span>
-
-<span class="sd">    :arg d: spatial dimension</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">#include &lt;Eigen/Dense&gt;</span>
-
-<span class="s2">using namespace Eigen;</span>
-
-<span class="s2">void get_eigendecomposition(double EVecs_[</span><span class="si">%d</span><span class="s2">], double EVals_[</span><span class="si">%d</span><span class="s2">], const double * M_) {</span>
-
-<span class="s2">  // Map inputs and outputs onto Eigen objects</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; EVecs((double *)EVecs_);</span>
-<span class="s2">  Map&lt;Vector</span><span class="si">%d</span><span class="s2">d&gt; EVals((double *)EVals_);</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; M((double *)M_);</span>
-
-<span class="s2">  // Solve eigenvalue problem</span>
-<span class="s2">  SelfAdjointEigenSolver&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt;&gt; eigensolver(M);</span>
-<span class="s2">  EVecs = eigensolver.eigenvectors();</span>
-<span class="s2">  EVals = eigensolver.eigenvalues();</span>
-<span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="get_reordered_eigendecomposition"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_reordered_eigendecomposition">[docs]</a><span class="k">def</span> <span class="nf">get_reordered_eigendecomposition</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract eigenvectors/eigenvalues from a</span>
-<span class="sd">    metric field, with eigenvalues</span>
-<span class="sd">    **decreasing** in magnitude.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Spatial dimension </span><span class="si">{</span><span class="n">d</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> not supported.&quot;</span>
-    <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">#include &lt;Eigen/Dense&gt;</span>
-
-<span class="s2">using namespace Eigen;</span>
-
-<span class="s2">void get_reordered_eigendecomposition(double EVecs_[4], double EVals_[2], const double * M_) {</span>
-
-<span class="s2">  // Map inputs and outputs onto Eigen objects</span>
-<span class="s2">  Map&lt;Matrix&lt;double, 2, 2, RowMajor&gt; &gt; EVecs((double *)EVecs_);</span>
-<span class="s2">  Map&lt;Vector2d&gt; EVals((double *)EVals_);</span>
-<span class="s2">  Map&lt;Matrix&lt;double, 2, 2, RowMajor&gt; &gt; M((double *)M_);</span>
-
-<span class="s2">  // Solve eigenvalue problem</span>
-<span class="s2">  SelfAdjointEigenSolver&lt;Matrix&lt;double, 2, 2, RowMajor&gt;&gt; eigensolver(M);</span>
-<span class="s2">  Matrix&lt;double, 2, 2, RowMajor&gt; Q = eigensolver.eigenvectors();</span>
-<span class="s2">  Vector2d D = eigensolver.eigenvalues();</span>
-
-<span class="s2">  // Reorder eigenpairs by magnitude of eigenvalue</span>
-<span class="s2">  if (fabs(D(0)) &gt; fabs(D(1))) {</span>
-<span class="s2">    EVecs = Q;</span>
-<span class="s2">    EVals = D;</span>
-<span class="s2">  } else {</span>
-<span class="s2">    EVecs(0,0) = Q(0,1);EVecs(0,1) = Q(0,0);</span>
-<span class="s2">    EVecs(1,0) = Q(1,1);EVecs(1,1) = Q(1,0);</span>
-<span class="s2">    EVals(0) = D(1);</span>
-<span class="s2">    EVals(1) = D(0);</span>
-<span class="s2">  }</span>
-<span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">#include &lt;Eigen/Dense&gt;</span>
-
-<span class="s2">using namespace Eigen;</span>
-
-<span class="s2">void get_reordered_eigendecomposition(double EVecs_[9], double EVals_[3], const double * M_) {</span>
-
-<span class="s2">  // Map inputs and outputs onto Eigen objects</span>
-<span class="s2">  Map&lt;Matrix&lt;double, 3, 3, RowMajor&gt; &gt; EVecs((double *)EVecs_);</span>
-<span class="s2">  Map&lt;Vector3d&gt; EVals((double *)EVals_);</span>
-<span class="s2">  Map&lt;Matrix&lt;double, 3, 3, RowMajor&gt; &gt; M((double *)M_);</span>
-
-<span class="s2">  // Solve eigenvalue problem</span>
-<span class="s2">  SelfAdjointEigenSolver&lt;Matrix&lt;double, 3, 3, RowMajor&gt;&gt; eigensolver(M);</span>
-<span class="s2">  Matrix&lt;double, 3, 3, RowMajor&gt; Q = eigensolver.eigenvectors();</span>
-<span class="s2">  Vector3d D = eigensolver.eigenvalues();</span>
-
-<span class="s2">  // Reorder eigenpairs by magnitude of eigenvalue</span>
-<span class="s2">  if (fabs(D(0)) &gt; fabs(D(1))) {</span>
-<span class="s2">    if (fabs(D(1)) &gt; fabs(D(2))) {</span>
-<span class="s2">      EVecs = Q;</span>
-<span class="s2">      EVals = D;</span>
-<span class="s2">    } else if (fabs(D(0)) &gt; fabs(D(2))) {</span>
-<span class="s2">      EVecs(0,0) = Q(0,0);EVecs(0,1) = Q(0,2);EVecs(0,2) = Q(0,1);</span>
-<span class="s2">      EVecs(1,0) = Q(1,0);EVecs(1,1) = Q(1,2);EVecs(1,2) = Q(1,1);</span>
-<span class="s2">      EVecs(2,0) = Q(2,0);EVecs(2,1) = Q(2,2);EVecs(2,2) = Q(2,1);</span>
-<span class="s2">      EVals(0) = D(0);</span>
-<span class="s2">      EVals(1) = D(2);</span>
-<span class="s2">      EVals(2) = D(1);</span>
-<span class="s2">    } else {</span>
-<span class="s2">      EVecs(0,0) = Q(0,2);EVecs(0,1) = Q(0,0);EVecs(0,2) = Q(0,1);</span>
-<span class="s2">      EVecs(1,0) = Q(1,2);EVecs(1,1) = Q(1,0);EVecs(1,2) = Q(1,1);</span>
-<span class="s2">      EVecs(2,0) = Q(2,2);EVecs(2,1) = Q(2,0);EVecs(2,2) = Q(2,1);</span>
-<span class="s2">      EVals(0) = D(2);</span>
-<span class="s2">      EVals(1) = D(0);</span>
-<span class="s2">      EVals(2) = D(1);</span>
-<span class="s2">    }</span>
-<span class="s2">  } else {</span>
-<span class="s2">    if (fabs(D(0)) &gt; fabs(D(2))) {</span>
-<span class="s2">      EVecs(0,0) = Q(0,1);EVecs(0,1) = Q(0,0);EVecs(0,2) = Q(0,2);</span>
-<span class="s2">      EVecs(1,0) = Q(1,1);EVecs(1,1) = Q(1,0);EVecs(1,2) = Q(1,2);</span>
-<span class="s2">      EVecs(2,0) = Q(2,1);EVecs(2,1) = Q(2,0);EVecs(2,2) = Q(2,2);</span>
-<span class="s2">      EVals(0) = D(1);</span>
-<span class="s2">      EVals(1) = D(0);</span>
-<span class="s2">      EVals(2) = D(2);</span>
-<span class="s2">    } else if (fabs(D(1)) &gt; fabs(D(2))) {</span>
-<span class="s2">      EVecs(0,0) = Q(0,1);EVecs(0,1) = Q(0,2);EVecs(0,2) = Q(0,0);</span>
-<span class="s2">      EVecs(1,0) = Q(1,1);EVecs(1,1) = Q(1,2);EVecs(1,2) = Q(1,0);</span>
-<span class="s2">      EVecs(2,0) = Q(2,1);EVecs(2,1) = Q(2,2);EVecs(2,2) = Q(2,0);</span>
-<span class="s2">      EVals(0) = D(1);</span>
-<span class="s2">      EVals(1) = D(2);</span>
-<span class="s2">      EVals(2) = D(0);</span>
-<span class="s2">    } else {</span>
-<span class="s2">      EVecs(0,0) = Q(0,2);EVecs(0,1) = Q(0,1);EVecs(0,2) = Q(0,0);</span>
-<span class="s2">      EVecs(1,0) = Q(1,2);EVecs(1,1) = Q(1,1);EVecs(1,2) = Q(1,0);</span>
-<span class="s2">      EVecs(2,0) = Q(2,2);EVecs(2,1) = Q(2,1);EVecs(2,2) = Q(2,0);</span>
-<span class="s2">      EVals(0) = D(2);</span>
-<span class="s2">      EVals(1) = D(1);</span>
-<span class="s2">      EVals(2) = D(0);</span>
-<span class="s2">    }</span>
-<span class="s2">  }</span>
+<span class="s2">  // Compute angles from cosine formula</span>
+<span class="s2">  double a1 = acos (v12.dot(v13) / (d12 * d13));</span>
+<span class="s2">  double a2 = acos (-v12.dot(v23) / (d12 * d23));</span>
+<span class="s2">  double a3 = acos (v23.dot(v13) / (d23 * d13));</span>
+<span class="s2">  double aMin = std::min(a1, a2);</span>
+<span class="s2">  MinAngles[0] = std::min(aMin, a3);</span>
 <span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="metric_from_hessian"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.metric_from_hessian">[docs]</a><span class="k">def</span> <span class="nf">metric_from_hessian</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="get_min_angle3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_min_angle3d">[docs]</a><span class="k">def</span> <span class="nf">get_min_angle3d</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Modify the eigenvalues of a Hessian matrix so</span>
-<span class="sd">    that it is positive-definite.</span>
-
-<span class="sd">    :arg d: spatial dimension</span>
+<span class="sd">    Compute the minimum angle of each cell</span>
+<span class="sd">    in a 3D tetrahedral mesh.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#include &lt;Eigen/Dense&gt;</span>
 
 <span class="s2">using namespace Eigen;</span>
 
-<span class="s2">void metric_from_hessian(double A_[</span><span class="si">%d</span><span class="s2">], const double * B_) {</span>
+<span class="s2">double distance(Vector3d p1, Vector3d p2) {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2) + pow(p1[2] - p2[2], 2));</span>
+<span class="s2">}</span>
 
-<span class="s2">  // Map inputs and outputs onto Eigen objects</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; A((double *)A_);</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; B((double *)B_);</span>
+<span class="s2">void get_min_angle3d(double *MinAngles, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector3d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p2((double *) &amp;Coords[3]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p3((double *) &amp;Coords[6]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p4((double *) &amp;Coords[9]);</span>
 
-<span class="s2">  // Compute mean diagonal and set values appropriately</span>
-<span class="s2">  double mean_diag;</span>
-<span class="s2">  int i,j;</span>
-<span class="s2">  for (i=0; i&lt;</span><span class="si">%d</span><span class="s2">-1; i++) {</span>
-<span class="s2">    for (j=i+1; i&lt;</span><span class="si">%d</span><span class="s2">; i++) {</span>
-<span class="s2">      mean_diag = 0.5*(B(i,j) + B(j,i));</span>
-<span class="s2">      B(i,j) = mean_diag;</span>
-<span class="s2">      B(j,i) = mean_diag;</span>
-<span class="s2">    }</span>
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector3d v12 = p2 - p1;</span>
+<span class="s2">  Vector3d v13 = p3 - p1;</span>
+<span class="s2">  Vector3d v14 = p4 - p1;</span>
+<span class="s2">  Vector3d v23 = p3 - p2;</span>
+<span class="s2">  Vector3d v24 = p4 - p2;</span>
+<span class="s2">  Vector3d v34 = p4 - p3;</span>
+
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+<span class="s2">  double d14 = distance(p1, p4);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d24 = distance(p2, p4);</span>
+<span class="s2">  double d34 = distance(p3, p4);</span>
+
+<span class="s2">  double angles[12];</span>
+<span class="s2">  // Compute angles from cosine formula</span>
+<span class="s2">  angles[0] = acos(v13.dot(v14) / (d13 * d14));</span>
+<span class="s2">  angles[1] = acos(v12.dot(v14) / (d12 * d14));</span>
+<span class="s2">  angles[2] = acos(v13.dot(v12) / (d13 * d12));</span>
+<span class="s2">  angles[3] = acos(v23.dot(v24) / (d23 * d24));</span>
+<span class="s2">  angles[4] = acos(-v12.dot(v24) / (d12 * d24));</span>
+<span class="s2">  angles[5] = acos(-v12.dot(v23) / (d12 * d23));</span>
+<span class="s2">  angles[6] = acos(-v23.dot(v34) / (d23 * d34));</span>
+<span class="s2">  angles[7] = acos(-v13.dot(v34) / (d13 * d34));</span>
+<span class="s2">  angles[8] = acos(v13.dot(v23) / (d13 * d23));</span>
+<span class="s2">  angles[9] = acos(v24.dot(v34) / (d24 * d34));</span>
+<span class="s2">  angles[10] = acos(v14.dot(v34) / (d14 * d34));</span>
+<span class="s2">  angles[11] = acos(v14.dot(v24) / (d14 * d24));</span>
+
+<span class="s2">  double aMin = 3.14;</span>
+<span class="s2">  for (int i = 0; i &lt; 12; i++) {</span>
+<span class="s2">    aMin = std::min(aMin, angles[i]);</span>
 <span class="s2">  }</span>
 
-<span class="s2">  // Solve eigenvalue problem</span>
-<span class="s2">  SelfAdjointEigenSolver&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt;&gt; eigensolver(B);</span>
-<span class="s2">  Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; Q = eigensolver.eigenvectors();</span>
-<span class="s2">  Vector</span><span class="si">%d</span><span class="s2">d D = eigensolver.eigenvalues();</span>
-
-<span class="s2">  // Take modulus of eigenvalues</span>
-<span class="s2">  for (i=0; i&lt;</span><span class="si">%d</span><span class="s2">; i++) D(i) = fmax(1e-10, abs(D(i)));</span>
-
-<span class="s2">  // Build metric from eigendecomposition</span>
-<span class="s2">  A += Q * D.asDiagonal() * Q.transpose();</span>
+<span class="s2">  MinAngles[0] = aMin;</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
+<span class="s2">&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="set_eigendecomposition"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.set_eigendecomposition">[docs]</a><span class="k">def</span> <span class="nf">set_eigendecomposition</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<div class="viewcode-block" id="get_area2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_area2d">[docs]</a><span class="k">def</span> <span class="nf">get_area2d</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Construct a metric from eigenvectors</span>
-<span class="sd">    and eigenvalues as an orthogonal</span>
-<span class="sd">    eigendecomposition.</span>
-
-<span class="sd">    :arg d: spatial dimension</span>
+<span class="sd">    Compute the area of each cell</span>
+<span class="sd">    in a 2D triangular mesh.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#include &lt;Eigen/Dense&gt;</span>
 
 <span class="s2">using namespace Eigen;</span>
 
-<span class="s2">void set_eigendecomposition(double M_[</span><span class="si">%d</span><span class="s2">], const double * EVecs_, const double * EVals_) {</span>
-
-<span class="s2">  // Map inputs and outputs onto Eigen objects</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; M((double *)M_);</span>
-<span class="s2">  Map&lt;Matrix&lt;double, </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">, RowMajor&gt; &gt; EVecs((double *)EVecs_);</span>
-<span class="s2">  Map&lt;Vector</span><span class="si">%d</span><span class="s2">d&gt; EVals((double *)EVals_);</span>
-
-<span class="s2">  // Compute metric from eigendecomposition</span>
-<span class="s2">  M = EVecs * EVals.asDiagonal() * EVecs.transpose();</span>
+<span class="s2">double distance(Vector2d p1, Vector2d p2)  {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));</span>
 <span class="s2">}</span>
-<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
+
+<span class="s2">void get_area2d(double *Areas, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector2d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p2((double *) &amp;Coords[2]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p3((double *) &amp;Coords[4]);</span>
+
+<span class="s2">  // Compute edge lengths</span>
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+<span class="s2">  double s = (d12 + d23 + d13) / 2;</span>
+<span class="s2">  // Compute area using Heron&#39;s formula</span>
+<span class="s2">  Areas[0] = sqrt(s * (s - d12) * (s - d23) * (s - d13));</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_volume3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_volume3d">[docs]</a><span class="k">def</span> <span class="nf">get_volume3d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the volume of each cell in</span>
+<span class="sd">    a 3D tetrahedral mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector3d p1, Vector3d p2) {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2) + pow(p1[2] - p2[2], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_volume3d(double *Volumes, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector3d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p2((double *) &amp;Coords[3]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p3((double *) &amp;Coords[6]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p4((double *) &amp;Coords[9]);</span>
+
+<span class="s2">  // Compute edge vectors</span>
+<span class="s2">  Vector3d v12 = p2 - p1;</span>
+<span class="s2">  Vector3d v13 = p3 - p1;</span>
+<span class="s2">  Vector3d v14 = p4 - p1;</span>
+<span class="s2">  Vector3d v23 = p3 - p2;</span>
+<span class="s2">  Vector3d v24 = p4 - p2;</span>
+<span class="s2">  Vector3d v34 = p4 - p3;</span>
+
+<span class="s2">  Matrix3d volumeMatrix;</span>
+<span class="s2">  for (int i = 0; i &lt; 3; i++) {</span>
+<span class="s2">    volumeMatrix(0, i) = v12[i];</span>
+<span class="s2">    volumeMatrix(1, i) = v13[i];</span>
+<span class="s2">    volumeMatrix(2, i) = v14[i];</span>
+<span class="s2">  }</span>
+<span class="s2">  Volumes[0] = std::abs(volumeMatrix.determinant() / 6);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_eskew2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_eskew2d">[docs]</a><span class="k">def</span> <span class="nf">get_eskew2d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the area of each cell</span>
+<span class="sd">    in a 2D triangular mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector2d p1, Vector2d p2)  {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_eskew2d(double *ESkews, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector2d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p2((double *) &amp;Coords[2]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p3((double *) &amp;Coords[4]);</span>
+
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector2d v12 = p2 - p1;</span>
+<span class="s2">  Vector2d v23 = p3 - p2;</span>
+<span class="s2">  Vector2d v13 = p3 - p1;</span>
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+
+<span class="s2">  // Compute angles from cosine formula</span>
+<span class="s2">  double a1 = acos (v12.dot(v13) / (d12 * d13));</span>
+<span class="s2">  double a2 = acos (-v12.dot(v23) / (d12 * d23));</span>
+<span class="s2">  double a3 = acos (v23.dot(v13) / (d23 * d13));</span>
+<span class="s2">  double pi = 3.14159265358979323846;</span>
+
+<span class="s2">  // Plug values into equiangle skew formula as per:</span>
+<span class="s2">  // http://www.lcad.icmc.usp.br/~buscaglia/teaching/mfcpos2013/bakker_07-mesh.pdf</span>
+<span class="s2">  double aMin = std::min(a1, a2);</span>
+<span class="s2">  aMin = std::min(aMin, a3);</span>
+<span class="s2">  double aMax = std::max(a1, a2);</span>
+<span class="s2">  aMax = std::max(aMax, a3);</span>
+<span class="s2">  double aIdeal = pi / 3;</span>
+<span class="s2">  ESkews[0] = std::max((aMax - aIdeal / (pi - aIdeal)), (aIdeal - aMin) / aIdeal);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_eskew3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_eskew3d">[docs]</a><span class="k">def</span> <span class="nf">get_eskew3d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the equiangle skew of each</span>
+<span class="sd">    cell in a 3D tetrahedral mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector3d p1, Vector3d p2) {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2) + pow(p1[2] - p2[2], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_eskew3d(double *ESkews, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector3d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p2((double *) &amp;Coords[3]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p3((double *) &amp;Coords[6]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p4((double *) &amp;Coords[9]);</span>
+
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector3d v12 = p2 - p1;</span>
+<span class="s2">  Vector3d v13 = p3 - p1;</span>
+<span class="s2">  Vector3d v14 = p4 - p1;</span>
+<span class="s2">  Vector3d v23 = p3 - p2;</span>
+<span class="s2">  Vector3d v24 = p4 - p2;</span>
+<span class="s2">  Vector3d v34 = p4 - p3;</span>
+
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+<span class="s2">  double d14 = distance(p1, p4);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d24 = distance(p2, p4);</span>
+<span class="s2">  double d34 = distance(p3, p4);</span>
+
+<span class="s2">  double angles[12];</span>
+<span class="s2">  // Compute angles from cosine formula</span>
+<span class="s2">  angles[0] = acos(v13.dot(v14) / (d13 * d14));</span>
+<span class="s2">  angles[1] = acos(v12.dot(v14) / (d12 * d14));</span>
+<span class="s2">  angles[2] = acos(v13.dot(v12) / (d13 * d12));</span>
+<span class="s2">  angles[3] = acos(v23.dot(v24) / (d23 * d24));</span>
+<span class="s2">  angles[4] = acos(-v12.dot(v24) / (d12 * d24));</span>
+<span class="s2">  angles[5] = acos(-v12.dot(v23) / (d12 * d23));</span>
+<span class="s2">  angles[6] = acos(-v23.dot(v34) / (d23 * d34));</span>
+<span class="s2">  angles[7] = acos(-v13.dot(v34) / (d13 * d34));</span>
+<span class="s2">  angles[8] = acos(-v13.dot(-v23) / (d13 * d23));</span>
+<span class="s2">  angles[9] = acos(-v24.dot(-v34) / (d24 * d34));</span>
+<span class="s2">  angles[10] = acos(-v14.dot(-v34) / (d14 * d34));</span>
+<span class="s2">  angles[11] = acos(-v14.dot(-v24) / (d14 * d24));</span>
+<span class="s2">  double pi = 3.14159265358979323846;</span>
+
+<span class="s2">  double aMin = pi;</span>
+<span class="s2">  double aMax = 0.0;</span>
+<span class="s2">  for (int i = 0; i &lt; 12; i++) {</span>
+<span class="s2">    aMin = std::min(aMin, angles[i]);</span>
+<span class="s2">    aMax = std::max(aMax, angles[i]);</span>
+<span class="s2">  }</span>
+<span class="s2">  double aIdeal = pi / 3;</span>
+<span class="s2">  ESkews[0] = std::max((aMax - aIdeal) / (pi - aIdeal), (aIdeal - aMin) / aIdeal);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_aspect_ratio2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_aspect_ratio2d">[docs]</a><span class="k">def</span> <span class="nf">get_aspect_ratio2d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the area of each cell</span>
+<span class="sd">    in a 2D triangular mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector2d p1, Vector2d p2)  {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_aspect_ratio2d(double *AspectRatios, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector2d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p2((double *) &amp;Coords[2]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p3((double *) &amp;Coords[4]);</span>
+
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector2d v12 = p2 - p1;</span>
+<span class="s2">  Vector2d v23 = p3 - p2;</span>
+<span class="s2">  Vector2d v13 = p3 - p1;</span>
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+<span class="s2">  double s = (d12 + d23 + d13) / 2;</span>
+
+<span class="s2">  // Calculate aspect ratio based on the circumradius and inradius as per:</span>
+<span class="s2">  // https://stackoverflow.com/questions/10289752/aspect-ratio-of-a-triangle-of-a-meshed-surface</span>
+<span class="s2">  AspectRatios[0] = (d12 * d23 * d13) / (8 * (s - d12) * (s - d23) * (s - d13));</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_aspect_ratio3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_aspect_ratio3d">[docs]</a><span class="k">def</span> <span class="nf">get_aspect_ratio3d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the aspect ratio of each cell</span>
+<span class="sd">    in a 3D tetrahedral mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector3d p1, Vector3d p2) {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2) + pow(p1[2] - p2[2], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_aspect_ratio3d(double *AspectRatios, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector3d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p2((double *) &amp;Coords[3]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p3((double *) &amp;Coords[6]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p4((double *) &amp;Coords[9]);</span>
+
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector3d v12 = p2 - p1;</span>
+<span class="s2">  Vector3d v13 = p3 - p1;</span>
+<span class="s2">  Vector3d v14 = p4 - p1;</span>
+<span class="s2">  Vector3d v23 = p3 - p2;</span>
+<span class="s2">  Vector3d v24 = p4 - p2;</span>
+<span class="s2">  Vector3d v34 = p4 - p3;</span>
+
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+<span class="s2">  double d14 = distance(p1, p4);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d24 = distance(p2, p4);</span>
+<span class="s2">  double d34 = distance(p3, p4);</span>
+
+<span class="s2">  Matrix3d volumeMatrix;</span>
+<span class="s2">  for (int i = 0; i &lt; 3; i++) {</span>
+<span class="s2">    volumeMatrix(0, i) = v12[i];</span>
+<span class="s2">    volumeMatrix(1, i) = v13[i];</span>
+<span class="s2">    volumeMatrix(2, i) = v14[i];</span>
+<span class="s2">  }</span>
+<span class="s2">  double volume = std::abs(volumeMatrix.determinant() / 6);</span>
+
+<span class="s2">  // Reference for inradius and circumradius calculations on the tetrahedron</span>
+<span class="s2">  // https://en.wikipedia.org/wiki/Tetrahedron#Inradius</span>
+<span class="s2">  double cir_radius = sqrt((d12 * d34 + d13 * d24 + d14 * d23) *</span>
+<span class="s2">                           (d12 * d34 + d13 * d24 - d14 * d23) *</span>
+<span class="s2">                           (d12 * d34 - d13 * d24 + d14 * d23) *</span>
+<span class="s2">                           (-d12 * d34 + d13 * d24 + d14 * d23)) / (24 * volume);</span>
+
+<span class="s2">  double s1 = (d23 + d24 + d34) / 2;</span>
+<span class="s2">  double s2 = (d13 + d14 + d34) / 2;</span>
+<span class="s2">  double s3 = (d12 + d14 + d24) / 2;</span>
+<span class="s2">  double s4 = (d12 + d13 + d23) / 2;</span>
+<span class="s2">  double f_area1 = sqrt(s1 * (s1 - d23) * (s1 - d24) * (s1 - d34));</span>
+<span class="s2">  double f_area2 = sqrt(s2 * (s2 - d13) * (s2 - d14) * (s2 - d34));</span>
+<span class="s2">  double f_area3 = sqrt(s3 * (s3 - d12) * (s3 - d14) * (s3 - d24));</span>
+<span class="s2">  double f_area4 = sqrt(s4 * (s4 - d12) * (s4 - d13) * (s4 - d23));</span>
+<span class="s2">  double in_radius = 3 * volume / (f_area1 + f_area2 + f_area3 + f_area4);</span>
+
+<span class="s2">  AspectRatios[0] = cir_radius / (3 * in_radius);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_scaled_jacobian2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_scaled_jacobian2d">[docs]</a><span class="k">def</span> <span class="nf">get_scaled_jacobian2d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the scaled jacobian of each</span>
+<span class="sd">    cell in a 2D triangular mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector2d p1, Vector2d p2)  {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_scaled_jacobian2d(double *SJacobians, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector2d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p2((double *) &amp;Coords[2]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p3((double *) &amp;Coords[4]);</span>
+
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector2d v12 = p2 - p1;</span>
+<span class="s2">  Vector2d v23 = p3 - p2;</span>
+<span class="s2">  Vector2d v13 = p3 - p1;</span>
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+
+<span class="s2">  // Definition and calculation reference:</span>
+<span class="s2">  // https://cubit.sandia.gov/15.5/help_manual/WebHelp/mesh_generation/mesh_quality_assessment/triangular_metrics.htm</span>
+<span class="s2">  // https://www.osti.gov/biblio/5009</span>
+<span class="s2">  double sj1 = std::abs(v12[0] * v13[1] - v13[0]*v12[1]) / (d12 * d13);</span>
+<span class="s2">  double sj2 = std::abs(v12[0] * v23[1] - v23[0]*v12[1]) / (d12 * d23);</span>
+<span class="s2">  double sj3 = std::abs(v23[0] * v13[1] - v13[0]*v23[1]) / (d13 * d23);</span>
+<span class="s2">  SJacobians[0] = std::min(sj1, sj2);</span>
+<span class="s2">  SJacobians[0] = std::min(sj3, SJacobians[0]);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_scaled_jacobian3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_scaled_jacobian3d">[docs]</a><span class="k">def</span> <span class="nf">get_scaled_jacobian3d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the scaled jacobian of each cell</span>
+<span class="sd">    in a 3D tetrahedral mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector3d p1, Vector3d p2) {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2) + pow(p1[2] - p2[2], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_scaled_jacobian3d(double *SJacobians, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector3d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p2((double *) &amp;Coords[3]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p3((double *) &amp;Coords[6]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p4((double *) &amp;Coords[9]);</span>
+
+<span class="s2">  // Compute edge vectors and distances</span>
+<span class="s2">  Vector3d v12 = p2 - p1;</span>
+<span class="s2">  Vector3d v13 = p3 - p1;</span>
+<span class="s2">  Vector3d v14 = p4 - p1;</span>
+<span class="s2">  Vector3d v23 = p3 - p2;</span>
+<span class="s2">  Vector3d v24 = p4 - p2;</span>
+<span class="s2">  Vector3d v34 = p4 - p3;</span>
+
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+<span class="s2">  double d14 = distance(p1, p4);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d24 = distance(p2, p4);</span>
+<span class="s2">  double d34 = distance(p3, p4);</span>
+
+<span class="s2">  Matrix3d M1, M2, M3, M4;</span>
+<span class="s2">  double sj[4];</span>
+<span class="s2">  for (int i = 0; i &lt; 3; i++) {</span>
+<span class="s2">    M1(0, i) = v12[i];</span>
+<span class="s2">    M1(1, i) = v13[i];</span>
+<span class="s2">    M1(2, i) = v14[i];</span>
+
+<span class="s2">    M2(0, i) = -v12[i];</span>
+<span class="s2">    M2(1, i) = v23[i];</span>
+<span class="s2">    M2(2, i) = v24[i];</span>
+
+<span class="s2">    M3(0, i) = -v13[i];</span>
+<span class="s2">    M3(1, i) = -v23[i];</span>
+<span class="s2">    M3(2, i) = v34[i];</span>
+
+<span class="s2">    M4(0, i) = -v14[i];</span>
+<span class="s2">    M4(1, i) = -v24[i];</span>
+<span class="s2">    M4(2, i) = -v34[i];</span>
+<span class="s2">  }</span>
+<span class="s2">  sj[0] = std::abs(M1.determinant()) / (d12 * d13 * d14);</span>
+<span class="s2">  sj[1] = std::abs(M2.determinant()) / (d12 * d23 * d24);</span>
+<span class="s2">  sj[2] = std::abs(M3.determinant()) / (d13 * d23 * d34);</span>
+<span class="s2">  sj[3] = std::abs(M4.determinant()) / (d14 * d24 * d34);</span>
+
+<span class="s2">  SJacobians[0] = std::min(sj[0], sj[1]);</span>
+<span class="s2">  SJacobians[0] = std::min(SJacobians[0], sj[2]);</span>
+<span class="s2">  SJacobians[0] = std::min(SJacobians[0], sj[3]);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_skewness2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_skewness2d">[docs]</a><span class="k">def</span> <span class="nf">get_skewness2d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the skewness of each cell</span>
+<span class="sd">    in a 2D triangular mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector2d p1, Vector2d p2)  {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_skewness2d(double *Skews, double *Coords) {</span>
+<span class="s2">  // Map coordinates onto Eigen objects</span>
+<span class="s2">  Map&lt;Vector2d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p2((double *) &amp;Coords[2]);</span>
+<span class="s2">  Map&lt;Vector2d&gt; p3((double *) &amp;Coords[4]);</span>
+
+<span class="s2">  // Calculating in accordance with:</span>
+<span class="s2">  // https://www.engmorph.com/skewness-finite-elemnt</span>
+<span class="s2">  Vector2d midPoint1 = p2 + (p3 - p2) / 2;</span>
+<span class="s2">  Vector2d midPoint2 = p3 + (p1 - p3) / 2;</span>
+<span class="s2">  Vector2d midPoint3 = p1 + (p2 - p1) / 2;</span>
+<span class="s2">  double pi = 3.14159265358979323846;</span>
+
+<span class="s2">  Vector2d lineNormal1 = midPoint1 - p1;</span>
+<span class="s2">  Vector2d lineOrth1 = midPoint3 - midPoint2;</span>
+<span class="s2">  double t1 = acos (lineNormal1.dot(lineOrth1) / (distance(p1, midPoint1) * distance(midPoint2, midPoint3)));</span>
+<span class="s2">  double t2 = pi - t1;</span>
+<span class="s2">  double tMin = std::min(t1, t2);</span>
+
+<span class="s2">  Vector2d lineNormal2 = midPoint2 - p2;</span>
+<span class="s2">  Vector2d lineOrth2 = midPoint1 - midPoint3;</span>
+<span class="s2">  double t3 = acos (lineNormal2.dot(lineOrth2) / (distance(p2, midPoint2) * distance(midPoint1, midPoint3)));</span>
+<span class="s2">  double t4 = std::min(t3, pi - t3);</span>
+<span class="s2">  tMin = std::min(tMin, t4);</span>
+
+<span class="s2">  Vector2d lineNormal3 = midPoint3 - p3;</span>
+<span class="s2">  Vector2d lineOrth3 = midPoint2 - midPoint1;</span>
+<span class="s2">  double t5 = acos (lineNormal3.dot(lineOrth3) / (distance(p3, midPoint3) * distance(midPoint1, midPoint2)));</span>
+<span class="s2">  double t6 = std::min(t3, pi - t5);</span>
+<span class="s2">  tMin = std::min(tMin, t6);</span>
+
+<span class="s2">  Skews[0] = pi/2 - tMin;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_metric2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_metric2d">[docs]</a><span class="k">def</span> <span class="nf">get_metric2d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a matrix M, a linear function in 2 dimensions,</span>
+<span class="sd">    this function outputs the value of the Quality metric Q_M</span>
+<span class="sd">    based on the transformation encoded in M.</span>
+<span class="sd">    The suggested use case is to create the matrix M,</span>
+<span class="sd">    interpolate to all vertices of the mesh and pass it with</span>
+<span class="sd">    its corresponding cell_node_map() to this kernel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector2d p1, Vector2d p2)  {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_metric2d(double *Metrics, const double *T_, double *Coords) {</span>
+<span class="s2">    // Map coordinates onto Eigen objects</span>
+<span class="s2">    Map&lt;Vector2d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">    Map&lt;Vector2d&gt; p2((double *) &amp;Coords[2]);</span>
+<span class="s2">    Map&lt;Vector2d&gt; p3((double *) &amp;Coords[4]);</span>
+
+<span class="s2">    // Compute edge vectors and distances</span>
+<span class="s2">    Vector2d v12 = p2 - p1;</span>
+<span class="s2">    Vector2d v23 = p3 - p2;</span>
+<span class="s2">    Vector2d v13 = p3 - p1;</span>
+<span class="s2">    double d12 = distance(p1, p2);</span>
+<span class="s2">    double d23 = distance(p2, p3);</span>
+<span class="s2">    double d13 = distance(p1, p3);</span>
+<span class="s2">    double s = (d12 + d23 + d13) / 2;</span>
+<span class="s2">    double area = sqrt(s * (s-d12) * (s-d13) * (s-d23));</span>
+
+<span class="s2">    // Map tensor  function as 2x2 Matrices</span>
+<span class="s2">    Map&lt;Matrix2d&gt; M1((double *) &amp;T_[0]);</span>
+<span class="s2">    Map&lt;Matrix2d&gt; M2((double *) &amp;T_[4]);</span>
+<span class="s2">    Map&lt;Matrix2d&gt; M3((double *) &amp;T_[8]);</span>
+
+<span class="s2">    // Compute M(x, y) at centroid x_c to get area_M</span>
+<span class="s2">    Matrix2d Mxc = (M1 + M2 + M3) / 3;</span>
+<span class="s2">    double areaM = area * sqrt(Mxc.determinant());</span>
+
+<span class="s2">    // Compute (squared) edge lengths in metric space</span>
+<span class="s2">    double L1 = v23.dot(((M2 + M3)/2) * v23);</span>
+<span class="s2">    double L2 = v13.dot(((M1 + M3)/2) * v13);</span>
+<span class="s2">    double L3 = v12.dot(((M1 + M2)/2) * v12);</span>
+
+<span class="s2">    // Calculated using Q_M formula in 2D, reference:</span>
+<span class="s2">    // https://epubs.siam.org/doi/10.1137/090754078</span>
+<span class="s2">    Metrics[0] = sqrt(3) * (L1 + L2 + L3) / (2 * areaM);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="get_metric3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.kernel.get_metric3d">[docs]</a><span class="k">def</span> <span class="nf">get_metric3d</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a matrix M, a linear function in 3 dimensions,</span>
+<span class="sd">    this function outputs the value of the Quality metric Q_M</span>
+<span class="sd">    based on the transformation encoded in M.</span>
+<span class="sd">    The suggested use case is to create the matrix M,</span>
+<span class="sd">    interpolate to all vertices of the mesh and pass it with</span>
+<span class="sd">    its corresponding cell_node_map() to this kernel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;Eigen/Dense&gt;</span>
+
+<span class="s2">using namespace Eigen;</span>
+
+<span class="s2">double distance(Vector3d p1, Vector3d p2) {</span>
+<span class="s2">  return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2) + pow(p1[2] - p2[2], 2));</span>
+<span class="s2">}</span>
+
+<span class="s2">void get_metric3d(double *Metrics, const double *T_, double *Coords) {</span>
+<span class="s2">  // Map vertices as vectors</span>
+<span class="s2">  Map&lt;Vector3d&gt; p1((double *) &amp;Coords[0]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p2((double *) &amp;Coords[3]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p3((double *) &amp;Coords[6]);</span>
+<span class="s2">  Map&lt;Vector3d&gt; p4((double *) &amp;Coords[9]);</span>
+
+<span class="s2">  // Precompute some vectors, and distances</span>
+<span class="s2">  Vector3d v12 = p2 - p1;</span>
+<span class="s2">  Vector3d v13 = p3 - p1;</span>
+<span class="s2">  Vector3d v14 = p4 - p1;</span>
+<span class="s2">  Vector3d v23 = p3 - p2;</span>
+<span class="s2">  Vector3d v24 = p4 - p2;</span>
+<span class="s2">  Vector3d v34 = p4 - p3;</span>
+
+<span class="s2">  double d12 = distance(p1, p2);</span>
+<span class="s2">  double d13 = distance(p1, p3);</span>
+<span class="s2">  double d14 = distance(p1, p4);</span>
+<span class="s2">  double d23 = distance(p2, p3);</span>
+<span class="s2">  double d24 = distance(p2, p4);</span>
+<span class="s2">  double d34 = distance(p3, p4);</span>
+
+<span class="s2">  Matrix3d volMatrix;</span>
+<span class="s2">  for (int i = 0; i &lt; 3; i++) {</span>
+<span class="s2">    volMatrix(0, i) = v12[i];</span>
+<span class="s2">    volMatrix(1, i) = v13[i];</span>
+<span class="s2">    volMatrix(2, i) = v14[i];</span>
+<span class="s2">  }</span>
+
+<span class="s2">  double volume = std::abs(volMatrix.determinant()) / 6;</span>
+
+<span class="s2">  // Map tensor as 3x3 Matrices</span>
+<span class="s2">  Map&lt;Matrix3d&gt; M1((double *) &amp;T_[0]);</span>
+<span class="s2">  Map&lt;Matrix3d&gt; M2((double *) &amp;T_[9]);</span>
+<span class="s2">  Map&lt;Matrix3d&gt; M3((double *) &amp;T_[18]);</span>
+<span class="s2">  Map&lt;Matrix3d&gt; M4((double *) &amp;T_[27]);</span>
+
+<span class="s2">  // Compute M(x, y) at centroid x_c to get area_M</span>
+<span class="s2">  Matrix3d Mxc = (M1 + M2 + M3 + M4) / 3;</span>
+<span class="s2">  double volumeM = volume * sqrt(Mxc.determinant());</span>
+
+<span class="s2">  // Compute (squared) edge lengths in metric</span>
+<span class="s2">  double L1 = v12.dot(((M1 + M2)/2) * v12);</span>
+<span class="s2">  double L2 = v13.dot(((M1 + M3)/2) * v13);</span>
+<span class="s2">  double L3 = v14.dot(((M1 + M4)/2) * v14);</span>
+<span class="s2">  double L4 = v23.dot(((M2 + M3)/2) * v23);</span>
+<span class="s2">  double L5 = v24.dot(((M2 + M4)/2) * v24);</span>
+<span class="s2">  double L6 = v34.dot(((M3 + M4)/2) * v34);</span>
+
+<span class="s2">  Metrics[0] = sqrt(3) * (L1 + L2 + L3 + L4 + L5 + L6) / (216 * volumeM);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -350,7 +768,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -376,7 +794,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>

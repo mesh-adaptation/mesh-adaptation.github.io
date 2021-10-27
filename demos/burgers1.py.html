@@ -55,7 +55,8 @@ problems.</p>
 <p>We always begin by importing Pyroteus. Adjoint mode is used
 so that we have access to the discrete adjoint functionality
 due to <cite>dolfin-adjoint</cite>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>The solver, initial condition and function spaces may be
@@ -155,7 +156,7 @@ on two subintervals and check that the results match.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -186,7 +187,7 @@ on two subintervals and check that the results match.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>

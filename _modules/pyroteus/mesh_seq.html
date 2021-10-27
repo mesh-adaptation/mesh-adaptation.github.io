@@ -42,9 +42,11 @@
 <span class="sd">Sequences of meshes corresponding to a :class:`TimePartition`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">project</span>
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">debug</span><span class="p">,</span> <span class="n">warning</span>
-<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Mesh</span><span class="p">,</span> <span class="n">classify_element</span><span class="p">,</span> <span class="n">create_section</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -58,8 +60,9 @@
 <span class="sd">    with a particular :class:`TimePartition` of the</span>
 <span class="sd">    temporal domain.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.MeshSeq.__init__&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">,</span> <span class="n">get_function_spaces</span><span class="p">,</span>
-                 <span class="n">get_initial_condition</span><span class="p">,</span> <span class="n">get_solver</span><span class="p">,</span> <span class="n">warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                 <span class="n">get_initial_condition</span><span class="p">,</span> <span class="n">get_solver</span><span class="p">,</span> <span class="n">warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :arg time_partition: the :class:`TimePartition` which</span>
 <span class="sd">            partitions the temporal domain</span>
@@ -77,6 +80,8 @@
 <span class="sd">            a :class:`MeshSeq`, which returns a function</span>
 <span class="sd">            that integrates initial data over a subinterval</span>
 <span class="sd">        :kwarg warnings: print warnings?</span>
+<span class="sd">        :kwarg tableau: :class:`ButcherTableau` object for RK</span>
+<span class="sd">            methods</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">time_partition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">fields</span>
@@ -93,6 +98,9 @@
         <span class="k">if</span> <span class="n">get_solver</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">get_solver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warnings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tableau</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tableau&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
 
 <div class="viewcode-block" id="MeshSeq.debug"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.debug">[docs]</a>    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MeshSeq: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
@@ -148,7 +156,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">()</span>
+        <span class="n">ic</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">())</span>
         <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;`get_initial_condition` should return a dict&quot;</span>
         <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="s2">&quot;missing fields in initial condition&quot;</span>
         <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)),</span> <span class="s2">&quot;more initial conditions than fields&quot;</span>
@@ -158,7 +166,8 @@
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solver</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MeshSeq.get_checkpoints"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_checkpoints">[docs]</a>    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="MeshSeq.get_checkpoints"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_checkpoints">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.MeshSeq.get_checkpoints&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve forward on the sequence of meshes,</span>
 <span class="sd">        extracting checkpoints corresponding to</span>
@@ -188,7 +197,7 @@
 <span class="sd">        solve steps for prognostic solution ``field``</span>
 <span class="sd">        on a given ``subinterval``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">firedrake.adjoint.blocks</span> <span class="kn">import</span> <span class="n">GenericSolveBlock</span><span class="p">,</span> <span class="n">ProjectBlock</span>
+        <span class="kn">from</span> <span class="nn">firedrake.adjoint.solving</span> <span class="kn">import</span> <span class="n">get_solve_blocks</span>
         <span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">get_working_tape</span>
 
         <span class="c1"># Get all blocks</span>
@@ -198,12 +207,7 @@
             <span class="k">return</span> <span class="n">blocks</span>
 
         <span class="c1"># Restrict to solve blocks</span>
-        <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">block</span>
-            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span>
-            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">GenericSolveBlock</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">ProjectBlock</span><span class="p">)</span>
-        <span class="p">]</span>
+        <span class="n">solve_blocks</span> <span class="o">=</span> <span class="n">get_solve_blocks</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tape has no solve blocks!&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">solve_blocks</span>
@@ -212,8 +216,8 @@
         <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">block</span>
             <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span>
-            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">options_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">options_prefix</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">tag</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tape has no solve blocks associated with field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Has the options&quot;</span>
@@ -247,7 +251,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;It looks like you have a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span><span class="si">}</span><span class="s2"> step RK method&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">solve_blocks</span></div>
 
-<div class="viewcode-block" id="MeshSeq.get_lagged_dependency_index"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_lagged_dependency_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">,</span> <span class="n">warned</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="MeshSeq.get_lagged_dependency_index"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_lagged_dependency_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the dependency index corresponding</span>
 <span class="sd">        to the lagged forward solution for a</span>
@@ -258,6 +262,8 @@
 <span class="sd">        :arg solve_blocks: list of taped</span>
 <span class="sd">            :class:`GenericSolveBlocks`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
         <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">subinterval</span><span class="p">]</span>
         <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">dep_index</span>
@@ -268,20 +274,18 @@
             <span class="ow">and</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="n">field</span> <span class="o">+</span> <span class="s1">&#39;_old&#39;</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solve block for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has no dependencies&quot;</span><span class="p">)</span>
-                <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solve block for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has no dependencies&quot;</span><span class="p">)</span>
             <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solve block  for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has dependencies</span><span class="se">\n</span><span class="s2">&quot;</span>
                              <span class="o">+</span> <span class="s2">&quot; in the prognostic space other than the PDE solution at the previous timestep.</span><span class="se">\n</span><span class="s2">&quot;</span>
                              <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;(Dep indices </span><span class="si">{</span><span class="n">fwd_old_idx</span><span class="si">}</span><span class="s2">). Naively assuming the first to be the right one.&quot;</span><span class="p">)</span>
-                <span class="n">warned</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="n">fwd_old_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">fwd_old_idx</span><span class="p">,</span> <span class="n">warned</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">fwd_old_idx</span>
+        <span class="k">return</span> <span class="n">fwd_old_idx</span></div>
 
-<div class="viewcode-block" id="MeshSeq.get_rk_blocks"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_rk_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_rk_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">):</span>
+<div class="viewcode-block" id="MeshSeq.get_rk_blocks"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_rk_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_rk_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the :class:`GenericSolveBlock`s corresponding</span>
 <span class="sd">        to a ``field`` and ``index`` in the case of</span>
@@ -293,27 +297,16 @@
 <span class="sd">        :arg index: index for the timestep within the subinterval</span>
 <span class="sd">        :arg solve_blocks: list of taped</span>
 <span class="sd">            :class:`GenericSolveBlocks`</span>
+<span class="sd">        :kwarg offset: number of timesteps to offset by</span>
+<span class="sd">            (default 0)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;solves_per_timestep&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span> <span class="o">&gt;</span> <span class="mi">1</span>
         <span class="n">stride</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">subinterval</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span>
-        <span class="n">rk_blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">solve_blocks</span><span class="p">[</span><span class="n">index</span><span class="o">*</span><span class="n">stride</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span><span class="p">)]</span>
-        <span class="n">quadrature_weights</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">rk_block</span> <span class="ow">in</span> <span class="n">rk_blocks</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">rk_block</span><span class="o">.</span><span class="n">options_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">!=</span> <span class="n">field</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Prefix should be &#39;&lt;field&gt;_&lt;quadrature_weight&gt;&#39;, not&quot;</span>
-                                 <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">rk_block</span><span class="o">.</span><span class="n">options_prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                    <span class="n">numerator</span><span class="p">,</span> <span class="n">divisor</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-                    <span class="n">quadrature_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">numerator</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">divisor</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">quadrature_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unintelligible quadrature weight </span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">rk_blocks</span><span class="p">,</span> <span class="n">quadrature_weights</span></div>
+        <span class="n">istart</span> <span class="o">=</span> <span class="n">index</span><span class="o">*</span><span class="n">stride</span> <span class="o">+</span> <span class="n">offset</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span>
+        <span class="k">return</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="n">istart</span><span class="p">:</span><span class="n">istart</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">solves_per_timestep</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="MeshSeq.solve_forward"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.solve_forward">[docs]</a>    <span class="k">def</span> <span class="nf">solve_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="MeshSeq.solve_forward"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.solve_forward">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.MeshSeq.solve_forward&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">solve_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve a forward problem on a sequence of subintervals.</span>
 
@@ -360,7 +353,6 @@
         <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
         <span class="n">checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span>
-        <span class="n">warned</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">):</span>
 
             <span class="c1"># Annotate tape on current subinterval</span>
@@ -375,9 +367,7 @@
                 <span class="k">assert</span> <span class="n">num_solve_blocks</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Looks like no solves were written to tape!&quot;</span> \
                                              <span class="o">+</span> <span class="s2">&quot; Does the solution depend on the initial condition?&quot;</span>
                 <span class="k">if</span> <span class="s1">&#39;forward_old&#39;</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
-                    <span class="n">fwd_old_idx</span><span class="p">,</span> <span class="n">warned</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lagged_dependency_index</span><span class="p">(</span>
-                        <span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">,</span> <span class="n">warned</span><span class="o">=</span><span class="n">warned</span><span class="p">,</span>
-                    <span class="p">)</span>
+                    <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lagged_dependency_index</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">fwd_old_idx</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;forward_old&#39;</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
@@ -396,14 +386,67 @@
                         <span class="n">sols</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">assert</span> <span class="n">fwd_old_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Need old solution for RK methods&quot;</span>
+                        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">tableau</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Need Butcher tableau for RK methods&quot;</span>
                         <span class="n">sols</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">forward_old</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
-                        <span class="k">for</span> <span class="n">rk_block</span><span class="p">,</span> <span class="n">wq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_rk_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">)):</span>
+                        <span class="k">for</span> <span class="n">rk_block</span><span class="p">,</span> <span class="n">wq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_rk_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">solve_blocks</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">tableau</span><span class="o">.</span><span class="n">b</span><span class="p">):</span>
                             <span class="n">sols</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">wq</span><span class="o">*</span><span class="n">rk_block</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">saved_output</span>
 
             <span class="c1"># Clear tape</span>
             <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">solutions</span></div></div>
+        <span class="k">return</span> <span class="n">solutions</span></div>
+
+<div class="viewcode-block" id="MeshSeq.get_values_at_elements"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_values_at_elements">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.MeshSeq.get_values_at_elements&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_values_at_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract all of the values associated with</span>
+<span class="sd">        each element for a given :class:`Function`.</span>
+
+<span class="sd">        The values will be returned in the ordering</span>
+<span class="sd">        used by Firedrake, unless ``reorder`` is</span>
+<span class="sd">        set to ``False``.</span>
+
+<span class="sd">        :arg field: the :class:`Function` to get</span>
+<span class="sd">            the values of</span>
+<span class="sd">        :kwarg index: the mesh index to be used</span>
+<span class="sd">            (defaults to 0)</span>
+<span class="sd">        :kwarg reorder: toggle whether to reorder</span>
+<span class="sd">            in Firedrake numbering.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_values_at_elements only currently implemented in serial&quot;</span><span class="p">)</span>  <span class="c1"># TODO: Parallelise</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
+        <span class="n">label</span><span class="p">,</span> <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">classify_element</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">(),</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">entity_dofs</span><span class="p">)</span>
+
+        <span class="c1"># Extract the DMPlex and appropriate PETSc Section</span>
+        <span class="n">plex</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">topology_dm</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_section</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">field</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">())</span>
+        <span class="n">sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">label</span><span class="p">]</span>
+
+        <span class="c1"># Loop over all elements and extract the values from the DOFs there</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_vertices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="n">plex</span><span class="o">.</span><span class="n">getDepthStratum</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="n">plex</span><span class="o">.</span><span class="n">getHeightStratum</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="s1">&#39;P0&#39;</span> <span class="ow">in</span> <span class="n">label</span><span class="p">:</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">field</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sec</span><span class="o">.</span><span class="n">getOffset</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">//</span><span class="n">d</span><span class="p">]])</span>
+            <span class="k">elif</span> <span class="s1">&#39;P1&#39;</span> <span class="ow">in</span> <span class="n">label</span><span class="p">:</span>
+                <span class="n">vertices</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">plex</span><span class="o">.</span><span class="n">getTransitiveClosure</span><span class="p">(</span><span class="n">e</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">all_vertices</span><span class="p">)</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">field</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sec</span><span class="o">.</span><span class="n">getOffset</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">//</span><span class="n">d</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">])</span>
+
+        <span class="c1"># Get back to the Firedrake element numbering</span>
+        <span class="k">if</span> <span class="n">reorder</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;P0&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                <span class="n">entity_dofs</span> <span class="o">*=</span> <span class="mi">0</span>
+                <span class="n">entity_dofs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;P0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_section</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">entity_dofs</span><span class="p">)</span>
+            <span class="n">sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sections</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;P0&#39;</span><span class="p">]</span>
+            <span class="n">offsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">sec</span><span class="o">.</span><span class="n">getOffset</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="n">plex</span><span class="o">.</span><span class="n">getHeightStratum</span><span class="p">(</span><span class="mi">0</span><span class="p">))]</span>
+            <span class="n">num_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">num_cells</span><span class="p">()</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="k">for</span> <span class="n">off</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_cells</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span><span class="p">,</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">offsets</span><span class="p">)</span> <span class="k">if</span> <span class="n">offset</span> <span class="o">==</span> <span class="n">off</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_cells</span>
+        <span class="k">return</span> <span class="n">vals</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -416,7 +459,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -442,7 +485,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>

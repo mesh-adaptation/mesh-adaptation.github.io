@@ -42,6 +42,7 @@
     <span class="kn">from</span> <span class="nn">thetis</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Thetis is not installed!&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">isclose</span>
 
 
 <div class="viewcode-block" id="FlowSolver2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d">[docs]</a><span class="k">class</span> <span class="nc">FlowSolver2d</span><span class="p">(</span><span class="n">thetis</span><span class="o">.</span><span class="n">solver2d</span><span class="o">.</span><span class="n">FlowSolver2d</span><span class="p">):</span>
@@ -51,24 +52,29 @@
 <span class="sd">    simulation on a new mesh and modifying</span>
 <span class="sd">    options prefixes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="FlowSolver2d.update_options_prefixes"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.update_options_prefixes">[docs]</a>    <span class="k">def</span> <span class="nf">update_options_prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FlowSolver2d.update_tags"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.update_tags">[docs]</a>    <span class="k">def</span> <span class="nf">update_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modify the options prefixes which Thetis</span>
 <span class="sd">        gives to the solvers associated with its</span>
 <span class="sd">        timesteppers so that they match the field</span>
 <span class="sd">        names used by Pyroteus.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;timestepper&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">create_timesteppers</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">swe_timestepper_options</span><span class="o">.</span><span class="n">ad_block_tag</span> <span class="o">=</span> <span class="s1">&#39;swe2d&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">tracer_timestepper_options</span><span class="o">.</span><span class="n">ad_block_tag</span> <span class="o">=</span> <span class="s1">&#39;tracer_2d&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">sediment_model_options</span><span class="o">.</span><span class="n">sediment_timestepper_options</span><span class="o">.</span><span class="n">ad_block_tag</span> <span class="o">=</span> <span class="s1">&#39;sediment_2d&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">sediment_model_options</span><span class="o">.</span><span class="n">sediment_timestepper_options</span><span class="o">.</span><span class="n">ad_block_tag</span> <span class="o">=</span> <span class="s1">&#39;bathymetry_2d&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_timestepper</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="p">,</span> <span class="s1">&#39;timesteppers&#39;</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">ts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">field</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">update_solver</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">solution_old</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">field</span> <span class="o">+</span> <span class="s1">&#39;_old&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">swe_timestepper_type</span> <span class="o">!=</span> <span class="s1">&#39;SteadyState&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">tracer_timestepper_type</span> <span class="o">!=</span> <span class="s1">&#39;SteadyState&#39;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">timesteppers</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">solution_old</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">field</span> <span class="o">+</span> <span class="s1">&#39;_old&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;swe2d&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">update_solver</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">solution_old</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;swe2d_old&#39;</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">swe_timestepper_type</span> <span class="o">!=</span> <span class="s1">&#39;SteadyState&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timestepper</span><span class="o">.</span><span class="n">solution_old</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;swe2d_old&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FlowSolver2d.iterate"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.iterate">[docs]</a>    <span class="k">def</span> <span class="nf">iterate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -76,7 +82,7 @@
 <span class="sd">        additionally updates the options prefixes</span>
 <span class="sd">        associated with its solvers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_options_prefixes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_tags</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FlowSolver2d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">iterate</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FlowSolver2d.correct_counters"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.correct_counters">[docs]</a>    <span class="k">def</span> <span class="nf">correct_counters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts_data</span><span class="p">):</span>
@@ -89,7 +95,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">i_export</span> <span class="o">=</span> <span class="n">i_export</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_export_t</span> <span class="o">=</span> <span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iteration</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span><span class="o">/</span><span class="n">ts_data</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_initial_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_initial_state</span> <span class="o">=</span> <span class="n">isclose</span><span class="p">(</span><span class="n">ts_data</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">no_exports</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">fields_to_export</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exporters</span><span class="p">[</span><span class="s1">&#39;vtk&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">exporters</span><span class="p">:</span>
@@ -109,7 +115,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -135,7 +141,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>

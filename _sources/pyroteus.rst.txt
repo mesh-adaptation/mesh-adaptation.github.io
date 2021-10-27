@@ -12,6 +12,14 @@ pyroteus.adjoint module
    :undoc-members:
    :show-inheritance:
 
+pyroteus.error\_estimation module
+---------------------------------
+
+.. automodule:: pyroteus.error_estimation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyroteus.go\_mesh\_seq module
 -----------------------------
 
@@ -44,6 +52,14 @@ pyroteus.log module
    :undoc-members:
    :show-inheritance:
 
+pyroteus.math module
+--------------------
+
+.. automodule:: pyroteus.math
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyroteus.mesh\_seq module
 -------------------------
 
@@ -68,10 +84,26 @@ pyroteus.plot module
    :undoc-members:
    :show-inheritance:
 
+pyroteus.quality module
+-----------------------
+
+.. automodule:: pyroteus.quality
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyroteus.recovery module
 ------------------------
 
 .. automodule:: pyroteus.recovery
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyroteus.runge\_kutta module
+----------------------------
+
+.. automodule:: pyroteus.runge_kutta
    :members:
    :undoc-members:
    :show-inheritance:

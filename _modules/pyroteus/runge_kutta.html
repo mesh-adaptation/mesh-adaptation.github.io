@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyroteus.runge_kutta &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.runge_kutta</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyroteus.runge_kutta</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Runge-Kutta timestepping for Pyroteus.</span>
+
+<span class="sd">Code largely copied from [the Thetis project](https://thetisproject.org).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractproperty</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="ButcherTableau"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.runge_kutta.ButcherTableau">[docs]</a><span class="k">class</span> <span class="nc">ButcherTableau</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class defining the Butcher tableaux</span>
+<span class="sd">    associated with Runge-Kutta schemes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="nd">@abstractproperty</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runge-Kutta matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractproperty</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Weights of Butcher tableau</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractproperty</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Nodes of Butcher tableau</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ButcherTableau</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(),</span> <span class="s2">&quot;Butcher tableau must be lower diagonal&quot;</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">),</span> <span class="s2">&quot;Inconsistent Butcher tableau&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_stages</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_implicit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_dirk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SteadyState"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.runge_kutta.SteadyState">[docs]</a><span class="k">class</span> <span class="nc">SteadyState</span><span class="p">(</span><span class="n">ButcherTableau</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ForwardEuler"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.runge_kutta.ForwardEuler">[docs]</a><span class="k">class</span> <span class="nc">ForwardEuler</span><span class="p">(</span><span class="n">ButcherTableau</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BackwardEuler"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.runge_kutta.BackwardEuler">[docs]</a><span class="k">class</span> <span class="nc">BackwardEuler</span><span class="p">(</span><span class="n">ButcherTableau</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">]]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CrankNicolson"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.runge_kutta.CrankNicolson">[docs]</a><span class="k">class</span> <span class="nc">CrankNicolson</span><span class="p">(</span><span class="n">ButcherTableau</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SSPRK33"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.runge_kutta.SSPRK33">[docs]</a><span class="k">class</span> <span class="nc">SSPRK33</span><span class="p">(</span><span class="n">ButcherTableau</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">/</span><span class="mf">6.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">]</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.runge_kutta</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

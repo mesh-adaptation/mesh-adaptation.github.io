@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyroteus.quality &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.quality</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyroteus.quality</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pyroteus.kernel</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">from</span> <span class="nn">pyop2</span> <span class="kn">import</span> <span class="n">op2</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
+
+
+<div class="viewcode-block" id="get_min_angles2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_min_angles2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_min_angles2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_min_angles2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the minimum angle of each cell in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function min_angles with</span>
+<span class="sd">        minimum angle data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">min_angles</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_min_angle2d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">min_angles</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">min_angles</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">min_angles</span></div>
+
+
+<div class="viewcode-block" id="get_min_angles3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_min_angles3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_min_angles3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_min_angles3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the minimum angle of each cell in a 3D tetrahedral mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function min_angles with</span>
+<span class="sd">        minimum angle data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">min_angles</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_min_angle3d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">min_angles</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">min_angles</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">min_angles</span></div>
+
+
+<div class="viewcode-block" id="get_areas2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_areas2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_areas2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_areas2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the area of each cell in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function areas with</span>
+<span class="sd">        area data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="n">areas</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">CellVolume</span><span class="p">(</span><span class="n">mesh</span><span class="p">),</span> <span class="n">P0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">areas</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_area2d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">areas</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">areas</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">areas</span></div>
+
+
+<div class="viewcode-block" id="get_volumes3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_volumes3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_volumes3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_volumes3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the volume of each cell in a 3D tetrahedral mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function volumes with</span>
+<span class="sd">        volume data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">CellVolume</span><span class="p">(</span><span class="n">mesh</span><span class="p">),</span> <span class="n">P0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_volume3d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">volumes</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">volumes</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">volumes</span></div>
+
+
+<div class="viewcode-block" id="get_facet_areas"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_facet_areas">[docs]</a><span class="k">def</span> <span class="nf">get_facet_areas</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute area of each facet of `mesh`.</span>
+
+<span class="sd">    The facet areas are stored as a HDiv</span>
+<span class="sd">    trace field.</span>
+
+<span class="sd">    Note that the plus sign is arbitrary</span>
+<span class="sd">    and could equally well be chosen as minus.</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+
+<span class="sd">    :rtype: firedrake.function.Function facet_areas with</span>
+<span class="sd">        facet area data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">HDivTrace</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;HDiv Trace&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">HDivTrace</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="n">HDivTrace</span><span class="p">)</span>
+    <span class="n">facet_areas</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">HDivTrace</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Facet areas&quot;</span><span class="p">)</span>
+    <span class="n">mass_term</span> <span class="o">=</span> <span class="n">v</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dS</span> <span class="o">+</span> <span class="n">v</span><span class="o">*</span><span class="n">u</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">ds</span>
+    <span class="n">rhs</span> <span class="o">=</span> <span class="n">v</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">FacetArea</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dS</span> <span class="o">+</span> <span class="n">v</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">FacetArea</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">ds</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;mat_type&quot;</span><span class="p">:</span> <span class="s2">&quot;matfree&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;jacobi&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">firedrake</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mass_term</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">facet_areas</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">facet_areas</span></div>
+
+
+<div class="viewcode-block" id="get_facet_areas2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_facet_areas2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_facet_areas2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_facet_areas2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the area of each facet in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function facet_areas with</span>
+<span class="sd">        facet area data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_facet_areas</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="get_facet_areas3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_facet_areas3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_facet_areas3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_facet_areas3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the area of each facet in a 3D tetrahedral mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function facet_areas with</span>
+<span class="sd">        facet area data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_facet_areas</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="get_aspect_ratios2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_aspect_ratios2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_aspect_ratios2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_aspect_ratios2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the aspect ratio of each cell in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function aspect_ratios with</span>
+<span class="sd">        aspect ratio data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="n">P0_ten</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">Jacobian</span><span class="p">(</span><span class="n">mesh</span><span class="p">),</span> <span class="n">P0_ten</span><span class="p">)</span>
+        <span class="n">edge1</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">J</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">J</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">edge2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">J</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">J</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="n">edge3</span> <span class="o">=</span> <span class="n">edge1</span> <span class="o">-</span> <span class="n">edge2</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge1</span><span class="p">,</span> <span class="n">edge1</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge2</span><span class="p">,</span> <span class="n">edge2</span><span class="p">))</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge3</span><span class="p">,</span> <span class="n">edge3</span><span class="p">))</span>
+        <span class="n">aspect_ratios</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="o">/</span><span class="p">((</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="o">-</span><span class="n">c</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">b</span><span class="o">+</span><span class="n">c</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">)),</span> <span class="n">P0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">aspect_ratios</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_aspect_ratio2d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">aspect_ratios</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">aspect_ratios</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">aspect_ratios</span></div>
+
+
+<div class="viewcode-block" id="get_aspect_ratios3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_aspect_ratios3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_aspect_ratios3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_aspect_ratios3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the aspect ratio of each cell in a 3D tetrahedral mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function aspect_ratios with</span>
+<span class="sd">        aspect ratio data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">aspect_ratios</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_aspect_ratio3d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">aspect_ratios</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">aspect_ratios</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">aspect_ratios</span></div>
+
+
+<div class="viewcode-block" id="get_eskews2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_eskews2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_eskews2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_eskews2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the equiangle skew of each cell in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function eskews with equiangle skew</span>
+<span class="sd">        data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">eskews</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_eskew2d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">eskews</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">eskews</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">eskews</span></div>
+
+
+<div class="viewcode-block" id="get_eskews3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_eskews3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_eskews3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_eskews3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the equiangle skew of each cell in a 3D tetrahedral mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function eskews with equiangle skew</span>
+<span class="sd">        data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">eskews</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_eskew3d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">eskews</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">eskews</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">eskews</span></div>
+
+
+<div class="viewcode-block" id="get_skewnesses2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_skewnesses2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_skewnesses2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_skewnesses2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the skewness of each cell in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function skews with skewness</span>
+<span class="sd">        data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">skews</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_skewness2d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">skews</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">skews</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">skews</span></div>
+
+
+<div class="viewcode-block" id="get_skewnesses3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_skewnesses3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_skewnesses3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_skewnesses3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the skewness of each cell in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function skews with skewness</span>
+<span class="sd">        data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="get_scaled_jacobians2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_scaled_jacobians2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_scaled_jacobians2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_scaled_jacobians2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the scaled Jacobian of each cell in a 2D triangular mesh</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function scaled_jacobians with scaled</span>
+<span class="sd">        jacobian data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="n">P0_ten</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">Jacobian</span><span class="p">(</span><span class="n">mesh</span><span class="p">),</span> <span class="n">P0_ten</span><span class="p">)</span>
+        <span class="n">edge1</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">J</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">J</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">edge2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">J</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">J</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="n">edge3</span> <span class="o">=</span> <span class="n">edge1</span> <span class="o">-</span> <span class="n">edge2</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge1</span><span class="p">,</span> <span class="n">edge1</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge2</span><span class="p">,</span> <span class="n">edge2</span><span class="p">))</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge3</span><span class="p">,</span> <span class="n">edge3</span><span class="p">))</span>
+        <span class="n">detJ</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">JacobianDeterminant</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">jacobian_sign</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">detJ</span><span class="p">)</span>
+        <span class="n">max_product</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span>
+            <span class="n">ufl</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="o">*</span><span class="n">c</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">a</span><span class="p">)),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Max</span><span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="o">*</span><span class="n">b</span><span class="p">))</span>
+        <span class="n">scaled_jacobians</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">detJ</span><span class="o">/</span><span class="n">max_product</span><span class="o">*</span><span class="n">jacobian_sign</span><span class="p">,</span> <span class="n">P0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">scaled_jacobians</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_scaled_jacobian2d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">scaled_jacobians</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">scaled_jacobians</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">scaled_jacobians</span></div>
+
+
+<div class="viewcode-block" id="get_scaled_jacobians3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_scaled_jacobians3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_scaled_jacobians3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_scaled_jacobians3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the scaled Jacobian of each cell in a 3D tetrahedral</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function scaled_jacobians with scaled</span>
+<span class="sd">        jacobian data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">scaled_jacobians</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_scaled_jacobian3d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">scaled_jacobians</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">scaled_jacobians</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">scaled_jacobians</span></div>
+
+
+<div class="viewcode-block" id="get_quality_metrics2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_quality_metrics2d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_quality_metrics2d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_quality_metrics2d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a Riemannian metric, M, this function</span>
+<span class="sd">    outputs the value of the Quality metric Q_M based on the</span>
+<span class="sd">    transformation encoded in M.</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :arg M: the (2 x 2) matrix field representing the metric space transformation</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function metrics with metric data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">quality</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_metric2d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">quality</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">quality</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">metric</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">quality</span></div>
+
+
+<div class="viewcode-block" id="get_quality_metrics3d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.quality.get_quality_metrics3d">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_quality_metrics3d&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_quality_metrics3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a Riemannian metric, M, this function</span>
+<span class="sd">    outputs the value of the Quality metric Q_M based on the</span>
+<span class="sd">    transformation encoded in M.</span>
+
+<span class="sd">    :arg mesh: the input mesh to do computations on</span>
+<span class="sd">    :arg M: the (3 x 3) matrix field representing the metric space transformation</span>
+<span class="sd">    :kwarg python: compute the measure using Python?</span>
+
+<span class="sd">    :rtype: firedrake.function.Function metrics with metric data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">python</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span>
+        <span class="n">quality</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">eigen_kernel</span><span class="p">(</span><span class="n">get_metric3d</span><span class="p">)</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_set</span><span class="p">,</span> <span class="n">quality</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span> <span class="n">quality</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">metric</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()),</span>
+                     <span class="n">coords</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">cell_node_map</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">quality</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyroteus.quality</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

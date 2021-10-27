@@ -50,7 +50,8 @@ For some problems, it is more suitable to have a QoI
 which integrates in time as well as space.</p>
 <p>Begin by importing from Pyroteus and the first Burgers
 demo.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">burgers</span> <span class="kn">import</span> <span class="n">get_initial_condition</span><span class="p">,</span> <span class="n">get_function_spaces</span>
 </pre></div>
 </div>
@@ -87,7 +88,7 @@ be computed by simply incrementing as follows.</p>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t_start</span>
         <span class="n">qoi</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">t_end</span> <span class="o">-</span> <span class="mf">1.0e-05</span><span class="p">:</span>
-            <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">options_prefix</span><span class="o">=</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">)</span>
+            <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">)</span>
             <span class="n">mesh_seq</span><span class="o">.</span><span class="n">J</span> <span class="o">+=</span> <span class="n">qoi</span><span class="p">({</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">},</span> <span class="n">t</span><span class="p">)</span>
             <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
@@ -172,7 +173,7 @@ than a instantaneous pulse at the terminal time.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -200,7 +201,7 @@ than a instantaneous pulse at the terminal time.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>

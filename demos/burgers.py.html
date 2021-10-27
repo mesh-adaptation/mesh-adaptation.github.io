@@ -61,8 +61,9 @@ The PDE</p>
 <span class="math notranslate nohighlight">\(\Omega = [0, 1]^2\)</span>. The forward solution is initialised
 as a sine wave and is nonlinearly advected to the right hand
 side. See the Firedrake demo for details on the discretisation used.</p>
-<p>We always begin by importing Pyroteus.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+<p>First, import Firedrake and Pyroteus.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>In this problem, we have a single prognostic variable,
@@ -92,7 +93,7 @@ specified later. The dictionary usage may seem cumbersome when
 applied to such a simple problem, but it comes in handy when
 solving adjoint problems associated with coupled systems of
 equations. It is important that the PDE solve is labelled
-with an <code class="docutils literal notranslate"><span class="pre">options_prefix</span></code> which matches the corresponding
+with an <code class="docutils literal notranslate"><span class="pre">ad_block_tag</span></code> which matches the corresponding
 prognostic variable name. It is also important that the
 lagged solution field be given a name which is the field name,
 appended by <code class="docutils literal notranslate"><span class="pre">'_old'</span></code>.</p>
@@ -122,7 +123,7 @@ appended by <code class="docutils literal notranslate"><span class="pre">'_old'<
         <span class="c1"># Time integrate from t_start to t_end</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t_start</span>
         <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">t_end</span> <span class="o">-</span> <span class="mf">1.0e-05</span><span class="p">:</span>
-            <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">options_prefix</span><span class="o">=</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">)</span>
+            <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">)</span>
             <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;uv_2d&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">}</span>
@@ -206,7 +207,7 @@ equation.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -237,7 +238,7 @@ equation.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>
