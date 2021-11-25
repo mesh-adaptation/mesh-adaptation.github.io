@@ -41,7 +41,6 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Driver functions for derivative recovery.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">clement_interpolant</span>
 <span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">petsc4py</span> <span class="kn">import</span> <span class="n">PETSc</span> <span class="k">as</span> <span class="n">petsc4py</span>
@@ -105,9 +104,11 @@
     <span class="c1"># finite element derivatives</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span> \
         <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">tau</span><span class="p">),</span> <span class="n">g</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span> \
-        <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">ds</span>
+        <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> \
+        <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">g</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">jump</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dS</span>
     <span class="n">a</span> <span class="o">+=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
     <span class="n">L</span> <span class="o">=</span> <span class="n">f</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> \
+        <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">jump</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dS</span> \
         <span class="o">-</span> <span class="n">f</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
 
     <span class="c1"># Apply stationary preconditioners in the Schur complement to get away</span>
@@ -187,8 +188,7 @@
     <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;gmres&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ksp_gmres_restart&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
-        <span class="s2">&quot;ksp_rtol&quot;</span><span class="p">:</span> <span class="mf">1.0e-05</span><span class="p">,</span>
-        <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;sor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ilu&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;L2&#39;</span><span class="p">:</span>

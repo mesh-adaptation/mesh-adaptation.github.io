@@ -80,8 +80,7 @@
             <span class="s2">&quot;mat_type&quot;</span><span class="p">:</span> <span class="s2">&quot;matfree&quot;</span><span class="p">,</span>
             <span class="s2">&quot;snes_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ksponly&quot;</span><span class="p">,</span>
             <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pc_python_type&quot;</span><span class="p">:</span> <span class="s2">&quot;firedrake.MassInvPC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;jacobi&quot;</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">firedrake</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mass_term</span> <span class="o">==</span> <span class="n">flux_terms</span><span class="p">,</span> <span class="n">indicator</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
 
@@ -117,7 +116,7 @@
 
 
 <div class="viewcode-block" id="get_dwr_indicator"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.error_estimation.get_dwr_indicator">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_dwr_indicator&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get_dwr_indicator</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">adjoint_error</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_dwr_indicator</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">adjoint_error</span><span class="p">,</span> <span class="n">test_space</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a dual weighted residual (DWR)</span>
 <span class="sd">    error indicator, given a form and an</span>
@@ -127,8 +126,10 @@
 <span class="sd">    :arg F: the form</span>
 <span class="sd">    :arg adjoint_error: the approximation to</span>
 <span class="sd">        the adjoint error</span>
+<span class="sd">    :kwarg test_space: the :class:`FunctionSpace`</span>
+<span class="sd">        that the test function lives in</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">test_space</span> <span class="ow">or</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">!=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">form2indicator</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">{</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">fs</span><span class="p">):</span> <span class="n">adjoint_error</span><span class="p">}))</span></div>

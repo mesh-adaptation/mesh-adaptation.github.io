@@ -36,14 +36,6 @@ pyroteus.interpolation module
    :undoc-members:
    :show-inheritance:
 
-pyroteus.kernel module
-----------------------
-
-.. automodule:: pyroteus.kernel
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pyroteus.log module
 -------------------
 
@@ -96,14 +88,6 @@ pyroteus.recovery module
 ------------------------
 
 .. automodule:: pyroteus.recovery
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyroteus.runge\_kutta module
-----------------------------
-
-.. automodule:: pyroteus.runge_kutta
    :members:
    :undoc-members:
    :show-inheritance:
