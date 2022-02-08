@@ -54,9 +54,11 @@
 <span class="sd">    An extension of :class:`AdjointMeshSeq` to account for</span>
 <span class="sd">    goal-oriented problems.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="GoalOrientedMeshSeq.global_enrichment"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.global_enrichment&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">global_enrichment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">num_enrichments_h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                          <span class="n">num_enrichments_p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">global_enrichment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_enrichments_h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_enrichments_p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve the forward and adjoint problems</span>
 <span class="sd">        associated with :attr:`solver` in a</span>
@@ -76,16 +78,15 @@
 <span class="sd">        to the :attr:`solve_adjoint` method of the</span>
 <span class="sd">        enriched :class:`AdjointMeshSeq`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">enrichment_method</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;hp&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">enrichment_method</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;hp&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;=</span> <span class="mi">0</span>
         <span class="k">assert</span> <span class="n">num_enrichments_p</span> <span class="o">&gt;=</span> <span class="mi">0</span>
         <span class="k">assert</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">num_enrichments_p</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
         <span class="c1"># Apply h-refinement</span>
-        <span class="k">if</span> <span class="s1">&#39;h&#39;</span> <span class="ow">in</span> <span class="n">enrichment_method</span> <span class="ow">and</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;h&quot;</span> <span class="ow">in</span> <span class="n">enrichment_method</span> <span class="ow">and</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">MeshHierarchy</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">num_enrichments_h</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span>
+                <span class="n">MeshHierarchy</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">num_enrichments_h</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span>
             <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">meshes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span>
@@ -99,16 +100,23 @@
             <span class="n">enriched_spaces</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">element</span> <span class="o">=</span> <span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
-                <span class="k">if</span> <span class="s1">&#39;p&#39;</span> <span class="ow">in</span> <span class="n">enrichment_method</span><span class="p">:</span>
-                    <span class="n">element</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">+</span> <span class="n">num_enrichments_p</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;p&quot;</span> <span class="ow">in</span> <span class="n">enrichment_method</span><span class="p">:</span>
+                    <span class="n">element</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span>
+                        <span class="n">degree</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">+</span> <span class="n">num_enrichments_p</span>
+                    <span class="p">)</span>
                 <span class="n">enriched_spaces</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">enriched_spaces</span>
 
         <span class="c1"># Solve adjoint in higher order space</span>
         <span class="n">adj_mesh_seq</span> <span class="o">=</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">,</span> <span class="n">meshes</span><span class="p">,</span> <span class="n">get_function_spaces</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">,</span>
-            <span class="n">qoi_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="p">,</span> <span class="n">steady</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">,</span>
+            <span class="n">meshes</span><span class="p">,</span>
+            <span class="n">get_function_spaces</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">,</span>
+            <span class="n">qoi_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="p">,</span>
+            <span class="n">steady</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">adj_mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -156,8 +164,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

@@ -67,7 +67,7 @@
 <span class="sd">        Clement interpolant over.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">V</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="n">V</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Discontinuous Lagrange&#39;</span>
+    <span class="k">assert</span> <span class="n">V</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Discontinuous Lagrange&quot;</span>
     <span class="k">assert</span> <span class="n">V</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
     <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">value_shape</span><span class="p">())</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
@@ -84,7 +84,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rank-</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> tensors are not supported.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Lagrange&#39;</span>
+        <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Lagrange&quot;</span>
         <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">target_space</span><span class="p">)</span>
 
@@ -92,53 +92,67 @@
     <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
-        <span class="n">volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span><span class="p">)</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">volume</span> <span class="o">=</span> <span class="n">get_facet_areas</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
     <span class="n">patch_volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span>
     <span class="n">kernel</span> <span class="o">=</span> <span class="s2">&quot;for (int i=0; i &lt; p.dofs; i++) p[i] += v[0];&quot;</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-        <span class="s1">&#39;p&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">patch_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">INC</span><span class="p">),</span>
+        <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">patch_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">INC</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
 
     <span class="c1"># Volume average</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-        <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-        <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">INC</span><span class="p">),</span>
+        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">INC</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            for (int i=0; i &lt; t.dofs; i++) {</span>
-<span class="s2">              t[i] += s[0]*v[0];</span>
-<span class="s2">            }</span>
-<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            for (int i=0; i &lt; t.dofs; i++) {</span>
+<span class="sd">              t[i] += s[0]*v[0];</span>
+<span class="sd">            }</span>
+<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">dX</span><span class="p">,</span>
+            <span class="n">keys</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            int d = </span><span class="si">%d</span><span class="s2">;</span>
-<span class="s2">            for (int i=0; i &lt; t.dofs; i++) {</span>
-<span class="s2">              for (int j=0; j &lt; d; j++) {</span>
-<span class="s2">                t[i*d + j] += s[j]*v[0];</span>
-<span class="s2">              }</span>
-<span class="s2">            }</span>
-<span class="s2">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">dim</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            int d = %d;</span>
+<span class="sd">            for (int i=0; i &lt; t.dofs; i++) {</span>
+<span class="sd">              for (int j=0; j &lt; d; j++) {</span>
+<span class="sd">                t[i*d + j] += s[j]*v[0];</span>
+<span class="sd">              }</span>
+<span class="sd">            }</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">dim</span><span class="p">,</span>
+            <span class="n">dX</span><span class="p">,</span>
+            <span class="n">keys</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            int d = </span><span class="si">%d</span><span class="s2">;</span>
-<span class="s2">            int Nd = d*d;</span>
-<span class="s2">            for (int i=0; i &lt; t.dofs; i++) {</span>
-<span class="s2">              for (int j=0; j &lt; d; j++) {</span>
-<span class="s2">                for (int k=0; k &lt; d; k++) {</span>
-<span class="s2">                  t[i*Nd + j*d + k] += s[j*d + k]*v[0];</span>
-<span class="s2">                }</span>
-<span class="s2">              }</span>
-<span class="s2">            }</span>
-<span class="s2">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">dim</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            int d = %d;</span>
+<span class="sd">            int Nd = d*d;</span>
+<span class="sd">            for (int i=0; i &lt; t.dofs; i++) {</span>
+<span class="sd">              for (int j=0; j &lt; d; j++) {</span>
+<span class="sd">                for (int k=0; k &lt; d; k++) {</span>
+<span class="sd">                  t[i*Nd + j*d + k] += s[j*d + k]*v[0];</span>
+<span class="sd">                }</span>
+<span class="sd">              }</span>
+<span class="sd">            }</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">dim</span><span class="p">,</span>
+            <span class="n">dX</span><span class="p">,</span>
+            <span class="n">keys</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rank-</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> tensors are not supported.&quot;</span><span class="p">)</span>
-    <span class="n">target</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="n">patch_volume</span><span class="p">)</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">target</span> <span class="o">/</span> <span class="n">patch_volume</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">target</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">target</span></div>
@@ -149,6 +163,7 @@
 <span class="c1"># TODO</span>
 
 <span class="c1"># --- Conservative interpolation by supermesh projection</span>
+
 
 <div class="viewcode-block" id="project"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.interpolation.project">[docs]</a><span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -208,8 +223,8 @@
     <span class="n">target_space</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
         <span class="n">target</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">==</span> <span class="n">source_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">target</span><span class="o">.</span><span class="n">split</span><span class="p">()):</span>
             <span class="n">t</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -248,14 +263,14 @@
     <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
         <span class="n">source_b</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">target_b</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">source_b</span>
-    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">target_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">==</span> <span class="n">source_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">target_b_split</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="n">source_b_split</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s1">&#39;num_sub_spaces&#39;</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">target_b_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_b</span><span class="p">]</span>
@@ -265,7 +280,9 @@
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">t_b</span><span class="p">,</span> <span class="n">s_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">target_b_split</span><span class="p">,</span> <span class="n">source_b_split</span><span class="p">)):</span>
         <span class="n">ksp</span> <span class="o">=</span> <span class="n">petsc4py</span><span class="o">.</span><span class="n">KSP</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
         <span class="n">ksp</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="n">assemble_mass_matrix</span><span class="p">(</span><span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()))</span>
-        <span class="n">mixed_mass</span> <span class="o">=</span> <span class="n">assemble_mixed_mass_matrix</span><span class="p">(</span><span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="n">s_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">())</span>
+        <span class="n">mixed_mass</span> <span class="o">=</span> <span class="n">assemble_mixed_mass_matrix</span><span class="p">(</span>
+            <span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="n">s_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="k">with</span> <span class="n">t_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">tb</span><span class="p">,</span> <span class="n">s_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_wo</span> <span class="k">as</span> <span class="n">sb</span><span class="p">:</span>
             <span class="n">residual</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">ksp</span><span class="o">.</span><span class="n">solveTranspose</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
@@ -309,8 +326,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

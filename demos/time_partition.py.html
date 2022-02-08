@@ -76,7 +76,7 @@ consider a single subinterval.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">end_time</span> <span class="o">=</span> <span class="mf">1.0</span>
 <span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.125</span>
-<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;solution&#39;</span><span class="p">]</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;solution&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>With these definitions, we should get
@@ -104,8 +104,7 @@ value may be one larger than you expect.</p>
 Let’s try constructing a new one with more
 than one subinterval.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
-                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In some problems, the dynamics evolve such
@@ -114,16 +113,14 @@ different parts of the simulation. To account
 for that, it is possible to specify a list of
 timesteps corresponding to each subinterval.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.125</span><span class="p">,</span> <span class="mf">0.0625</span><span class="p">]</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
-                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Note that this means that there are more
 exports in the second subinterval than the first.
 This can be remedied by also setting
 <code class="docutils literal notranslate"><span class="pre">timesteps_per_export</span></code> as a list.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
-                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>So far, we have assumed that the subintervals
@@ -132,8 +129,14 @@ However, to set up a <code class="xref py py-class docutils literal notranslate"
 non-uniform subintervals, they need to be passed
 to the constructor as a list of tuples.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subintervals</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
-                  <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">subintervals</span><span class="o">=</span><span class="n">subintervals</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
+    <span class="n">end_time</span><span class="p">,</span>
+    <span class="n">num_subintervals</span><span class="p">,</span>
+    <span class="n">dt</span><span class="p">,</span>
+    <span class="n">fields</span><span class="p">,</span>
+    <span class="n">timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+    <span class="n">subintervals</span><span class="o">=</span><span class="n">subintervals</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>In the <a class="reference external" href="./burgers.py.html">next demo</a>, we
@@ -150,12 +153,16 @@ we can solve PDEs on multiple meshes.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../index.html"
-                        title="previous chapter">Pyroteus Goal-Oriented Mesh Adaptation Toolkit</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="burgers.py.html"
-                        title="next chapter">Burgers equation on a sequence of meshes</a></p>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../index.html"
+                          title="previous chapter">Pyroteus Goal-Oriented Mesh Adaptation Toolkit</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="burgers.py.html"
+                          title="next chapter">Burgers equation on a sequence of meshes</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -197,8 +204,8 @@ we can solve PDEs on multiple meshes.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

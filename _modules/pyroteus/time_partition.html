@@ -59,6 +59,7 @@
 <span class="sd">    uniform in length. However, different values</span>
 <span class="sd">    may be used of the timestep on each.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :arg end_time: end time of the interval</span>
@@ -77,12 +78,12 @@
 <span class="sd">            of subintervals, which need not be of</span>
 <span class="sd">            uniform length (defaults to None)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">debug</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
-        <span class="n">timesteps_per_export</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timesteps_per_export&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_time&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">timesteps_per_export</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timesteps_per_export&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_time&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="p">):</span>
@@ -92,17 +93,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;interval&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get subintervals</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subintervals&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subintervals&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">subinterval_time</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="o">/</span><span class="n">num_subintervals</span>
+            <span class="n">subinterval_time</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_subintervals</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">subinterval_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">subinterval_time</span><span class="p">)</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">subinterval_time</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">subinterval_time</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">)</span>
             <span class="p">]</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_subintervals</span>
         <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;subintervals&quot;</span><span class="p">)</span>
 
@@ -112,52 +116,64 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;timesteps&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_subintervals</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of timesteps and subintervals do not match&quot;</span>
-                             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Number of timesteps and subintervals do not match&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Get number of timesteps on each subinterval</span>
         <span class="n">_timesteps_per_subinterval</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">dt</span>
-            <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">dt</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">tsps</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">tsps</span> <span class="ow">in</span> <span class="n">_timesteps_per_subinterval</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">tsps</span><span class="p">))</span> <span class="k">for</span> <span class="n">tsps</span> <span class="ow">in</span> <span class="n">_timesteps_per_subinterval</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">,</span> <span class="n">_timesteps_per_subinterval</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Non-integer timesteps per subinterval&quot;</span>
-                             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">_timesteps_per_subinterval</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Non-integer timesteps per subinterval&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">_timesteps_per_subinterval</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;timesteps_per_subinterval&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get timesteps per export</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timesteps_per_export</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">timesteps_per_export</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">timesteps_per_export</span><span class="p">)):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Non-integer timesteps per export&quot;</span>
-                                 <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">timesteps_per_export</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Non-integer timesteps per export (</span><span class="si">{</span><span class="n">timesteps_per_export</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
             <span class="n">timesteps_per_export</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">timesteps_per_export</span><span class="p">))</span>
-                <span class="k">for</span> <span class="n">subinterval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">timesteps_per_export</span><span class="p">))</span> <span class="k">for</span> <span class="n">subinterval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span>
             <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">timesteps_per_export</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of timesteps per export and subinterval do not match&quot;</span>
-                             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; vs. </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">tspe</span><span class="p">,</span> <span class="n">tsps</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">,</span>
-                                             <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Number of timesteps per export and subinterval do not match&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; vs. </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">tspe</span><span class="p">,</span> <span class="n">tsps</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">if</span> <span class="n">tsps</span> <span class="o">%</span> <span class="n">tspe</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of timesteps per export does not divide number of&quot;</span>
-                                 <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; timesteps per subinterval (</span><span class="si">{</span><span class="n">tspe</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">tsps</span><span class="si">}</span><span class="s2">&quot;</span>
-                                 <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; on subinteral </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Number of timesteps per export does not divide number of&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; timesteps per subinterval (</span><span class="si">{</span><span class="n">tspe</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">tsps</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; on subinteral </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;timesteps_per_export&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get exports per subinterval</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exports_per_subinterval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-            <span class="n">tsps</span><span class="o">//</span><span class="n">tspe</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="k">for</span> <span class="n">tspe</span><span class="p">,</span> <span class="n">tsps</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">)</span>
-        <span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exports_per_subinterval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">tsps</span> <span class="o">//</span> <span class="n">tspe</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">tspe</span><span class="p">,</span> <span class="n">tsps</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;exports_per_subinterval&quot;</span><span class="p">)</span>
-        <span class="n">debug</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TimePartition.debug"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimePartition.debug">[docs]</a>    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -166,8 +182,10 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2"> cannot be debuged because it doesn&#39;t exist&quot;</span><span class="p">)</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2"> cannot be debuged because it doesn&#39;t exist&quot;</span>
+            <span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span>
         <span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TimePartition: </span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">25s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -179,25 +197,28 @@
 <span class="sd">        :return: subinterval bounds and timestep</span>
 <span class="sd">            associated with that index</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">({</span>
-            <span class="s1">&#39;subinterval&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-            <span class="s1">&#39;timestep&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-            <span class="s1">&#39;timesteps_per_export&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-            <span class="s1">&#39;num_exports&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-            <span class="s1">&#39;num_timesteps&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-            <span class="s1">&#39;start_time&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-            <span class="s1">&#39;end_time&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
-        <span class="p">})</span></div>
+        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;subinterval&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;timestep&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;timesteps_per_export&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;num_exports&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;num_timesteps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TimeInterval"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimeInterval">[docs]</a><span class="k">class</span> <span class="nc">TimeInterval</span><span class="p">(</span><span class="n">TimePartition</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A trivial :class:`TimePartition`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;start_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">end_time</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">end_time</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -248,8 +269,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

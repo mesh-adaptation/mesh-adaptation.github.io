@@ -50,12 +50,27 @@
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">clement_interpolant</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;compute_eigendecomposition&quot;</span><span class="p">,</span> <span class="s2">&quot;assemble_eigendecomposition&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;metric_complexity&quot;</span><span class="p">,</span> <span class="s2">&quot;isotropic_metric&quot;</span><span class="p">,</span> <span class="s2">&quot;anisotropic_metric&quot;</span><span class="p">,</span> <span class="s2">&quot;hessian_metric&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;enforce_element_constraints&quot;</span><span class="p">,</span> <span class="s2">&quot;space_normalise&quot;</span><span class="p">,</span> <span class="s2">&quot;space_time_normalise&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;metric_relaxation&quot;</span><span class="p">,</span> <span class="s2">&quot;metric_average&quot;</span><span class="p">,</span> <span class="s2">&quot;metric_intersection&quot;</span><span class="p">,</span> <span class="s2">&quot;combine_metrics&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;determine_metric_complexity&quot;</span><span class="p">,</span> <span class="s2">&quot;density_and_quotients&quot;</span><span class="p">,</span> <span class="s2">&quot;check_spd&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;get_values_at_elements&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;compute_eigendecomposition&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;assemble_eigendecomposition&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metric_complexity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;isotropic_metric&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;anisotropic_metric&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hessian_metric&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;enforce_element_constraints&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;space_normalise&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;space_time_normalise&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metric_relaxation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metric_average&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metric_intersection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;combine_metrics&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;determine_metric_complexity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;density_and_quotients&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;check_spd&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metric_exponential&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metric_logarithm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ramp_complexity&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">get_metric_kernel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
@@ -86,7 +101,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">V_ten</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">V_ten</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">value_shape</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can only compute eigendecompositions of matrix-valued functions.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Can only compute eigendecompositions of matrix-valued functions.&quot;</span>
+        <span class="p">)</span>
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">V_ten</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
     <span class="n">fe</span> <span class="o">=</span> <span class="p">(</span><span class="n">V_ten</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">(),</span> <span class="n">V_ten</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">())</span>
     <span class="n">V_vec</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="o">*</span><span class="n">fe</span><span class="p">)</span>
@@ -96,8 +113,13 @@
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;get_reordered_eigendecomposition&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;get_eigendecomposition&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
-    <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">V_ten</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span>
-                 <span class="n">evectors</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span> <span class="n">evalues</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span> <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">))</span>
+    <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+        <span class="n">kernel</span><span class="p">,</span>
+        <span class="n">V_ten</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span>
+        <span class="n">evectors</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+        <span class="n">evalues</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">evectors</span><span class="p">,</span> <span class="n">evalues</span></div>
 
 
@@ -125,12 +147,18 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mismatching finite element space degrees&quot;</span><span class="p">)</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">V_ten</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">V_ten</span><span class="p">)</span>
-    <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;set_eigendecomposition&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">V_ten</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span>
-                 <span class="n">M</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span> <span class="n">evectors</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span> <span class="n">evalues</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">))</span>
+    <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+        <span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;set_eigendecomposition&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span>
+        <span class="n">V_ten</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span>
+        <span class="n">M</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+        <span class="n">evectors</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="n">evalues</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">M</span></div>
 
 
 <span class="c1"># --- General</span>
+
 
 <div class="viewcode-block" id="metric_complexity"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.metric_complexity">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.metric_complexity&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">metric_complexity</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -144,11 +172,11 @@
 <span class="sd">        interior or boundary?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">differential</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> <span class="k">if</span> <span class="n">boundary</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
-    <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span><span class="o">*</span><span class="n">differential</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span> <span class="o">*</span> <span class="n">differential</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="isotropic_metric"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.isotropic_metric">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.isotropic_metric&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">isotropic_metric</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolant</span><span class="o">=</span><span class="s1">&#39;Clement&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">isotropic_metric</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolant</span><span class="o">=</span><span class="s2">&quot;Clement&quot;</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute an isotropic metric from some error indicator.</span>
 
@@ -165,27 +193,35 @@
     <span class="n">mesh</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
     <span class="k">assert</span> <span class="n">dim</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Spatial dimension </span><span class="si">{</span><span class="n">dim</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> not supported.&quot;</span>
-    <span class="n">target_space</span> <span class="o">=</span> <span class="n">target_space</span> <span class="ow">or</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s1">&#39;CG&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Lagrange&#39;</span>
+    <span class="n">target_space</span> <span class="o">=</span> <span class="n">target_space</span> <span class="ow">or</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Lagrange&quot;</span>
     <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
 
     <span class="c1"># Interpolate P0 indicators into P1 space</span>
-    <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s1">&#39;Clement&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s2">&quot;Clement&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Can only apply Clement interpolant to Functions&quot;</span><span class="p">)</span>
         <span class="n">fs</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
         <span class="n">family</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span>
         <span class="n">degree</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">family</span> <span class="o">!=</span> <span class="s1">&#39;Lagrange&#39;</span> <span class="ow">or</span> <span class="n">degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">family</span> <span class="o">!=</span> <span class="s1">&#39;Discontinuous Lagrange&#39;</span> <span class="ow">or</span> <span class="n">degree</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Was expecting an error indicator in P0 or P1&quot;</span>
-                                 <span class="sa">f</span><span class="s2">&quot; space, not </span><span class="si">{</span><span class="n">family</span><span class="si">}</span><span class="s2"> of degree </span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">family</span> <span class="o">!=</span> <span class="s2">&quot;Lagrange&quot;</span> <span class="ow">or</span> <span class="n">degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">family</span> <span class="o">!=</span> <span class="s2">&quot;Discontinuous Lagrange&quot;</span> <span class="ow">or</span> <span class="n">degree</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Was expecting an error indicator in P0 or P1&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; space, not </span><span class="si">{</span><span class="n">family</span><span class="si">}</span><span class="s2"> of degree </span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
             <span class="n">error_indicator</span> <span class="o">=</span> <span class="n">clement_interpolant</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Clement&#39;</span><span class="p">,</span> <span class="s1">&#39;interpolate&#39;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">target_space</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;L2&#39;</span><span class="p">,</span> <span class="s1">&#39;project&#39;</span><span class="p">):</span>
-        <span class="n">error_indicator</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">target_space</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Clement&quot;</span><span class="p">,</span> <span class="s2">&quot;interpolate&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+            <span class="nb">abs</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">target_space</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">):</span>
+        <span class="n">error_indicator</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">project</span><span class="p">(</span>
+            <span class="n">error_indicator</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+            <span class="nb">abs</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="n">dim</span><span class="p">),</span> <span class="n">target_space</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interpolant </span><span class="si">{</span><span class="n">interpolant</span><span class="si">}</span><span class="s2"> not recognised&quot;</span><span class="p">)</span></div>
 
@@ -203,10 +239,16 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected a rank 2 tensor, got rank </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected a square tensor field, got </span><span class="si">{</span><span class="n">fs</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">value_shape</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Expected a square tensor field, got </span><span class="si">{</span><span class="n">fs</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">value_shape</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
     <span class="n">metric</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span>
-    <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;metric_from_hessian&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">fs</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span>
-                 <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span> <span class="n">hessian</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">))</span>
+    <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+        <span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;metric_from_hessian&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">node_set</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+        <span class="n">hessian</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">metric</span></div>
 
 
@@ -231,17 +273,19 @@
 <span class="sd">    :kwarg interpolant: choose from &#39;Clement&#39;, &#39;L2&#39;,</span>
 <span class="sd">        &#39;interpolate&#39;, &#39;project&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">approach</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;approach&#39;</span><span class="p">,</span> <span class="s1">&#39;anisotropic_dwr&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">approach</span> <span class="o">==</span> <span class="s1">&#39;anisotropic_dwr&#39;</span><span class="p">:</span>
+    <span class="n">approach</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;approach&quot;</span><span class="p">,</span> <span class="s2">&quot;anisotropic_dwr&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">approach</span> <span class="o">==</span> <span class="s2">&quot;anisotropic_dwr&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">anisotropic_dwr_metric</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">hessian</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">approach</span> <span class="o">==</span> <span class="s1">&#39;weighted_hessian&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">approach</span> <span class="o">==</span> <span class="s2">&quot;weighted_hessian&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">weighted_hessian_metric</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">hessian</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Anisotropic metric approach </span><span class="si">{</span><span class="n">approach</span><span class="si">}</span><span class="s2"> not recognised.&quot;</span><span class="p">)</span></div>
 
 
 <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.anisotropic_dwr_metric&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">anisotropic_dwr_metric</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">hessian</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolant</span><span class="o">=</span><span class="s1">&#39;Clement&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">anisotropic_dwr_metric</span><span class="p">(</span>
+    <span class="n">error_indicator</span><span class="p">,</span> <span class="n">hessian</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolant</span><span class="o">=</span><span class="s2">&quot;Clement&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute an anisotropic metric from some error</span>
 <span class="sd">    indicator, given a Hessian field.</span>
@@ -257,8 +301,11 @@
 <span class="sd">    construction and involves the `convergence_rate`</span>
 <span class="sd">    parameter, named :math:`alpha` in :cite:`CP13`.</span>
 
+<span class="sd">    If a Hessian is not provided then an isotropic</span>
+<span class="sd">    formulation is used.</span>
+
 <span class="sd">    :arg error_indicator: the error indicator</span>
-<span class="sd">    :arg hessian: the Hessian</span>
+<span class="sd">    :kwarg hessian: the Hessian</span>
 <span class="sd">    :kwarg target_space: :class:`TensorFunctionSpace` in</span>
 <span class="sd">        which the metric will exist</span>
 <span class="sd">    :kwarg target_complexity: target metric complexity</span>
@@ -267,54 +314,69 @@
 <span class="sd">        &#39;interpolate&#39;, &#39;project&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># FIXME: This is hacky</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">hessian</span><span class="p">)</span>
         <span class="n">error_indicator</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hessian</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>  <span class="c1"># FIXME: This is hacky</span>
         <span class="n">hessian</span> <span class="o">=</span> <span class="n">hessian</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">target_complexity</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_complexity&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">target_complexity</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_complexity&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">target_complexity</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;Target complexity must be positive&quot;</span>
-    <span class="n">mesh</span> <span class="o">=</span> <span class="n">hessian</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
     <span class="k">assert</span> <span class="n">dim</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Spatial dimension </span><span class="si">{</span><span class="n">dim</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> not supported.&quot;</span>
-    <span class="n">convergence_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;convergence_rate&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">convergence_rate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;convergence_rate&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">convergence_rate</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;Convergence rate must be at least one&quot;</span>
+    <span class="n">P0_ten</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">P0_metric</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0_ten</span><span class="p">)</span>
 
     <span class="c1"># Get reference element volume</span>
-    <span class="n">K_hat</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="mi">1</span><span class="o">/</span><span class="mi">6</span>
+    <span class="n">K_hat</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span>
 
     <span class="c1"># Get current element volume</span>
-    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">K</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K_hat</span><span class="o">*</span><span class="nb">abs</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">JacobianDeterminant</span><span class="p">(</span><span class="n">mesh</span><span class="p">)),</span> <span class="n">P0</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">K_hat</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">JacobianDeterminant</span><span class="p">(</span><span class="n">mesh</span><span class="p">))</span>
 
     <span class="c1"># Get optimal element volume</span>
-    <span class="n">K_opt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="n">convergence_rate</span><span class="o">+</span><span class="mi">1</span><span class="p">)),</span> <span class="n">P0</span><span class="p">)</span>
-    <span class="n">K_opt</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K</span><span class="o">/</span><span class="n">target_complexity</span><span class="o">*</span><span class="n">K_opt</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">K_opt</span><span class="p">)</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">K_opt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">convergence_rate</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">P0</span><span class="p">)</span>
+    <span class="n">K_opt</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K</span> <span class="o">/</span> <span class="n">target_complexity</span> <span class="o">*</span> <span class="n">K_opt</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">K_opt</span><span class="p">)</span>
+    <span class="n">K_ratio</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">K_hat</span> <span class="o">/</span> <span class="n">K_opt</span><span class="p">),</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">dim</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">hessian</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">P0_metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K_ratio</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Interpolate from P1 to P0 by averaging the vertex-wise values</span>
+        <span class="n">P0_metric</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">hessian_metric</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">hessian</span><span class="p">,</span> <span class="n">P0_ten</span><span class="p">)))</span>
 
-    <span class="c1"># Interpolate from P1 to P0 by averaging the vertex-wise values</span>
-    <span class="n">P0_ten</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">P0_metric</span> <span class="o">=</span> <span class="n">hessian_metric</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">hessian</span><span class="p">,</span> <span class="n">P0_ten</span><span class="p">))</span>
+        <span class="c1"># Compute stretching factors, in ascending order</span>
+        <span class="n">evectors</span><span class="p">,</span> <span class="n">evalues</span> <span class="o">=</span> <span class="n">compute_eigendecomposition</span><span class="p">(</span><span class="n">P0_metric</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">lmin</span> <span class="o">=</span> <span class="n">evalues</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lmin</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;At least one eigenvalue is not positive (</span><span class="si">{</span><span class="n">lmin</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">evalues</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">evalues</span><span class="p">),</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">dim</span><span class="p">))</span>
 
-    <span class="c1"># Compute stretching factors, in ascending order</span>
-    <span class="n">evectors</span><span class="p">,</span> <span class="n">evalues</span> <span class="o">=</span> <span class="n">compute_eigendecomposition</span><span class="p">(</span><span class="n">P0_metric</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">S</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">evalues</span><span class="o">/</span><span class="nb">pow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">evalues</span><span class="p">),</span> <span class="mi">1</span><span class="o">/</span><span class="n">dim</span><span class="p">))</span>
-
-    <span class="c1"># Assemble metric with modified eigenvalues</span>
-    <span class="n">evalues</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">K_hat</span><span class="o">/</span><span class="n">K_opt</span><span class="p">),</span> <span class="mi">2</span><span class="o">/</span><span class="n">dim</span><span class="p">)</span><span class="o">*</span><span class="n">S</span><span class="p">)</span>
-    <span class="n">P0_metric</span> <span class="o">=</span> <span class="n">assemble_eigendecomposition</span><span class="p">(</span><span class="n">evectors</span><span class="p">,</span> <span class="n">evalues</span><span class="p">)</span>
+        <span class="c1"># Assemble metric with modified eigenvalues</span>
+        <span class="n">evalues</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K_ratio</span> <span class="o">*</span> <span class="n">S</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">evalues</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span>
+        <span class="n">lmin</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lmin</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;At least one stretching factor is not positive (</span><span class="si">{</span><span class="n">lmin</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one modified stretching factor is not finite&quot;</span><span class="p">)</span>
+        <span class="n">P0_metric</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">assemble_eigendecomposition</span><span class="p">(</span><span class="n">evectors</span><span class="p">,</span> <span class="n">evalues</span><span class="p">))</span>
 
     <span class="c1"># Interpolate the metric into target space and ensure SPD</span>
     <span class="n">target_space</span> <span class="o">=</span> <span class="n">target_space</span> <span class="ow">or</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s1">&#39;Clement&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s2">&quot;Clement&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">hessian_metric</span><span class="p">(</span><span class="n">clement_interpolant</span><span class="p">(</span><span class="n">P0_metric</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="n">target_space</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s1">&#39;interpolate&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s2">&quot;interpolate&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">hessian_metric</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">P0_metric</span><span class="p">,</span> <span class="n">target_space</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="s1">&#39;L2&#39;</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;L2&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">hessian_metric</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">P0_metric</span><span class="p">,</span> <span class="n">target_space</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interpolant </span><span class="si">{</span><span class="n">interpolant</span><span class="si">}</span><span class="s2"> not recognised&quot;</span><span class="p">)</span>
 
 
 <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.weighted_hessian_metric&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">weighted_hessian_metric</span><span class="p">(</span><span class="n">error_indicators</span><span class="p">,</span> <span class="n">hessians</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolant</span><span class="o">=</span><span class="s1">&#39;Clement&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">weighted_hessian_metric</span><span class="p">(</span>
+    <span class="n">error_indicators</span><span class="p">,</span> <span class="n">hessians</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interpolant</span><span class="o">=</span><span class="s2">&quot;Clement&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute a vertex-wise anisotropic metric from a (list</span>
 <span class="sd">    of) error indicator(s), given a (list of) Hessian</span>
@@ -333,6 +395,7 @@
 <span class="sd">        &#39;interpolate&#39;, &#39;project&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_indicators</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
         <span class="n">error_indicators</span> <span class="o">=</span> <span class="p">[</span><span class="n">error_indicators</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hessians</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
@@ -343,29 +406,28 @@
 
     <span class="c1"># Project error indicators into P1 space and use them to weight Hessians</span>
     <span class="n">target_space</span> <span class="o">=</span> <span class="n">target_space</span> <span class="ow">or</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Metric&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">hessian</span> <span class="ow">in</span> <span class="n">hessians</span>
-    <span class="p">]</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Metric&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">hessian</span> <span class="ow">in</span> <span class="n">hessians</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">error_indicator</span><span class="p">,</span> <span class="n">hessian</span><span class="p">,</span> <span class="n">metric</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">error_indicators</span><span class="p">,</span> <span class="n">hessians</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s1">&#39;Clement&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s2">&quot;Clement&quot;</span><span class="p">:</span>
             <span class="n">error_indicator</span> <span class="o">=</span> <span class="n">clement_interpolant</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s1">&#39;interpolate&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">interpolant</span> <span class="o">==</span> <span class="s2">&quot;interpolate&quot;</span><span class="p">:</span>
                 <span class="n">error_indicator</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">P1</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;L2&#39;</span><span class="p">,</span> <span class="s1">&#39;project&#39;</span><span class="p">):</span>
+            <span class="k">elif</span> <span class="n">interpolant</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">):</span>
                 <span class="n">error_indicator</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">P1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interpolant </span><span class="si">{</span><span class="n">interpolant</span><span class="si">}</span><span class="s2"> not recognised&quot;</span><span class="p">)</span>
-        <span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span><span class="o">*</span><span class="n">hessian</span><span class="p">)</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">)</span> <span class="o">*</span> <span class="n">hessian</span><span class="p">)</span>
 
     <span class="c1"># Combine the components</span>
-    <span class="k">return</span> <span class="n">combine_metrics</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">combine_metrics</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="enforce_element_constraints"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.enforce_element_constraints">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.enforce_element_constraints&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">enforce_element_constraints</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">h_min</span><span class="p">,</span> <span class="n">h_max</span><span class="p">,</span> <span class="n">a_max</span><span class="p">,</span> <span class="n">boundary_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimise</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">enforce_element_constraints</span><span class="p">(</span>
+    <span class="n">metrics</span><span class="p">,</span> <span class="n">h_min</span><span class="p">,</span> <span class="n">h_max</span><span class="p">,</span> <span class="n">a_max</span><span class="p">,</span> <span class="n">boundary_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimise</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Post-process a list of metrics to enforce minimum and</span>
 <span class="sd">    maximum element sizes, as well as maximum anisotropy.</span>
@@ -386,20 +448,26 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">metrics</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h_min</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
-        <span class="n">h_min</span> <span class="o">=</span> <span class="p">[</span><span class="n">h_min</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="n">h_min</span> <span class="o">=</span> <span class="p">[</span><span class="n">h_min</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h_max</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
-        <span class="n">h_max</span> <span class="o">=</span> <span class="p">[</span><span class="n">h_max</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="n">h_max</span> <span class="o">=</span> <span class="p">[</span><span class="n">h_max</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a_max</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
-        <span class="n">a_max</span> <span class="o">=</span> <span class="p">[</span><span class="n">a_max</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="n">a_max</span> <span class="o">=</span> <span class="p">[</span><span class="n">a_max</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">amax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">h_min</span><span class="p">,</span> <span class="n">h_max</span><span class="p">,</span> <span class="n">a_max</span><span class="p">):</span>
         <span class="n">fs</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
 
         <span class="c1"># Interpolate hmin, hmax and amax into P1</span>
         <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">hmin</span> <span class="o">=</span> <span class="p">(</span><span class="n">clement_interpolant</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hmin</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="k">else</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">)(</span><span class="n">hmin</span><span class="p">)</span>
-        <span class="n">hmax</span> <span class="o">=</span> <span class="p">(</span><span class="n">clement_interpolant</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hmax</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="k">else</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">)(</span><span class="n">hmax</span><span class="p">)</span>
-        <span class="n">amax</span> <span class="o">=</span> <span class="p">(</span><span class="n">clement_interpolant</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amax</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="k">else</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">)(</span><span class="n">amax</span><span class="p">)</span>
+        <span class="n">hmin</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">clement_interpolant</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hmin</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="k">else</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span>
+        <span class="p">)(</span><span class="n">hmin</span><span class="p">)</span>
+        <span class="n">hmax</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">clement_interpolant</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hmax</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="k">else</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span>
+        <span class="p">)(</span><span class="n">hmax</span><span class="p">)</span>
+        <span class="n">amax</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">clement_interpolant</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">amax</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="k">else</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span>
+        <span class="p">)(</span><span class="n">amax</span><span class="p">)</span>
 
         <span class="c1"># Check the values are okay</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">optimise</span><span class="p">:</span>
@@ -407,7 +475,9 @@
             <span class="k">assert</span> <span class="n">_hmin</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
             <span class="k">assert</span> <span class="n">hmax</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">_hmin</span>
             <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="n">hmax</span> <span class="o">&lt;</span> <span class="n">hmin</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">dx</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="n">hmax</span> <span class="o">&lt;</span> <span class="n">hmin</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">),</span> <span class="mf">0.0</span>
+            <span class="p">)</span>
             <span class="k">assert</span> <span class="n">amax</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">1.0</span>
 
         <span class="c1"># Enforce constraints</span>
@@ -416,13 +486,19 @@
             <span class="n">node_set</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">node_set</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">node_set</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">boundary_tag</span><span class="p">)</span><span class="o">.</span><span class="n">node_set</span>
-        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;postproc_metric&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">node_set</span><span class="p">,</span>
-                     <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span> <span class="n">hmin</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-                     <span class="n">hmax</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span> <span class="n">amax</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">))</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+            <span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;postproc_metric&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span>
+            <span class="n">node_set</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+            <span class="n">hmin</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="n">hmax</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="n">amax</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">metrics</span></div>
 
 
 <span class="c1"># --- Normalisation</span>
+
 
 <div class="viewcode-block" id="space_normalise"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.space_normalise">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.space_normalise&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">space_normalise</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">global_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -438,7 +514,7 @@
 <span class="sd">    :kwarg boundary: is the normalisation over the domain</span>
 <span class="sd">        boundary?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span> <span class="ow">or</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Norm order </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> not valid&quot;</span>
+    <span class="k">assert</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span> <span class="ow">or</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Norm order </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> not valid&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">boundary</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">-=</span> <span class="mi">1</span>
@@ -447,12 +523,14 @@
     <span class="k">if</span> <span class="n">global_factor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">detM</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
         <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> <span class="k">if</span> <span class="n">boundary</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
-        <span class="n">integral</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">detM</span><span class="p">,</span> <span class="mf">0.5</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span> <span class="k">else</span> <span class="n">p</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">*</span><span class="n">dX</span><span class="p">)</span>
-        <span class="n">global_factor</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="n">integral</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="n">d</span><span class="p">))</span>
+        <span class="n">integral</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
+            <span class="nb">pow</span><span class="p">(</span><span class="n">detM</span><span class="p">,</span> <span class="mf">0.5</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span> <span class="k">else</span> <span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span> <span class="o">*</span> <span class="n">dX</span>
+        <span class="p">)</span>
+        <span class="n">global_factor</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">target</span> <span class="o">/</span> <span class="n">integral</span><span class="p">,</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">d</span><span class="p">))</span>
 
     <span class="c1"># Normalise</span>
-    <span class="n">determinant</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
-    <span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">global_factor</span><span class="o">*</span><span class="n">determinant</span><span class="o">*</span><span class="n">metric</span><span class="p">)</span>
+    <span class="n">determinant</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
+    <span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">global_factor</span> <span class="o">*</span> <span class="n">determinant</span> <span class="o">*</span> <span class="n">metric</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metric</span></div>
 
 
@@ -471,12 +549,11 @@
 <span class="sd">    :arg p: normalisation order</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># NOTE: Assumes uniform subinterval lengths</span>
-    <span class="k">assert</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span> <span class="ow">or</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Norm order </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> not valid&quot;</span>
+    <span class="k">assert</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span> <span class="ow">or</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Norm order </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2"> not valid&quot;</span>
     <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_subintervals</span>
     <span class="n">dt_per_mesh</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">end_time</span><span class="o">/</span><span class="n">num_subintervals</span><span class="o">/</span><span class="n">dt</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">timesteps</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">end_time</span> <span class="o">/</span> <span class="n">num_subintervals</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">timesteps</span>
     <span class="p">]</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
 
@@ -484,16 +561,20 @@
     <span class="n">integral</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">dt_per_mesh</span><span class="p">):</span>
         <span class="n">detM</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span><span class="p">:</span>
-            <span class="n">integral</span> <span class="o">+=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">tau</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">detM</span><span class="p">)</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span><span class="p">:</span>
+            <span class="n">integral</span> <span class="o">+=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">tau</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">detM</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">integral</span> <span class="o">+=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">tau</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">detM</span><span class="p">,</span> <span class="n">p</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
-    <span class="n">global_norm</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">target</span><span class="o">/</span><span class="n">integral</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="n">d</span><span class="p">))</span>
+            <span class="n">integral</span> <span class="o">+=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
+                <span class="nb">pow</span><span class="p">(</span><span class="n">tau</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">detM</span><span class="p">,</span> <span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
+            <span class="p">)</span>
+    <span class="n">global_norm</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="n">target</span> <span class="o">/</span> <span class="n">integral</span><span class="p">,</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">d</span><span class="p">))</span>
 
     <span class="c1"># Normalise on each subinterval</span>
     <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">dt_per_mesh</span><span class="p">):</span>
-        <span class="n">determinant</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="n">tau</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
-        <span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">global_norm</span><span class="o">*</span><span class="n">determinant</span><span class="o">*</span><span class="n">metric</span><span class="p">)</span>
+        <span class="n">determinant</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">1</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span> <span class="k">else</span> <span class="nb">pow</span><span class="p">(</span><span class="n">tau</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">metric</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">global_norm</span> <span class="o">*</span> <span class="n">determinant</span> <span class="o">*</span> <span class="n">metric</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metrics</span></div>
 
 
@@ -518,20 +599,22 @@
 
     <span class="n">d</span> <span class="o">=</span> <span class="n">H_interior</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
     <span class="k">assert</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Spatial dimension </span><span class="si">{</span><span class="n">dim</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> not supported.&quot;</span>
-    <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;inf&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;H_interior_scaling&#39;</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
-    <span class="n">gbar</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;H_boundary_scaling&#39;</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">d</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
-    <span class="n">gbar</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">gbar</span><span class="p">,</span> <span class="n">d</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;H_interior_scaling&quot;</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">gbar</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;H_boundary_scaling&quot;</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">d</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span>
+    <span class="n">gbar</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">gbar</span><span class="p">,</span> <span class="n">d</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
 
     <span class="c1"># Compute coefficients for the algebraic problem</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">g</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">H_interior</span><span class="p">),</span> <span class="n">p</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
-    <span class="n">b</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">gbar</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">H_boundary</span><span class="p">),</span> <span class="n">p</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">H_interior</span><span class="p">),</span> <span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span><span class="p">))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
+        <span class="n">gbar</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">H_boundary</span><span class="p">),</span> <span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">+</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span>
+    <span class="p">)</span>
 
     <span class="c1"># Solve algebraic problem</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
     <span class="n">eq</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">*c^</span><span class="si">{</span><span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="si">}</span><span class="s2"> + </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">*c^</span><span class="si">{</span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find any solutions for equation </span><span class="si">{</span><span class="n">eq</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
@@ -545,6 +628,7 @@
 
 <span class="c1"># --- Combination</span>
 
+
 <div class="viewcode-block" id="metric_relaxation"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.metric_relaxation">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.metric_relaxation&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">metric_relaxation</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">function_space</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -557,16 +641,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Nothing to combine&quot;</span>
-    <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">/</span><span class="n">n</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
     <span class="n">num_weights</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_weights</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of weights do not match number of metrics (</span><span class="si">{</span><span class="n">num_weights</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Number of weights do not match number of metrics (</span><span class="si">{</span><span class="n">num_weights</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
     <span class="n">fs</span> <span class="o">=</span> <span class="n">function_space</span> <span class="ow">or</span> <span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
     <span class="n">relaxed_metric</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">weight</span><span class="p">,</span> <span class="n">metric</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span> <span class="ow">or</span> <span class="n">metric</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">!=</span> <span class="n">fs</span><span class="p">:</span>
             <span class="n">metric</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">function_space</span><span class="p">)</span>
-        <span class="n">relaxed_metric</span> <span class="o">+=</span> <span class="n">weight</span><span class="o">*</span><span class="n">metric</span>
+        <span class="n">relaxed_metric</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">metric</span>
     <span class="k">return</span> <span class="n">relaxed_metric</span></div>
 
 
@@ -603,7 +689,9 @@
     <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">node_set</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">node_set</span>
     <span class="k">elif</span> <span class="n">boundary_tag</span> <span class="o">==</span> <span class="p">[]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;It is unclear what to do with an empty list of boundary tags.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;It is unclear what to do with an empty list of boundary tags.&quot;</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">node_set</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">boundary_tag</span><span class="p">)</span><span class="o">.</span><span class="n">node_set</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
@@ -611,8 +699,13 @@
 
     <span class="k">def</span> <span class="nf">intersect_pair</span><span class="p">(</span><span class="n">M1</span><span class="p">,</span> <span class="n">M2</span><span class="p">):</span>
         <span class="n">M12</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">M1</span><span class="p">)</span>
-        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;intersect&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span> <span class="n">node_set</span><span class="p">,</span>
-                     <span class="n">M12</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span> <span class="n">M1</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span> <span class="n">M2</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">))</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+            <span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;intersect&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span>
+            <span class="n">node_set</span><span class="p">,</span>
+            <span class="n">M12</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+            <span class="n">M1</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="n">M2</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">M12</span>
 
     <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
@@ -627,16 +720,17 @@
 <span class="sd">    :kwarg average: combination by averaging or intersection?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">average</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;boundary_tag&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;boundary_tag&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;boundary_tag&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;boundary_tag&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metric_relaxation</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;weights&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;weights&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;weights&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;weights&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metric_intersection</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <span class="c1"># --- Metric decompositions and properties</span>
+
 
 <div class="viewcode-block" id="density_and_quotients"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.density_and_quotients">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.density_and_quotients&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">density_and_quotients</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -698,9 +792,9 @@
     <span class="n">evectors</span><span class="p">,</span> <span class="n">evalues</span> <span class="o">=</span> <span class="n">compute_eigendecomposition</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="n">reorder</span><span class="p">)</span>
 
     <span class="c1"># Extract density and quotients</span>
-    <span class="n">magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">evalues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">)]</span>
-    <span class="n">density</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">magnitudes</span><span class="p">))</span>
-    <span class="n">quotients</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">density</span><span class="o">*</span><span class="n">h</span><span class="o">**</span><span class="n">dim</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">magnitudes</span><span class="p">]))</span>
+    <span class="n">magnitudes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">evalues</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">)]</span>
+    <span class="n">density</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">magnitudes</span><span class="p">))</span>
+    <span class="n">quotients</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">density</span> <span class="o">*</span> <span class="n">h</span><span class="o">**</span><span class="n">dim</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">magnitudes</span><span class="p">]))</span>
     <span class="k">return</span> <span class="n">density</span><span class="p">,</span> <span class="n">quotients</span><span class="p">,</span> <span class="n">evectors</span></div>
 
 
@@ -712,8 +806,8 @@
 <span class="sd">    :arg M: the tensor field</span>
 <span class="sd">    :kwarg rtol: relative tolerance for the test</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">err</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">M</span><span class="p">)))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">err</span><span class="o">/</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">M</span><span class="p">))</span><span class="o">*</span><span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">rtol</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">M</span><span class="p">)))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">err</span> <span class="o">/</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">rtol</span>
 
 
 <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.is_pos_def&quot;</span><span class="p">)</span>
@@ -745,32 +839,77 @@
     <span class="k">assert</span> <span class="n">is_pos_def</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="s2">&quot;FAIL: Matrix is not positive-definite&quot;</span></div>
 
 
-<div class="viewcode-block" id="get_values_at_elements"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.get_values_at_elements">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_values_at_elements&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get_values_at_elements</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_exponential"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.metric_exponential">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.metric_exponential&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">metric_exponential</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract the values for all degrees of freedom associated</span>
-<span class="sd">    with each element.</span>
+<span class="sd">    Compute the matrix exponential of a metric.</span>
 
 <span class="sd">    :arg M: a :math:`\mathbb P1` metric :class:`Function`</span>
-<span class="sd">    :return: a vector :class:`Function` holding all DoFs</span>
+<span class="sd">    :return: its matrix exponential</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">mesh</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
-    <span class="n">element</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">element</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;Lagrange&#39;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s1"> elements have not been considered yet&#39;</span><span class="p">)</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">element</span><span class="o">.</span><span class="n">cell</span><span class="p">()</span> <span class="o">==</span> <span class="n">ufl</span><span class="o">.</span><span class="n">triangle</span>
-    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">element</span><span class="o">.</span><span class="n">cell</span><span class="p">()</span> <span class="o">==</span> <span class="n">ufl</span><span class="o">.</span><span class="n">tetrahedron</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Dimension </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s1"> not supported&#39;</span><span class="p">)</span>
-    <span class="n">P0_vec</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s1">&#39;DG&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="n">dim</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">dim</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">values</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0_vec</span><span class="p">)</span>
-    <span class="n">kernel</span> <span class="o">=</span> <span class="s2">&quot;for (int i=0; i &lt; vertexwise.dofs; i++) elementwise[i] += vertexwise[i];&quot;</span>
-    <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;vertexwise&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span> <span class="s1">&#39;elementwise&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">INC</span><span class="p">)}</span>
-    <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">values</span></div>
+    <span class="n">V</span><span class="p">,</span> <span class="n">Lambda</span> <span class="o">=</span> <span class="n">compute_eigendecomposition</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Lambda</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">lmin</span> <span class="o">=</span> <span class="n">Lambda</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input matrix is not positive-definite (min </span><span class="si">{</span><span class="n">lmin</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    int dim = %d;</span>
+<span class="sd">    for (int i=0; i &lt; L.dofs; i++) {</span>
+<span class="sd">      for (int d=0; d &lt; dim; d++) {</span>
+<span class="sd">        L[dim*i+d] = exp(L[dim*i+d]);</span>
+<span class="sd">      }</span>
+<span class="sd">    }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="o">%</span> <span class="n">M</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;L&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">)})</span>
+    <span class="k">return</span> <span class="n">assemble_eigendecomposition</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="metric_logarithm"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.metric_logarithm">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.metric_logarithm&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">metric_logarithm</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the matrix logarithm of a metric.</span>
+
+<span class="sd">    :arg M: a :math:`\mathbb P1` metric :class:`Function`</span>
+<span class="sd">    :return: its matrix logarithm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">V</span><span class="p">,</span> <span class="n">Lambda</span> <span class="o">=</span> <span class="n">compute_eigendecomposition</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Lambda</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">lmin</span> <span class="o">=</span> <span class="n">Lambda</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input matrix is not positive-definite (min </span><span class="si">{</span><span class="n">lmin</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    int dim = %d;</span>
+<span class="sd">    for (int i=0; i &lt; L.dofs; i++) {</span>
+<span class="sd">      for (int d=0; d &lt; dim; d++) {</span>
+<span class="sd">        L[dim*i+d] = log(L[dim*i+d]);</span>
+<span class="sd">      }</span>
+<span class="sd">    }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="o">%</span> <span class="n">M</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;L&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">Lambda</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">)})</span>
+    <span class="k">return</span> <span class="n">assemble_eigendecomposition</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">Lambda</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ramp_complexity"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.ramp_complexity">[docs]</a><span class="k">def</span> <span class="nf">ramp_complexity</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">num_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ramp up the target complexity over the first few iterations.</span>
+
+<span class="sd">    :arg base: the base complexity to start from</span>
+<span class="sd">    :arg target: the desired complexity</span>
+<span class="sd">    :arg i: the current iteration</span>
+<span class="sd">    :kwarg num_iterations: how many iterations to ramp over?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">base</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+    <span class="k">assert</span> <span class="n">target</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+    <span class="k">assert</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">num_iterations</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">target</span>
+    <span class="k">assert</span> <span class="n">num_iterations</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">num_iterations</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">target</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">base</span></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -808,8 +947,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

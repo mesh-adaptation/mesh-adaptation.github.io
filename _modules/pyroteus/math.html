@@ -58,14 +58,49 @@
 <span class="sd">    (1992).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">y1</span> <span class="o">=</span> <span class="n">x</span><span class="o">/</span><span class="mf">3.75</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="mf">3.75</span>
     <span class="n">y1</span> <span class="o">*=</span> <span class="n">y1</span>
-    <span class="n">expr1</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">3.5156229</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">3.0899424</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">1.2067492</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span>
-        <span class="mf">0.2659732</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">0.360768e-1</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="mf">0.45813e-2</span><span class="p">)))))</span>
-    <span class="n">y2</span> <span class="o">=</span> <span class="mf">3.75</span><span class="o">/</span><span class="n">ax</span>
-    <span class="n">expr2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span><span class="o">/</span><span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">0.39894228</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="mf">0.1328592e-1</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span>
-        <span class="mf">0.225319e-2</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.157565e-2</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="mf">0.916281e-2</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span>
-            <span class="o">-</span><span class="mf">0.2057706e-1</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="mf">0.2635537e-1</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1647633e-1</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="mf">0.392377e-2</span><span class="p">))))))))</span>
+    <span class="n">expr1</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="mf">3.5156229</span>
+        <span class="o">+</span> <span class="n">y1</span>
+        <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">3.0899424</span>
+            <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.2067492</span> <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.2659732</span> <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.360768e-1</span> <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="mf">0.45813e-2</span><span class="p">)))</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="mf">3.75</span> <span class="o">/</span> <span class="n">ax</span>
+    <span class="n">expr2</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="o">/</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">0.39894228</span>
+            <span class="o">+</span> <span class="n">y2</span>
+            <span class="o">*</span> <span class="p">(</span>
+                <span class="mf">0.1328592e-1</span>
+                <span class="o">+</span> <span class="n">y2</span>
+                <span class="o">*</span> <span class="p">(</span>
+                    <span class="mf">0.225319e-2</span>
+                    <span class="o">+</span> <span class="n">y2</span>
+                    <span class="o">*</span> <span class="p">(</span>
+                        <span class="o">-</span><span class="mf">0.157565e-2</span>
+                        <span class="o">+</span> <span class="n">y2</span>
+                        <span class="o">*</span> <span class="p">(</span>
+                            <span class="mf">0.916281e-2</span>
+                            <span class="o">+</span> <span class="n">y2</span>
+                            <span class="o">*</span> <span class="p">(</span>
+                                <span class="o">-</span><span class="mf">0.2057706e-1</span>
+                                <span class="o">+</span> <span class="n">y2</span>
+                                <span class="o">*</span> <span class="p">(</span>
+                                    <span class="mf">0.2635537e-1</span>
+                                    <span class="o">+</span> <span class="n">y2</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.1647633e-1</span> <span class="o">+</span> <span class="n">y2</span> <span class="o">*</span> <span class="mf">0.392377e-2</span><span class="p">)</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="n">ax</span> <span class="o">&lt;</span> <span class="mf">3.75</span><span class="p">,</span> <span class="n">expr1</span><span class="p">,</span> <span class="n">expr2</span><span class="p">)</span></div>
 
 
@@ -81,12 +116,41 @@
 <span class="sd">    of the University of Cambridge, New York</span>
 <span class="sd">    (1992).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">y1</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">/</span><span class="mf">4.0</span>
-    <span class="n">expr1</span> <span class="o">=</span> <span class="o">-</span><span class="n">ufl</span><span class="o">.</span><span class="n">ln</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">*</span><span class="n">bessi0</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.57721566</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">0.42278420</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span>
-        <span class="mf">0.23069756</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">0.3488590e-1</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">0.262698e-2</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="p">(</span><span class="mf">0.10750e-3</span> <span class="o">+</span> <span class="n">y1</span><span class="o">*</span><span class="mf">0.74e-5</span><span class="p">))))))</span>
-    <span class="n">y2</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">/</span><span class="n">x</span>
-    <span class="n">expr2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.25331414</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.7832358e-1</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="mf">0.2189568e-1</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span>
-        <span class="o">-</span><span class="mf">0.1062446e-1</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="mf">0.587872e-2</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.251540e-2</span> <span class="o">+</span> <span class="n">y2</span><span class="o">*</span><span class="mf">0.53208e-3</span><span class="p">))))))</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">/</span> <span class="mf">4.0</span>
+    <span class="n">expr1</span> <span class="o">=</span> <span class="o">-</span><span class="n">ufl</span><span class="o">.</span><span class="n">ln</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">bessi0</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="o">-</span><span class="mf">0.57721566</span>
+        <span class="o">+</span> <span class="n">y1</span>
+        <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">0.42278420</span>
+            <span class="o">+</span> <span class="n">y1</span>
+            <span class="o">*</span> <span class="p">(</span>
+                <span class="mf">0.23069756</span>
+                <span class="o">+</span> <span class="n">y1</span>
+                <span class="o">*</span> <span class="p">(</span><span class="mf">0.3488590e-1</span> <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.262698e-2</span> <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.10750e-3</span> <span class="o">+</span> <span class="n">y1</span> <span class="o">*</span> <span class="mf">0.74e-5</span><span class="p">)))</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">x</span>
+    <span class="n">expr2</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ufl</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+        <span class="o">/</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="o">*</span> <span class="p">(</span>
+            <span class="mf">1.25331414</span>
+            <span class="o">+</span> <span class="n">y2</span>
+            <span class="o">*</span> <span class="p">(</span>
+                <span class="o">-</span><span class="mf">0.7832358e-1</span>
+                <span class="o">+</span> <span class="n">y2</span>
+                <span class="o">*</span> <span class="p">(</span>
+                    <span class="mf">0.2189568e-1</span>
+                    <span class="o">+</span> <span class="n">y2</span>
+                    <span class="o">*</span> <span class="p">(</span>
+                        <span class="o">-</span><span class="mf">0.1062446e-1</span>
+                        <span class="o">+</span> <span class="n">y2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.587872e-2</span> <span class="o">+</span> <span class="n">y2</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.251540e-2</span> <span class="o">+</span> <span class="n">y2</span> <span class="o">*</span> <span class="mf">0.53208e-3</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">expr2</span><span class="p">,</span> <span class="n">expr1</span><span class="p">)</span></div>
 
 
@@ -103,11 +167,11 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">ufl</span> <span class="kn">import</span> <span class="n">dot</span><span class="p">,</span> <span class="n">sqrt</span>
     <span class="n">u</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">proj</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">x</span>
+    <span class="n">proj</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">vi</span> <span class="o">-=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">proj</span><span class="p">(</span><span class="n">uj</span><span class="p">,</span> <span class="n">vi</span><span class="p">)</span> <span class="k">for</span> <span class="n">uj</span> <span class="ow">in</span> <span class="n">u</span><span class="p">])</span>
-        <span class="n">u</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vi</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">vi</span><span class="p">,</span> <span class="n">vi</span><span class="p">))</span> <span class="k">if</span> <span class="n">normalise</span> <span class="k">else</span> <span class="n">vi</span><span class="p">)</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vi</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">vi</span><span class="p">,</span> <span class="n">vi</span><span class="p">))</span> <span class="k">if</span> <span class="n">normalise</span> <span class="k">else</span> <span class="n">vi</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">u</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span> <span class="k">for</span> <span class="n">ui</span> <span class="ow">in</span> <span class="n">u</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">u</span></div>
@@ -128,8 +192,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">ufl</span><span class="o">.</span><span class="n">perp</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
     <span class="k">elif</span> <span class="n">dim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">vectors</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">]</span>  <span class="c1"># (arbitrary)</span>
         <span class="k">return</span> <span class="n">gram_schmidt</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="o">*</span><span class="n">vectors</span><span class="p">,</span> <span class="n">normalise</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># (orthonormal)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -171,8 +234,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>
