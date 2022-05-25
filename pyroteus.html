@@ -48,7 +48,7 @@
 <p>Drivers for solving adjoint problems on sequences of meshes.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.adjoint.</span></span><span class="sig-name descname"><span class="pre">AdjointMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.adjoint.</span></span><span class="sig-name descname"><span class="pre">AdjointMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyroteus.mesh_seq.MeshSeq</span></code></a></p>
 <p>An extension of <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> to account for
 solving adjoint problems on a sequence of meshes.</p>
@@ -88,7 +88,12 @@ final subinterval</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.get_qoi">
-<span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.get_qoi_function">
+<span class="sig-name descname"><span class="pre">get_qoi_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi_function" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -114,7 +119,7 @@ timestep, the solution types are:</p>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>: the forward solution before taking</dt><dd><p>the timestep;</p>
+<dt><code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>: the forward solution before taking</dt><dd><p>the timestep</p>
 </dd>
 </dl>
 </li>
@@ -153,52 +158,6 @@ solution fields and their lagged versions.</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.adjoint.solve_adjoint">
-<span class="sig-prename descclassname"><span class="pre">pyroteus.adjoint.</span></span><span class="sig-name descname"><span class="pre">solve_adjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#solve_adjoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.solve_adjoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve an adjoint problem on a sequence of subintervals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>time_partition</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> which
-partitions the temporal domain</p></li>
-<li><p><strong>initial_meshes</strong> – list of meshes corresponding to
-the subintervals of the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>,
-or a single mesh to use for all subintervals</p></li>
-<li><p><strong>get_function_spaces</strong> – a function, whose only
-argument is a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>, which constructs
-prognostic <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code> s for each
-subinterval</p></li>
-<li><p><strong>get_initial_condition</strong> – a function, whose only
-argument is a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>, which specifies
-initial conditions on the first mesh</p></li>
-<li><p><strong>get_solver</strong> – a function, whose only argument is
-a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>, which returns a function
-that integrates initial data over a subinterval</p></li>
-<li><p><strong>get_qoi</strong> – a function, with two arguments,
-a <a class="reference internal" href="#pyroteus.adjoint.AdjointMeshSeq" title="pyroteus.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a>, which returns
-a function of either one or two variables,
-corresponding to either an end time or time
-integrated quantity of interest, respectively,
-as well as an index for the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></p></li>
-<li><p><strong>warnings</strong> – print warnings?</p></li>
-<li><p><strong>solver_kwargs</strong> – a dictionary providing parameters
-to the solver. Any keyword arguments for the QoI
-should be included as a subdict with label ‘qoi_kwargs’</p></li>
-<li><p><strong>get_adj_values</strong> – additionally output adjoint
-actions at exported timesteps</p></li>
-<li><p><strong>test_checkpoint_qoi</strong> – solve over the final
-subinterval when checkpointing so that the QoI
-value can be checked across runs</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return solution</dt>
-<dd class="field-even"><p>an <code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code> containing
-solution fields and their lagged versions.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-pyroteus.error_estimation">
 <span id="pyroteus-error-estimation-module"></span><h2>pyroteus.error_estimation module<a class="headerlink" href="#module-pyroteus.error_estimation" title="Permalink to this headline">¶</a></h2>
@@ -214,9 +173,11 @@ solution.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>F</strong> – the form</p></li>
 <li><p><strong>adjoint_error</strong> – the approximation to
-the adjoint error</p></li>
+the adjoint error, either as a single
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>, or in a dictionary</p></li>
 <li><p><strong>test_space</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
-that the test function lives in</p></li>
+that the test function lives in, or an
+appropriate dictionary</p></li>
 </ul>
 </dd>
 </dl>
@@ -248,7 +209,7 @@ the same components, but transferred onto a different mesh.</p>
 <p>Drivers for goal-oriented error estimation on sequences of meshes.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.go_mesh_seq.</span></span><span class="sig-name descname"><span class="pre">GoalOrientedMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.go_mesh_seq.</span></span><span class="sig-name descname"><span class="pre">GoalOrientedMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pyroteus.adjoint.AdjointMeshSeq" title="pyroteus.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyroteus.adjoint.AdjointMeshSeq</span></code></a></p>
 <p>An extension of <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code> to account for
 goal-oriented problems.</p>
@@ -270,8 +231,8 @@ a fixed point iteration.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">
-<span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments_h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq">
+<span class="sig-name descname"><span class="pre">get_enriched_mesh_seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_h_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_p_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.get_enriched_mesh_seq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the forward and adjoint problems
 associated with <code class="xref py py-attr docutils literal notranslate"><span class="pre">solver</span></code> in a
 sequence of globally enriched spaces.</p>
@@ -282,10 +243,48 @@ achieved using one of:
 * hp-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'hp'</span></code>).</p>
 <p>The number of refinements in each direction
 may be controlled by the keyword arguments
-<code class="docutils literal notranslate"><span class="pre">num_enrichments_h</span></code> and <code class="docutils literal notranslate"><span class="pre">num_enrichments_p</span></code>.</p>
-<p>Any additional keyword arguments are passed
-to the <code class="xref py py-attr docutils literal notranslate"><span class="pre">solve_adjoint</span></code> method of the
+<code class="docutils literal notranslate"><span class="pre">num_h_enrichments</span></code> and <code class="docutils literal notranslate"><span class="pre">num_p_enrichments</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">
+<span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_h_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_p_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve the forward and adjoint problems
+associated with <code class="xref py py-attr docutils literal notranslate"><span class="pre">solver</span></code> in a
+sequence of globally enriched spaces.</p>
+<p>Currently, global enrichment may be
+achieved using one of:
+* h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
+* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>);
+* hp-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'hp'</span></code>).</p>
+<p>The number of refinements in each direction
+may be controlled by the keyword arguments
+<code class="docutils literal notranslate"><span class="pre">num_h_enrichments</span></code> and <code class="docutils literal notranslate"><span class="pre">num_p_enrichments</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – keyword arguments to pass to the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">solve_adjoint</span></code> method of the
 enriched <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors">
+<span class="sig-name descname"><span class="pre">indicate_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.indicate_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute goal-oriented error indicators for each
+subinterval based on solving the adjoint problem
+in a globally enriched space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>enrichment_kwargs</strong> – keyword arguments to pass
+to the global enrichment method</p></li>
+<li><p><strong>adj_kwargs</strong> – keyword arguments to pass to the
+adjoint solver</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -465,7 +464,7 @@ using Gram-Schmidt orthogonalisation.</p>
 <p>Sequences of meshes corresponding to a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.mesh_seq.</span></span><span class="sig-name descname"><span class="pre">MeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.mesh_seq.</span></span><span class="sig-name descname"><span class="pre">MeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_function_spaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_initial_condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_bcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A sequence of meshes for solving a PDE associated
 with a particular <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> of the
@@ -485,21 +484,42 @@ subinterval</p></li>
 <li><p><strong>get_initial_condition</strong> – a function, whose only
 argument is a <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which specifies
 initial conditions on the first mesh</p></li>
+<li><p><strong>get_form</strong> – a function, whose only argument is a
+<a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which returns a function that
+generates the PDE weak form</p></li>
 <li><p><strong>get_solver</strong> – a function, whose only argument is
 a <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which returns a function
 that integrates initial data over a subinterval</p></li>
+<li><p><strong>get_bcs</strong> – a function, whose only argument is a
+<a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which returns a function that
+determines any Dirichlet boundary conditions</p></li>
 <li><p><strong>warnings</strong> – print warnings?</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.bcs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bcs</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.bcs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.debug">
 <span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.debug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.debug" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.form">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">form</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.function_spaces">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">function_spaces</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.function_spaces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_bcs">
+<span class="sig-name descname"><span class="pre">get_bcs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_bcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_bcs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -516,6 +536,11 @@ the solver</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_form">
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.get_function_spaces">
@@ -1392,7 +1417,7 @@ which the metric will exist</p></li>
 <span id="pyroteus-thetis-compat-module"></span><h2>pyroteus.thetis_compat module<a class="headerlink" href="#module-pyroteus.thetis_compat" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyroteus.thetis_compat.FlowSolver2d">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.thetis_compat.</span></span><span class="sig-name descname"><span class="pre">FlowSolver2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.thetis_compat.</span></span><span class="sig-name descname"><span class="pre">FlowSolver2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/thetis_compat.html#FlowSolver2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.thetis_compat.FlowSolver2d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">thetis.solver2d.FlowSolver2d</span></code></p>
 <p>Augmented version of Thetis’ <code class="docutils literal notranslate"><span class="pre">FlowSolver2d</span></code>
 class which accounts for restarting the
@@ -1406,6 +1431,7 @@ options prefixes.</p>
 the mean water depth (positive downwards).</p></li>
 <li><p><strong>options</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ModelOptions2d</span></code> instance) – Model options (optional). Model options can also be
 changed directly via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">options</span></code> class property.</p></li>
+<li><p><strong>keep_log</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) – append to an existing log file, or overwrite it?</p></li>
 </ul>
 </dd>
 </dl>
@@ -1433,12 +1459,6 @@ timesteppers so that they match the field
 names used by Pyroteus.</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.thetis_compat.timed_region">
-<span class="sig-prename descclassname"><span class="pre">pyroteus.thetis_compat.</span></span><span class="sig-name descname"><span class="pre">timed_region</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyroteus.thetis_compat.timed_region" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log.Event(type cls, name, klass=None)</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1739,9 +1759,8 @@ by <code class="docutils literal notranslate"><span class="pre">angle</span></co
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <div>
-    <h3><a href="index.html">Table of Contents</a></h3>
-    <ul>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
 <li><a class="reference internal" href="#">pyroteus package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pyroteus.adjoint">pyroteus.adjoint module</a></li>
@@ -1764,7 +1783,6 @@ by <code class="docutils literal notranslate"><span class="pre">angle</span></co
 </li>
 </ul>
 
-  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1801,7 +1819,7 @@ by <code class="docutils literal notranslate"><span class="pre">angle</span></co
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>

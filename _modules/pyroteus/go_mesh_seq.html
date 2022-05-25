@@ -42,7 +42,8 @@
 <span class="sd">Drivers for goal-oriented error estimation on sequences of meshes.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">.adjoint</span> <span class="kn">import</span> <span class="n">AdjointMeshSeq</span>
-<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">MeshHierarchy</span>
+<span class="kn">from</span> <span class="nn">.error_estimation</span> <span class="kn">import</span> <span class="n">get_dwr_indicator</span>
+<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">MeshHierarchy</span><span class="p">,</span> <span class="n">TransferManager</span><span class="p">,</span> <span class="n">project</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 
 
@@ -55,10 +56,8 @@
 <span class="sd">    goal-oriented problems.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="GoalOrientedMeshSeq.global_enrichment"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.global_enrichment&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">global_enrichment</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_enrichments_h</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_enrichments_p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">):</span>
+<div class="viewcode-block" id="GoalOrientedMeshSeq.get_enriched_mesh_seq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.get_enriched_mesh_seq&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_enriched_mesh_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_h_enrichments</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_p_enrichments</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve the forward and adjoint problems</span>
 <span class="sd">        associated with :attr:`solver` in a</span>
@@ -72,21 +71,17 @@
 
 <span class="sd">        The number of refinements in each direction</span>
 <span class="sd">        may be controlled by the keyword arguments</span>
-<span class="sd">        ``num_enrichments_h`` and ``num_enrichments_p``.</span>
-
-<span class="sd">        Any additional keyword arguments are passed</span>
-<span class="sd">        to the :attr:`solve_adjoint` method of the</span>
-<span class="sd">        enriched :class:`AdjointMeshSeq`.</span>
+<span class="sd">        ``num_h_enrichments`` and ``num_p_enrichments``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">enrichment_method</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;hp&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-        <span class="k">assert</span> <span class="n">num_enrichments_p</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-        <span class="k">assert</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">num_enrichments_p</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">num_h_enrichments</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">num_p_enrichments</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">num_h_enrichments</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">num_p_enrichments</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
         <span class="c1"># Apply h-refinement</span>
-        <span class="k">if</span> <span class="s2">&quot;h&quot;</span> <span class="ow">in</span> <span class="n">enrichment_method</span> <span class="ow">and</span> <span class="n">num_enrichments_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;h&quot;</span> <span class="ow">in</span> <span class="n">enrichment_method</span> <span class="ow">and</span> <span class="n">num_h_enrichments</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">MeshHierarchy</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">num_enrichments_h</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span>
+                <span class="n">MeshHierarchy</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">num_h_enrichments</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span>
             <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">meshes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span>
@@ -95,30 +90,130 @@
             <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Apply p-refinement, if requested.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="n">num_enrichments_p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_p_enrichments</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
             <span class="n">enriched_spaces</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">element</span> <span class="o">=</span> <span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
                 <span class="k">if</span> <span class="s2">&quot;p&quot;</span> <span class="ow">in</span> <span class="n">enrichment_method</span><span class="p">:</span>
                     <span class="n">element</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">(</span>
-                        <span class="n">degree</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">+</span> <span class="n">num_enrichments_p</span>
+                        <span class="n">degree</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">+</span> <span class="n">num_p_enrichments</span>
                     <span class="p">)</span>
                 <span class="n">enriched_spaces</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">enriched_spaces</span>
 
-        <span class="c1"># Solve adjoint in higher order space</span>
-        <span class="n">adj_mesh_seq</span> <span class="o">=</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
+        <span class="c1"># Construct enriched AdjointMeshSeq</span>
+        <span class="k">return</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">,</span>
             <span class="n">meshes</span><span class="p">,</span>
             <span class="n">get_function_spaces</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">,</span>
             <span class="n">qoi_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="p">,</span>
             <span class="n">steady</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GoalOrientedMeshSeq.global_enrichment"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.global_enrichment&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">global_enrichment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_h_enrichments</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_p_enrichments</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solve the forward and adjoint problems</span>
+<span class="sd">        associated with :attr:`solver` in a</span>
+<span class="sd">        sequence of globally enriched spaces.</span>
+
+<span class="sd">        Currently, global enrichment may be</span>
+<span class="sd">        achieved using one of:</span>
+<span class="sd">        * h-refinement (``enrichment_method = &#39;h&#39;``);</span>
+<span class="sd">        * p-refinement (``enrichment_method = &#39;p&#39;``);</span>
+<span class="sd">        * hp-refinement (``enrichment_method = &#39;hp&#39;``).</span>
+
+<span class="sd">        The number of refinements in each direction</span>
+<span class="sd">        may be controlled by the keyword arguments</span>
+<span class="sd">        ``num_h_enrichments`` and ``num_p_enrichments``.</span>
+
+<span class="sd">        :kwarg kwargs: keyword arguments to pass to the</span>
+<span class="sd">            :attr:`solve_adjoint` method of the</span>
+<span class="sd">            enriched :class:`AdjointMeshSeq`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enriched_mesh_seq</span><span class="p">(</span>
+            <span class="n">enrichment_method</span><span class="o">=</span><span class="n">enrichment_method</span><span class="p">,</span>
+            <span class="n">num_h_enrichments</span><span class="o">=</span><span class="n">num_h_enrichments</span><span class="p">,</span>
+            <span class="n">num_p_enrichments</span><span class="o">=</span><span class="n">num_p_enrichments</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">adj_mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GoalOrientedMeshSeq.indicate_errors"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.indicate_errors&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">indicate_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">adj_kwargs</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute goal-oriented error indicators for each</span>
+<span class="sd">        subinterval based on solving the adjoint problem</span>
+<span class="sd">        in a globally enriched space.</span>
+
+<span class="sd">        :kwarg enrichment_kwargs: keyword arguments to pass</span>
+<span class="sd">            to the global enrichment method</span>
+<span class="sd">        :kwarg adj_kwargs: keyword arguments to pass to the</span>
+<span class="sd">            adjoint solver</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh_seq_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enriched_mesh_seq</span><span class="p">(</span><span class="o">**</span><span class="n">enrichment_kwargs</span><span class="p">)</span>
+        <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">adj_kwargs</span><span class="p">)</span>
+        <span class="n">sols_e</span> <span class="o">=</span> <span class="n">mesh_seq_e</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">adj_kwargs</span><span class="p">)</span>
+        <span class="n">tm</span> <span class="o">=</span> <span class="n">TransferManager</span><span class="p">()</span>
+        <span class="n">indicators</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">P0</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">indicator</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Get Functions</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">u_</span><span class="p">,</span> <span class="n">u_star</span><span class="p">,</span> <span class="n">u_star_next</span><span class="p">,</span> <span class="n">u_star_e</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{}</span>
+            <span class="n">solutions</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">enriched_spaces</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">f</span><span class="p">:</span> <span class="n">mesh_seq_e</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
+            <span class="p">}</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">fs_e</span> <span class="ow">in</span> <span class="n">enriched_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">fs_e</span><span class="p">)</span>
+                <span class="n">u_</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">fs_e</span><span class="p">)</span>
+                <span class="n">mapping</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="n">u_</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+                <span class="n">u_star</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">fs_e</span><span class="p">)</span>
+                <span class="n">u_star_next</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">fs_e</span><span class="p">)</span>
+                <span class="n">u_star_e</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">fs_e</span><span class="p">)</span>
+                <span class="n">solutions</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;forward_old&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">sols_e</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">sols_e</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="p">]</span>
+
+            <span class="c1"># Get form in enriched space</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq_e</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])):</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+
+                    <span class="c1"># Update fields</span>
+                    <span class="n">tm</span><span class="o">.</span><span class="n">prolong</span><span class="p">(</span><span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+                    <span class="n">tm</span><span class="o">.</span><span class="n">prolong</span><span class="p">(</span><span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;forward_old&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">u_</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+                    <span class="n">tm</span><span class="o">.</span><span class="n">prolong</span><span class="p">(</span><span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">u_star</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+                    <span class="n">tm</span><span class="o">.</span><span class="n">prolong</span><span class="p">(</span><span class="n">sols</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">u_star_next</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+
+                    <span class="c1"># Combine adjoint solutions as appropriate</span>
+                    <span class="n">u_star</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">u_star</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">+</span> <span class="n">u_star_next</span><span class="p">[</span><span class="n">f</span><span class="p">]))</span>
+                    <span class="n">u_star_e</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">sols_e</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">sols_e</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+                    <span class="n">u_star_e</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="n">u_star</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>
+
+                <span class="c1"># Evaluate error indicator</span>
+                <span class="n">indi_e</span> <span class="o">=</span> <span class="n">get_dwr_indicator</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">u_star_e</span><span class="p">,</span> <span class="n">enriched_spaces</span><span class="p">)</span>
+
+                <span class="c1"># Project back to the base space</span>
+                <span class="n">indi</span> <span class="o">=</span> <span class="n">project</span><span class="p">(</span><span class="n">indi_e</span><span class="p">,</span> <span class="n">P0</span><span class="p">)</span>
+                <span class="n">indi</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">indi</span><span class="p">))</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indi</span><span class="p">)</span>
+            <span class="n">indicators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indicator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sols</span><span class="p">,</span> <span class="n">indicators</span></div>
 
 <div class="viewcode-block" id="GoalOrientedMeshSeq.fixed_point_iteration"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.fixed_point_iteration&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">fixed_point_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -165,7 +260,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>

@@ -66,9 +66,11 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">time_partition</span><span class="p">,</span>
         <span class="n">initial_meshes</span><span class="p">,</span>
-        <span class="n">get_function_spaces</span><span class="p">,</span>
-        <span class="n">get_initial_condition</span><span class="p">,</span>
-        <span class="n">get_solver</span><span class="p">,</span>
+        <span class="n">get_function_spaces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">get_initial_condition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">get_form</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">get_solver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">get_bcs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -78,16 +80,22 @@
 <span class="sd">        :arg initial_meshes: list of meshes corresponding to</span>
 <span class="sd">            the subintervals of the :class:`TimePartition`,</span>
 <span class="sd">            or a single mesh to use for all subintervals</span>
-<span class="sd">        :arg get_function_spaces: a function, whose only</span>
+<span class="sd">        :kwarg get_function_spaces: a function, whose only</span>
 <span class="sd">            argument is a :class:`MeshSeq`, which constructs</span>
 <span class="sd">            prognostic :class:`FunctionSpace` s for each</span>
 <span class="sd">            subinterval</span>
-<span class="sd">        :arg get_initial_condition: a function, whose only</span>
+<span class="sd">        :kwarg get_initial_condition: a function, whose only</span>
 <span class="sd">            argument is a :class:`MeshSeq`, which specifies</span>
 <span class="sd">            initial conditions on the first mesh</span>
-<span class="sd">        :arg get_solver: a function, whose only argument is</span>
+<span class="sd">        :kwarg get_form: a function, whose only argument is a</span>
+<span class="sd">            :class:`MeshSeq`, which returns a function that</span>
+<span class="sd">            generates the PDE weak form</span>
+<span class="sd">        :kwarg get_solver: a function, whose only argument is</span>
 <span class="sd">            a :class:`MeshSeq`, which returns a function</span>
 <span class="sd">            that integrates initial data over a subinterval</span>
+<span class="sd">        :kwarg get_bcs: a function, whose only argument is a</span>
+<span class="sd">            :class:`MeshSeq`, which returns a function that</span>
+<span class="sd">            determines any Dirichlet boundary conditions</span>
 <span class="sd">        :kwarg warnings: print warnings?</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">time_partition</span>
@@ -98,12 +106,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="n">initial_meshes</span><span class="p">)</span> <span class="k">for</span> <span class="n">subinterval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">get_function_spaces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="o">=</span> <span class="n">get_function_spaces</span>
-        <span class="k">if</span> <span class="n">get_initial_condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="o">=</span> <span class="n">get_initial_condition</span>
-        <span class="k">if</span> <span class="n">get_solver</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">get_solver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="o">=</span> <span class="n">get_function_spaces</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="o">=</span> <span class="n">get_initial_condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span> <span class="o">=</span> <span class="n">get_form</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">get_solver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="o">=</span> <span class="n">get_bcs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warnings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
@@ -124,13 +131,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh</span>
 
 <div class="viewcode-block" id="MeshSeq.get_function_spaces"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_function_spaces">[docs]</a>    <span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_function_spaces needs implementing&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MeshSeq.get_initial_condition"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_initial_condition">[docs]</a>    <span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_initial_condition needs implementing&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="MeshSeq.get_form"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_form">[docs]</a>    <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_form needs implementing&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="MeshSeq.get_solver"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_solver">[docs]</a>    <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_solver needs implementing&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MeshSeq.get_bcs"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_bcs">[docs]</a>    <span class="k">def</span> <span class="nf">get_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_bcs needs implementing&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_function_spaces_consistent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -176,8 +199,16 @@
         <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solver</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bcs</span><span class="p">()</span>
 
 <div class="viewcode-block" id="MeshSeq.get_checkpoints"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_checkpoints">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.MeshSeq.get_checkpoints&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{}):</span>
@@ -466,7 +497,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>

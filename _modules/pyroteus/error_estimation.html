@@ -77,7 +77,6 @@
         <span class="n">dx</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">dx</span>
         <span class="n">mass_term</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span> <span class="o">*</span> <span class="n">p0test</span> <span class="o">*</span> <span class="n">dx</span>
         <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;mat_type&quot;</span><span class="p">:</span> <span class="s2">&quot;matfree&quot;</span><span class="p">,</span>
             <span class="s2">&quot;snes_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ksponly&quot;</span><span class="p">,</span>
             <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
             <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;jacobi&quot;</span><span class="p">,</span>
@@ -125,14 +124,29 @@
 
 <span class="sd">    :arg F: the form</span>
 <span class="sd">    :arg adjoint_error: the approximation to</span>
-<span class="sd">        the adjoint error</span>
+<span class="sd">        the adjoint error, either as a single</span>
+<span class="sd">        :class:`Function`, or in a dictionary</span>
 <span class="sd">    :kwarg test_space: the :class:`FunctionSpace`</span>
-<span class="sd">        that the test function lives in</span>
+<span class="sd">        that the test function lives in, or an</span>
+<span class="sd">        appropriate dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">test_space</span> <span class="ow">or</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">!=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">():</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">form2indicator</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">{</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">fs</span><span class="p">):</span> <span class="n">adjoint_error</span><span class="p">}))</span></div>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adjoint_error</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="n">test_space</span> <span class="ow">or</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">!=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span><span class="p">)</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">fs</span><span class="p">)]</span> <span class="o">=</span> <span class="n">adjoint_error</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">test_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_space</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">function_space</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">!=</span> <span class="n">test_space</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">mesh</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span><span class="p">)</span>
+            <span class="n">mapping</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">test_space</span><span class="p">[</span><span class="n">key</span><span class="p">])]</span> <span class="o">=</span> <span class="n">err</span>
+    <span class="k">return</span> <span class="n">form2indicator</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">mapping</span><span class="p">))</span></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -171,7 +185,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>
