@@ -61,11 +61,18 @@ due to <cite>dolfin-adjoint</cite>.</p>
 </div>
 <p>The solver, initial condition and function spaces may be
 imported from the previous demo.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">burgers</span> <span class="kn">import</span> <span class="n">fields</span><span class="p">,</span> <span class="n">get_solver</span><span class="p">,</span> <span class="n">get_initial_condition</span><span class="p">,</span> <span class="n">get_function_spaces</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">burgers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">fields</span><span class="p">,</span>
+    <span class="n">get_function_spaces</span><span class="p">,</span>
+    <span class="n">get_form</span><span class="p">,</span>
+    <span class="n">get_solver</span><span class="p">,</span>
+    <span class="n">get_initial_condition</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>In line with the
-<a class="reference external" href="https://nbviewer.jupyter.org/github/firedrakeproject/firedrake/blob/master/docs/notebooks/11-extract-adjoint-solutions.ipynb">firedrake-adjoint demo</a>, we choose the QoI</p>
+<a class="reference external" href="https://nbviewer.jupyter.org/github/firedrakeproject/firedrake/blob/master/docs/notebooks/11-extract-adjoint-solutions.ipynb">firedrake-adjoint demo</a>,
+we choose the QoI</p>
 <div class="math notranslate nohighlight">
 \[J(u) = \int_0^1 \mathbf u(1,y,T_{\mathrm{end}})
 \cdot \mathbf u(1,y,T_{\mathrm{end}})\;\mathrm dy,\]</div>
@@ -73,8 +80,8 @@ imported from the previous demo.</p>
 <span class="math notranslate nohighlight">\(\mathbf u(x,y,t)\)</span> at the final time over the right
 hand boundary.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">end_time_qoi</span><span class="p">(</span><span class="n">sol</span><span class="p">):</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s2">&quot;uv_2d&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">end_time_qoi</span><span class="p">(</span><span class="n">solutions</span><span class="p">):</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">inner</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">ds</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">end_time_qoi</span>
@@ -109,6 +116,7 @@ the adjoint solution at the next timestep, respectively.</p>
     <span class="n">mesh</span><span class="p">,</span>
     <span class="n">get_function_spaces</span><span class="p">,</span>
     <span class="n">get_initial_condition</span><span class="p">,</span>
+    <span class="n">get_form</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="p">,</span>
     <span class="n">get_qoi</span><span class="p">,</span>
     <span class="n">qoi_type</span><span class="o">=</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span>
@@ -119,9 +127,7 @@ the adjoint solution at the next timestep, respectively.</p>
 <p>Finally, we plot the adjoint solution at each exported timestep by
 looping over <code class="docutils literal notranslate"><span class="pre">solutions['adjoint']</span></code>. This can also be achieved using
 the plotting driver function <code class="docutils literal notranslate"><span class="pre">plot_snapshots</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_snapshots</span><span class="p">(</span>
-    <span class="n">solutions</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="s2">&quot;uv_2d&quot;</span><span class="p">,</span> <span class="s2">&quot;adjoint&quot;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
-<span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_snapshots</span><span class="p">(</span><span class="n">solutions</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="s2">&quot;adjoint&quot;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;burgers1-end_time.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -145,16 +151,12 @@ on two subintervals and check that the results match.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <div>
-    <h4>Previous topic</h4>
-    <p class="topless"><a href="burgers.py.html"
-                          title="previous chapter">Burgers equation on a sequence of meshes</a></p>
-  </div>
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="burgers2.py.html"
-                          title="next chapter">Adjoint of Burgers equation on two meshes</a></p>
-  </div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="burgers.py.html"
+                        title="previous chapter">Burgers equation on a sequence of meshes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="burgers2.py.html"
+                        title="next chapter">Adjoint of Burgers equation on two meshes</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -197,7 +199,7 @@ on two subintervals and check that the results match.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>
