@@ -51,7 +51,44 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AdjointMeshSeq&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AdjointMeshSeq&quot;</span><span class="p">,</span> <span class="s2">&quot;annotate_qoi&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="annotate_qoi"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.annotate_qoi">[docs]</a><span class="k">def</span> <span class="nf">annotate_qoi</span><span class="p">(</span><span class="n">get_qoi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator that ensures QoIs are annotated</span>
+<span class="sd">    properly.</span>
+
+<span class="sd">    Should be applied to the :meth:`get_qoi`</span>
+<span class="sd">    method of an :class:`AdjointMeshSeq`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">get_qoi</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrap_get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="n">qoi</span> <span class="o">=</span> <span class="n">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># Count number of arguments</span>
+        <span class="n">num_kwargs</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span><span class="p">)</span>
+        <span class="n">num_args</span> <span class="o">=</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">-</span> <span class="n">num_kwargs</span>
+        <span class="k">if</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="s2">&quot;end_time&quot;</span>
+        <span class="k">elif</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="s2">&quot;time_integrated&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QoI should have 0 or 1 args, not </span><span class="si">{</span><span class="n">num_args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.AdjointMeshSeq.evaluate_qoi&quot;</span><span class="p">)</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">qoi</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrap_qoi</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">qoi</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">tape</span><span class="o">.</span><span class="n">annotate_tape</span><span class="p">():</span>
+                <span class="n">j</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="k">return</span> <span class="n">j</span>
+
+        <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi</span> <span class="o">=</span> <span class="n">wrap_qoi</span>
+        <span class="k">return</span> <span class="n">wrap_qoi</span>
+
+    <span class="k">return</span> <span class="n">wrap_get_qoi</span></div>
 
 
 <div class="viewcode-block" id="AdjointMeshSeq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq">[docs]</a><span class="k">class</span> <span class="nc">AdjointMeshSeq</span><span class="p">(</span><span class="n">MeshSeq</span><span class="p">):</span>
@@ -85,34 +122,11 @@
     <span class="k">def</span> <span class="nf">initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initial_condition</span>
 
-<div class="viewcode-block" id="AdjointMeshSeq.get_qoi_function"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_qoi_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_qoi_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<div class="viewcode-block" id="AdjointMeshSeq.get_qoi"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_qoi">[docs]</a>    <span class="nd">@annotate_qoi</span>
+    <span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_qoi needs implementing&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AdjointMeshSeq.get_qoi"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_qoi">[docs]</a>    <span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi_function</span><span class="p">(</span><span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-
-        <span class="c1"># Count number of arguments</span>
-        <span class="n">num_kwargs</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span><span class="p">)</span>
-        <span class="n">num_args</span> <span class="o">=</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">-</span> <span class="n">num_kwargs</span>
-        <span class="k">if</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="s2">&quot;end_time&quot;</span>
-        <span class="k">elif</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="s2">&quot;time_integrated&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QoI should have 0 or 1 args, not </span><span class="si">{</span><span class="n">num_args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.AdjointMeshSeq.evaluate_qoi&quot;</span><span class="p">)</span>
-        <span class="nd">@wraps</span><span class="p">(</span><span class="n">qoi</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="n">j</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">qoi</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">tape</span><span class="o">.</span><span class="n">annotate_tape</span><span class="p">():</span>
-                <span class="n">j</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span> <span class="o">=</span> <span class="mf">1.0</span>
-            <span class="k">return</span> <span class="n">j</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">qoi</span> <span class="o">=</span> <span class="n">wrapper</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi</span></div>
 
 <div class="viewcode-block" id="AdjointMeshSeq.get_checkpoints"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_checkpoints">[docs]</a>    <span class="nd">@pyadjoint</span><span class="o">.</span><span class="n">no_annotations</span>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.AdjointMeshSeq.get_checkpoints&quot;</span><span class="p">)</span>

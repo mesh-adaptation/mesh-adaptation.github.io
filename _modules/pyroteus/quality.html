@@ -198,7 +198,7 @@
     <span class="n">mass_term</span> <span class="o">=</span> <span class="n">v</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dS</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">u</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span>
     <span class="n">rhs</span> <span class="o">=</span> <span class="n">v</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetArea</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dS</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetArea</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span>
     <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;mat_type&quot;</span><span class="p">:</span> <span class="s2">&quot;matfree&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;snes_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ksponly&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
         <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;jacobi&quot;</span><span class="p">,</span>
     <span class="p">}</span>
@@ -553,7 +553,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>

@@ -91,11 +91,6 @@ final subinterval</p></li>
 <span class="sig-name descname"><span class="pre">get_qoi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.get_qoi_function">
-<span class="sig-name descname"><span class="pre">get_qoi_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.get_qoi_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.get_qoi_function" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.initial_condition">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_condition</span></span><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
@@ -156,6 +151,15 @@ solution fields and their lagged versions.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.adjoint.annotate_qoi">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.adjoint.</span></span><span class="sig-name descname"><span class="pre">annotate_qoi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">get_qoi</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#annotate_qoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.annotate_qoi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator that ensures QoIs are annotated
+properly.</p>
+<p>Should be applied to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_qoi()</span></code>
+method of an <a class="reference internal" href="#pyroteus.adjoint.AdjointMeshSeq" title="pyroteus.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a>.</p>
 </dd></dl>
 
 </section>
@@ -587,6 +591,27 @@ on a given <code class="docutils literal notranslate"><span class="pre">subinter
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.initial_condition">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_condition</span></span><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the meshes comprising a 2D <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> – matplotlib figure</p></li>
+<li><p><strong>axes</strong> – matplotlib axes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Kwargs</dt>
+<dd class="field-even"><p>parameters to pass to Firedrake’s <code class="xref py py-func docutils literal notranslate"><span class="pre">triplot()</span></code>
+function</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>matplotlib figure and axes for the plots</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.solve_forward">

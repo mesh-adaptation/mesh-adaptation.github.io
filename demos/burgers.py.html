@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Adjoint of Burgers equation" href="burgers1.py.html" />
-    <link rel="prev" title="Partitioning a time interval" href="time_partition.py.html" /> 
+    <link rel="prev" title="Creating a mesh sequence" href="mesh_seq.py.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -34,7 +34,7 @@
           <a href="burgers1.py.html" title="Adjoint of Burgers equation"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="time_partition.py.html" title="Partitioning a time interval"
+          <a href="mesh_seq.py.html" title="Creating a mesh sequence"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Burgers equation on a sequence of meshes</a></li> 
@@ -61,7 +61,6 @@ The PDE</p>
 <span class="math notranslate nohighlight">\(\Omega = [0, 1]^2\)</span>. The forward solution is initialised
 as a sine wave and is nonlinearly advected to the right hand
 side. See the Firedrake demo for details on the discretisation used.</p>
-<p>First, import Firedrake and Pyroteus.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
@@ -72,12 +71,10 @@ fields.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>First, we specify how to build a <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>,
-given some mesh. Function spaces are given as a dictionary,
-labelled by the prognostic solution field names. The
-function spaces will be built upon the meshes contained
-inside an <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> object, which facilitates
-solving PDEs on a sequence of meshes.</p>
+<p>For each such field, we need to be able to specify how to
+build a <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>, given some mesh. Since there
+could be more than one field, function spaces are given as a
+dictionary, indexed by the prognostic solution field names.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)}</span>
 </pre></div>
@@ -88,9 +85,9 @@ that maps the <code class="xref py py-class docutils literal notranslate"><span 
 solution data to the form. For each field, the dictionary
 should provide a tuple containing the solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s
 from the current timestep and the previous one.</p>
-<p>Timestepping information associated with the mesh within
-the sequence can be accessed via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">TimePartition</span></code>
-attribute of the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>.</p>
+<p>Timestepping information associated with a given subinterval
+can be accessed via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">TimePartition</span></code> attribute of
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">solutions</span><span class="p">):</span>
         <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
@@ -112,9 +109,6 @@ attribute of the <code class="xref py py-class docutils literal notranslate"><sp
     <span class="k">return</span> <span class="n">form</span>
 </pre></div>
 </div>
-<p>The dictionary usage may seem cumbersome when applied to such a
-simple problem, but it comes in handy when solving adjoint
-problems associated with coupled systems of equations.</p>
 <p>We have a weak form. In order to solve the PDE, we need to choose
 a time integration routine and solver parameters for the underlying
 linear and nonlinear systems. This is achieved using a function
@@ -125,7 +119,7 @@ from the previous mesh in the sequence.</p>
 <p>Note that it is important that the PDE solve is labelled
 with an <code class="docutils literal notranslate"><span class="pre">ad_block_tag</span></code> which matches the corresponding
 prognostic variable name. It is also important that the
-lagged solution field be given a name which is the field name,
+lagged solution field be given a particular name: the field name,
 appended by <code class="docutils literal notranslate"><span class="pre">'_old'</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
@@ -153,6 +147,9 @@ appended by <code class="docutils literal notranslate"><span class="pre">'_old'<
     <span class="k">return</span> <span class="n">solver</span>
 </pre></div>
 </div>
+<p>The dictionary usage may seem cumbersome when applied to such a
+simple problem, but it comes in handy when solving adjoint
+problems associated with coupled systems of equations.</p>
 <p>Pyroteus also requires a function for generating an initial
 condition from the function space defined on the
 <span class="math notranslate nohighlight">\(0^{th}\)</span> mesh.</p>
@@ -163,7 +160,8 @@ condition from the function space defined on the
 </pre></div>
 </div>
 <p>Now that we have the above functions defined, we move onto the
-concrete parts of the solver, which mimic the original demo.</p>
+concrete parts of the solver. To begin with, we require a
+sequence of meshes, simulation end time and a timestep.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">32</span>
 <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span>
@@ -173,9 +171,9 @@ concrete parts of the solver, which mimic the original demo.</p>
 <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n</span>
 </pre></div>
 </div>
-<p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> for the problem with two
-subintervals.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">2</span>
+<p>These can be used to create a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> for the
+problem with two subintervals.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">meshes</span><span class="p">)</span>
 <span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
     <span class="n">end_time</span><span class="p">,</span>
     <span class="n">num_subintervals</span><span class="p">,</span>
@@ -198,9 +196,25 @@ solve Burgers equation over the meshes in sequence.</p>
 <span class="n">solutions</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_forward</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Finally, we plot the solution at each exported timestep by
-looping over <code class="docutils literal notranslate"><span class="pre">solutions['forward']</span></code>. This can be achieved using
-the plotting driver function <code class="docutils literal notranslate"><span class="pre">plot_snapshots</span></code>.</p>
+<p>During the <code class="xref py py-func docutils literal notranslate"><span class="pre">solve_forward()</span></code> call, the solver that was provided
+is applied on the first subinterval. The forward solution at the end
+of that subinterval is transferred to the mesh associated with the
+second subinterval and used as an initial condition for the same solver
+applied again there. Pyroteus uses a conservative interpolation
+operator to transfer solution data between the two meshes. In this
+example, the meshes (and hence function spaces) are identical so the
+projection operation will in fact be the identity.</p>
+<p>The output is a nested dictionary of solution data, indexed by
+solution type (<code class="docutils literal notranslate"><span class="pre">&quot;forward&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;forward_old&quot;</span></code>) and then field name
+(here <code class="docutils literal notranslate"><span class="pre">&quot;u&quot;</span></code>). The contents of the inner dictionaries are lists
+containing lists of solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s, indexed first by
+subinterval and then by timestep. That is,
+<code class="docutils literal notranslate"><span class="pre">solutions[&quot;forward&quot;][&quot;u&quot;][i][j]</span></code> contains the forward solution
+associated with field <code class="docutils literal notranslate"><span class="pre">&quot;u&quot;</span></code> at the <code class="docutils literal notranslate"><span class="pre">j</span></code>-th timestep of
+subinterval <code class="docutils literal notranslate"><span class="pre">i</span></code>. Similarly, <code class="docutils literal notranslate"><span class="pre">solutions[&quot;forward_old&quot;][&quot;u&quot;][i][j]</span></code>
+contains the forward solution from the timestep prior.</p>
+<p>For the purposes of this demo, we plot the solution at each exported
+timestep using the plotting driver function <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_snapshots()</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_snapshots</span><span class="p">(</span>
     <span class="n">solutions</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 <span class="p">)</span>
@@ -210,7 +224,7 @@ the plotting driver function <code class="docutils literal notranslate"><span cl
 <figure class="align-center" style="width: 90%">
 <img alt="../_images/burgers.jpg" src="../_images/burgers.jpg" />
 </figure>
-<p>An initial sinusoid is nonlinearly advected Eastwards.</p>
+<p>We see that the initial sinusoid is nonlinearly advected Eastwards.</p>
 <p>In the <a class="reference external" href="./burgers1.py.html">next demo</a>, we use Pyroteus to
 automatically solve the adjoint problem associated with Burgers
 equation.</p>
@@ -225,8 +239,8 @@ equation.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="time_partition.py.html"
-                        title="previous chapter">Partitioning a time interval</a></p>
+  <p class="topless"><a href="mesh_seq.py.html"
+                        title="previous chapter">Creating a mesh sequence</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="burgers1.py.html"
                         title="next chapter">Adjoint of Burgers equation</a></p>
@@ -264,7 +278,7 @@ equation.</p>
           <a href="burgers1.py.html" title="Adjoint of Burgers equation"
              >next</a> |</li>
         <li class="right" >
-          <a href="time_partition.py.html" title="Partitioning a time interval"
+          <a href="mesh_seq.py.html" title="Creating a mesh sequence"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Burgers equation on a sequence of meshes</a></li> 
