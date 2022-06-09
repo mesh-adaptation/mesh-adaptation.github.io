@@ -1048,6 +1048,25 @@ subinterval</p></li>
 <span id="pyroteus-plot-module"></span><h2>pyroteus.plot module<a class="headerlink" href="#module-pyroteus.plot" title="Permalink to this headline">¶</a></h2>
 <p>Driver functions for plotting solution data.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.plot.plot_indicator_snapshots">
+<span class="sig-prename descclassname"><span class="pre">pyroteus.plot.</span></span><span class="sig-name descname"><span class="pre">plot_indicator_snapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indicators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/plot.html#plot_indicator_snapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.plot.plot_indicator_snapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a sequence of snapshots associated with
+<code class="docutils literal notranslate"><span class="pre">indicators</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>
+<code class="docutils literal notranslate"><span class="pre">time_partition</span></code>.</p>
+<p>Any keyword arguments are passed to <code class="docutils literal notranslate"><span class="pre">tricontourf</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indicators</strong> – list of list of indicators,
+indexed by mesh sequence index, then timestep</p></li>
+<li><p><strong>time_partition</strong> – the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>
+object used to solve the problem</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.plot.plot_snapshots">
 <span class="sig-prename descclassname"><span class="pre">pyroteus.plot.</span></span><span class="sig-name descname"><span class="pre">plot_snapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/plot.html#plot_snapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.plot.plot_snapshots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a sequence of snapshots associated with

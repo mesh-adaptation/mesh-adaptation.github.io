@@ -106,11 +106,12 @@
         <span class="k">return</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">,</span>
             <span class="n">meshes</span><span class="p">,</span>
-            <span class="n">get_function_spaces</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">,</span>
+            <span class="n">get_function_spaces</span><span class="o">=</span><span class="n">get_function_spaces</span><span class="p">,</span>
+            <span class="n">get_initial_condition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">,</span>
+            <span class="n">get_form</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span><span class="p">,</span>
+            <span class="n">get_solver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">,</span>
+            <span class="n">get_qoi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">,</span>
+            <span class="n">get_bcs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span><span class="p">,</span>
             <span class="n">qoi_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="p">,</span>
             <span class="n">steady</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">,</span>
         <span class="p">)</span></div>
