@@ -17,7 +17,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Partitioning a time interval" href="demos/time_partition.py.html" /> 
+    <link rel="next" title="Pyroteus manual" href="maths/index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,7 +29,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="demos/time_partition.py.html" title="Partitioning a time interval"
+          <a href="maths/index.html" title="Pyroteus manual"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">Pyroteus 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Pyroteus Goal-Oriented Mesh Adaptation Toolkit</a></li> 
@@ -55,39 +55,55 @@ examples of the intersection between adjoint methods and mesh
 adaptation. It is an advanced topic, so it is highly
 recommended that users are familiar with adjoint methods,
 mesh adaptation and the goal-oriented framework before
-starting with Pyroteus. The <cite>dolfin-adjoint</cite> package (which
-Pyroteus uses to solve adjoint problems) contains some
-<a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">excellent documentation</a>
-on the mathematical background of adjoint problems. The metric
-based mesh adaptation framework used by Pyroteus is described
-in the <a class="reference internal" href="maths/index.html"><span class="doc">Pyroteus manual</span></a>, in addition to the background on
-goal-oriented error estimation and adaptation. We refer to the
-<a class="reference external" href="https://firedrakeproject.org/documentation.html">Firedrake documentation</a>
+starting with Pyroteus.</p>
+<p>We refer to the <a class="reference external" href="https://firedrakeproject.org/documentation.html">Firedrake documentation</a>
 for an introduction to the finite element method - the
-discretisation approach assumed throughout.</p>
+discretisation approach assumed throughout. The
+<cite>dolfin-adjoint</cite> package (which Pyroteus uses to solve adjoint
+problems) contains some <a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">excellent documentation</a>
+on the mathematical background of adjoint problems. The
+goal-oriented error estimation and metric-based mesh adaptation
+functionalities provided by Pyroteus are described in the manual.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="maths/index.html">Pyroteus manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="maths/1-motivation.html">1. Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maths/2-goal-oriented-error-estimation.html">2. Goal-oriented error estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maths/3-metric-based.html">3. The metric-based framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maths/4-goal-oriented-mesh-adaptation.html">4. Goal-oriented mesh adaptation</a></li>
+</ul>
+</li>
+</ul>
+</div>
 <p class="rubric">API documentation</p>
 <p>The classes and functions which comprise Pyroteus may be found
-on the <a class="reference internal" href="pyroteus.html"><span class="doc">pyroteus package</span></a> page. They are also listed alphabetically
-on the <a class="reference internal" href="genindex.html"><span class="std std-ref">index</span></a> page. The index may be searched
-using the inbuilt <a class="reference internal" href="search.html"><span class="std std-ref">search engine</span></a>. Pyroteus source
-code is hosted on  <a class="reference external" href="https://github.com/pyroteus/pyroteus/">GitHub</a>.</p>
+in the API documentation.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pyroteus.html">Pyroteus API documentation</a></li>
+</ul>
+</div>
+<p>They are also listed alphabetically on the <a class="reference internal" href="genindex.html"><span class="std std-ref">index</span></a>
+page. The index may be searched using the inbuilt
+<a class="reference internal" href="search.html"><span class="std std-ref">search engine</span></a>. Pyroteus source code is hosted on
+<a class="reference external" href="https://github.com/pyroteus/pyroteus/">GitHub</a>.</p>
+<p class="rubric">Demos</p>
 <p>Pyroteus contains a number of demos to illustrate the correct
 usage of its different functionalities. It is highly recommended
 that these are read in order, as many of the demos build upon
 earlier ones.</p>
-<p class="rubric">Demos</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="demos/time_partition.py.html">Partitioning a time interval</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/mesh_seq.py.html">Creating a mesh sequence</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers.py.html">Burgers equation on a sequence of meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers1.py.html">Adjoint Burgers equation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers2.py.html">Adjoint Burgers equation on two meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers_time_integrated.py.html">Adjoint Burgers equation with a time-integrated QoI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers_oo.py.html">Adjoint Burgers equation (object-oriented approach)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers_ee.py.html">Error estimation for Burgers equation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/solid_body_rotation.py.html">Solid body rotation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/solid_body_rotation_split.py.html">Solid body rotation with multiple prognostic variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/time_partition.py.html">1. Partitioning a time interval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/mesh_seq.py.html">2. Creating a mesh sequence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/burgers.py.html">3. Burgers equation on a sequence of meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/burgers1.py.html">4. Adjoint Burgers equation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/burgers2.py.html">5. Adjoint Burgers equation on two meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/burgers_time_integrated.py.html">6. Adjoint Burgers equation with a time-integrated QoI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/burgers_oo.py.html">7. Adjoint Burgers equation (object-oriented approach)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/burgers_ee.py.html">8. Error estimation for Burgers equation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/solid_body_rotation.py.html">9. Solid body rotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/solid_body_rotation_split.py.html">10. Solid body rotation with multiple prognostic variables</a></li>
 </ul>
 </div>
 </section>
@@ -100,8 +116,8 @@ earlier ones.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Next topic</h4>
-  <p class="topless"><a href="demos/time_partition.py.html"
-                        title="next chapter">Partitioning a time interval</a></p>
+  <p class="topless"><a href="maths/index.html"
+                        title="next chapter">Pyroteus manual</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -133,7 +149,7 @@ earlier ones.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="demos/time_partition.py.html" title="Partitioning a time interval"
+          <a href="maths/index.html" title="Pyroteus manual"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">Pyroteus 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Pyroteus Goal-Oriented Mesh Adaptation Toolkit</a></li> 

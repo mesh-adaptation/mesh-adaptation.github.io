@@ -1,0 +1,447 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>3. The metric-based framework &#8212; Pyroteus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. Goal-oriented mesh adaptation" href="4-goal-oriented-mesh-adaptation.html" />
+    <link rel="prev" title="2. Goal-oriented error estimation" href="2-goal-oriented-error-estimation.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="4-goal-oriented-mesh-adaptation.html" title="4. Goal-oriented mesh adaptation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Pyroteus manual</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>The metric-based framework</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="the-metric-based-framework">
+<h1><span class="section-number">3. </span>The metric-based framework<a class="headerlink" href="#the-metric-based-framework" title="Permalink to this headline">¶</a></h1>
+<section id="metric-spaces">
+<h2><span class="section-number">3.1. </span>Metric spaces<a class="headerlink" href="#metric-spaces" title="Permalink to this headline">¶</a></h2>
+<p>The metric-based framework has its roots in Riemannian
+geometry - in particular, Riemannian metric spaces.</p>
+<p>A <cite>metric space</cite>
+<span class="math notranslate nohighlight">\((\mathcal V,\underline{\mathbf M})\)</span> consists
+of a vector space <span class="math notranslate nohighlight">\(\mathcal V\)</span> and a <cite>metric</cite>
+<span class="math notranslate nohighlight">\(\underline{\mathbf M}\)</span> defined upon it. Under
+the assumption that <span class="math notranslate nohighlight">\(\mathcal V=\mathbb R^n\)</span>
+for some <span class="math notranslate nohighlight">\(n\in\mathbb N\)</span>, <span class="math notranslate nohighlight">\(\mathcal M\)</span> can
+be represented as a real <span class="math notranslate nohighlight">\(n\times n\)</span> symmetric
+positive-definite (SPD) matrix. From the metric, we
+may deduce a distance function and various geometric
+quantities related to the metric space.
+The most well-known example of an <span class="math notranslate nohighlight">\(n\)</span>-dimensional
+metric space is Euclidean space, <span class="math notranslate nohighlight">\(\mathbb E^n\)</span>.
+Euclidean space is <span class="math notranslate nohighlight">\(\mathbb R^n\)</span>, with the
+<span class="math notranslate nohighlight">\(n\)</span>-dimensional identity matrix
+<span class="math notranslate nohighlight">\(\underline{\mathbf I}\)</span> as its metric.
+This gives rise to the well-known <span class="math notranslate nohighlight">\(\ell_2\)</span>
+distance function,</p>
+<div class="math notranslate nohighlight">
+\[d_2(\mathbf u,\mathbf v)
+:=\sqrt{\sum_{i=1}^n(v_i-u_i)^2}
+=\sqrt{(\mathbf{v}-\mathbf{u})^T\:\underline{\mathbf I}\:(\mathbf{v}-\mathbf{u})}
+=\sqrt{\vec{\mathbf{uv}}^T\:\underline{\mathbf M}\:\vec{\mathbf{uv}}},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\vec{\mathbf{uv}}\)</span>
+denotes the vector from
+<span class="math notranslate nohighlight">\(\mathbf u=(u_1,\dots,u_n)\in\mathbb R^n\)</span> to
+<span class="math notranslate nohighlight">\(\mathbf v=(v_1,\dots,v_n)\in\mathbb R^n\)</span>.</p>
+<p>The definition above assumes that the metric takes a fixed
+value. A <cite>Riemannian metric space</cite>, on the other hand, is
+defined point-wise on a domain <span class="math notranslate nohighlight">\(\Omega\)</span>, such that
+its value is an <span class="math notranslate nohighlight">\(n\times n\)</span> SPD matrix <cite>at each point</cite>
+<span class="math notranslate nohighlight">\(\mathbf x\in\Omega\)</span>. We use the notation
+<span class="math notranslate nohighlight">\(\mathcal M=\{\underline{\mathbf M}(\mathbf x)\}_{\mathbf x\in\Omega}\)</span>
+for the Riemannian metric. Throughout this documentation,
+the term <cite>metric</cite> should be understood as referring
+specifically to a Riemannian metric. The fact that a
+Riemannian metric can vary in space means that Riemannian
+metric spaces are warped, when viewed in Euclidean space.
+For example, think of the space-time continuum in
+General Relativity. This is probably the most famous
+example of a Riemannian metric space.</p>
+<figure class="align-center" id="id9" style="width: 80%">
+<img alt="https://upload.wikimedia.org/wikipedia/commons/6/63/Spacetime_lattice_analogy.svg" src="https://upload.wikimedia.org/wikipedia/commons/6/63/Spacetime_lattice_analogy.svg" /><figcaption>
+<p><span class="caption-text">An example of a Riemannian metric space: the
+gravitational field of the Earth (source:
+<a class="reference external" href="https://commons.wikimedia.org/w/index.php?curid=45121761">Wikipedia</a>).</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Given a Riemannian metric
+<span class="math notranslate nohighlight">\(\mathcal M=\{\underline{\mathbf M}(\mathbf x)\}_{\mathbf x\in\Omega}\)</span>,
+we can define distance in the associated space as above.
+However, since space is warped, we need
+to integrate along a <cite>curve</cite>, rather than a straight line.
+Given that <span class="math notranslate nohighlight">\(\boldsymbol\gamma:[0,1]\rightarrow\mathbb R^n\)</span>
+parametrises the curve from <span class="math notranslate nohighlight">\(\mathbf u\in\Omega\)</span> to
+<span class="math notranslate nohighlight">\(\mathbf v\in\Omega\)</span>, the distance may be computed
+using the parametric integral</p>
+<div class="math notranslate nohighlight">
+\[d_{\mathcal M}(\mathbf u,\mathbf v)
+:=\int_0^1\sqrt{\vec{\mathbf{uv}}\:\underline{\mathbf M}(\boldsymbol\gamma(\xi))\:\vec{\mathbf{uv}}}\;\mathrm d\xi.\]</div>
+<p>We define length in the metric space by</p>
+<div class="math notranslate nohighlight">
+\[\ell_{\mathcal M}(\vec{\mathbf{uv}})
+:=d_{\mathcal M}(\mathbf u,\mathbf v).\]</div>
+<p>As well as distances and lengths, it is also possible to define
+volume in Riemannian space. Given a subset
+<span class="math notranslate nohighlight">\(K\subseteq\Omega\)</span>, its volume is given by</p>
+<div class="math notranslate nohighlight">
+\[\left|K\right|_{\mathcal M}
+:=\int_K\sqrt{\underline{\mathbf M}(\mathbf x)}\;\mathrm dx.\]</div>
+<p>The concept of angle also carries over, amongst other things.</p>
+<p>Metric fields should be defined in Firedrake using
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s from instances of a Lagrange
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TensorFunctionSpace</span></code> of degree 1, i.e. a tensor space
+that is piecewise linear and continuous. The following example
+code snippet defines a uniform metric and checks that it is SPD:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
+<span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">as_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+<span class="n">check_spd</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="geometric-interpretation">
+<h2><span class="section-number">3.2. </span>Geometric interpretation<a class="headerlink" href="#geometric-interpretation" title="Permalink to this headline">¶</a></h2>
+<p>A convenient way of visualising a Riemannian metric field
+is using an ellipse (in 2D) or an ellipsoid (in 3D). As
+mentioned above, the metric takes the form of an SPD matrix
+<span class="math notranslate nohighlight">\(\underline{\mathbf M}(\mathbf x)\)</span> at each point in
+space, <span class="math notranslate nohighlight">\(\mathbf x\in\Omega\)</span>. Since it is symmetric,
+this matrix has an orthogonal eigendecomposition,</p>
+<div class="math notranslate nohighlight">
+\[\underline{\mathbf M}(\mathbf x)
+=\underline{\mathbf V}(\mathbf x)\:
+\underline{\boldsymbol\Lambda}(\mathbf x)\:
+\underline{\mathbf V}(\mathbf x)^T,\]</div>
+<p>where
+<span class="math notranslate nohighlight">\(\underline{\mathbf V}(\mathbf x)=\begin{bmatrix}\mathbf v_1,\dots,\mathbf v_n\end{bmatrix}\)</span>
+is its matrix of (orthonormal) eigenvectors and
+<span class="math notranslate nohighlight">\(\underline{\boldsymbol\Lambda}(\mathbf x)=\mathrm{diag}(\lambda_1,\dots,\lambda_n)\)</span>
+is its matrix of eigenvalues.</p>
+<p>Viewed in Euclidean space (i.e. the <cite>physical space</cite>),
+a 2D metric can be represented by an ellipse with
+<span class="math notranslate nohighlight">\(i^{th}\)</span> semi-axis taking the direction
+<span class="math notranslate nohighlight">\(\mathbf e_i:=\mathbf v_i\)</span> and having magnitude
+<span class="math notranslate nohighlight">\(h_i:=1/\sqrt{\lambda_i}\)</span>. Viewed in the metric
+space (i.e. the <cite>control space</cite>), however, it is
+represented by a unit circle.</p>
+<figure class="align-center" id="id10" style="width: 80%">
+<img alt="../_images/ellipse.jpg" src="../_images/ellipse.jpg" />
+<figcaption>
+<p><span class="caption-text">Representation of a 2D Riemannian metric as an ellipse.
+Image taken from <span id="id1">[<a class="reference internal" href="#id8" title="Joseph Gregory Wallwork. Mesh adaptation and adjoint methods for finite element coastal ocean modelling. PhD thesis, Imperial College London, 2021. doi:10.25560/92820.">Wal21</a>]</span> with author’s permission.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Given a metric field, the eigendecomposition may be
+computed in Pyroteus using the function
+<code class="xref py py-func docutils literal notranslate"><span class="pre">compute_eigendecomposition()</span></code>. Similarly, given
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s representing the eigenvectors and
+eigenvalues of a metric, it may be assembled using the
+function <code class="xref py py-func docutils literal notranslate"><span class="pre">assemble_eigendecomposition()</span></code>.</p>
+<p>The orthogonal eigendecomposition gives rise to another
+matrix decomposition, which is useful for understanding
+metric-based mesh adaptation. If we define <cite>metric density</cite>
+as the square root of the sum of the eigenvalues,</p>
+<div class="math notranslate nohighlight">
+\[\rho:=\sqrt{\prod_{i=1}^n\lambda_i},\]</div>
+<p>and the <span class="math notranslate nohighlight">\(i^{th}\)</span> anisotropy quotient in terms of
+the metric magnitudes by</p>
+<div class="math notranslate nohighlight">
+\[r_i:=h_i^n\prod_{j=1}^n\frac1{h_j},\quad i=1,\dots,n,\]</div>
+<p>then we arrive at the decomposition</p>
+<div class="math notranslate nohighlight">
+\[\underline{\mathbf M}
+=\rho^{\frac2n}\:
+\underline{\mathbf V}\:
+\mathrm{diag}\left(r_1^{-\frac2n},\dots,r_n^{-\frac2n}\right)\:
+\underline{\mathbf V}^T.\]</div>
+<p>The reason that this formulation is useful is because
+it separates out information contained within the metric
+in terms of:</p>
+<ul class="simple">
+<li><p>sizes (the metric density);</p></li>
+<li><p>orientation (the eigenvectors);</p></li>
+<li><p>shape (the anisotropy quotients).</p></li>
+</ul>
+<p>These are the three aspects of a mesh that metric-based
+mesh adaptation is able to control, whereas other mesh
+adaptation methods can only usually control element sizes.</p>
+<p>The metric decomposition above can be computed in Pyroteus
+using the function <code class="xref py py-func docutils literal notranslate"><span class="pre">density_and_quotients()</span></code>.</p>
+</section>
+<section id="continuous-mesh-analogy">
+<h2><span class="section-number">3.3. </span>Continuous mesh analogy<a class="headerlink" href="#continuous-mesh-analogy" title="Permalink to this headline">¶</a></h2>
+<p>The work of <span id="id2">[<a class="reference internal" href="#id7" title="A Loseille and F Alauzet. Continuous mesh framework part I: well-posed continuous interpolation error. SIAM Journal on Numerical Analysis, 49(1):38–60, 2011. doi:10.1137/090754078.">LA11</a>]</span> established duality between
+the (inherently discrete) mesh and a (continuous)
+Riemannian metric field. Having a continuous
+representation for the mesh means that we are able to
+apply optimisation techniques that are designed for
+continuous problems.</p>
+<p>An example of one of the correspondences is between
+<cite>metric complexity</cite> and mesh vertex count. Metric
+complexity is expressed using the formula</p>
+<div class="math notranslate nohighlight">
+\[\mathcal C(\mathcal M)=\int_\Omega\sqrt{\mathrm{det}(\mathcal M(\mathbf x)})\;\mathrm dx.\]</div>
+<p>and can be interpreted as the volume of the spatial
+domain in metric space (recall the formula for
+volume in Riemannian space). Metric complexity may
+be computed in Pyroteus using the function
+<code class="xref py py-func docutils literal notranslate"><span class="pre">metric_complexity()</span></code>.
+The time-dependent extension of metric complexity,</p>
+<div class="math notranslate nohighlight">
+\[\mathcal C(\mathcal M)=\int_{\mathcal T}\int_\Omega\sqrt{\mathrm{det}(\mathcal M(\mathbf x,t)})\;\mathrm dx\;\mathrm dt\]</div>
+<p>over a time interval <span class="math notranslate nohighlight">\(\mathcal T\)</span> is analogous
+to the total number of mesh vertices over all timesteps.</p>
+</section>
+<section id="metric-based-mesh-adaptation">
+<h2><span class="section-number">3.4. </span>Metric-based mesh adaptation<a class="headerlink" href="#metric-based-mesh-adaptation" title="Permalink to this headline">¶</a></h2>
+<p>The idea of metric-based mesh adaptation is to use
+a Riemannian metric space <cite>within</cite> the mesher. In
+doing so, we seek to modify the mesh so that in
+the metric space it is a so-called <cite>unit mesh</cite>.
+That is, all of its elements have unit edge length.
+For a 2D triangular mesh this means having a mesh
+comprised of equilateral elements with all sides
+being of length one.
+Making the elements consistent in metric space can
+be thought of in terms of equidistributing errors,
+which is one of the key ideas behind mesh adaptation
+in general.</p>
+<p>In practice, it is not possible to tessellate space
+with regular elements. Therefore, we instead seek a
+<cite>quasi-unit mesh</cite>, whose elements are all “close to”
+unit, in some sense.</p>
+<p>During the mesh adaptation process, the entities,
+nodal positions and/or connectivity are modified
+in order to move towards a quasi-unit mesh. The way
+that this is quantified in practice is using a
+<cite>quality function</cite>. For example, consider the 2D
+quality function</p>
+<div class="math notranslate nohighlight">
+\[Q_{\mathcal M}
+=\frac{\sqrt3}{12}\frac{\sum_{\boldsymbol\gamma\in\partial K}\ell_{\mathcal M}(\boldsymbol\gamma)^2}{|K|_{\mathcal M}},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\boldsymbol\gamma\in\partial K\)</span> indicates
+an edge from the edge set of element <span class="math notranslate nohighlight">\(K\)</span>. It
+can be shown that <span class="math notranslate nohighlight">\(Q_{\mathcal M}\)</span> is minimised
+for an equilateral triangular element.</p>
+</section>
+<section id="operations-on-metrics">
+<h2><span class="section-number">3.5. </span>Operations on metrics<a class="headerlink" href="#operations-on-metrics" title="Permalink to this headline">¶</a></h2>
+<p>In order to use metrics to drive mesh adaptation
+algorithms for solving real problems, they must
+first be made relevant to the application. Metrics
+should be normalised in order to account for domain
+geometry, dimensional scales and other properties
+of the problem, such as the extent to which it is
+multi-scale.</p>
+<p>In Pyroteus, normalisation is performed by the
+function <code class="xref py py-func docutils literal notranslate"><span class="pre">space_normalise()</span></code> in the
+<span class="math notranslate nohighlight">\(L^p\)</span> sense:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal M_{L^p}:=
+\mathcal C_T^{\frac2n}
+\:\left(\int_\Omega\mathrm{det}(\underline{\mathbf M})^{\frac p{2p+n}}\;\mathrm dx\right)^{-\frac2n}
+\:\mathrm{det}(\mathcal M)^{-\frac1{2p+n}}
+\:\mathcal M,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathcal C_T\)</span> is the target metric
+complexity (i.e. tolerated vertex count),
+<span class="math notranslate nohighlight">\(n\)</span> is the spatial dimension and
+<span class="math notranslate nohighlight">\(p\in[1,\infty)\)</span> is the order of the
+normalisation. Taking <span class="math notranslate nohighlight">\(p=1\)</span> implies a truly
+multi-scale metric and this becomes less so for
+higher orders. In the limit <span class="math notranslate nohighlight">\(p\rightarrow\infty\)</span>
+we obtain</p>
+<div class="math notranslate nohighlight">
+\[\mathcal M_{L^\infty}:=
+\left(\frac{\mathcal C_T}{\mathcal C(\mathcal M)}\right)^{\frac2n}
+\:\mathcal M.\]</div>
+<p>For time-dependent problems, the normalisation
+formulation also includes integrals in time. Suppose
+<span class="math notranslate nohighlight">\(\mathcal T\)</span> is the time period of interest,
+<span class="math notranslate nohighlight">\(\Delta t&gt;0\)</span> is the timestep and
+<span class="math notranslate nohighlight">\(\mathcal C_T\)</span> is now the target <cite>space-time</cite>
+complexity. Then the function <code class="xref py py-func docutils literal notranslate"><span class="pre">space_time_normalise()</span></code>
+computes</p>
+<div class="math notranslate nohighlight">
+\[\mathcal M_{L^p}:=
+\mathcal C_T^{\frac2n}
+\:\left(\int_{\mathcal T}\frac1{\Delta t}\int_\Omega\mathrm{det}(\underline{\mathbf M})^{\frac p{2p+n}}\;\mathrm dx\;\mathrm dt\right)^{-\frac2n}
+\:\mathrm{det}(\mathcal M)^{-\frac1{2p+n}}
+\:\mathcal M.\]</div>
+<p>In many cases, it is convenient to be able to combine
+different metrics. For example, if we seek to adapt
+the mesh such that the value of two different error
+estimators are reduced. The simplest metric combination
+method from an algebraic perspective is the metric
+average:</p>
+<div class="math notranslate nohighlight">
+\[\tfrac12(\mathcal M_1 + \mathcal M_2),\]</div>
+<p>for two metrics <span class="math notranslate nohighlight">\(\mathcal M_1\)</span> and
+<span class="math notranslate nohighlight">\(\mathcal M_2\)</span>. Whilst mathematically simple,
+the geometric interpretation of taking the metric
+average is not immediately obvious. Metric intersection,
+on the other hand, is geometrically straight-forward,
+but non-trivial to write mathematically. The elliptic
+interpretation of two metrics is the largest ellipse
+which fits within the ellipses associtated with the
+two input metrics. As such, metric intersection yields
+a new metric whose complexity is greater than (or equal
+to) its parents’. This is not true for the metric
+average in general. See <span id="id3">[<a class="reference internal" href="#id6" title="CC Pain, AP Umpleby, CRE De Oliveira, and AJH Goddard. Tetrahedral mesh optimisation and adaptivity for steady-state and transient finite element calculations. Computer Methods in Applied Mechanics and Engineering, 190(29-30):3771–3796, 2001. doi:10.1016/S0045-7825(00)00294-2.">PUDOG01</a>]</span> for details.</p>
+<figure class="align-center" id="id11" style="width: 80%">
+<img alt="../_images/intersection.jpg" src="../_images/intersection.jpg" />
+<figcaption>
+<p><span class="caption-text">Intersection of two 2D Riemannian metrics, interpreted
+in terms of their elliptical representations.
+Image taken from <span id="id4">[<a class="reference internal" href="#id8" title="Joseph Gregory Wallwork. Mesh adaptation and adjoint methods for finite element coastal ocean modelling. PhD thesis, Imperial College London, 2021. doi:10.25560/92820.">Wal21</a>]</span> with author’s permission.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Metric combination may be achieved in Pyroteus using the
+functions <code class="xref py py-func docutils literal notranslate"><span class="pre">metric_average()</span></code>,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">metric_intersection()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">metric_relaxation()</span></code>
+(generalised average) and simply <code class="xref py py-func docutils literal notranslate"><span class="pre">combine_metrics()</span></code>,
+which defaults to the metric average.</p>
+</section>
+<section id="metric-drivers">
+<h2><span class="section-number">3.6. </span>Metric drivers<a class="headerlink" href="#metric-drivers" title="Permalink to this headline">¶</a></h2>
+<p>Pyroteus provides a number of different driver functions
+for metric generation. The simplest is <code class="xref py py-func docutils literal notranslate"><span class="pre">isotropic_metric()</span></code>,
+which takes an error indicator field and constructs a
+metric which specifies how a mesh should be adapted purely
+in terms of element size (not orientation or shape).
+Alternative anisotropic formulations, which combine error
+indicator information with curvature information from the
+Hessians of solution fields are provided by
+<code class="xref py py-func docutils literal notranslate"><span class="pre">anisotropic_metric()</span></code>. See the API documentation for
+details.</p>
+</section>
+<section id="references">
+<h2><span class="section-number">3.7. </span>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p id="id5"><dl class="citation">
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id2">LA11</a></span></dt>
+<dd><p>A Loseille and F Alauzet. Continuous mesh framework part I: well-posed continuous interpolation error. <em>SIAM Journal on Numerical Analysis</em>, 49(1):38–60, 2011. <a class="reference external" href="https://doi.org/10.1137/090754078">doi:10.1137/090754078</a>.</p>
+</dd>
+<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id3">PUDOG01</a></span></dt>
+<dd><p>CC Pain, AP Umpleby, CRE De Oliveira, and AJH Goddard. Tetrahedral mesh optimisation and adaptivity for steady-state and transient finite element calculations. <em>Computer Methods in Applied Mechanics and Engineering</em>, 190(29-30):3771–3796, 2001. <a class="reference external" href="https://doi.org/10.1016/S0045-7825(00)00294-2">doi:10.1016/S0045-7825(00)00294-2</a>.</p>
+</dd>
+<dt class="label" id="id8"><span class="brackets">Wal21</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id4">2</a>)</span></dt>
+<dd><p>Joseph Gregory Wallwork. Mesh adaptation and adjoint methods for finite element coastal ocean modelling. <em>PhD thesis, Imperial College London</em>, 2021. <a class="reference external" href="https://doi.org/10.25560/92820">doi:10.25560/92820</a>.</p>
+</dd>
+</dl>
+</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">3. The metric-based framework</a><ul>
+<li><a class="reference internal" href="#metric-spaces">3.1. Metric spaces</a></li>
+<li><a class="reference internal" href="#geometric-interpretation">3.2. Geometric interpretation</a></li>
+<li><a class="reference internal" href="#continuous-mesh-analogy">3.3. Continuous mesh analogy</a></li>
+<li><a class="reference internal" href="#metric-based-mesh-adaptation">3.4. Metric-based mesh adaptation</a></li>
+<li><a class="reference internal" href="#operations-on-metrics">3.5. Operations on metrics</a></li>
+<li><a class="reference internal" href="#metric-drivers">3.6. Metric drivers</a></li>
+<li><a class="reference internal" href="#references">3.7. References</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="2-goal-oriented-error-estimation.html"
+                        title="previous chapter"><span class="section-number">2. </span>Goal-oriented error estimation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="4-goal-oriented-mesh-adaptation.html"
+                        title="next chapter"><span class="section-number">4. </span>Goal-oriented mesh adaptation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/maths/3-metric-based.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="4-goal-oriented-mesh-adaptation.html" title="4. Goal-oriented mesh adaptation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Pyroteus manual</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>The metric-based framework</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>
