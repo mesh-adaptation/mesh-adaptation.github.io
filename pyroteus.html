@@ -244,34 +244,30 @@ a fixed point iteration.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq">
-<span class="sig-name descname"><span class="pre">get_enriched_mesh_seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_h_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_p_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.get_enriched_mesh_seq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_enriched_mesh_seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.get_enriched_mesh_seq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the forward and adjoint problems
 associated with <code class="xref py py-attr docutils literal notranslate"><span class="pre">solver</span></code> in a
 sequence of globally enriched spaces.</p>
 <p>Currently, global enrichment may be
 achieved using one of:
 * h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
-* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>);
-* hp-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'hp'</span></code>).</p>
-<p>The number of refinements in each direction
-may be controlled by the keyword arguments
-<code class="docutils literal notranslate"><span class="pre">num_h_enrichments</span></code> and <code class="docutils literal notranslate"><span class="pre">num_p_enrichments</span></code>.</p>
+* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>).</p>
+<p>The number of refinements may be controlled by
+the keyword argument <code class="docutils literal notranslate"><span class="pre">num_enrichments</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">
-<span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_h_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_p_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Solve the forward and adjoint problems
 associated with <code class="xref py py-attr docutils literal notranslate"><span class="pre">solver</span></code> in a
 sequence of globally enriched spaces.</p>
 <p>Currently, global enrichment may be
 achieved using one of:
 * h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
-* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>);
-* hp-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'hp'</span></code>).</p>
-<p>The number of refinements in each direction
-may be controlled by the keyword arguments
-<code class="docutils literal notranslate"><span class="pre">num_h_enrichments</span></code> and <code class="docutils literal notranslate"><span class="pre">num_p_enrichments</span></code>.</p>
+* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>).</p>
+<p>The number of refinements may be controlled by
+the keyword argument <code class="docutils literal notranslate"><span class="pre">num_enrichments</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> – keyword arguments to pass to the
