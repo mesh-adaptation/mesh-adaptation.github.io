@@ -215,7 +215,7 @@ subinterval <code class="docutils literal notranslate"><span class="pre">i</span
 contains the forward solution from the timestep prior.</p>
 <p>For the purposes of this demo, we plot the solution at each exported
 timestep using the plotting driver function <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_snapshots()</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_snapshots</span><span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">tcs</span> <span class="o">=</span> <span class="n">plot_snapshots</span><span class="p">(</span>
     <span class="n">solutions</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;burgers.jpg&quot;</span><span class="p">)</span>

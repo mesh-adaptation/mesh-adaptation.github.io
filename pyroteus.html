@@ -1524,6 +1524,36 @@ names used by Pyroteus.</p>
 <span id="pyroteus-time-partition-module"></span><h2>pyroteus.time_partition module<a class="headerlink" href="#module-pyroteus.time_partition" title="Permalink to this headline">¶</a></h2>
 <p>Partitioning for the temporal domain.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.time_partition.TimeInstant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.time_partition.</span></span><span class="sig-name descname"><span class="pre">TimeInstant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimeInstant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimeInstant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyroteus.time_partition.TimeInterval" title="pyroteus.time_partition.TimeInterval"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyroteus.time_partition.TimeInterval</span></code></a></p>
+<p>A <a class="reference internal" href="#pyroteus.time_partition.TimePartition" title="pyroteus.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a> for steady-state problems.</p>
+<p>Under the hood this means dividing <span class="math notranslate nohighlight">\([0,1)\)</span> into
+a single timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>end_time</strong> – end time of the interval
+of interest</p></li>
+<li><p><strong>num_subintervals</strong> – number of
+subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> – (list of values for the)
+timestep used on each subinterval</p></li>
+<li><p><strong>fields</strong> – (list of) field names ordered
+by call sequence</p></li>
+<li><p><strong>timesteps_per_export</strong> – (list of)
+timesteps per export (default 1)</p></li>
+<li><p><strong>start_time</strong> – start time of the
+interval of interest (default 0.0)</p></li>
+<li><p><strong>subinterals</strong> – user-provided sequence
+of subintervals, which need not be of
+uniform length (defaults to None)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="pyroteus.time_partition.TimeInterval">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyroteus.time_partition.</span></span><span class="sig-name descname"><span class="pre">TimeInterval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimeInterval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimeInterval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pyroteus.time_partition.TimePartition" title="pyroteus.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyroteus.time_partition.TimePartition</span></code></a></p>

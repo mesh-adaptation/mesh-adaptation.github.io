@@ -54,6 +54,21 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AdjointMeshSeq&quot;</span><span class="p">,</span> <span class="s2">&quot;annotate_qoi&quot;</span><span class="p">]</span>
 
 
+<span class="k">def</span> <span class="nf">th</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert from cardinal to ordinal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">end</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">st&quot;</span>
+    <span class="k">elif</span> <span class="n">end</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">nd&quot;</span>
+    <span class="k">elif</span> <span class="n">end</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">rd&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">th&quot;</span>
+
+
 <div class="viewcode-block" id="annotate_qoi"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.annotate_qoi">[docs]</a><span class="k">def</span> <span class="nf">annotate_qoi</span><span class="p">(</span><span class="n">get_qoi</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator that ensures QoIs are annotated</span>
@@ -71,7 +86,7 @@
         <span class="n">num_kwargs</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span><span class="p">)</span>
         <span class="n">num_args</span> <span class="o">=</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">-</span> <span class="n">num_kwargs</span>
         <span class="k">if</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="s2">&quot;end_time&quot;</span>
+            <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="s2">&quot;time_integrated&quot;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -111,7 +126,9 @@
 <span class="sd">            as well as an index for the :class:`MeshSeq`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qoi_type&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;steady&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;time_integrated&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QoI type </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="si">}</span><span class="s2"> not recognised&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">==</span> <span class="s2">&quot;steady&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">time_partition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span> <span class="o">=</span> <span class="n">get_qoi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="mi">0</span>
@@ -173,7 +190,7 @@
                 <span class="p">)</span>
 
         <span class="c1"># Account for end time QoI</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">==</span> <span class="s2">&quot;end_time&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
             <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">sols</span><span class="p">,</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">qoi</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qoi_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
         <span class="k">return</span> <span class="n">checkpoints</span></div>
@@ -283,7 +300,7 @@
 
             <span class="c1"># Get seed vector for reverse propagation</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">num_subintervals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">==</span> <span class="s2">&quot;end_time&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
                     <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">sols</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">qoi</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qoi_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
@@ -389,7 +406,7 @@
                 <span class="c1"># Check non-zero adjoint solution/value</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Adjoint solution for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is zero.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Adjoint solution for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2"> subinterval is zero.&quot;</span>
                     <span class="p">)</span>
                 <span class="k">if</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warn</span>
@@ -397,7 +414,7 @@
                     <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">adj_value</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is zero.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2"> subinterval is zero.&quot;</span>
                     <span class="p">)</span>
 
             <span class="c1"># Get adjoint action</span>
@@ -410,12 +427,8 @@
             <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is zero.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2"> subinterval is zero.&quot;</span>
                     <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">steady</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="s2">&quot;  You seem to have a steady-state problem. Presumably it is linear?&quot;</span>
-                        <span class="p">)</span>
             <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
         <span class="c1"># Check the QoI value agrees with that due to the checkpointing run</span>

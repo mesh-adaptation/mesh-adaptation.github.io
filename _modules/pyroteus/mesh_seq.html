@@ -130,6 +130,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warnings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="MeshSeq.debug"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.debug">[docs]</a>    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
         <span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MeshSeq: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
@@ -382,16 +384,20 @@
             <span class="ow">and</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="n">field</span> <span class="o">+</span> <span class="s2">&quot;_old&quot;</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Solve block for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has no dependencies&quot;</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Solve block for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has no dependencies&quot;</span>
+                <span class="p">)</span>
             <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fwd_old_idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Solve block  for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has dependencies</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot; in the prognostic space other than the PDE solution at the previous timestep.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(Dep indices </span><span class="si">{</span><span class="n">fwd_old_idx</span><span class="si">}</span><span class="s2">). Naively assuming the first to be the right one.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Solve block for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has dependencies in the prognostic&quot;</span>
+                    <span class="s2">&quot; space other than the PDE solution at the previous&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; timestep (dep. indices </span><span class="si">{</span><span class="n">fwd_old_idx</span><span class="si">}</span><span class="s2">). Naively&quot;</span>
+                    <span class="s2">&quot; assuming the first to be the right one.&quot;</span>
                 <span class="p">)</span>
             <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="n">fwd_old_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">fwd_old_idx</span>

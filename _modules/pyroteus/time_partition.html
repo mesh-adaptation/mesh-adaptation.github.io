@@ -47,7 +47,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimePartition&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeInterval&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimePartition&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeInterval&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeInstant&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="TimePartition"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimePartition">[docs]</a><span class="k">class</span> <span class="nc">TimePartition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -232,6 +232,19 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">timestep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TimeInstant"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.time_partition.TimeInstant">[docs]</a><span class="k">class</span> <span class="nc">TimeInstant</span><span class="p">(</span><span class="n">TimeInterval</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A :class:`TimePartition` for steady-state problems.</span>
+
+<span class="sd">    Under the hood this means dividing :math:`[0,1)` into</span>
+<span class="sd">    a single timestep.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="n">end_time</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span></div>
 </pre></div>
 
             <div class="clearer"></div>
