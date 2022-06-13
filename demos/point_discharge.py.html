@@ -164,15 +164,12 @@ Pyroteus is primarily geared up for time-dependent problems, where initialisatio
 is important. Even for linear, steady-state problems, we need to maintain a
 programatic dependence on the initial condition so that it is possible to
 automatically differentiate the QoI with respect to this as an input.</p>
-<p>In the same way, <code class="xref py py-func docutils literal notranslate"><span class="pre">get_initial_condition()</span></code> is required, but fairly artificial.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">Function</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])}</span>
-</pre></div>
-</div>
+<p>For steady-state problems, we do not need to specify <code class="xref py py-func docutils literal notranslate"><span class="pre">get_initial_condition()</span></code>
+if the equation is linear. If the equation is nonlinear then this would provide
+an initial guess. By default, all components are initialised to zero.</p>
 <p>As in the motivation for the manual, we consider a quantity of interest that
-integrates the tracer concentration over a circular “receiver” region.</p>
-<p>Since there is no time dependence, the QoI looks just like an <code class="docutils literal notranslate"><span class="pre">&quot;end_time&quot;</span></code>
-type QoI.</p>
+integrates the tracer concentration over a circular “receiver” region. Since
+there is no time dependence, the QoI looks just like an <code class="docutils literal notranslate"><span class="pre">&quot;end_time&quot;</span></code> type QoI.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">qoi</span><span class="p">():</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
@@ -196,7 +193,6 @@ we use the subclass <code class="xref py py-class docutils literal notranslate">
     <span class="n">time_partition</span><span class="p">,</span>
     <span class="n">mesh</span><span class="p">,</span>
     <span class="n">get_function_spaces</span><span class="o">=</span><span class="n">get_function_spaces</span><span class="p">,</span>
-    <span class="n">get_initial_condition</span><span class="o">=</span><span class="n">get_initial_condition</span><span class="p">,</span>
     <span class="n">get_form</span><span class="o">=</span><span class="n">get_form</span><span class="p">,</span>
     <span class="n">get_bcs</span><span class="o">=</span><span class="n">get_bcs</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="o">=</span><span class="n">get_solver</span><span class="p">,</span>

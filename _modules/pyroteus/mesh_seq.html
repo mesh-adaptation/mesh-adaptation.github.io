@@ -185,9 +185,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MeshSeq.get_initial_condition"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_initial_condition">[docs]</a>    <span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_initial_condition needs implementing&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">field</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span></div>
 
 <div class="viewcode-block" id="MeshSeq.get_form"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_form">[docs]</a>    <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -200,9 +203,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MeshSeq.get_bcs"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_bcs">[docs]</a>    <span class="k">def</span> <span class="nf">get_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_bcs needs implementing&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_function_spaces_consistent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
