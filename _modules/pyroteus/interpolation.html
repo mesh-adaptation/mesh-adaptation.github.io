@@ -1,19 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyroteus.interpolation &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -58,7 +56,7 @@
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the Clement interpolant of a :math:`\mathbb P0`</span>
 <span class="sd">    source field, i.e. take the volume average over</span>
-<span class="sd">    neighbouring cells at each vertex.</span>
+<span class="sd">    neighbouring cells at each vertex. See :cite:`Cle:75`.</span>
 
 <span class="sd">    :arg source: the :math:`\mathbb P0` source field</span>
 <span class="sd">    :kwarg target_space: the :math:`\mathbb P1` space to</span>
@@ -167,17 +165,19 @@
 
 <div class="viewcode-block" id="project"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.interpolation.project">[docs]</a><span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Overload Firedrake&#39;s ``project`` function to account</span>
+<span class="sd">    Overload :func:`firedrake.projection.project` to account</span>
 <span class="sd">    for the case of two mixed function spaces defined on</span>
 <span class="sd">    different meshes and for the adjoint projection</span>
 <span class="sd">    operator.</span>
 
-<span class="sd">    Extra keyword arguments are passed to Firedrake&#39;s</span>
-<span class="sd">    ``project`` function.</span>
+<span class="sd">    Extra keyword arguments are passed to</span>
+<span class="sd">    :func:`firedrake.projection.project`.</span>
 
-<span class="sd">    :arg source: the :class:`Function` to be projected</span>
-<span class="sd">    :arg target_space: the :class:`FunctionSpace` which</span>
-<span class="sd">        we seek to project into</span>
+<span class="sd">    :arg source: the :class:`firedrake.function.Function`</span>
+<span class="sd">        to be projected</span>
+<span class="sd">    :arg target_space: the</span>
+<span class="sd">        :class:`firedrake.functionspaceimpl.FunctionSpace`</span>
+<span class="sd">        which we seek to project into</span>
 <span class="sd">    :kwarg adjoint: apply the transposed projection</span>
 <span class="sd">        operator?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -210,9 +210,10 @@
 <span class="sd">    Extra keyword arguments are passed to Firedrake&#39;s</span>
 <span class="sd">    ``project`` function.</span>
 
-<span class="sd">    :arg source: the :class:`Function` to be projected</span>
-<span class="sd">    :arg target: the :class:`Function` which we</span>
-<span class="sd">        seek to project onto</span>
+<span class="sd">    :arg source: the :class:`firedrake.function.Function`</span>
+<span class="sd">        to be projected</span>
+<span class="sd">    :arg target: the :class:`firedrake.function.Function`</span>
+<span class="sd">        which we seek to project onto</span>
 <span class="sd">    :kwarg adjoint: apply the transposed projection</span>
 <span class="sd">        operator?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -245,13 +246,13 @@
 <span class="sd">    be interpreted as a projector in its own right,</span>
 <span class="sd">    mapping ``target_b`` to ``source_b``.</span>
 
-<span class="sd">    Extra keyword arguments are passed to Firedrake&#39;s</span>
-<span class="sd">    ``project`` function.</span>
+<span class="sd">    Extra keyword arguments are passed to</span>
+<span class="sd">    :func:`firedrake.projection.project`.</span>
 
-<span class="sd">    :arg target_b: seed :class:`Function` from the target</span>
-<span class="sd">        space of the forward projection</span>
-<span class="sd">    :arg source_b: the :class:`Function` from the source</span>
-<span class="sd">        space of the forward projection</span>
+<span class="sd">    :arg target_b: seed :class:`firedrake.function.Function`</span>
+<span class="sd">        from the target space of the forward projection</span>
+<span class="sd">    :arg source_b: the :class:`firedrake.function.Function`</span>
+<span class="sd">        from the source space of the forward projection</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">firedrake.supermeshing</span> <span class="kn">import</span> <span class="n">assemble_mixed_mass_matrix</span>
 
@@ -327,7 +328,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

@@ -1,19 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyroteus.utility &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -55,7 +53,7 @@
 <div class="viewcode-block" id="Mesh"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.Mesh">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.Mesh&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Overload Firedrake&#39;s ``Mesh`` constructor to</span>
+<span class="sd">    Overload :func:`firedrake.mesh.Mesh` to</span>
 <span class="sd">    endow the output mesh with useful quantities.</span>
 
 <span class="sd">    The following quantities are computed by default:</span>
@@ -94,7 +92,7 @@
 
 <div class="viewcode-block" id="File"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">File</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Overload Firedrake&#39;s ``File`` class so that</span>
+<span class="sd">    Overload :class:`firedrake.output.File` so that</span>
 <span class="sd">    it uses ``adaptive`` mode by default. Whilst</span>
 <span class="sd">    this means that the mesh topology is</span>
 <span class="sd">    recomputed at every export, it removes any</span>
@@ -145,17 +143,19 @@
 <div class="viewcode-block" id="norm"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.norm">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.norm&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Overload Firedrake&#39;s ``norm`` function to</span>
+<span class="sd">    Overload :func:`firedrake.norms.norm` to</span>
 <span class="sd">    allow for :math:`\ell^p` norms.</span>
 
 <span class="sd">    Note that this version is case sensitive,</span>
 <span class="sd">    i.e. ``&#39;l2&#39;`` and ``&#39;L2&#39;`` will give</span>
 <span class="sd">    different results in general.</span>
 
-<span class="sd">    :arg v: the :class:`Function` to take the norm of</span>
-<span class="sd">    :kwarg norm_type: choose from &#39;l1&#39;, &#39;l2&#39;, &#39;linf&#39;,</span>
-<span class="sd">        &#39;L2&#39;, &#39;Linf&#39;, &#39;H1&#39;, &#39;Hdiv&#39;, &#39;Hcurl&#39;, or any</span>
-<span class="sd">        &#39;Lp&#39; with :math:`p &gt;= 1`.</span>
+<span class="sd">    :arg v: the :class:`firedrake.function.Function`</span>
+<span class="sd">        to take the norm of</span>
+<span class="sd">    :kwarg norm_type: choose from ``&#39;l1&#39;``, ``&#39;l2&#39;``,</span>
+<span class="sd">        ``&#39;linf&#39;``, ``&#39;L2&#39;``, ``&#39;Linf&#39;``, ``&#39;H1&#39;``,</span>
+<span class="sd">        ``&#39;Hdiv&#39;``, ``&#39;Hcurl&#39;``, or any ``&#39;Lp&#39;`` with</span>
+<span class="sd">        :math:`p &gt;= 1`.</span>
 <span class="sd">    :kwarg mesh: the mesh that `v` is defined upon</span>
 <span class="sd">    :kwarg condition: a UFL condition for specifying</span>
 <span class="sd">        a subdomain to compute the norm over</span>
@@ -220,7 +220,7 @@
 <div class="viewcode-block" id="errornorm"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.errornorm">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.errornorm&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">errornorm</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">uh</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Overload Firedrake&#39;s ``errornorm`` function</span>
+<span class="sd">    Overload :func:`firedrake.norms.errornorm`</span>
 <span class="sd">    to allow for :math:`\ell^p` norms.</span>
 
 <span class="sd">    Note that this version is case sensitive,</span>
@@ -229,9 +229,10 @@
 
 <span class="sd">    :arg u: the &#39;true&#39; value</span>
 <span class="sd">    :arg uh: the approximation of the &#39;truth&#39;</span>
-<span class="sd">    :kwarg norm_type: choose from &#39;l1&#39;, &#39;l2&#39;, &#39;linf&#39;,</span>
-<span class="sd">        &#39;L2&#39;, &#39;Linf&#39;, &#39;H1&#39;, &#39;Hdiv&#39;, &#39;Hcurl&#39;, or any</span>
-<span class="sd">        &#39;Lp&#39; with :math:`p &gt;= 1`.</span>
+<span class="sd">    :kwarg norm_type: choose from ``&#39;l1&#39;``, ``&#39;l2&#39;``,</span>
+<span class="sd">        ``&#39;linf&#39;``, ``&#39;L2&#39;``, ``&#39;Linf&#39;``, ``&#39;H1&#39;``,</span>
+<span class="sd">        ``&#39;Hdiv&#39;``, ``&#39;Hcurl&#39;``, or any ``&#39;Lp&#39;`` with</span>
+<span class="sd">        :math:`p &gt;= 1`.</span>
 <span class="sd">    :kwarg boundary: should the norm be computed over</span>
 <span class="sd">        the domain boundary?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -276,7 +277,9 @@
 <div class="viewcode-block" id="rotation_matrix_2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.rotation_matrix_2d">[docs]</a><span class="k">def</span> <span class="nf">rotation_matrix_2d</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Rotation matrix associated with some</span>
-<span class="sd">    ``angle``, as a UFL matrix.</span>
+<span class="sd">    angle, as a UFL matrix.</span>
+
+<span class="sd">    :arg angle: the angle</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">(</span>
         <span class="p">[[</span><span class="n">ufl</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="o">-</span><span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)],</span> <span class="p">[</span><span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)]]</span>
@@ -285,8 +288,12 @@
 
 <div class="viewcode-block" id="rotate"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.rotate">[docs]</a><span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rotate a UFL :class:`as_vector` ``v``</span>
-<span class="sd">    by ``angle`` about an ``origin``.</span>
+<span class="sd">    Rotate a UFL :class:`ufl.tensors.as_vector`</span>
+<span class="sd">    by some angle.</span>
+
+<span class="sd">    :arg v: the vector to rotate</span>
+<span class="sd">    :arg angle: the angle to rotate by</span>
+<span class="sd">    :kwarg origin: origin of rotation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
     <span class="n">origin</span> <span class="o">=</span> <span class="n">origin</span> <span class="ow">or</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
@@ -300,10 +307,11 @@
 
 <div class="viewcode-block" id="AttrDict"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.AttrDict">[docs]</a><span class="k">class</span> <span class="nc">AttrDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Dictionary that provides both ``self[&#39;key&#39;]``</span>
+<span class="sd">    Dictionary that provides both ``self[key]``</span>
 <span class="sd">    and ``self.key`` access to members.</span>
 
-<span class="sd">    **Disclaimer**: Copied from `stackoverflow &lt;http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python&gt;`__.</span>
+<span class="sd">    **Disclaimer**: Copied from `stackoverflow</span>
+<span class="sd">    &lt;http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python&gt;`__.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -320,9 +328,9 @@
 <span class="sd">    steady-state problems with analytical solutions.</span>
 
 <span class="sd">    :arg error_indicator: a :math:`\mathbb P0`</span>
-<span class="sd">        :class:`Function` which localises</span>
-<span class="sd">        contributions to an error estimator to</span>
-<span class="sd">        individual elements</span>
+<span class="sd">        :class:`firedrake.function.Function` which</span>
+<span class="sd">        localises contributions to an error estimator</span>
+<span class="sd">        to individual elements</span>
 <span class="sd">    :arg Je: error in quantity of interest</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
@@ -337,10 +345,11 @@
 
 <div class="viewcode-block" id="classify_element"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.classify_element">[docs]</a><span class="k">def</span> <span class="nf">classify_element</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Classify a :class:`FiniteElement` in terms</span>
-<span class="sd">    of a label and a list of entity DOFs.</span>
+<span class="sd">    Classify a :class:`ufl.finiteelement.FiniteElement`</span>
+<span class="sd">    in terms of a label and a list of entity DOFs.</span>
 
-<span class="sd">    :arg element: the :class:`FiniteElement`</span>
+<span class="sd">    :arg element: the</span>
+<span class="sd">        :class:`ufl.finiteelement.FiniteElement`</span>
 <span class="sd">    :arg dim: the topological dimension</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
@@ -363,10 +372,12 @@
 <span class="k">def</span> <span class="nf">create_section</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a PETSc section associated with</span>
-<span class="sd">    a mesh and some :class:`FiniteElement`.</span>
+<span class="sd">    a mesh and some</span>
+<span class="sd">    :class:`ufl.finitelement.FiniteElement`.</span>
 
 <span class="sd">    :arg mesh: the mesh</span>
-<span class="sd">    :arg element: the :class:`FiniteElement`</span>
+<span class="sd">    :arg element: the</span>
+<span class="sd">        :class:`ufl.finiteelement.FiniteElement`</span>
 <span class="sd">        for which a section is sought, or a</span>
 <span class="sd">        list of entity DOFs to be passed</span>
 <span class="sd">        straight through</span>
@@ -382,6 +393,9 @@
 <div class="viewcode-block" id="create_directory"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.create_directory">[docs]</a><span class="k">def</span> <span class="nf">create_directory</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">firedrake</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a directory on disk.</span>
+
+<span class="sd">    Code copied from `Thetis</span>
+<span class="sd">    &lt;https://thetisproject.org&gt;`__.</span>
 
 <span class="sd">    :arg path: path to the directory</span>
 <span class="sd">    :kwarg comm: MPI communicator</span>
@@ -429,7 +443,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

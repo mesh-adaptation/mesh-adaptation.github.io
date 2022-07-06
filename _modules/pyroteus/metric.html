@@ -1,19 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyroteus.metric &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -40,17 +38,14 @@
   <h1>Source code for pyroteus.metric</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Driver functions for metric-based mesh adaptation.</span>
-
-<span class="sd">.. rubric:: References</span>
-
-<span class="sd">.. bibliography:: references.bib</span>
-<span class="sd">    :filter: docname in docnames</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">clement_interpolant</span>
+<span class="kn">from</span> <span class="nn">.mesh_seq</span> <span class="kn">import</span> <span class="n">AdaptParameters</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;MetricParameters&quot;</span><span class="p">,</span>
     <span class="s2">&quot;compute_eigendecomposition&quot;</span><span class="p">,</span>
     <span class="s2">&quot;assemble_eigendecomposition&quot;</span><span class="p">,</span>
     <span class="s2">&quot;metric_complexity&quot;</span><span class="p">,</span>
@@ -73,6 +68,27 @@
 <span class="p">]</span>
 
 
+<div class="viewcode-block" id="MetricParameters"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.MetricParameters">[docs]</a><span class="k">class</span> <span class="nc">MetricParameters</span><span class="p">(</span><span class="n">AdaptParameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for holding parameters associated with</span>
+<span class="sd">    metric-based adaptive mesh fixed point iteration loops.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg parameters: dictionary of parameters to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;h_min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e-30</span>  <span class="c1"># Minimum metric magnitude</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;h_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e30</span>  <span class="c1"># Maximum metric magnitude</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;a_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e30</span>  <span class="c1"># Maximum anisotropy</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Metric normalisation order</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;base_complexity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">200.0</span>  <span class="c1"># Base metric complexity</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;target_complexity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">4000.0</span>  <span class="c1"># Target metric complexity</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;num_ramp_iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># Number of iterations to ramp over</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span></div>
+
+
 <span class="k">def</span> <span class="nf">get_metric_kernel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to easily pass Eigen kernels</span>
@@ -91,13 +107,13 @@
 <span class="sd">    Compute the eigenvectors and eigenvalues of</span>
 <span class="sd">    a matrix-valued function.</span>
 
-<span class="sd">    :arg M: a :class:`Function` from a</span>
-<span class="sd">        :class:`TensorFunctionSpace`</span>
+<span class="sd">    :arg M: a :class:`firedrake.function.Function` from a</span>
+<span class="sd">        :func:`firedrake.functionspace.TensorFunctionSpace`</span>
 <span class="sd">    :kwarg reorder: should the eigendecomposition</span>
 <span class="sd">        be reordered in order of *descending*</span>
 <span class="sd">        eigenvalue magnitude?</span>
-<span class="sd">    :return: eigenvector :class:`Function`,</span>
-<span class="sd">        eigenvalue :class:`Function`</span>
+<span class="sd">    :return: eigenvector :class:`firedrake.function.Function`,</span>
+<span class="sd">        eigenvalue :class:`firedrake.function.Function`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">V_ten</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">V_ten</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">value_shape</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
@@ -129,9 +145,12 @@
 <span class="sd">    Assemble a matrix from its eigenvectors and</span>
 <span class="sd">    eigenvalues.</span>
 
-<span class="sd">    :arg evectors: eigenvector :class:`Function`</span>
-<span class="sd">    :arg evalues: eigenvalue :class:`Function`</span>
-<span class="sd">    :return: the assembled matrix :class:`Function`</span>
+<span class="sd">    :arg evectors: eigenvector</span>
+<span class="sd">        :class:`firedrake.function.Function`</span>
+<span class="sd">    :arg evalues: eigenvalue</span>
+<span class="sd">        :class:`firedrake.function.Function`</span>
+<span class="sd">    :return: the assembled matrix</span>
+<span class="sd">        :class:`firedrake.function.Function`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">V_ten</span> <span class="o">=</span> <span class="n">evectors</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
     <span class="n">fe_ten</span> <span class="o">=</span> <span class="n">V_ten</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
@@ -185,8 +204,9 @@
 <span class="sd">    indicator in modulus.</span>
 
 <span class="sd">    :arg error_indicator: the error indicator</span>
-<span class="sd">    :kwarg target_space: :class:`TensorFunctionSpace` in</span>
-<span class="sd">        which the metric will exist</span>
+<span class="sd">    :kwarg target_space:</span>
+<span class="sd">        :func:`firedrake.functionspace.TensorFunctionSpace`</span>
+<span class="sd">        in which the metric will exist</span>
 <span class="sd">    :kwarg interpolant: choose from &#39;Clement&#39;, &#39;L2&#39;,</span>
 <span class="sd">        &#39;interpolate&#39;, &#39;project&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -259,17 +279,18 @@
 
 <span class="sd">    Two formulations are currently available:</span>
 <span class="sd">      * the element-wise formulation presented</span>
-<span class="sd">        in :cite:`CP13`; and</span>
+<span class="sd">        in :cite:`CPB:13`; and</span>
 <span class="sd">      * the vertex-wise formulation presented in</span>
-<span class="sd">        :cite:`PP06`.</span>
+<span class="sd">        :cite:`PPP+:06`.</span>
 
 <span class="sd">    In both cases, a :math:`\mathbb P1` metric is</span>
 <span class="sd">    returned by default.</span>
 
 <span class="sd">    :arg error_indicator: (list of) error indicator(s)</span>
 <span class="sd">    :arg hessian: (list of) Hessian(s)</span>
-<span class="sd">    :kwarg target_space: :class:`TensorFunctionSpace` in</span>
-<span class="sd">        which the metric will exist</span>
+<span class="sd">    :kwarg target_space:</span>
+<span class="sd">        :func:`firedrake.functionspace.TensorFunctionSpace`</span>
+<span class="sd">        in which the metric will exist</span>
 <span class="sd">    :kwarg interpolant: choose from &#39;Clement&#39;, &#39;L2&#39;,</span>
 <span class="sd">        &#39;interpolate&#39;, &#39;project&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -291,7 +312,7 @@
 <span class="sd">    indicator, given a Hessian field.</span>
 
 <span class="sd">    The formulation used is based on that presented</span>
-<span class="sd">    in :cite:`CP13`.</span>
+<span class="sd">    in :cite:`CPB:13`.</span>
 
 <span class="sd">    Whilst an element-based formulation is used to</span>
 <span class="sd">    derive the metric, the result is projected into</span>
@@ -299,15 +320,16 @@
 
 <span class="sd">    Note that normalisation is implicit in the metric</span>
 <span class="sd">    construction and involves the `convergence_rate`</span>
-<span class="sd">    parameter, named :math:`alpha` in :cite:`CP13`.</span>
+<span class="sd">    parameter, named :math:`alpha` in :cite:`CPB:13`.</span>
 
 <span class="sd">    If a Hessian is not provided then an isotropic</span>
 <span class="sd">    formulation is used.</span>
 
 <span class="sd">    :arg error_indicator: the error indicator</span>
 <span class="sd">    :kwarg hessian: the Hessian</span>
-<span class="sd">    :kwarg target_space: :class:`TensorFunctionSpace` in</span>
-<span class="sd">        which the metric will exist</span>
+<span class="sd">    :kwarg target_space:</span>
+<span class="sd">        :func:`firedrake.functionspace.TensorFunctionSpace`</span>
+<span class="sd">        in which the metric will exist</span>
 <span class="sd">    :kwarg target_complexity: target metric complexity</span>
 <span class="sd">    :kwarg convergence rate: normalisation parameter</span>
 <span class="sd">    :kwarg interpolant: choose from &#39;Clement&#39;, &#39;L2&#39;,</span>
@@ -380,12 +402,13 @@
 <span class="sd">    field(s).</span>
 
 <span class="sd">    The formulation used is based on that presented</span>
-<span class="sd">    in :cite:`PP06`.</span>
+<span class="sd">    in :cite:`PPP+:06`.</span>
 
 <span class="sd">    :arg error_indicators: (list of) error indicator(s)</span>
 <span class="sd">    :arg hessians: (list of) Hessian(s)</span>
-<span class="sd">    :kwarg target_space: :class:`TensorFunctionSpace` in</span>
-<span class="sd">        which the metric will exist</span>
+<span class="sd">    :kwarg target_space:</span>
+<span class="sd">        :func:`firedrake.functionspace.TensorFunctionSpace`</span>
+<span class="sd">        in which the metric will exist</span>
 <span class="sd">    :kwarg average: should metric components be averaged</span>
 <span class="sd">        or intersected?</span>
 <span class="sd">    :kwarg interpolant: choose from &#39;Clement&#39;, &#39;L2&#39;,</span>
@@ -431,11 +454,14 @@
 
 <span class="sd">    :arg metrics: the metrics</span>
 <span class="sd">    :arg h_min: minimum tolerated element size,</span>
-<span class="sd">        which could be a :class:`Function` or a number.</span>
+<span class="sd">        which could be a :class:`firedrake.function.Function`</span>
+<span class="sd">        or a number.</span>
 <span class="sd">    :arg h_max: maximum tolerated element size,</span>
-<span class="sd">        which could be a :class:`Function` or a number.</span>
+<span class="sd">        which could be a :class:`firedrake.function.Function`</span>
+<span class="sd">        or a number.</span>
 <span class="sd">    :arg a_max: maximum tolerated element anisotropy,</span>
-<span class="sd">        which could be a :class:`Function` or a number.</span>
+<span class="sd">        which could be a :class:`firedrake.function.Function`</span>
+<span class="sd">        or a number.</span>
 <span class="sd">    :kwarg boundary_tag: optional tag to enforce sizes on.</span>
 <span class="sd">    :kwarg optimise: is this a timed run?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -499,11 +525,11 @@
 
 <div class="viewcode-block" id="space_normalise"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.space_normalise">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.space_normalise&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">space_normalise</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">global_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply :math:`L^p` normalisation in space alone.</span>
 
-<span class="sd">    :arg metric: :class:`Function` s corresponding to the</span>
-<span class="sd">        metric to be normalised.</span>
+<span class="sd">    :arg metric: :class:`firedrake.function.Function`\s</span>
+<span class="sd">        corresponding to the metric to be normalised.</span>
 <span class="sd">    :arg target: target metric complexity *in space alone*.</span>
 <span class="sd">    :arg p: normalisation order.</span>
 <span class="sd">    :kwarg global_factor: optional pre-computed global</span>
@@ -533,10 +559,10 @@
 
 <div class="viewcode-block" id="space_time_normalise"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.metric.space_time_normalise">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.space_time_normalise&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">space_time_normalise</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">timesteps</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply :math:`L^p` normalisation in both space and time.</span>
 
-<span class="sd">    :arg metrics: list of :class:`Function` s</span>
+<span class="sd">    :arg metrics: list of :class:`firedrake.function.Function`\s</span>
 <span class="sd">        corresponding to the metric associated with</span>
 <span class="sd">        each subinterval</span>
 <span class="sd">    :arg end_time: end time of simulation</span>
@@ -582,7 +608,7 @@
 <span class="sd">    for the interior and boundary metrics to obtain a</span>
 <span class="sd">    given metric complexity.</span>
 
-<span class="sd">    See :cite:`LD10` for details. Note that we use a</span>
+<span class="sd">    See :cite:`LDA:10` for details. Note that we use a</span>
 <span class="sd">    slightly different formulation here.</span>
 
 <span class="sd">    :arg H_interior: Hessian component from domain interior</span>
@@ -633,7 +659,8 @@
 
 <span class="sd">    :arg metrics: the metrics to be combined</span>
 <span class="sd">    :kwarg weights: a list of weights</span>
-<span class="sd">    :kwarg function_space: the :class:`FunctionSpace`</span>
+<span class="sd">    :kwarg function_space: the</span>
+<span class="sd">        :class:`firedrake.functionspaceimpl.FunctionSpace`</span>
 <span class="sd">        the relaxed metric should live in</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
@@ -658,7 +685,8 @@
 <span class="sd">    Combine a list of metrics by averaging.</span>
 
 <span class="sd">    :arg metrics: the metrics to be combined</span>
-<span class="sd">    :kwarg function_space: the :class:`FunctionSpace`</span>
+<span class="sd">    :kwarg function_space: the</span>
+<span class="sd">        :class:`firedrake.functionspaceimpl.FunctionSpace`</span>
 <span class="sd">        the averaged metric should live in</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">metric_relaxation</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">,</span> <span class="n">function_space</span><span class="o">=</span><span class="n">function_space</span><span class="p">)</span></div>
@@ -670,7 +698,8 @@
 <span class="sd">    Combine a list of metrics by intersection.</span>
 
 <span class="sd">    :arg metrics: the metrics to be combined</span>
-<span class="sd">    :kwarg function_space: the :class:`FunctionSpace`</span>
+<span class="sd">    :kwarg function_space: the</span>
+<span class="sd">        :class:`firedrake.functionspaceimpl.FunctionSpace`</span>
 <span class="sd">        the intersected metric should live in</span>
 <span class="sd">    :kwarg boundary_tag: optional boundary segment physical</span>
 <span class="sd">        ID for boundary intersection. Otherwise, the</span>
@@ -841,7 +870,8 @@
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the matrix exponential of a metric.</span>
 
-<span class="sd">    :arg M: a :math:`\mathbb P1` metric :class:`Function`</span>
+<span class="sd">    :arg M: a :math:`\mathbb P1` metric</span>
+<span class="sd">        :class:`firedrake.function.Function`</span>
 <span class="sd">    :return: its matrix exponential</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">V</span><span class="p">,</span> <span class="n">Lambda</span> <span class="o">=</span> <span class="n">compute_eigendecomposition</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
@@ -868,7 +898,8 @@
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the matrix logarithm of a metric.</span>
 
-<span class="sd">    :arg M: a :math:`\mathbb P1` metric :class:`Function`</span>
+<span class="sd">    :arg M: a :math:`\mathbb P1` metric</span>
+<span class="sd">        :class:`firedrake.function.Function`</span>
 <span class="sd">    :return: its matrix logarithm</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">V</span><span class="p">,</span> <span class="n">Lambda</span> <span class="o">=</span> <span class="n">compute_eigendecomposition</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
@@ -945,7 +976,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

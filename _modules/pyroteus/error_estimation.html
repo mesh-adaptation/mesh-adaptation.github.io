@@ -1,19 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyroteus.error_estimation &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -38,7 +36,10 @@
           <div class="body" role="main">
             
   <h1>Source code for pyroteus.error_estimation</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">firedrake</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tools to automate goal-oriented error estimation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">firedrake</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
 
@@ -95,8 +96,46 @@
     <span class="k">return</span> <span class="n">indicator</span>
 
 
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.indicator2estimator&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">indicator2estimator</span><span class="p">(</span><span class="n">indicator</span><span class="p">,</span> <span class="n">absolute_value</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deduce the error estimator value</span>
+<span class="sd">    associated with a single error</span>
+<span class="sd">    indicator field.</span>
+
+<span class="sd">    :arg indicator: the error indicator</span>
+<span class="sd">        :class:`firedrake.function.Function`</span>
+<span class="sd">    :kwarg absolute_value: toggle</span>
+<span class="sd">        whether to take the modulus</span>
+<span class="sd">        on each element</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">absolute_value</span><span class="p">:</span>
+        <span class="n">indicator</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">indicator</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">indicator</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">indicators2estimator</span><span class="p">(</span><span class="n">indicators</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deduce the error estimator value</span>
+<span class="sd">    associated with error indicator</span>
+<span class="sd">    fields defined over a :class:`~.MeshSeq`.</span>
+
+<span class="sd">    :arg indicators: the list of list of</span>
+<span class="sd">        error indicator</span>
+<span class="sd">        :class:`firedrake.function.Function`\s</span>
+<span class="sd">    :arg time_partition: the</span>
+<span class="sd">        :class:`~.TimePartition` instance for</span>
+<span class="sd">        the problem being solved</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">estimator</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">by_mesh</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indicators</span><span class="p">,</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps</span><span class="p">):</span>
+        <span class="n">time_integrated</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">indicator2estimator</span><span class="p">(</span><span class="n">indi</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">indi</span> <span class="ow">in</span> <span class="n">by_mesh</span><span class="p">])</span>
+        <span class="n">estimator</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">time_integrated</span>
+    <span class="k">return</span> <span class="n">estimator</span>
+
+
 <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.form2estimator&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">form2estimator</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">absolute_value</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">form2estimator</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Multiply throughout in a form,</span>
 <span class="sd">    assemble as a cellwise error</span>
@@ -109,9 +148,7 @@
 <span class="sd">        on each element</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">indicator</span> <span class="o">=</span> <span class="n">form2indicator</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">absolute_value</span><span class="p">:</span>
-        <span class="n">indicator</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">indicator</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">indicator</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">indicator2estimator</span><span class="p">(</span><span class="n">indicator</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_dwr_indicator"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.error_estimation.get_dwr_indicator">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.get_dwr_indicator&quot;</span><span class="p">)</span>
@@ -125,8 +162,10 @@
 <span class="sd">    :arg F: the form</span>
 <span class="sd">    :arg adjoint_error: the approximation to</span>
 <span class="sd">        the adjoint error, either as a single</span>
-<span class="sd">        :class:`Function`, or in a dictionary</span>
-<span class="sd">    :kwarg test_space: the :class:`FunctionSpace`</span>
+<span class="sd">        :class:`firedrake.function.Function`,</span>
+<span class="sd">        or in a dictionary</span>
+<span class="sd">    :kwarg test_space: the</span>
+<span class="sd">        :class:`firedrake.functionspaceimpl.FunctionSpace`</span>
 <span class="sd">        that the test function lives in, or an</span>
 <span class="sd">        appropriate dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -134,7 +173,9 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adjoint_error</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
         <span class="n">fs</span> <span class="o">=</span> <span class="n">test_space</span> <span class="ow">or</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">!=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span>
+            <span class="p">)</span>
         <span class="n">mapping</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">fs</span><span class="p">)]</span> <span class="o">=</span> <span class="n">adjoint_error</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">test_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -144,7 +185,9 @@
             <span class="p">}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">adjoint_error</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">!=</span> <span class="n">test_space</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">mesh</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Meshes underlying the form and adjoint error do not match.&quot;</span>
+                <span class="p">)</span>
             <span class="n">mapping</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">test_space</span><span class="p">[</span><span class="n">key</span><span class="p">])]</span> <span class="o">=</span> <span class="n">err</span>
     <span class="k">return</span> <span class="n">form2indicator</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">mapping</span><span class="p">))</span></div>
 </pre></div>
@@ -185,7 +228,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

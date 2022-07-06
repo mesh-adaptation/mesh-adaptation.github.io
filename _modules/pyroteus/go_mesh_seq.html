@@ -1,19 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyroteus.go_mesh_seq &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -42,26 +40,60 @@
 <span class="sd">Drivers for goal-oriented error estimation on sequences of meshes.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">.adjoint</span> <span class="kn">import</span> <span class="n">AdjointMeshSeq</span>
-<span class="kn">from</span> <span class="nn">.error_estimation</span> <span class="kn">import</span> <span class="n">get_dwr_indicator</span>
+<span class="kn">from</span> <span class="nn">.error_estimation</span> <span class="kn">import</span> <span class="n">get_dwr_indicator</span><span class="p">,</span> <span class="n">indicators2estimator</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">pyrint</span>
+<span class="kn">from</span> <span class="nn">.mesh_seq</span> <span class="kn">import</span> <span class="n">AdaptParameters</span>
+<span class="kn">from</span> <span class="nn">.metric</span> <span class="kn">import</span> <span class="n">MetricParameters</span>
 <span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">MeshHierarchy</span><span class="p">,</span> <span class="n">TransferManager</span><span class="p">,</span> <span class="n">project</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GoalOrientedMeshSeq&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GoalOrientedParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;GoalOrientedMetricParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;GoalOrientedMeshSeq&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="GoalOrientedParameters"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedParameters">[docs]</a><span class="k">class</span> <span class="nc">GoalOrientedParameters</span><span class="p">(</span><span class="n">AdaptParameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for holding parameters associated with</span>
+<span class="sd">    goal-oriented adaptive mesh fixed point iteration</span>
+<span class="sd">    loops.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;qoi_rtol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Relative tolerance for QoI</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;estimator_rtol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Relative tolerance for estimator</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GoalOrientedMetricParameters"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMetricParameters">[docs]</a><span class="k">class</span> <span class="nc">GoalOrientedMetricParameters</span><span class="p">(</span><span class="n">GoalOrientedParameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for holding parameters associated with</span>
+<span class="sd">    metric-based, goal-oriented adaptive mesh fixed</span>
+<span class="sd">    point iteration loops.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="n">MetricParameters</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GoalOrientedMeshSeq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq">[docs]</a><span class="k">class</span> <span class="nc">GoalOrientedMeshSeq</span><span class="p">(</span><span class="n">AdjointMeshSeq</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    An extension of :class:`AdjointMeshSeq` to account for</span>
+<span class="sd">    An extension of :class:`~.AdjointMeshSeq` to account for</span>
 <span class="sd">    goal-oriented problems.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="GoalOrientedMeshSeq.get_enriched_mesh_seq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.get_enriched_mesh_seq&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_enriched_mesh_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_enrichments</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve the forward and adjoint problems</span>
-<span class="sd">        associated with :attr:`solver` in a</span>
-<span class="sd">        sequence of globally enriched spaces.</span>
+<span class="sd">        associated with</span>
+<span class="sd">        :meth:`~.GoalOrientedMeshSeq.solver`</span>
+<span class="sd">        in a sequence of globally enriched spaces.</span>
 
 <span class="sd">        Currently, global enrichment may be</span>
 <span class="sd">        achieved using one of:</span>
@@ -112,7 +144,8 @@
     <span class="k">def</span> <span class="nf">global_enrichment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_enrichments</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve the forward and adjoint problems</span>
-<span class="sd">        associated with :attr:`solver` in a</span>
+<span class="sd">        associated with</span>
+<span class="sd">        :meth:`~.GoalOrientedMeshSeq.solver` in a</span>
 <span class="sd">        sequence of globally enriched spaces.</span>
 
 <span class="sd">        Currently, global enrichment may be</span>
@@ -124,8 +157,7 @@
 <span class="sd">        the keyword argument ``num_enrichments``.</span>
 
 <span class="sd">        :kwarg kwargs: keyword arguments to pass to the</span>
-<span class="sd">            :attr:`solve_adjoint` method of the</span>
-<span class="sd">            enriched :class:`AdjointMeshSeq`.</span>
+<span class="sd">            :meth:`~.AdjointMeshSeq.solve_adjoint` method</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mesh_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enriched_mesh_seq</span><span class="p">(</span>
             <span class="n">enrichment_method</span><span class="o">=</span><span class="n">enrichment_method</span><span class="p">,</span>
@@ -134,7 +166,9 @@
         <span class="k">return</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GoalOrientedMeshSeq.indicate_errors"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.indicate_errors&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">indicate_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">adj_kwargs</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="k">def</span> <span class="nf">indicate_errors</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">adj_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">indicator_fn</span><span class="o">=</span><span class="n">get_dwr_indicator</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute goal-oriented error indicators for each</span>
 <span class="sd">        subinterval based on solving the adjoint problem</span>
@@ -144,6 +178,9 @@
 <span class="sd">            to the global enrichment method</span>
 <span class="sd">        :kwarg adj_kwargs: keyword arguments to pass to the</span>
 <span class="sd">            adjoint solver</span>
+<span class="sd">        :kwarg indicator_fn: function for error indication,</span>
+<span class="sd">            which takes the form, adjoint error and enriched</span>
+<span class="sd">            space(s) as arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">enrichment_method</span> <span class="o">=</span> <span class="n">enrichment_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enrichment_method&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">enrichment_method</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
@@ -206,7 +243,7 @@
                     <span class="n">u_star_e</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="n">u_star</span><span class="p">[</span><span class="n">f</span><span class="p">]</span>
 
                 <span class="c1"># Evaluate error indicator</span>
-                <span class="n">indi_e</span> <span class="o">=</span> <span class="n">get_dwr_indicator</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">u_star_e</span><span class="p">,</span> <span class="n">enriched_spaces</span><span class="p">)</span>
+                <span class="n">indi_e</span> <span class="o">=</span> <span class="n">indicator_fn</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">u_star_e</span><span class="p">,</span> <span class="n">enriched_spaces</span><span class="p">)</span>
 
                 <span class="c1"># Project back to the base space</span>
                 <span class="n">indi</span> <span class="o">=</span> <span class="n">project</span><span class="p">(</span><span class="n">indi_e</span><span class="p">,</span> <span class="n">P0</span><span class="p">)</span>
@@ -215,13 +252,100 @@
             <span class="n">indicators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indicator</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sols</span><span class="p">,</span> <span class="n">indicators</span></div>
 
-<div class="viewcode-block" id="GoalOrientedMeshSeq.fixed_point_iteration"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.fixed_point_iteration&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">fixed_point_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="GoalOrientedMeshSeq.check_estimator_convergence"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.check_estimator_convergence">[docs]</a>    <span class="k">def</span> <span class="nf">check_estimator_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Apply goal-oriented mesh adaptation using</span>
-<span class="sd">        a fixed point iteration.</span>
+<span class="sd">        Check for convergence of the fixed point iteration</span>
+<span class="sd">        due to the relative difference in error estimator</span>
+<span class="sd">        value being smaller than the specified tolerance.</span>
+
+<span class="sd">        :return: ``True`` if converged, else ``False``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO</span></div></div>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">miniter</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">ee_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">ee</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ee</span> <span class="o">-</span> <span class="n">ee_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">P</span><span class="o">.</span><span class="n">estimator_rtol</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ee_</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="GoalOrientedMeshSeq.fixed_point_iteration"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.GoalOrientedMeshSeq.fixed_point_iteration&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fixed_point_iteration</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">adaptor</span><span class="p">,</span>
+        <span class="n">update_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">enrichment_kwargs</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">adj_kwargs</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">indicator_fn</span><span class="o">=</span><span class="n">get_dwr_indicator</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply goal-oriented mesh adaptation using</span>
+<span class="sd">        a fixed point iteration loop.</span>
+
+<span class="sd">        :arg adaptor: function for adapting the mesh sequence.</span>
+<span class="sd">            Its arguments are the :class:`~.MeshSeq` instance, the</span>
+<span class="sd">            dictionary of solution</span>
+<span class="sd">            :class:`firedrake.function.Function`\s and the</span>
+<span class="sd">            list of error indicators</span>
+<span class="sd">        :kwarg update_params: function for updating</span>
+<span class="sd">            :attr:`~.GoalOrientedMeshSeq.params` at each</span>
+<span class="sd">            iteration. Its arguments are the parameter class and</span>
+<span class="sd">            the fixed point iteration</span>
+<span class="sd">        :kwarg enrichment_kwargs: keyword arguments to pass</span>
+<span class="sd">            to the global enrichment method</span>
+<span class="sd">        :kwarg adj_kwargs: keyword arguments to pass to the</span>
+<span class="sd">            adjoint solver</span>
+<span class="sd">        :kwarg indicator_fn: function for error indication,</span>
+<span class="sd">            which takes the form, adjoint error and enriched</span>
+<span class="sd">            space(s) as arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Terminated due to </span><span class="si">{:s}</span><span class="s2"> convergence after </span><span class="si">{:d}</span><span class="s2"> iterations&quot;</span>
+        <span class="k">for</span> <span class="n">fp_iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">maxiter</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">update_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">update_params</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">fp_iteration</span><span class="p">)</span>
+
+            <span class="c1"># Indicate errors over all meshes</span>
+            <span class="n">sols</span><span class="p">,</span> <span class="n">indicators</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indicate_errors</span><span class="p">(</span>
+                <span class="n">enrichment_kwargs</span><span class="o">=</span><span class="n">enrichment_kwargs</span><span class="p">,</span>
+                <span class="n">adj_kwargs</span><span class="o">=</span><span class="n">adj_kwargs</span><span class="p">,</span>
+                <span class="n">indicator_fn</span><span class="o">=</span><span class="n">indicator_fn</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Check for QoI convergence</span>
+            <span class="c1"># TODO: Put this check inside the adjoint solve as</span>
+            <span class="c1">#       an optional return condition so that we</span>
+            <span class="c1">#       can avoid unnecessary extra solves</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_qoi_convergence</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+                <span class="n">pyrint</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;QoI&quot;</span><span class="p">,</span> <span class="n">fp_iteration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Check for error estimator convergence</span>
+            <span class="n">ee</span> <span class="o">=</span> <span class="n">indicators2estimator</span><span class="p">(</span><span class="n">indicators</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ee</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_estimator_convergence</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+                <span class="n">pyrint</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;error estimator&quot;</span><span class="p">,</span> <span class="n">fp_iteration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Adapt meshes and log element counts</span>
+            <span class="n">adaptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sols</span><span class="p">,</span> <span class="n">indicators</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">())</span>
+
+            <span class="c1"># Check for element count convergence</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_element_count_convergence</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+                <span class="n">pyrint</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;element count&quot;</span><span class="p">,</span> <span class="n">fp_iteration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+            <span class="n">pyrint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">maxiter</span><span class="si">}</span><span class="s2"> iterations&quot;</span><span class="p">)</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -260,7 +384,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

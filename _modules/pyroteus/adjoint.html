@@ -1,19 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyroteus.adjoint &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -74,8 +72,8 @@
 <span class="sd">    Decorator that ensures QoIs are annotated</span>
 <span class="sd">    properly.</span>
 
-<span class="sd">    Should be applied to the :meth:`get_qoi`</span>
-<span class="sd">    method of an :class:`AdjointMeshSeq`.</span>
+<span class="sd">    Should be applied to the</span>
+<span class="sd">    :meth:`~.AdjointMeshSeq.get_qoi` method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">get_qoi</span><span class="p">)</span>
@@ -108,22 +106,22 @@
 
 <div class="viewcode-block" id="AdjointMeshSeq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq">[docs]</a><span class="k">class</span> <span class="nc">AdjointMeshSeq</span><span class="p">(</span><span class="n">MeshSeq</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    An extension of :class:`MeshSeq` to account for</span>
+<span class="sd">    An extension of :class:`~.MeshSeq` to account for</span>
 <span class="sd">    solving adjoint problems on a sequence of meshes.</span>
 
 <span class="sd">    For time-dependent quantities of interest, the</span>
-<span class="sd">    solver should access and modify :attr:`J`, which</span>
-<span class="sd">    holds the QoI value.</span>
+<span class="sd">    solver should access and modify</span>
+<span class="sd">    :attr:`~AdjointMeshSeq.J`, which holds the QoI value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">,</span> <span class="n">get_qoi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :kwarg get_qoi: a function, with two arguments,</span>
-<span class="sd">            a :class:`AdjointMeshSeq`, which returns</span>
+<span class="sd">            a :class:`~.AdjointMeshSeq`, which returns</span>
 <span class="sd">            a function of either one or two variables,</span>
 <span class="sd">            corresponding to either an end time or time</span>
 <span class="sd">            integrated quantity of interest, respectively,</span>
-<span class="sd">            as well as an index for the :class:`MeshSeq`</span>
+<span class="sd">            as well as an index for the :class:`~.MeshSeq`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qoi_type&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;time_integrated&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
@@ -133,6 +131,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span> <span class="o">=</span> <span class="n">get_qoi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">controls</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
     <span class="nd">@pyadjoint</span><span class="o">.</span><span class="n">no_annotations</span>
@@ -234,7 +233,7 @@
 <span class="sd">            subinterval when checkpointing so that the QoI</span>
 <span class="sd">            value can be checked across runs</span>
 
-<span class="sd">        :return solution: an :class:`AttrDict` containing</span>
+<span class="sd">        :return solution: an :class:`~.AttrDict` containing</span>
 <span class="sd">            solution fields and their lagged versions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -434,7 +433,25 @@
                 <span class="s2">&quot;QoI values computed during checkpointing and annotated&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot; run do not match (</span><span class="si">{</span><span class="n">J_chk</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">solutions</span></div></div>
+        <span class="k">return</span> <span class="n">solutions</span></div>
+
+<div class="viewcode-block" id="AdjointMeshSeq.check_qoi_convergence"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.check_qoi_convergence">[docs]</a>    <span class="k">def</span> <span class="nf">check_qoi_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for convergence of the fixed point iteration</span>
+<span class="sd">        due to the relative difference in QoI value being</span>
+<span class="sd">        smaller than the specified tolerance.</span>
+
+<span class="sd">        :return: ``True`` if converged, else ``False``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">miniter</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">qoi_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi</span> <span class="o">-</span> <span class="n">qoi_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">P</span><span class="o">.</span><span class="n">qoi_rtol</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi_</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -473,7 +490,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

@@ -1,19 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyroteus.mesh_seq &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -39,12 +37,12 @@
             
   <h1>Source code for pyroteus.mesh_seq</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Sequences of meshes corresponding to a :class:`TimePartition`.</span>
+<span class="sd">Sequences of meshes corresponding to a :class:`~.TimePartition`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">firedrake</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">project</span>
-<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">debug</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">DEBUG</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">pyrint</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">DEBUG</span>
 <span class="kn">from</span> <span class="nn">.quality</span> <span class="kn">import</span> <span class="n">get_aspect_ratios2d</span><span class="p">,</span> <span class="n">get_aspect_ratios3d</span>
 <span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Mesh</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
@@ -53,51 +51,62 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MeshSeq&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AdaptParameters&quot;</span><span class="p">,</span> <span class="s2">&quot;MeshSeq&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="MeshSeq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq">[docs]</a><span class="k">class</span> <span class="nc">MeshSeq</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AdaptParameters"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.AdaptParameters">[docs]</a><span class="k">class</span> <span class="nc">AdaptParameters</span><span class="p">(</span><span class="n">AttrDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for holding parameters associated with</span>
+<span class="sd">    adaptive mesh fixed point iteration loops.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg parameters: dictionary of parameters to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;miniter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># Minimum iteration count</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;maxiter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">35</span>  <span class="c1"># Maximum iteration count</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;element_rtol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Relative tolerance for element count</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> does not have </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> attribute&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="MeshSeq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq">[docs]</a><span class="k">class</span> <span class="nc">MeshSeq</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A sequence of meshes for solving a PDE associated</span>
-<span class="sd">    with a particular :class:`TimePartition` of the</span>
+<span class="sd">    with a particular :class:`~.TimePartition` of the</span>
 <span class="sd">    temporal domain.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.MeshSeq.__init__&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">time_partition</span><span class="p">,</span>
-        <span class="n">initial_meshes</span><span class="p">,</span>
-        <span class="n">get_function_spaces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">get_initial_condition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">get_form</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">get_solver</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">get_bcs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :arg time_partition: the :class:`TimePartition` which</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg time_partition: the :class:`~.TimePartition` which</span>
 <span class="sd">            partitions the temporal domain</span>
 <span class="sd">        :arg initial_meshes: list of meshes corresponding to</span>
-<span class="sd">            the subintervals of the :class:`TimePartition`,</span>
+<span class="sd">            the subintervals of the :class:`~.TimePartition`,</span>
 <span class="sd">            or a single mesh to use for all subintervals</span>
 <span class="sd">        :kwarg get_function_spaces: a function, whose only</span>
-<span class="sd">            argument is a :class:`MeshSeq`, which constructs</span>
-<span class="sd">            prognostic :class:`FunctionSpace` s for each</span>
-<span class="sd">            subinterval</span>
+<span class="sd">            argument is a :class:`~.MeshSeq`, which constructs</span>
+<span class="sd">            prognostic</span>
+<span class="sd">            :class:`firedrake.functionspaceimpl.FunctionSpace`\s</span>
+<span class="sd">            for each subinterval</span>
 <span class="sd">        :kwarg get_initial_condition: a function, whose only</span>
-<span class="sd">            argument is a :class:`MeshSeq`, which specifies</span>
+<span class="sd">            argument is a :class:`~.MeshSeq`, which specifies</span>
 <span class="sd">            initial conditions on the first mesh</span>
 <span class="sd">        :kwarg get_form: a function, whose only argument is a</span>
-<span class="sd">            :class:`MeshSeq`, which returns a function that</span>
+<span class="sd">            :class:`~.MeshSeq`, which returns a function that</span>
 <span class="sd">            generates the PDE weak form</span>
 <span class="sd">        :kwarg get_solver: a function, whose only argument is</span>
-<span class="sd">            a :class:`MeshSeq`, which returns a function</span>
+<span class="sd">            a :class:`~.MeshSeq`, which returns a function</span>
 <span class="sd">            that integrates initial data over a subinterval</span>
 <span class="sd">        :kwarg get_bcs: a function, whose only argument is a</span>
-<span class="sd">            :class:`MeshSeq`, which returns a function that</span>
+<span class="sd">            :class:`~.MeshSeq`, which returns a function that</span>
 <span class="sd">            determines any Dirichlet boundary conditions</span>
+<span class="sd">        :kwarg parameters: :class:`~.AdaptParameters` instance</span>
 <span class="sd">        :kwarg warnings: print warnings?</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">time_partition</span>
@@ -107,6 +116,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span> <span class="o">=</span> <span class="n">initial_meshes</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="n">initial_meshes</span><span class="p">)</span> <span class="k">for</span> <span class="n">subinterval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()]</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">dim</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">!=</span> <span class="n">dim</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes must all have the same topological dimension&quot;</span><span class="p">)</span>
@@ -120,15 +130,18 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ar</span> <span class="o">=</span> <span class="n">get_aspect_ratios3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
                 <span class="n">mar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">nc</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> cells, </span><span class="si">{</span><span class="n">nv</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> vertices,   max aspect ratio </span><span class="si">{</span><span class="n">mar</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">nc</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> cells, </span><span class="si">{</span><span class="n">nv</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> vertices,   max aspect ratio </span><span class="si">{</span><span class="n">mar</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
             <span class="n">debug</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="o">=</span> <span class="n">get_function_spaces</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="o">=</span> <span class="n">get_initial_condition</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span> <span class="o">=</span> <span class="n">get_form</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">get_solver</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="o">=</span> <span class="n">get_bcs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warnings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_function_spaces&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_initial_condition&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_form&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_solver&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_bcs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">,</span> <span class="n">AdaptParameters</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;warnings&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">):</span>
@@ -149,13 +162,16 @@
     <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh</span>
 
+<div class="viewcode-block" id="MeshSeq.count_elements"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.count_elements">[docs]</a>    <span class="k">def</span> <span class="nf">count_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">num_cells</span><span class="p">()</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>  <span class="c1"># TODO: make parallel safe</span></div>
+
 <div class="viewcode-block" id="MeshSeq.plot"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot the meshes comprising a 2D :class:`MeshSeq`.</span>
+<span class="sd">        Plot the meshes comprising a 2D :class:`~.MeshSeq`.</span>
 
 <span class="sd">        :kwarg fig: matplotlib figure</span>
 <span class="sd">        :kwarg axes: matplotlib axes</span>
-<span class="sd">        :kwargs: parameters to pass to Firedrake&#39;s :func:`triplot`</span>
+<span class="sd">        :kwargs: parameters to pass to :func:`firedrake.plot.triplot`</span>
 <span class="sd">            function</span>
 <span class="sd">        :return: matplotlib figure and axes for the plots</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -163,7 +179,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MeshSeq plotting only supported in 2D&quot;</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;interior_kw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;k&quot;</span><span class="p">})</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;boundary_kw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;k&quot;</span><span class="p">})</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">subplots</span>
 
             <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -373,7 +389,7 @@
 <span class="sd">        :arg field: field of interest</span>
 <span class="sd">        :arg subinterval: subinterval index</span>
 <span class="sd">        :arg solve_blocks: list of taped</span>
-<span class="sd">            :class:`GenericSolveBlocks`</span>
+<span class="sd">            :class:`firedrake.adjoint.blocks.GenericSolveBlocks`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lagged_dep_idx</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
@@ -429,7 +445,7 @@
 <span class="sd">        :kwarg clear_tape: should the tape be cleared at the end</span>
 <span class="sd">            of an iteration?</span>
 
-<span class="sd">        :return solution: an :class:`AttrDict` containing</span>
+<span class="sd">        :return solution: an :class:`~.AttrDict` containing</span>
 <span class="sd">            solution fields and their lagged versions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">firedrake_adjoint</span> <span class="kn">import</span> <span class="n">pyadjoint</span>
@@ -523,7 +539,68 @@
             <span class="k">if</span> <span class="n">clear_tape</span><span class="p">:</span>
                 <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">solutions</span></div></div>
+        <span class="k">return</span> <span class="n">solutions</span></div>
+
+<div class="viewcode-block" id="MeshSeq.check_element_count_convergence"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.check_element_count_convergence">[docs]</a>    <span class="k">def</span> <span class="nf">check_element_count_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for convergence of the fixed point iteration</span>
+<span class="sd">        due to the relative difference in element count being</span>
+<span class="sd">        smaller than the specified tolerance.</span>
+
+<span class="sd">        :return: ``True`` if converged, else ``False``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">miniter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">elems_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">ne_</span><span class="p">,</span> <span class="n">ne</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">elems_</span><span class="p">,</span> <span class="n">elems</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ne</span> <span class="o">-</span> <span class="n">ne_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">P</span><span class="o">.</span><span class="n">element_rtol</span> <span class="o">*</span> <span class="n">ne_</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="MeshSeq.fixed_point_iteration"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.mesh_seq.MeshSeq.fixed_point_iteration">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.MeshSeq.fixed_point_iteration&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fixed_point_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adaptor</span><span class="p">,</span> <span class="n">update_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply goal-oriented mesh adaptation using</span>
+<span class="sd">        a fixed point iteration loop.</span>
+
+<span class="sd">        :arg adaptor: function for adapting the mesh sequence.</span>
+<span class="sd">            Its arguments are the :class:`~.MeshSeq` instance and</span>
+<span class="sd">            the dictionary of solution</span>
+<span class="sd">            :class:`firedrake.function.Function`\s</span>
+<span class="sd">        :kwarg update_params: function for updating</span>
+<span class="sd">            :attr:`~.MeshSeq.params` at each iteration. Its</span>
+<span class="sd">            arguments are the parameter class and the fixed point</span>
+<span class="sd">            iteration</span>
+<span class="sd">        :kwarg solver_kwargs: a dictionary providing parameters</span>
+<span class="sd">            to the solver</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">fp_iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">maxiter</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">update_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">update_params</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">fp_iteration</span><span class="p">)</span>
+
+            <span class="c1"># Solve the forward problem over all meshes</span>
+            <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve_forward</span><span class="p">(</span><span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Adapt meshes and log element counts</span>
+            <span class="n">adaptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sols</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">())</span>
+
+            <span class="c1"># Check for element count convergence</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_element_count_convergence</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+                <span class="n">pyrint</span><span class="p">(</span>
+                    <span class="s2">&quot;Terminated due to element count convergence&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; after </span><span class="si">{</span><span class="n">fp_iteration</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iterations&quot;</span>
+                <span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+            <span class="n">pyrint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">maxiter</span><span class="si">}</span><span class="s2"> iterations&quot;</span><span class="p">)</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -562,7 +639,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>
