@@ -9,9 +9,8 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -50,17 +49,17 @@
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
- | <a href="#U"><strong>U</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pyroteus.html#pyroteus.mesh_seq.AdaptParameters">AdaptParameters (class in pyroteus.mesh_seq)</a>
+      <li><a href="pyroteus.html#pyroteus.options.AdaptParameters">AdaptParameters (class in pyroteus.options)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.adjoint.AdjointMeshSeq">AdjointMeshSeq (class in pyroteus.adjoint)</a>
 </li>
@@ -104,25 +103,19 @@
 </li>
       <li><a href="pyroteus.html#pyroteus.metric.check_spd">check_spd() (in module pyroteus.metric)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.utility.classify_element">classify_element() (in module pyroteus.utility)</a>
-</li>
       <li><a href="pyroteus.html#pyroteus.interpolation.clement_interpolant">clement_interpolant() (in module pyroteus.interpolation)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.metric.combine_metrics">combine_metrics() (in module pyroteus.metric)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyroteus.html#pyroteus.metric.combine_metrics">combine_metrics() (in module pyroteus.metric)</a>
+</li>
       <li><a href="pyroteus.html#pyroteus.metric.compute_eigendecomposition">compute_eigendecomposition() (in module pyroteus.metric)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.math.construct_orthonormal_basis">construct_orthonormal_basis() (in module pyroteus.math)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.correct_counters">correct_counters() (FlowSolver2d method)</a>
-</li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.count_elements">count_elements() (MeshSeq method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.utility.create_directory">create_directory() (in module pyroteus.utility)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.utility.create_section">create_section() (in module pyroteus.utility)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.log.critical">critical() (in module pyroteus.log)</a>
 </li>
@@ -178,8 +171,6 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pyroteus.html#pyroteus.thetis_compat.FlowSolver2d">FlowSolver2d (class in pyroteus.thetis_compat)</a>
-</li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.form">form (MeshSeq property)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.function_spaces">function_spaces (MeshSeq property)</a>
@@ -190,12 +181,6 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pyroteus.html#pyroteus.quality.get_areas2d">get_areas2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_aspect_ratios2d">get_aspect_ratios2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_aspect_ratios3d">get_aspect_ratios3d() (in module pyroteus.quality)</a>
-</li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_bcs">get_bcs() (MeshSeq method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_checkpoints">get_checkpoints() (AdjointMeshSeq method)</a>
@@ -208,59 +193,29 @@
 </li>
       <li><a href="pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq">get_enriched_mesh_seq() (GoalOrientedMeshSeq method)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_eskews2d">get_eskews2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_eskews3d">get_eskews3d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_facet_areas">get_facet_areas() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_facet_areas2d">get_facet_areas2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_facet_areas3d">get_facet_areas3d() (in module pyroteus.quality)</a>
-</li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_form">get_form() (MeshSeq method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_function_spaces">get_function_spaces() (MeshSeq method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_initial_condition">get_initial_condition() (MeshSeq method)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">get_lagged_dependency_index() (MeshSeq method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pyroteus.html#pyroteus.quality.get_min_angles2d">get_min_angles2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_min_angles3d">get_min_angles3d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_pyop2_kernel">get_pyop2_kernel() (in module pyroteus.quality)</a>
+      <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_lagged_dependency_index">get_lagged_dependency_index() (MeshSeq method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_qoi">get_qoi() (AdjointMeshSeq method)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_quality_metrics2d">get_quality_metrics2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_quality_metrics3d">get_quality_metrics3d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_scaled_jacobians2d">get_scaled_jacobians2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_scaled_jacobians3d">get_scaled_jacobians3d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_skewnesses2d">get_skewnesses2d() (in module pyroteus.quality)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_skewnesses3d">get_skewnesses3d() (in module pyroteus.quality)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_solve_blocks">get_solve_blocks() (MeshSeq method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.get_solver">get_solver() (MeshSeq method)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.quality.get_volumes3d">get_volumes3d() (in module pyroteus.quality)</a>
-</li>
       <li><a href="pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">global_enrichment() (GoalOrientedMeshSeq method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq">GoalOrientedMeshSeq (class in pyroteus.go_mesh_seq)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMetricParameters">GoalOrientedMetricParameters (class in pyroteus.go_mesh_seq)</a>
+      <li><a href="pyroteus.html#pyroteus.options.GoalOrientedMetricParameters">GoalOrientedMetricParameters (class in pyroteus.options)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedParameters">GoalOrientedParameters (class in pyroteus.go_mesh_seq)</a>
+      <li><a href="pyroteus.html#pyroteus.options.GoalOrientedParameters">GoalOrientedParameters (class in pyroteus.options)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.math.gram_schmidt">gram_schmidt() (in module pyroteus.math)</a>
 </li>
@@ -282,17 +237,15 @@
 </li>
       <li><a href="pyroteus.html#pyroteus.log.info">info() (in module pyroteus.log)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.initial_condition">initial_condition (AdjointMeshSeq property)</a>
 
       <ul>
         <li><a href="pyroteus.html#pyroteus.mesh_seq.MeshSeq.initial_condition">(MeshSeq property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyroteus.html#pyroteus.metric.isotropic_metric">isotropic_metric() (in module pyroteus.metric)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.iterate">iterate() (FlowSolver2d method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -316,7 +269,7 @@
 </li>
       <li><a href="pyroteus.html#pyroteus.metric.metric_relaxation">metric_relaxation() (in module pyroteus.metric)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.metric.MetricParameters">MetricParameters (class in pyroteus.metric)</a>
+      <li><a href="pyroteus.html#pyroteus.options.MetricParameters">MetricParameters (class in pyroteus.options)</a>
 </li>
       <li>
     module
@@ -342,13 +295,13 @@
 </li>
         <li><a href="pyroteus.html#module-pyroteus.metric">pyroteus.metric</a>
 </li>
+        <li><a href="pyroteus.html#module-pyroteus.options">pyroteus.options</a>
+</li>
         <li><a href="pyroteus.html#module-pyroteus.plot">pyroteus.plot</a>
 </li>
         <li><a href="pyroteus.html#module-pyroteus.quality">pyroteus.quality</a>
 </li>
         <li><a href="pyroteus.html#module-pyroteus.recovery">pyroteus.recovery</a>
-</li>
-        <li><a href="pyroteus.html#module-pyroteus.thetis_compat">pyroteus.thetis_compat</a>
 </li>
         <li><a href="pyroteus.html#module-pyroteus.time_partition">pyroteus.time_partition</a>
 </li>
@@ -452,6 +405,13 @@
 </li>
       </ul></li>
       <li>
+    pyroteus.options
+
+      <ul>
+        <li><a href="pyroteus.html#module-pyroteus.options">module</a>
+</li>
+      </ul></li>
+      <li>
     pyroteus.plot
 
       <ul>
@@ -473,13 +433,6 @@
 </li>
       </ul></li>
       <li>
-    pyroteus.thetis_compat
-
-      <ul>
-        <li><a href="pyroteus.html#module-pyroteus.thetis_compat">module</a>
-</li>
-      </ul></li>
-      <li>
     pyroteus.time_partition
 
       <ul>
@@ -496,20 +449,24 @@
   </ul></td>
 </tr></table>
 
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyroteus.html#pyroteus.quality.QualityMeasure">QualityMeasure (class in pyroteus.quality)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyroteus.html#pyroteus.metric.ramp_complexity">ramp_complexity() (in module pyroteus.metric)</a>
 </li>
-      <li><a href="pyroteus.html#pyroteus.recovery.recover_boundary_hessian">recover_boundary_hessian() (in module pyroteus.recovery)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyroteus.html#pyroteus.recovery.recover_boundary_hessian">recover_boundary_hessian() (in module pyroteus.recovery)</a>
+</li>
       <li><a href="pyroteus.html#pyroteus.recovery.recover_hessian">recover_hessian() (in module pyroteus.recovery)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.utility.rotate">rotate() (in module pyroteus.utility)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.utility.rotation_matrix_2d">rotation_matrix_2d() (in module pyroteus.utility)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -537,29 +494,19 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pyroteus.html#pyroteus.thetis_compat.timed_region">timed_region() (in module pyroteus.thetis_compat)</a>
-</li>
-      <li><a href="pyroteus.html#pyroteus.thetis_compat.timed_stage">timed_stage() (in module pyroteus.thetis_compat)</a>
+      <li><a href="pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.th">th() (AdjointMeshSeq static method)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.time_partition.TimeInstant">TimeInstant (class in pyroteus.time_partition)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyroteus.html#pyroteus.time_partition.TimeInterval">TimeInterval (class in pyroteus.time_partition)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyroteus.html#pyroteus.time_partition.TimePartition">TimePartition (class in pyroteus.time_partition)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.time_partition.TimeInterval.timestep">timestep (TimeInterval property)</a>
 </li>
       <li><a href="pyroteus.html#pyroteus.form.transfer_form">transfer_form() (in module pyroteus.form)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="U">U</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pyroteus.html#pyroteus.thetis_compat.FlowSolver2d.update_tags">update_tags() (FlowSolver2d method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -593,7 +540,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -612,8 +559,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

@@ -76,6 +76,14 @@ pyroteus.metric module
    :undoc-members:
    :show-inheritance:
 
+pyroteus.options module
+-----------------------
+
+.. automodule:: pyroteus.options
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyroteus.plot module
 --------------------
 
@@ -96,14 +104,6 @@ pyroteus.recovery module
 ------------------------
 
 .. automodule:: pyroteus.recovery
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyroteus.thetis\_compat module
-------------------------------
-
-.. automodule:: pyroteus.thetis_compat
    :members:
    :undoc-members:
    :show-inheritance:

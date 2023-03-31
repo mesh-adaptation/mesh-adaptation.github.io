@@ -4,15 +4,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>3. Burgers equation on a sequence of meshes &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -45,7 +44,7 @@
           <div class="body" role="main">
             
   <section id="burgers-equation-on-a-sequence-of-meshes">
-<h1><span class="section-number">3. </span>Burgers equation on a sequence of meshes<a class="headerlink" href="#burgers-equation-on-a-sequence-of-meshes" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">3. </span>Burgers equation on a sequence of meshes<a class="headerlink" href="#burgers-equation-on-a-sequence-of-meshes" title="Permalink to this heading">¶</a></h1>
 <p>This demo shows how to solve the <cite>Firedrake</cite>
 <a class="reference external" href="https://firedrakeproject.org/demos/burgers.py.html">Burgers equation demo</a>
 on a sequence of meshes using Pyroteus.
@@ -82,7 +81,9 @@ require a weak form. For this, Pyroteus requires a function
 that maps the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> index and a dictionary of
 solution data to the form. For each field, the dictionary
 should provide a tuple containing the solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s
-from the current timestep and the previous one.</p>
+from the current timestep and the previous one. The form should be
+returned inside its own dictionary, with an entry for each equation
+being solved for.</p>
 <p>Timestepping information associated with a given subinterval
 can be accessed via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">TimePartition</span></code> attribute of
 the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>.</p>
@@ -102,7 +103,7 @@ the <code class="xref py py-class docutils literal notranslate"><span class="pre
             <span class="o">+</span> <span class="n">inner</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">nabla_grad</span><span class="p">(</span><span class="n">u</span><span class="p">)),</span> <span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span>
             <span class="o">+</span> <span class="n">nu</span> <span class="o">*</span> <span class="n">inner</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="o">*</span> <span class="n">dx</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">F</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="n">F</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="n">form</span>
 </pre></div>
@@ -129,7 +130,7 @@ appended by <code class="docutils literal notranslate"><span class="pre">'_old'<
         <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">])</span>
 
         <span class="c1"># Define form</span>
-        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u_</span><span class="p">)})</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u_</span><span class="p">)})[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
         <span class="c1"># Time integrate from t_start to t_end</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
@@ -262,7 +263,7 @@ equation.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -287,8 +288,8 @@ equation.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>
