@@ -126,8 +126,7 @@ Plotting this, we find that the results are identical to those generated previou
    :figwidth: 90%
    :align: center
 
-In the `next demo <./burgers_ee.py.html>`__, we use Pyroteus to
-automatically perform goal-oriented error estimation for Burgers
-equation.
+In the `next demo <./solid_body_rotation.py.html>`__, we move on from Burgers equation
+to consider a linear advection example with a rotational velocity field.
 
 This demo can also be accessed as a `Python script <burgers_oo.py>`__.

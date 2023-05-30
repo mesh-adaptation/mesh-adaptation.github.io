@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -132,9 +131,10 @@ This provides the flexibility to use different adaptation routines.
 The function should take as input the <a class="reference internal" href="../pyroteus.html#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a> instance
 and the dictionary of solution fields from each timestep. For
 example, it could compute the Hessian of the solution field at each
-timestep using <a class="reference internal" href="../pyroteus.html#pyroteus.recovery.recover_hessian" title="pyroteus.recovery.recover_hessian"><code class="xref py py-func docutils literal notranslate"><span class="pre">recover_hessian()</span></code></a>, ensure that it is a metric
-using <a class="reference internal" href="../pyroteus.html#pyroteus.metric.hessian_metric" title="pyroteus.metric.hessian_metric"><code class="xref py py-func docutils literal notranslate"><span class="pre">hessian_metric()</span></code></a> and then combine this information
-using averaging or intersection. In each iteration, the PDE will be
+timestep using <code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_hessian()</span></code>, ensure that
+it is a metric using <code class="xref py py-meth docutils literal notranslate"><span class="pre">enforce_spd()</span></code> and then
+combine this information using averaging or intersection.
+In each iteration, the PDE will be
 solved over the sequence of meshes (with data transferred inbetween)
 using <a class="reference internal" href="../pyroteus.html#pyroteus.mesh_seq.MeshSeq.solve_forward" title="pyroteus.mesh_seq.MeshSeq.solve_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve_forward()</span></code></a> and a Hessian-metric will be
 constructed on each mesh. All of the meshes are then adapted.</p>
@@ -259,7 +259,7 @@ similarly deduced if the error estimate value changes by less than
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
     </div>
   </body>
 </html>

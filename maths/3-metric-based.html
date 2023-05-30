@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -127,19 +126,18 @@ volume in Riemannian space. Given a subset
 :=\int_K\sqrt{\underline{\mathbf M}(\mathbf x)}\;\mathrm dx.\]</div>
 <p>The concept of angle also carries over, amongst other things.</p>
 <p>Metric fields should be defined in Firedrake using
-<a class="reference external" href="https://firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>s from instances of a Lagrange
-<a class="reference external" href="https://firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a> of degree 1,
-i.e. a tensor space that is piecewise linear and continuous. The
-following example code snippet defines a uniform metric and checks
-that it is SPD:</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.meshadapt.RiemannianMetric</span></code>s from instances of
+a Lagrange <a class="reference external" href="https://firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a> of
+degree 1, i.e. a tensor space that is piecewise linear and continuous.
+The following example code snippet defines a uniform metric, for example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">firedrake.meshadapt</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
 <span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">metric</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">RiemannianMetric</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
 <span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">as_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
-<span class="n">check_spd</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -228,8 +226,8 @@ complexity is expressed using the formula</p>
 <p>and can be interpreted as the volume of the spatial
 domain in metric space (recall the formula for
 volume in Riemannian space). Metric complexity may
-be computed in Pyroteus using the function
-<a class="reference internal" href="../pyroteus.html#pyroteus.metric.metric_complexity" title="pyroteus.metric.metric_complexity"><code class="xref py py-func docutils literal notranslate"><span class="pre">metric_complexity()</span></code></a>.
+be computed in Firedrake using the method
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">complexity()</span></code>.
 The time-dependent extension of metric complexity,</p>
 <div class="math notranslate nohighlight" id="equation-space-time-complexity">
 <span class="eqno">(10)<a class="headerlink" href="#equation-space-time-complexity" title="Permalink to this equation">¶</a></span>\[\mathcal C(\mathcal M)=\int_{\mathcal T}\int_\Omega\sqrt{\mathrm{det}(\mathcal M(\mathbf x,t)})\;\mathrm dx\;\mathrm dt\]</div>
@@ -278,8 +276,8 @@ should be normalised in order to account for domain
 geometry, dimensional scales and other properties
 of the problem, such as the extent to which it is
 multi-scale.</p>
-<p>In Pyroteus, normalisation is performed by the
-function <a class="reference internal" href="../pyroteus.html#pyroteus.metric.space_normalise" title="pyroteus.metric.space_normalise"><code class="xref py py-func docutils literal notranslate"><span class="pre">space_normalise()</span></code></a> in the
+<p>In Firedrake, normalisation is performed by the
+method <code class="xref py py-meth docutils literal notranslate"><span class="pre">normalise()</span></code> in the
 <span class="math notranslate nohighlight">\(L^p\)</span> sense:</p>
 <div class="math notranslate nohighlight" id="equation-lp-metric">
 <span class="eqno">(12)<a class="headerlink" href="#equation-lp-metric" title="Permalink to this equation">¶</a></span>\[\mathcal M_{L^p}:=
@@ -341,10 +339,8 @@ Image taken from <span id="id4">[<a class="reference internal" href="#id8" title
 </figcaption>
 </figure>
 <p>Metric combination may be achieved in Pyroteus using the
-functions <a class="reference internal" href="../pyroteus.html#pyroteus.metric.metric_average" title="pyroteus.metric.metric_average"><code class="xref py py-func docutils literal notranslate"><span class="pre">metric_average()</span></code></a>,
-<a class="reference internal" href="../pyroteus.html#pyroteus.metric.metric_intersection" title="pyroteus.metric.metric_intersection"><code class="xref py py-func docutils literal notranslate"><span class="pre">metric_intersection()</span></code></a>, <a class="reference internal" href="../pyroteus.html#pyroteus.metric.metric_relaxation" title="pyroteus.metric.metric_relaxation"><code class="xref py py-func docutils literal notranslate"><span class="pre">metric_relaxation()</span></code></a>
-(generalised average) and simply <a class="reference internal" href="../pyroteus.html#pyroteus.metric.combine_metrics" title="pyroteus.metric.combine_metrics"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_metrics()</span></code></a>,
-which defaults to the metric average.</p>
+function <a class="reference internal" href="../pyroteus.html#pyroteus.metric.combine_metrics" title="pyroteus.metric.combine_metrics"><code class="xref py py-func docutils literal notranslate"><span class="pre">combine_metrics()</span></code></a>, which defaults to the
+metric average.</p>
 <p>Now that a concrete example of a mesh adaptation approach has
 been described, we move on to discuss goal-oriented mesh
 adaptation using Pyroteus in the <a class="reference external" href="4-goal-oriented-mesh-adaptation.html">following section</a>.</p>
@@ -445,7 +441,7 @@ adaptation using Pyroteus in the <a class="reference external" href="4-goal-orie
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
     </div>
   </body>
 </html>
