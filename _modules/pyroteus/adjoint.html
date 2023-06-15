@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -9,9 +8,8 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -44,7 +42,10 @@
 <span class="kn">from</span> <span class="nn">firedrake_adjoint</span> <span class="kn">import</span> <span class="n">pyadjoint</span>
 <span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">project</span>
 <span class="kn">from</span> <span class="nn">.mesh_seq</span> <span class="kn">import</span> <span class="n">MeshSeq</span>
-<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">GoalOrientedParameters</span>
+<span class="kn">from</span> <span class="nn">.time_partition</span> <span class="kn">import</span> <span class="n">TimePartition</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">Function</span><span class="p">,</span> <span class="n">pyrint</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -52,28 +53,11 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AdjointMeshSeq&quot;</span><span class="p">,</span> <span class="s2">&quot;annotate_qoi&quot;</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">th</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert from cardinal to ordinal.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">end</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">st&quot;</span>
-    <span class="k">elif</span> <span class="n">end</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">nd&quot;</span>
-    <span class="k">elif</span> <span class="n">end</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">rd&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">th&quot;</span>
+<div class="viewcode-block" id="annotate_qoi"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.annotate_qoi">[docs]</a><span class="k">def</span> <span class="nf">annotate_qoi</span><span class="p">(</span><span class="n">get_qoi</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator that ensures QoIs are annotated properly.</span>
 
-
-<div class="viewcode-block" id="annotate_qoi"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.annotate_qoi">[docs]</a><span class="k">def</span> <span class="nf">annotate_qoi</span><span class="p">(</span><span class="n">get_qoi</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decorator that ensures QoIs are annotated</span>
-<span class="sd">    properly.</span>
-
-<span class="sd">    Should be applied to the</span>
-<span class="sd">    :meth:`~.AdjointMeshSeq.get_qoi` method.</span>
+<span class="sd">    Should be applied to the :meth:`~.AdjointMeshSeq.get_qoi` method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">get_qoi</span><span class="p">)</span>
@@ -84,11 +68,19 @@
         <span class="n">num_kwargs</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">qoi</span><span class="o">.</span><span class="vm">__defaults__</span><span class="p">)</span>
         <span class="n">num_args</span> <span class="o">=</span> <span class="n">qoi</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">-</span> <span class="n">num_kwargs</span>
         <span class="k">if</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Expected qoi_type to be &#39;end_time&#39; or &#39;steady&#39;,&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; not &#39;</span><span class="si">{</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
         <span class="k">elif</span> <span class="n">num_args</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="s2">&quot;time_integrated&quot;</span>
+            <span class="k">if</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">!=</span> <span class="s2">&quot;time_integrated&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Expected qoi_type to be &#39;time_integrated&#39;,&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; not &#39;</span><span class="si">{</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QoI should have 0 or 1 args, not </span><span class="si">{</span><span class="n">num_args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QoI should have 0 or 1 args, not </span><span class="si">{</span><span class="n">num_args</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
         <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.AdjointMeshSeq.evaluate_qoi&quot;</span><span class="p">)</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">qoi</span><span class="p">)</span>
@@ -105,30 +97,39 @@
 
 
 <div class="viewcode-block" id="AdjointMeshSeq"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq">[docs]</a><span class="k">class</span> <span class="nc">AdjointMeshSeq</span><span class="p">(</span><span class="n">MeshSeq</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    An extension of :class:`~.MeshSeq` to account for</span>
-<span class="sd">    solving adjoint problems on a sequence of meshes.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An extension of :class:`~.MeshSeq` to account for solving adjoint problems on a</span>
+<span class="sd">    sequence of meshes.</span>
 
-<span class="sd">    For time-dependent quantities of interest, the</span>
-<span class="sd">    solver should access and modify</span>
+<span class="sd">    For time-dependent quantities of interest, the solver should access and modify</span>
 <span class="sd">    :attr:`~AdjointMeshSeq.J`, which holds the QoI value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">,</span> <span class="n">get_qoi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :kwarg get_qoi: a function, with two arguments,</span>
-<span class="sd">            a :class:`~.AdjointMeshSeq`, which returns</span>
-<span class="sd">            a function of either one or two variables,</span>
-<span class="sd">            corresponding to either an end time or time</span>
-<span class="sd">            integrated quantity of interest, respectively,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">:</span> <span class="n">TimePartition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :kwarg get_qoi: a function, with two arguments, a :class:`~.AdjointMeshSeq`,</span>
+<span class="sd">            which returns a function of either one or two variables, corresponding to</span>
+<span class="sd">            either an end time or time integrated quantity of interest, respectively,</span>
 <span class="sd">            as well as an index for the :class:`~.MeshSeq`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GoalOrientedParameters</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qoi_type&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;time_integrated&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QoI type </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="si">}</span><span class="s2"> not recognised&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">==</span> <span class="s2">&quot;steady&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;QoI type &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="si">}</span><span class="s2">&#39; not recognised.&quot;</span>
+                <span class="s2">&quot; Choose from &#39;end_time&#39;, &#39;time_integrated&#39;, or &#39;steady&#39;.&quot;</span>
+            <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">time_partition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span> <span class="o">=</span> <span class="n">get_qoi</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">==</span> <span class="s2">&quot;steady&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;QoI type is set to &#39;steady&#39; but the time partition is not steady.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">!=</span> <span class="s2">&quot;steady&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Time partition is steady but the QoI type is set to &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_qoi&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">controls</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span> <span class="o">=</span> <span class="p">[]</span>
@@ -139,70 +140,83 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initial_condition</span>
 
 <div class="viewcode-block" id="AdjointMeshSeq.get_qoi"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_qoi">[docs]</a>    <span class="nd">@annotate_qoi</span>
-    <span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;get_qoi needs implementing&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&#39;get_qoi&#39; is not implemented.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AdjointMeshSeq.get_checkpoints"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_checkpoints">[docs]</a>    <span class="nd">@pyadjoint</span><span class="o">.</span><span class="n">no_annotations</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.AdjointMeshSeq.get_checkpoints&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{},</span> <span class="n">run_final_subinterval</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Solve forward on the sequence of meshes,</span>
-<span class="sd">        extracting checkpoints corresponding to</span>
-<span class="sd">        the starting fields on each subinterval.</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">run_final_subinterval</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solve forward on the sequence of meshes, extracting checkpoints corresponding</span>
+<span class="sd">        to the starting fields on each subinterval.</span>
 
 <span class="sd">        The QoI is also evaluated.</span>
 
-<span class="sd">        :kwarg solver_kwargs: additional keyword</span>
-<span class="sd">            arguments which will be passed to</span>
-<span class="sd">            the solver</span>
-<span class="sd">        :kwarg run_final_subinterval: toggle</span>
-<span class="sd">            whether to solve the PDE on the</span>
-<span class="sd">            final subinterval</span>
+<span class="sd">        :kwarg solver_kwargs: additional keyword arguments which will be passed to the</span>
+<span class="sd">            solver</span>
+<span class="sd">        :kwarg run_final_subinterval: toggle whether to solve the PDE on the final</span>
+<span class="sd">            subinterval</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="c1"># Solve forward</span>
-        <span class="n">checkpoints</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">run_final_subinterval</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">checkpoints</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span> <span class="k">if</span> <span class="n">run_final_subinterval</span> <span class="k">else</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;solver should return a dict&quot;</span>
-            <span class="n">fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
-                <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing fields </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> from solver&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)):</span>
-                <span class="n">diff</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">))</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;More solver outputs than fields (</span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> unexpected)&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">checkpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">AttrDict</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="n">field</span><span class="p">:</span> <span class="n">project</span><span class="p">(</span><span class="n">sols</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-                            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
+        <span class="c1"># In some cases we run over all subintervals to check the QoI that is computed</span>
+        <span class="k">if</span> <span class="n">run_final_subinterval</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Generate the checkpoints as in MeshSeq</span>
+        <span class="n">checkpoints</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_checkpoints</span><span class="p">(</span>
+            <span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span><span class="p">,</span> <span class="n">run_final_subinterval</span><span class="o">=</span><span class="n">run_final_subinterval</span>
+        <span class="p">)</span>
 
         <span class="c1"># Account for end time QoI</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
-            <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">sols</span><span class="p">,</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">run_final_subinterval</span><span class="p">:</span>
+            <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">checkpoints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">qoi</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qoi_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
         <span class="k">return</span> <span class="n">checkpoints</span></div>
 
-<div class="viewcode-block" id="AdjointMeshSeq.solve_adjoint"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.solve_adjoint">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.AdjointMeshSeq.solve_adjoint&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="AdjointMeshSeq.get_solve_blocks"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.get_solve_blocks">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_solve_blocks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">has_adj_sol</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all blocks of the tape corresponding to solve steps for prognostic solution</span>
+<span class="sd">        field on a given subinterval.</span>
+
+<span class="sd">        :arg field: name of the prognostic solution field</span>
+<span class="sd">        :arg subinterval: subinterval index</span>
+<span class="sd">        :kwarg has_adj_sol: if ``True``, only blocks with ``adj_sol`` attributes will be</span>
+<span class="sd">            considered</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solve_blocks</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_adj_sol</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">solve_blocks</span>
+
+        <span class="c1"># Check that adjoint solutions exist</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No block has an adjoint solution. Has the adjoint equation been solved?&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Default adjoint solution to zero, rather than None</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">subinterval</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">field</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">solve_blocks</span></div>
+
+<div class="viewcode-block" id="AdjointMeshSeq.solve_adjoint"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.solve_adjoint">[docs]</a>    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">solve_adjoint</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">solver_kwargs</span><span class="o">=</span><span class="p">{},</span>
-        <span class="n">adj_solver_kwargs</span><span class="o">=</span><span class="p">{},</span>
-        <span class="n">get_adj_values</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">test_checkpoint_qoi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="n">solver_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">adj_solver_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">get_adj_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">test_checkpoint_qoi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve an adjoint problem on a sequence of subintervals.</span>
 
 <span class="sd">        As well as the quantity of interest value, a dictionary</span>
@@ -239,18 +253,23 @@
         <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">function_spaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span>
         <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
+        <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span>
+        <span class="n">qoi_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qoi_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="c1"># Solve forward to get checkpoints and evaluate QoI</span>
         <span class="n">checkpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_checkpoints</span><span class="p">(</span>
             <span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span><span class="p">,</span>
             <span class="n">run_final_subinterval</span><span class="o">=</span><span class="n">test_checkpoint_qoi</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">test_checkpoint_qoi</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">J_chk</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">test_checkpoint_qoi</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">J_chk</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Zero QoI. Is it implemented as intended?&quot;</span><span class="p">)</span>
-        <span class="n">J_chk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span>
+
+        <span class="c1"># Reset the QoI to zero</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="c1"># Create arrays to hold exported forward and adjoint solutions</span>
+        <span class="c1"># Create arrays to hold exported forward and adjoint solutions and their lagged</span>
+        <span class="c1"># counterparts, as well as the adjoint actions, if requested</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;forward_old&quot;</span><span class="p">,</span> <span class="s2">&quot;adjoint&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
             <span class="n">labels</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">,)</span>
@@ -262,7 +281,7 @@
                     <span class="p">{</span>
                         <span class="n">label</span><span class="p">:</span> <span class="p">[</span>
                             <span class="p">[</span>
-                                <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                             <span class="p">]</span>
                             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
@@ -274,17 +293,22 @@
             <span class="p">}</span>
         <span class="p">)</span>
 
-        <span class="c1"># Wrap solver to extract controls</span>
-        <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span>
-
         <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.AdjointMeshSeq.solve_adjoint.evaluate_fwd&quot;</span><span class="p">)</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">wrapped_solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapped_solver</span><span class="p">(</span><span class="n">subinterval</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Decorator to allow the solver to stash its initial conditions as controls.</span>
+
+<span class="sd">            :arg subinterval: the subinterval index</span>
+<span class="sd">            :arg ic: the dictionary of initial condition :class:`~.Functions`</span>
+
+<span class="sd">            All keyword arguments are passed to the solver.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">init</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
                 <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">ic</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deepcopy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">controls</span> <span class="o">=</span> <span class="p">[</span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">Control</span><span class="p">(</span><span class="n">init</span><span class="p">[</span><span class="n">field</span><span class="p">])</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">solver</span><span class="p">(</span><span class="n">subinterval</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># Clear tape</span>
         <span class="n">tape</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_working_tape</span><span class="p">()</span>
@@ -297,27 +321,25 @@
             <span class="n">num_exports</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
             <span class="c1"># Annotate tape on current subinterval</span>
-            <span class="n">sols</span> <span class="o">=</span> <span class="n">wrapped_solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
+            <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">wrapped_solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
             <span class="c1"># Get seed vector for reverse propagation</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">num_subintervals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
-                    <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">sols</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">qoi</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qoi_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+                    <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">qoi</span><span class="p">(</span><span class="o">**</span><span class="n">qoi_kwargs</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Zero QoI. Is it implemented as intended?&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">stop_annotating</span><span class="p">():</span>
                     <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="n">sols</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span> <span class="o">=</span> <span class="n">project</span><span class="p">(</span>
+                        <span class="n">checkpoint</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span> <span class="o">=</span> <span class="n">project</span><span class="p">(</span>
                             <span class="n">seeds</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">True</span>
                         <span class="p">)</span>
 
             <span class="c1"># Update adjoint solver kwargs</span>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span>
-                    <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">has_adj_sol</span><span class="o">=</span><span class="kc">False</span>
-                <span class="p">):</span>
+                <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">has_adj_sol</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                     <span class="n">block</span><span class="o">.</span><span class="n">adj_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">adj_solver_kwargs</span><span class="p">)</span>
 
             <span class="c1"># Solve adjoint problem</span>
@@ -329,53 +351,57 @@
 
             <span class="c1"># Loop over prognostic variables</span>
             <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-
                 <span class="c1"># Get solve blocks</span>
-                <span class="n">solve_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">solve_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
                 <span class="n">num_solve_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="n">num_solve_blocks</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
-                    <span class="s2">&quot;Looks like no solves were written to tape!&quot;</span>
-                    <span class="s2">&quot; Does the solution depend on the initial condition?&quot;</span>
-                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">num_solve_blocks</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Looks like no solves were written to tape!&quot;</span>
+                        <span class="s2">&quot; Does the solution depend on the initial condition?&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">if</span> <span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span> <span class="o">!=</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">():</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Solve block list for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> contains mismatching&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; elements (</span><span class="si">{</span><span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="si">}</span><span class="s2"> vs. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Solve block list for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; contains mismatching&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; finite elements: (</span><span class="si">{</span><span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="si">}</span><span class="s2"> vs. &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
                     <span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;forward_old&quot;</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
-                    <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lagged_dependency_index</span><span class="p">(</span>
-                        <span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">solve_blocks</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">fwd_old_idx</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">fwd_old_idx</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;forward_old&quot;</span> <span class="ow">in</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]:</span>
-                    <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;forward_old&quot;</span><span class="p">)</span>
 
                 <span class="c1"># Detect whether we have a steady problem</span>
-                <span class="n">steady</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="ow">or</span> <span class="p">(</span>
-                    <span class="n">num_subintervals</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">num_solve_blocks</span> <span class="o">==</span> <span class="mi">1</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">steady</span> <span class="ow">and</span> <span class="s2">&quot;adjoint_next&quot;</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">:</span>
-                    <span class="n">sols</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">)</span>
+                <span class="n">steady</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="ow">or</span> <span class="n">num_subintervals</span> <span class="o">==</span> <span class="n">num_solve_blocks</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">steady</span> <span class="ow">and</span> <span class="s2">&quot;adjoint_next&quot;</span> <span class="ow">in</span> <span class="n">checkpoint</span><span class="p">:</span>
+                    <span class="n">checkpoint</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">)</span>
 
-                <span class="c1"># Extract solution data</span>
-                <span class="n">sols</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+                <span class="c1"># Check that there are as many solve blocks as expected</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="n">num_exports</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;More solve blocks than expected&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">])</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">num_exports</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">)&quot;</span>
+                        <span class="s2">&quot;More solve blocks than expected:&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">])</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">num_exports</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">).&quot;</span>
                     <span class="p">)</span>
+
+                <span class="c1"># Update forward and adjoint solution data based on block dependencies</span>
+                <span class="c1"># and outputs</span>
+                <span class="n">sols</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_exports</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">]):</span>
+                    <span class="c1"># Current forward solution is determined from outputs</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">sols</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
 
-                    <span class="c1"># Lagged forward solution and adjoint values</span>
-                    <span class="k">if</span> <span class="n">fwd_old_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">dep</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">_dependencies</span><span class="p">[</span><span class="n">fwd_old_idx</span><span class="p">]</span>
+                    <span class="c1"># Current adjoint solution is determined from the adj_sol attribute</span>
+                    <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">sols</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span><span class="p">)</span>
+
+                    <span class="c1"># Lagged forward solution comes from dependencies</span>
+                    <span class="n">dep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dependency</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">dep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">sols</span><span class="o">.</span><span class="n">forward_old</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">get_adj_values</span><span class="p">:</span>
-                            <span class="n">sols</span><span class="o">.</span><span class="n">adj_value</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">adj_value</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
 
-                    <span class="c1"># Lagged adjoint solution</span>
+                    <span class="c1"># Adjoint action also comes from dependencies</span>
+                    <span class="k">if</span> <span class="n">get_adj_values</span> <span class="ow">and</span> <span class="n">dep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">sols</span><span class="o">.</span><span class="n">adj_value</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">adj_value</span><span class="o">.</span><span class="n">function</span><span class="p">)</span>
+
+                    <span class="c1"># The adjoint solution at the &#39;next&#39; timestep is determined from the</span>
+                    <span class="c1"># adj_sol attribute of the next solve block</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">steady</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">j</span> <span class="o">*</span> <span class="n">stride</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">num_solve_blocks</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="n">j</span> <span class="o">*</span> <span class="n">stride</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -391,67 +417,87 @@
                                 <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;Cannot extract solve block </span><span class="si">{</span><span class="n">j</span><span class="o">*</span><span class="n">stride</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">num_solve_blocks</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="s2">&quot;Cannot extract solve block&quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">j</span><span class="o">*</span><span class="n">stride</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">num_solve_blocks</span><span class="si">}</span><span class="s2">.&quot;</span>
                             <span class="p">)</span>
 
-                    <span class="c1"># Forward and adjoint solution at current timestep</span>
-                    <span class="n">sols</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">_outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">sols</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">adj_sol</span><span class="p">)</span>
-
                 <span class="c1"># Check non-zero adjoint solution/value</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Adjoint solution for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2"> subinterval is zero.&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">warn</span>
-                    <span class="ow">and</span> <span class="n">get_adj_values</span>
-                    <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">adj_value</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">)</span>
-                <span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2"> subinterval is zero.&quot;</span>
-                    <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Adjoint solution for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot; subinterval is zero.&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">get_adj_values</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">adj_value</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Adjoint action for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot; subinterval is zero.&quot;</span>
+                        <span class="p">)</span>
 
-            <span class="c1"># Get adjoint action</span>
+            <span class="c1"># Get adjoint action on each subinterval</span>
             <span class="n">seeds</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">field</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span>
+                <span class="n">field</span><span class="p">:</span> <span class="n">Function</span><span class="p">(</span>
                     <span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">val</span><span class="o">=</span><span class="n">control</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span>
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">control</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controls</span><span class="p">)</span>
             <span class="p">}</span>
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2"> subinterval is zero.&quot;</span>
-                    <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Adjoint action for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="s2">&quot; subinterval is zero.&quot;</span>
+                        <span class="p">)</span>
+
+            <span class="c1"># Clear the tape to reduce the memory footprint</span>
             <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
         <span class="c1"># Check the QoI value agrees with that due to the checkpointing run</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">==</span> <span class="s2">&quot;time_integrated&quot;</span> <span class="ow">and</span> <span class="n">test_checkpoint_qoi</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">J_chk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">),</span> <span class="p">(</span>
-                <span class="s2">&quot;QoI values computed during checkpointing and annotated&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; run do not match (</span><span class="si">{</span><span class="n">J_chk</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="si">}</span><span class="s2">)&quot;</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">J_chk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;QoI values computed during checkpointing and annotated&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; run do not match (</span><span class="si">{</span><span class="n">J_chk</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
         <span class="k">return</span> <span class="n">solutions</span></div>
 
+<div class="viewcode-block" id="AdjointMeshSeq.th"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.th">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">th</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert from cardinal to ordinal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;st&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;nd&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;rd&quot;</span><span class="p">}[</span><span class="n">end</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="s2">&quot;th&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
 <div class="viewcode-block" id="AdjointMeshSeq.check_qoi_convergence"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.check_qoi_convergence">[docs]</a>    <span class="k">def</span> <span class="nf">check_qoi_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check for convergence of the fixed point iteration</span>
 <span class="sd">        due to the relative difference in QoI value being</span>
 <span class="sd">        smaller than the specified tolerance.</span>
 
-<span class="sd">        :return: ``True`` if converged, else ``False``</span>
+<span class="sd">        The :attr:`AdjointMeshSeq.converged` attribute</span>
+<span class="sd">        is set to ``True`` if convergence is detected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">miniter</span><span class="p">):</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
         <span class="n">qoi_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
         <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi</span> <span class="o">-</span> <span class="n">qoi_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">P</span><span class="o">.</span><span class="n">qoi_rtol</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi_</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+            <span class="n">pyrint</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Terminated due to QoI convergence after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_iteration</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot; iterations.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -469,7 +515,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -489,8 +535,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
     </div>
   </body>
 </html>

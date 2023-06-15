@@ -11,24 +11,24 @@ demo. ::
 
   from firedrake import *
   from pyroteus_adjoint import *
-  
+
 Redefine the ``get_initial_condition``, ``get_function_spaces``,
 and ``get_form`` functions as in the first Burgers demo. ::
 
 
   def get_function_spaces(mesh):
       return {"u": VectorFunctionSpace(mesh, "CG", 2)}
-  
-  
+
+
   def get_form(mesh_seq):
       def form(index, solutions):
           u, u_ = solutions["u"]
           P = mesh_seq.time_partition
           dt = Constant(P.timesteps[index])
-  
+
           # Specify viscosity coefficient
           nu = Constant(0.0001)
-  
+
           # Setup variational problem
           v = TestFunction(u.function_space())
           F = (
@@ -37,16 +37,16 @@ and ``get_form`` functions as in the first Burgers demo. ::
               + nu * inner(grad(u), grad(v)) * dx
           )
           return {"u": F}
-  
+
       return form
-  
-  
+
+
   def get_initial_condition(mesh_seq):
       fs = mesh_seq.function_spaces["u"][0]
       x, y = SpatialCoordinate(mesh_seq[0])
       return {"u": interpolate(as_vector([sin(pi * x), 0]), fs)}
-  
-  
+
+
 The solver needs to be modified slightly in order to take
 account of time dependent QoIs. The Burgers solver
 uses backward Euler timestepping. The corresponding
@@ -62,14 +62,14 @@ of the :class:`AdjointMeshSeq` as follows. ::
           function_space = mesh_seq.function_spaces["u"][index]
           u = Function(function_space, name="u")
           solution_map = {"u": u}
-  
+
           # Initialise 'lagged' solution
           u_ = Function(function_space, name="u_old")
           u_.assign(ic["u"])
-  
+
           # Define form
           F = mesh_seq.form(index, {"u": (u, u_)})["u"]
-  
+
           # Time integrate from t_start to t_end
           t_start, t_end = mesh_seq.subintervals[index]
           dt = mesh_seq.time_partition.timesteps[index]
@@ -81,10 +81,10 @@ of the :class:`AdjointMeshSeq` as follows. ::
               u_.assign(u)
               t += dt
           return solution_map
-  
+
       return solver
-  
-  
+
+
 The QoI is effectively just a time-integrated version
 of the one previously seen.
 
@@ -100,14 +100,14 @@ recompilation if the value is changed. ::
 
   def get_qoi(mesh_seq, solutions, i):
       dt = Constant(mesh_seq.time_partition[i].timestep)
-  
+
       def time_integrated_qoi(t):
           u = solutions["u"]
           return dt * inner(u, u) * ds(2)
-  
+
       return time_integrated_qoi
-  
-  
+
+
 We use the same mesh setup as in `the previous demo
 <./burgers2.py.html>`__ and the same time partitioning. ::
 
@@ -119,7 +119,7 @@ We use the same mesh setup as in `the previous demo
   time_partition = TimePartition(
       end_time, num_subintervals, dt, ["u"], timesteps_per_export=2
   )
-  
+
 The only difference when defining the :class:`AdjointMeshSeq`
 is that we specify ``qoi_type="time_integrated"``, rather than
 ``qoi_type="end_time"``. ::
@@ -135,10 +135,10 @@ is that we specify ``qoi_type="time_integrated"``, rather than
       qoi_type="time_integrated",
   )
   solutions = mesh_seq.solve_adjoint()
-  
+
   fig, axes, tcs = plot_snapshots(solutions, time_partition, "u", "adjoint")
   fig.savefig("burgers-time_integrated.jpg")
-  
+
 .. figure:: burgers-time_integrated.jpg
    :figwidth: 90%
    :align: center

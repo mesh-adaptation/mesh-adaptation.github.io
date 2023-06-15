@@ -106,7 +106,7 @@ Galerkin (SUPG)</cite> stabilisation by modifying the test function
         <span class="n">h</span> <span class="o">=</span> <span class="n">CellSize</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">source</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
 
-        <span class="c1"># Stabilisation parameter</span>
+        <span class="c1"># SUPG stabilisation parameter</span>
         <span class="n">unorm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
         <span class="n">tau</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">h</span> <span class="o">/</span> <span class="n">unorm</span>
         <span class="n">tau</span> <span class="o">=</span> <span class="n">min_value</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">unorm</span> <span class="o">*</span> <span class="n">h</span> <span class="o">/</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">D</span><span class="p">))</span>
@@ -136,7 +136,9 @@ inflow, which is indexed by 1.</p>
     <span class="k">return</span> <span class="n">bcs</span>
 </pre></div>
 </div>
-<p>With these ingredients, we can now define the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code> method.</p>
+<p>With these ingredients, we can now define the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code> method. Don’t forget
+to impose the correct names for the current and lagged solution fields, as well as
+applying the corresponding <cite>ad_block_tag</cite> to the solve call.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>

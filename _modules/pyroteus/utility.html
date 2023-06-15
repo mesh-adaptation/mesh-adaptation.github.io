@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -9,9 +8,8 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -40,19 +38,16 @@
 <span class="sd">Utility functions and classes for mesh adaptation.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">.quality</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">import</span> <span class="nn">firedrake</span>
-<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
-<span class="kn">import</span> <span class="nn">firedrake.cython.dmcommon</span> <span class="k">as</span> <span class="nn">dmcommon</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">import</span> <span class="nn">mpi4py</span>
+<span class="kn">import</span> <span class="nn">petsc4py</span>
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
 <div class="viewcode-block" id="Mesh"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.Mesh">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.Mesh&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MeshGeometry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Overload :func:`firedrake.mesh.Mesh` to</span>
 <span class="sd">    endow the output mesh with useful quantities.</span>
 
@@ -68,13 +63,13 @@
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">P1</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
 
     <span class="c1"># Facet area</span>
     <span class="n">boundary_markers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">)</span>
-    <span class="n">one</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">one</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="n">bnd_len</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
         <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">one</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">boundary_markers</span><span class="p">}</span>
     <span class="p">)</span>
@@ -91,7 +86,7 @@
 
 
 <div class="viewcode-block" id="File"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.File">[docs]</a><span class="k">class</span> <span class="nc">File</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">File</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Overload :class:`firedrake.output.File` so that</span>
 <span class="sd">    it uses ``adaptive`` mode by default. Whilst</span>
 <span class="sd">    this means that the mesh topology is</span>
@@ -104,16 +99,18 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_write_vtu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">functions</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overload the Firedrake functionality</span>
 <span class="sd">        under the blind assumption that the</span>
 <span class="sd">        same list of functions are outputted</span>
 <span class="sd">        each time (albeit on different meshes).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
-                <span class="n">functions</span>
-            <span class="p">),</span> <span class="s2">&quot;Writing different set of functions&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">functions</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Writing different number of functions: expected&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span><span class="p">)</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">functions</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span><span class="p">,</span> <span class="n">functions</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -121,8 +118,10 @@
 
 
 <div class="viewcode-block" id="assemble_mass_matrix"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.assemble_mass_matrix">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.assemble_mass_matrix&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">assemble_mass_matrix</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">assemble_mass_matrix</span><span class="p">(</span>
+    <span class="n">space</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">norm_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L2&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">petsc4py</span><span class="o">.</span><span class="n">PETSc</span><span class="o">.</span><span class="n">Mat</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assemble the ``norm_type`` mass matrix</span>
 <span class="sd">    associated with some finite element ``space``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -136,13 +135,13 @@
             <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">trial</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">test</span><span class="p">))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Norm type </span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2"> not recognised.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; not recognised.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">lhs</span><span class="p">)</span><span class="o">.</span><span class="n">petscmat</span></div>
 
 
 <div class="viewcode-block" id="norm"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.norm">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.norm&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">norm_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Overload :func:`firedrake.norms.norm` to</span>
 <span class="sd">    allow for :math:`\ell^p` norms.</span>
 
@@ -156,18 +155,19 @@
 <span class="sd">        ``&#39;linf&#39;``, ``&#39;L2&#39;``, ``&#39;Linf&#39;``, ``&#39;H1&#39;``,</span>
 <span class="sd">        ``&#39;Hdiv&#39;``, ``&#39;Hcurl&#39;``, or any ``&#39;Lp&#39;`` with</span>
 <span class="sd">        :math:`p &gt;= 1`.</span>
-<span class="sd">    :kwarg mesh: the mesh that `v` is defined upon</span>
 <span class="sd">    :kwarg condition: a UFL condition for specifying</span>
 <span class="sd">        a subdomain to compute the norm over</span>
 <span class="sd">    :kwarg boundary: should the norm be computed over</span>
 <span class="sd">        the domain boundary?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">boundary</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;boundary&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">condition</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;condition&quot;</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
     <span class="n">norm_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;l1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;linf&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="k">if</span> <span class="n">norm_type</span> <span class="ow">in</span> <span class="n">norm_codes</span> <span class="ow">or</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;Linf&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">boundary</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;lp errors on the boundary not yet implemented.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;Linf&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">v</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">vv</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">vv</span><span class="o">.</span><span class="n">max</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
@@ -179,47 +179,29 @@
             <span class="s2">&quot;lp norm of order </span><span class="si">{:s}</span><span class="s2"> not supported.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">norm_type</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">condition</span> <span class="o">=</span> <span class="n">condition</span> <span class="ow">or</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
         <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> <span class="k">if</span> <span class="n">boundary</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
         <span class="k">if</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">norm_type</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-                <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2"> norm does not make sense.&quot;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Don&#39;t know how to interpret </span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2"> norm.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">dX</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span>
-                <span class="mi">1</span> <span class="o">/</span> <span class="n">p</span>
-            <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Don&#39;t know how to interpret &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; norm.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; norm does not make sense.&quot;</span><span class="p">)</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;h1&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
-                <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
-                    <span class="n">condition</span>
-                    <span class="o">*</span> <span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
-                    <span class="o">*</span> <span class="n">dX</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;hdiv&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
-                <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
-                    <span class="n">condition</span> <span class="o">*</span> <span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="o">*</span> <span class="n">dX</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;hcurl&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
-                <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
-                    <span class="n">condition</span>
-                    <span class="o">*</span> <span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
-                    <span class="o">*</span> <span class="n">dX</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown norm type </span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">integrand</span> <span class="o">**</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">dX</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="errornorm"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.errornorm">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.errornorm&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">errornorm</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">uh</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">errornorm</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">uh</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">norm_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Overload :func:`firedrake.norms.errornorm`</span>
 <span class="sd">    to allow for :math:`\ell^p` norms.</span>
 
@@ -237,15 +219,15 @@
 <span class="sd">        the domain boundary?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">ufl_shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uh</span><span class="o">.</span><span class="n">ufl_shape</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Mismatching rank between u and uh&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Mismatching rank between u and uh.&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uh</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;uh should be a Function, is a </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">uh</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uh</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;uh should be a Function, is a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">uh</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">norm_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;l&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;u should be a Function, is a </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">uh</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;u should be a Function, is a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
         <span class="n">degree_u</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
         <span class="n">degree_uh</span> <span class="o">=</span> <span class="n">uh</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">degree_uh</span> <span class="o">&gt;</span> <span class="n">degree_u</span><span class="p">:</span>
@@ -260,12 +242,14 @@
 
     <span class="c1"># Case 2: UFL norms for mixed function spaces</span>
     <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">uh</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">norm_type</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
-            <span class="n">vv</span> <span class="o">=</span> <span class="p">[</span><span class="n">uu</span> <span class="o">-</span> <span class="n">uuh</span> <span class="k">for</span> <span class="n">uu</span><span class="p">,</span> <span class="n">uuh</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">uh</span><span class="o">.</span><span class="n">split</span><span class="p">())]</span>
+        <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;L2&quot;</span><span class="p">:</span>
+            <span class="n">vv</span> <span class="o">=</span> <span class="p">[</span><span class="n">uu</span> <span class="o">-</span> <span class="n">uuh</span> <span class="k">for</span> <span class="n">uu</span><span class="p">,</span> <span class="n">uuh</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">,</span> <span class="n">uh</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)]</span>
             <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;boundary&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
             <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vv</span><span class="p">])</span> <span class="o">*</span> <span class="n">dX</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; not supported for mixed spaces.&quot;</span>
+            <span class="p">)</span>
 
     <span class="c1"># Case 3: UFL norms for non-mixed spaces</span>
     <span class="k">else</span><span class="p">:</span>
@@ -274,39 +258,8 @@
     <span class="k">return</span> <span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="n">norm_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="rotation_matrix_2d"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.rotation_matrix_2d">[docs]</a><span class="k">def</span> <span class="nf">rotation_matrix_2d</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rotation matrix associated with some</span>
-<span class="sd">    angle, as a UFL matrix.</span>
-
-<span class="sd">    :arg angle: the angle</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">(</span>
-        <span class="p">[[</span><span class="n">ufl</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="o">-</span><span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)],</span> <span class="p">[</span><span class="n">ufl</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)]]</span>
-    <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="rotate"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.rotate">[docs]</a><span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rotate a UFL :class:`ufl.tensors.as_vector`</span>
-<span class="sd">    by some angle.</span>
-
-<span class="sd">    :arg v: the vector to rotate</span>
-<span class="sd">    :arg angle: the angle to rotate by</span>
-<span class="sd">    :kwarg origin: origin of rotation</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-    <span class="n">origin</span> <span class="o">=</span> <span class="n">origin</span> <span class="ow">or</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span> <span class="o">==</span> <span class="n">dim</span><span class="p">,</span> <span class="s2">&quot;Origin does not match dimension&quot;</span>
-    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="n">rotation_matrix_2d</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-    <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">v</span> <span class="o">-</span> <span class="n">origin</span><span class="p">)</span> <span class="o">+</span> <span class="n">origin</span></div>
-
-
 <div class="viewcode-block" id="AttrDict"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.AttrDict">[docs]</a><span class="k">class</span> <span class="nc">AttrDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dictionary that provides both ``self[key]``</span>
 <span class="sd">    and ``self.key`` access to members.</span>
 
@@ -319,8 +272,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="bp">self</span></div>
 
 
-<div class="viewcode-block" id="effectivity_index"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.effectivity_index">[docs]</a><span class="k">def</span> <span class="nf">effectivity_index</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">Je</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="effectivity_index"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.effectivity_index">[docs]</a><span class="k">def</span> <span class="nf">effectivity_index</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">Je</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Overestimation factor of some error estimator</span>
 <span class="sd">    for the QoI error.</span>
 
@@ -333,65 +286,19 @@
 <span class="sd">        to individual elements</span>
 <span class="sd">    :arg Je: error in quantity of interest</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error indicator must return a Function&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error indicator must return a Function.&quot;</span><span class="p">)</span>
     <span class="n">el</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="p">(</span>
-        <span class="n">el</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Discontinuous Lagrange&quot;</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
-    <span class="p">),</span> <span class="s2">&quot;Error indicator must be P0&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Discontinuous Lagrange&quot;</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error indicator must be P0.&quot;</span><span class="p">)</span>
     <span class="n">eta</span> <span class="o">=</span> <span class="n">error_indicator</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">eta</span> <span class="o">/</span> <span class="n">Je</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="classify_element"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.classify_element">[docs]</a><span class="k">def</span> <span class="nf">classify_element</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Classify a :class:`ufl.finiteelement.FiniteElement`</span>
-<span class="sd">    in terms of a label and a list of entity DOFs.</span>
-
-<span class="sd">    :arg element: the</span>
-<span class="sd">        :class:`ufl.finiteelement.FiniteElement`</span>
-<span class="sd">    :arg dim: the topological dimension</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
-    <span class="n">family</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">family</span><span class="p">()</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">sub_elements</span><span class="p">())</span> <span class="ow">or</span> <span class="mi">1</span>
-    <span class="n">label</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="s2">&quot;Vector &quot;</span><span class="p">,</span> <span class="n">dim</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Tensor &quot;</span><span class="p">}[</span><span class="n">n</span><span class="p">]</span>
-    <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">family</span> <span class="o">==</span> <span class="s2">&quot;Discontinuous Lagrange&quot;</span> <span class="ow">and</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">entity_dofs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span>
-        <span class="n">label</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;P</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">DG&quot;</span>
-    <span class="k">elif</span> <span class="n">family</span> <span class="o">==</span> <span class="s2">&quot;Lagrange&quot;</span> <span class="ow">and</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">entity_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span>
-        <span class="n">label</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;P</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-    <span class="k">return</span> <span class="n">label</span><span class="p">,</span> <span class="n">entity_dofs</span></div>
-
-
-<div class="viewcode-block" id="create_section"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.create_section">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.create_section&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">create_section</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a PETSc section associated with</span>
-<span class="sd">    a mesh and some</span>
-<span class="sd">    :class:`ufl.finitelement.FiniteElement`.</span>
-
-<span class="sd">    :arg mesh: the mesh</span>
-<span class="sd">    :arg element: the</span>
-<span class="sd">        :class:`ufl.finiteelement.FiniteElement`</span>
-<span class="sd">        for which a section is sought, or a</span>
-<span class="sd">        list of entity DOFs to be passed</span>
-<span class="sd">        straight through</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">dmcommon</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
-        <span class="n">label</span><span class="p">,</span> <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">classify_element</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">dmcommon</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">entity_dofs</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="create_directory"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.create_directory">[docs]</a><span class="k">def</span> <span class="nf">create_directory</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="n">firedrake</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="create_directory"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.create_directory">[docs]</a><span class="k">def</span> <span class="nf">create_directory</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comm</span><span class="p">:</span> <span class="n">mpi4py</span><span class="o">.</span><span class="n">MPI</span><span class="o">.</span><span class="n">Intracomm</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a directory on disk.</span>
 
 <span class="sd">    Code copied from `Thetis</span>
@@ -422,7 +329,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -442,8 +349,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
     </div>
   </body>
 </html>

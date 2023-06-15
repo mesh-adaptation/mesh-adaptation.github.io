@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -9,9 +8,8 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -39,240 +37,263 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Driver functions for mesh-to-mesh data transfer.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">assemble_mass_matrix</span><span class="p">,</span> <span class="n">get_facet_areas</span>
+<span class="kn">from</span> <span class="nn">.quality</span> <span class="kn">import</span> <span class="n">QualityMeasure</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">assemble_mass_matrix</span><span class="p">,</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span>
 <span class="kn">import</span> <span class="nn">firedrake</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 <span class="kn">from</span> <span class="nn">petsc4py</span> <span class="kn">import</span> <span class="n">PETSc</span> <span class="k">as</span> <span class="n">petsc4py</span>
 <span class="kn">from</span> <span class="nn">pyop2</span> <span class="kn">import</span> <span class="n">op2</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;clement_interpolant&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="clement_interpolant"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.interpolation.clement_interpolant">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.clement_interpolant&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clement_interpolant</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Compute the Clement interpolant of a :math:`\mathbb P0`</span>
-<span class="sd">    source field, i.e. take the volume average over</span>
-<span class="sd">    neighbouring cells at each vertex. See :cite:`Cle:75`.</span>
+<div class="viewcode-block" id="clement_interpolant"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.interpolation.clement_interpolant">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">clement_interpolant</span><span class="p">(</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span>
+    <span class="n">target_space</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FunctionSpace</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the Clement interpolant of a :math:`\mathbb P0` source field, i.e. take the</span>
+<span class="sd">    volume average over neighbouring cells at each vertex. See :cite:`Cle:75`.</span>
 
 <span class="sd">    :arg source: the :math:`\mathbb P0` source field</span>
-<span class="sd">    :kwarg target_space: the :math:`\mathbb P1` space to</span>
-<span class="sd">        interpolate into</span>
-<span class="sd">    :boundary_tag: optional boundary tag to compute the</span>
-<span class="sd">        Clement interpolant over.</span>
+<span class="sd">    :kwarg target_space: the :math:`\mathbb P1` space to interpolate into</span>
+<span class="sd">    :kwarg boundary: interpolate over boundary facets or cells?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">V</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="n">V</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Discontinuous Lagrange&quot;</span>
-    <span class="k">assert</span> <span class="n">V</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
-    <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">value_shape</span><span class="p">())</span>
-    <span class="n">mesh</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
+
+    <span class="c1"># Process source space</span>
+    <span class="n">Vs</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">Vs_e</span> <span class="o">=</span> <span class="n">Vs</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">Vs_e</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Discontinuous Lagrange&quot;</span> <span class="ow">and</span> <span class="n">Vs_e</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Source function provided must be from a P0 space.&quot;</span><span class="p">)</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Vs_e</span><span class="o">.</span><span class="n">value_shape</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rank-</span><span class="si">{</span><span class="n">rank</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> tensors are not supported.&quot;</span><span class="p">)</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">Vs</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
-    <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span> <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">boundary_tag</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">target_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="c1"># Process target space</span>
+    <span class="n">Vt</span> <span class="o">=</span> <span class="n">target_space</span>
+    <span class="k">if</span> <span class="n">Vt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">target_space</span> <span class="o">=</span> <span class="n">P1</span>
+            <span class="n">Vt</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">target_space</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">target_space</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">Vt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rank-</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> tensors are not supported.&quot;</span><span class="p">)</span>
+            <span class="n">Vt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">Vt_e</span> <span class="o">=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">Vt_e</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Lagrange&quot;</span> <span class="ow">and</span> <span class="n">Vt_e</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Target space provided must be P1.&quot;</span><span class="p">)</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">Vt</span><span class="p">)</span>
+
+    <span class="c1"># Scalar P0 and P1 spaces to hold volumes, etc.</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">P1</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Determine target domain</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">tdomain</span> <span class="o">=</span> <span class="s2">&quot;{[i]: 0 &lt;= i &lt; t.dofs}&quot;</span>
+    <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">tdomain</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">[i, j]: 0 &lt;= i &lt; t.dofs and 0 &lt;= j &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Lagrange&quot;</span>
-        <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">target_space</span><span class="p">)</span>
+        <span class="n">tdomain</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">[i, j, k]: 0 &lt;= i &lt; t.dofs and 0 &lt;= j &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> and 0 &lt;= k &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
 
     <span class="c1"># Compute the patch volume at each vertex</span>
-    <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
-        <span class="n">volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">volume</span> <span class="o">=</span> <span class="n">get_facet_areas</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
-    <span class="n">patch_volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span>
-    <span class="n">kernel</span> <span class="o">=</span> <span class="s2">&quot;for (int i=0; i &lt; p.dofs; i++) p[i] += v[0];&quot;</span>
-    <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">patch_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">INC</span><span class="p">),</span>
-    <span class="p">}</span>
-    <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">boundary</span><span class="p">:</span>
+        <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">QualityMeasure</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">python</span><span class="o">=</span><span class="kc">True</span><span class="p">)(</span><span class="s2">&quot;volume&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Volume average</span>
-    <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-        <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-        <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">INC</span><span class="p">),</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            for (int i=0; i &lt; t.dofs; i++) {</span>
-<span class="sd">              t[i] += s[0]*v[0];</span>
-<span class="sd">            }</span>
-<span class="sd">            &quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="n">dX</span><span class="p">,</span>
-            <span class="n">keys</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            int d = %d;</span>
-<span class="sd">            for (int i=0; i &lt; t.dofs; i++) {</span>
-<span class="sd">              for (int j=0; j &lt; d; j++) {</span>
-<span class="sd">                t[i*d + j] += s[j]*v[0];</span>
-<span class="sd">              }</span>
-<span class="sd">            }</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="o">%</span> <span class="n">dim</span><span class="p">,</span>
-            <span class="n">dX</span><span class="p">,</span>
-            <span class="n">keys</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
-            <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            int d = %d;</span>
-<span class="sd">            int Nd = d*d;</span>
-<span class="sd">            for (int i=0; i &lt; t.dofs; i++) {</span>
-<span class="sd">              for (int j=0; j &lt; d; j++) {</span>
-<span class="sd">                for (int k=0; k &lt; d; k++) {</span>
-<span class="sd">                  t[i*Nd + j*d + k] += s[j*d + k]*v[0];</span>
-<span class="sd">                }</span>
-<span class="sd">              }</span>
-<span class="sd">            }</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="o">%</span> <span class="n">dim</span><span class="p">,</span>
-            <span class="n">dX</span><span class="p">,</span>
-            <span class="n">keys</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="c1"># Compute patch volume</span>
+        <span class="n">patch_volume</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="s2">&quot;{[i]: 0 &lt;= i &lt; patch.dofs}&quot;</span>
+        <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;patch[i] = patch[i] + vol[0]&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;vol&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span> <span class="s2">&quot;patch&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">patch_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">)}</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">((</span><span class="n">domain</span><span class="p">,</span> <span class="n">instructions</span><span class="p">),</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+
+        <span class="c1"># Take weighted average</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i] = t[i] + v[0] * s[0]&quot;</span>
+        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i, j] = t[i, j] + v[0] * s[0, j]&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">instructions</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] = t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] + v[0] * s[0, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k]&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">((</span><span class="n">tdomain</span><span class="p">,</span> <span class="n">instructions</span><span class="p">),</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rank-</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2"> tensors are not supported.&quot;</span><span class="p">)</span>
+        <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
+
+        <span class="c1"># Indicate appropriate boundary</span>
+        <span class="n">bnd_indicator</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="n">P1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;on_boundary&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">bnd_indicator</span><span class="p">)</span>
+
+        <span class="c1"># Determine facet area for boundary edges</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">bnd_volume</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">mass_term</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">u</span> <span class="o">*</span> <span class="n">dX</span>
+        <span class="n">rhs</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetArea</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span> <span class="o">*</span> <span class="n">dX</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;snes_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ksponly&quot;</span><span class="p">,</span> <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span> <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;jacobi&quot;</span><span class="p">}</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mass_term</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">bnd_volume</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
+
+        <span class="c1"># Compute patch volume</span>
+        <span class="n">patch_volume</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="s2">&quot;{[i]: 0 &lt;= i &lt; patch.dofs}&quot;</span>
+        <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;patch[i] = patch[i] + indicator[i] * bnd_vol[0]&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;bnd_vol&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">bnd_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="s2">&quot;indicator&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">bnd_indicator</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="s2">&quot;patch&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">patch_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">((</span><span class="n">domain</span><span class="p">,</span> <span class="n">instructions</span><span class="p">),</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+
+        <span class="c1"># Take weighted average</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i] = t[i] + v[0] * b[i] * s[0]&quot;</span>
+        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i, j] = t[i, j] + v[0] * b[i] * s[0, j]&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">instructions</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] = t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] + v[0] * b[i] * s[0, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k]&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">bnd_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">bnd_indicator</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">((</span><span class="n">tdomain</span><span class="p">,</span> <span class="n">instructions</span><span class="p">),</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+
+    <span class="c1"># Divide by patch volume and ensure finite</span>
     <span class="n">target</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">target</span> <span class="o">/</span> <span class="n">patch_volume</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">target</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">)</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span>
+        <span class="n">target</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">,</span> <span class="n">posinf</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">neginf</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">target</span></div>
 
-
-<span class="c1"># --- Linear interpolation</span>
-
-<span class="c1"># TODO</span>
 
 <span class="c1"># --- Conservative interpolation by supermesh projection</span>
 
 
-<div class="viewcode-block" id="project"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.interpolation.project">[docs]</a><span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Overload :func:`firedrake.projection.project` to account</span>
-<span class="sd">    for the case of two mixed function spaces defined on</span>
-<span class="sd">    different meshes and for the adjoint projection</span>
-<span class="sd">    operator.</span>
+<div class="viewcode-block" id="project"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.interpolation.project">[docs]</a><span class="k">def</span> <span class="nf">project</span><span class="p">(</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span>
+    <span class="n">target_space</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">Function</span><span class="p">],</span>
+    <span class="n">adjoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload :func:`firedrake.projection.project` to account for the case of two mixed</span>
+<span class="sd">    function spaces defined on different meshes and for the adjoint projection operator.</span>
 
-<span class="sd">    Extra keyword arguments are passed to</span>
-<span class="sd">    :func:`firedrake.projection.project`.</span>
+<span class="sd">    Extra keyword arguments are passed to :func:`firedrake.projection.project`.</span>
 
-<span class="sd">    :arg source: the :class:`firedrake.function.Function`</span>
-<span class="sd">        to be projected</span>
-<span class="sd">    :arg target_space: the</span>
-<span class="sd">        :class:`firedrake.functionspaceimpl.FunctionSpace`</span>
-<span class="sd">        which we seek to project into</span>
-<span class="sd">    :kwarg adjoint: apply the transposed projection</span>
-<span class="sd">        operator?</span>
+<span class="sd">    :arg source: the :class:`firedrake.function.Function` to be projected</span>
+<span class="sd">    :arg target_space: the :class:`firedrake.functionspaceimpl.FunctionSpace` which we</span>
+<span class="sd">        seek to project into</span>
+<span class="sd">    :kwarg adjoint: apply the transposed projection operator?</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Can only currently project Functions&quot;</span><span class="p">)</span>  <span class="c1"># TODO</span>
-    <span class="n">source_space</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Can only currently project Functions.&quot;</span><span class="p">)</span>  <span class="c1"># TODO</span>
+    <span class="n">Vs</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="n">Function</span><span class="p">):</span>
         <span class="n">target</span> <span class="o">=</span> <span class="n">target_space</span>
-        <span class="n">target_space</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+        <span class="n">Vt</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">target_space</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">source_space</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">()</span> <span class="o">==</span> <span class="n">target_space</span><span class="o">.</span><span class="n">ufl_domain</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
-            <span class="n">target</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">target</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">target</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">mesh2mesh_project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="n">adjoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="n">Vt</span> <span class="o">=</span> <span class="n">target_space</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">Vt</span><span class="p">)</span>
+
+    <span class="c1"># Account for the case where the meshes match</span>
+    <span class="n">source_mesh</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">extract_unique_domain</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="n">target_mesh</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">extract_unique_domain</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_mesh</span> <span class="o">==</span> <span class="n">target_mesh</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">Vs</span> <span class="o">==</span> <span class="n">Vt</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">adjoint</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># Check validity of function spaces</span>
+    <span class="n">space1</span><span class="p">,</span> <span class="n">space2</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">adjoint</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">space1</span><span class="si">}</span><span class="s2"> space has multiple components but </span><span class="si">{</span><span class="n">space2</span><span class="si">}</span><span class="s2"> space does not.&quot;</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">Vs</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Inconsistent numbers of components in </span><span class="si">{</span><span class="n">space1</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">space2</span><span class="si">}</span><span class="s2"> spaces:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">Vs</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">Vt</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">space2</span><span class="si">}</span><span class="s2"> space has multiple components but </span><span class="si">{</span><span class="n">space1</span><span class="si">}</span><span class="s2"> space does not.&quot;</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Apply projector</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">_project_adjoint</span> <span class="k">if</span> <span class="n">adjoint</span> <span class="k">else</span> <span class="n">_project</span><span class="p">)(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.mesh2mesh_project&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">mesh2mesh_project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Apply a mesh-to-mesh conservative projection to some</span>
-<span class="sd">    ``source``, mapping to a ``target``.</span>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.interpolation.project&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_project</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a mesh-to-mesh conservative projection to some source</span>
+<span class="sd">    :class:`firedrake.function.Function`, mapping to a target</span>
+<span class="sd">    :class:`firedrake.function.Function`.</span>
 
 <span class="sd">    This function extends to the case of mixed spaces.</span>
 
 <span class="sd">    Extra keyword arguments are passed to Firedrake&#39;s</span>
-<span class="sd">    ``project`` function.</span>
+<span class="sd">    :func:`firedrake.projection.project`` function.</span>
 
-<span class="sd">    :arg source: the :class:`firedrake.function.Function`</span>
-<span class="sd">        to be projected</span>
-<span class="sd">    :arg target: the :class:`firedrake.function.Function`</span>
-<span class="sd">        which we seek to project onto</span>
-<span class="sd">    :kwarg adjoint: apply the transposed projection</span>
-<span class="sd">        operator?</span>
+<span class="sd">    :arg source: the `Function` to be projected</span>
+<span class="sd">    :arg target: the `Function` which we seek to project onto</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">adjoint</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">mesh2mesh_project_adjoint</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-    <span class="n">source_space</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span>
-    <span class="n">target_space</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
-        <span class="n">target</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">target_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">==</span> <span class="n">source_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">target</span><span class="o">.</span><span class="n">split</span><span class="p">()):</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">):</span>
             <span class="n">t</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">target</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">target</span>
 
 
-<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.mesh2mesh_project_adjoint&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">mesh2mesh_project_adjoint</span><span class="p">(</span><span class="n">target_b</span><span class="p">,</span> <span class="n">source_b</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Apply the adjoint of a mesh-to-mesh conservative</span>
-<span class="sd">    projection to some seed ``target_b``, mapping to</span>
-<span class="sd">    ``source_b``.</span>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.interpolation.project_adjoint&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_project_adjoint</span><span class="p">(</span><span class="n">target_b</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="n">source_b</span><span class="p">:</span> <span class="n">Function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Function</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply the adjoint of a mesh-to-mesh conservative projection to some seed</span>
+<span class="sd">    :class:`firedrake.function.Function`, mapping to an output</span>
+<span class="sd">    :class:`firedrake.function.Function`.</span>
 
-<span class="sd">    The notation used here is in terms of the adjoint of</span>
-<span class="sd">    ``mesh2mesh_project``. However, this function may also</span>
-<span class="sd">    be interpreted as a projector in its own right,</span>
+<span class="sd">    The notation used here is in terms of the adjoint of standard projection.</span>
+<span class="sd">    However, this function may also be interpreted as a projector in its own right,</span>
 <span class="sd">    mapping ``target_b`` to ``source_b``.</span>
 
-<span class="sd">    Extra keyword arguments are passed to</span>
-<span class="sd">    :func:`firedrake.projection.project`.</span>
+<span class="sd">    Extra keyword arguments are passed to :func:`firedrake.projection.project`.</span>
 
-<span class="sd">    :arg target_b: seed :class:`firedrake.function.Function`</span>
-<span class="sd">        from the target space of the forward projection</span>
-<span class="sd">    :arg source_b: the :class:`firedrake.function.Function`</span>
-<span class="sd">        from the source space of the forward projection</span>
+<span class="sd">    :arg target_b: seed :class:`firedrake.function.Function` from the target space of</span>
+<span class="sd">        the forward projection</span>
+<span class="sd">    :arg source_b: the :class:`firedrake.function.Function` from the source space of</span>
+<span class="sd">        the forward projection</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">firedrake.supermeshing</span> <span class="kn">import</span> <span class="n">assemble_mixed_mass_matrix</span>
 
-    <span class="n">target_space</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_b</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span>
-    <span class="n">source_space</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">Vt</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_b</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span>
+    <span class="n">Vs</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
 
     <span class="c1"># Get subspaces</span>
-    <span class="k">if</span> <span class="n">source_space</span> <span class="o">==</span> <span class="n">target_space</span><span class="p">:</span>
-        <span class="n">source_b</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">target_b</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">source_b</span>
-    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">target_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">==</span> <span class="n">source_space</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">target_b_split</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-        <span class="n">source_b_split</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incompatible spaces </span><span class="si">{</span><span class="n">source_space</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">target_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">)</span>
+        <span class="n">target_b_split</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">subfunctions</span>
+        <span class="n">source_b_split</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">subfunctions</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">target_b_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_b</span><span class="p">]</span>
         <span class="n">source_b_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">source_b</span><span class="p">]</span>
@@ -281,9 +302,7 @@
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">t_b</span><span class="p">,</span> <span class="n">s_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">target_b_split</span><span class="p">,</span> <span class="n">source_b_split</span><span class="p">)):</span>
         <span class="n">ksp</span> <span class="o">=</span> <span class="n">petsc4py</span><span class="o">.</span><span class="n">KSP</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
         <span class="n">ksp</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="n">assemble_mass_matrix</span><span class="p">(</span><span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()))</span>
-        <span class="n">mixed_mass</span> <span class="o">=</span> <span class="n">assemble_mixed_mass_matrix</span><span class="p">(</span>
-            <span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="n">s_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-        <span class="p">)</span>
+        <span class="n">mixed_mass</span> <span class="o">=</span> <span class="n">assemble_mixed_mass_matrix</span><span class="p">(</span><span class="n">Vt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Vs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="k">with</span> <span class="n">t_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">tb</span><span class="p">,</span> <span class="n">s_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_wo</span> <span class="k">as</span> <span class="n">sb</span><span class="p">:</span>
             <span class="n">residual</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">ksp</span><span class="o">.</span><span class="n">solveTranspose</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
@@ -307,7 +326,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -327,8 +346,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2022, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
+        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
     </div>
   </body>
 </html>

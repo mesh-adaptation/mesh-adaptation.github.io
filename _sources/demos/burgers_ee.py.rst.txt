@@ -26,26 +26,26 @@ Pyroteus. ::
 
   from firedrake import *
   from pyroteus_adjoint import *
-  
+
 Redefine the ``fields`` variable and the getter functions as in the first
 adjoint Burgers demo. ::
 
   fields = ["u"]
-  
-  
+
+
   def get_function_spaces(mesh):
       return {"u": VectorFunctionSpace(mesh, "CG", 2)}
-  
-  
+
+
   def get_form(mesh_seq):
       def form(index, solutions):
           u, u_ = solutions["u"]
           P = mesh_seq.time_partition
           dt = Constant(P.timesteps[index])
-  
+
           # Specify viscosity coefficient
           nu = Constant(0.0001)
-  
+
           # Setup variational problem
           v = TestFunction(u.function_space())
           F = (
@@ -54,22 +54,22 @@ adjoint Burgers demo. ::
               + nu * inner(grad(u), grad(v)) * dx
           )
           return {"u": F}
-  
+
       return form
-  
-  
+
+
   def get_solver(mesh_seq):
       def solver(index, ic):
           function_space = mesh_seq.function_spaces["u"][index]
-          u = Function(function_space)
-  
+          u = Function(function_space, name="u")
+
           # Initialise 'lagged' solution
           u_ = Function(function_space, name="u_old")
           u_.assign(ic["u"])
-  
+
           # Define form
           F = mesh_seq.form(index, {"u": (u, u_)})["u"]
-  
+
           # Time integrate from t_start to t_end
           P = mesh_seq.time_partition
           t_start, t_end = P.subintervals[index]
@@ -80,24 +80,24 @@ adjoint Burgers demo. ::
               u_.assign(u)
               t += dt
           return {"u": u}
-  
+
       return solver
-  
-  
+
+
   def get_initial_condition(mesh_seq):
       fs = mesh_seq.function_spaces["u"][0]
       x, y = SpatialCoordinate(mesh_seq[0])
       return {"u": interpolate(as_vector([sin(pi * x), 0]), fs)}
-  
-  
+
+
   def get_qoi(mesh_seq, solutions, i):
       def end_time_qoi():
           u = solutions["u"]
           return inner(u, u) * ds(2)
-  
+
       return end_time_qoi
-  
-  
+
+
 Next, create a sequence of meshes and a :class:`TimePartition`. ::
 
   n = 32
@@ -108,7 +108,7 @@ Next, create a sequence of meshes and a :class:`TimePartition`. ::
   time_partition = TimePartition(
       end_time, num_subintervals, dt, fields, timesteps_per_export=2, debug=True
   )
-  
+
 A key difference between this demo and the previous ones is that we need to
 use a :class:`GoalOrientedMeshSeq` to access the goal-oriented error estimation
 functionality. Note that :class:`GoalOrientedMeshSeq` is a subclass of
@@ -124,7 +124,7 @@ functionality. Note that :class:`GoalOrientedMeshSeq` is a subclass of
       get_qoi=get_qoi,
       qoi_type="end_time",
   )
-  
+
 Given the description of the PDE problem in the form of a :class:`GoalOrientedMeshSeq`,
 Pyroteus is able to extract all of the relevant information to automatically compute
 error estimators. During the computation, we solve the forward and adjoint equations
@@ -137,7 +137,7 @@ we are able to compute error indicator fields as follows. ::
   solutions, indicators = mesh_seq.indicate_errors(
       enrichment_kwargs={"enrichment_method": "h"}
   )
-  
+
 An error indicator field :math:`i` takes constant values on each mesh element, say
 :math:`i_K` for element :math:`K` of mesh :math:`\mathcal H`. It decomposes
 the global error estimator :math:`\epsilon` into its local contributions.
@@ -150,7 +150,7 @@ timestep using the plotting driver function :func:`plot_indicator_snapshots`. ::
 
   fig, axes, tcs = plot_indicator_snapshots(indicators, time_partition, "u", levels=50)
   fig.savefig("burgers-ee.jpg")
-  
+
 .. figure:: burgers-ee.jpg
    :figwidth: 90%
    :align: center

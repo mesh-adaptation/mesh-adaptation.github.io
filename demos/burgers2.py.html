@@ -86,7 +86,7 @@ functions.</p>
 <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u&quot;</span><span class="p">)</span>
 
         <span class="c1"># Initialise &#39;lagged&#39; solution</span>
         <span class="n">u_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u_old&quot;</span><span class="p">)</span>

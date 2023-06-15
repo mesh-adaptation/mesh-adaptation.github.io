@@ -20,14 +20,6 @@ pyroteus.error\_estimation module
    :undoc-members:
    :show-inheritance:
 
-pyroteus.form module
---------------------
-
-.. automodule:: pyroteus.form
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pyroteus.go\_mesh\_seq module
 -----------------------------
 

@@ -19,22 +19,22 @@ so that it gets modified internally to account for annotation.
 
   from firedrake import *
   from pyroteus_adjoint import *
-  
-  
+
+
   class BurgersMeshSeq(AdjointMeshSeq):
       @staticmethod
       def get_function_spaces(mesh):
           return {"u": VectorFunctionSpace(mesh, "CG", 2)}
-  
+
       def get_form(self):
           def form(index, solutions):
               u, u_ = solutions["u"]
               P = self.time_partition
               dt = Constant(P.timesteps[index])
-  
+
               # Specify viscosity coefficient
               nu = Constant(0.0001)
-  
+
               # Setup variational problem
               v = TestFunction(u.function_space())
               F = (
@@ -43,22 +43,22 @@ so that it gets modified internally to account for annotation.
                   + nu * inner(grad(u), grad(v)) * dx
               )
               return {"u": F}
-  
+
           return form
-  
+
       def get_solver(self):
           def solver(index, ic):
               function_space = self.function_spaces["u"][index]
               u = Function(function_space, name="u")
               solution_map = {"u": u}
-  
+
               # Initialise 'lagged' solution
               u_ = Function(function_space, name="u_old")
               u_.assign(ic["u"])
-  
+
               # Define form
               F = self.form(index, {"u": (u, u_)})["u"]
-  
+
               # Time integrate from t_start to t_end
               t_start, t_end = self.subintervals[index]
               dt = self.time_partition.timesteps[index]
@@ -71,32 +71,32 @@ so that it gets modified internally to account for annotation.
                   u_.assign(u)
                   t += dt
               return solution_map
-  
+
           return solver
-  
+
       def get_initial_condition(self):
           fs = self.function_spaces["u"][0]
           x, y = SpatialCoordinate(self[0])
           return {"u": interpolate(as_vector([sin(pi * x), 0]), fs)}
-  
+
       @annotate_qoi
       def get_qoi(self, solutions, i):
           dt = Constant(self.time_partition[i].timestep)
-  
+
           def end_time_qoi():
               u = solutions["u"]
               return inner(u, u) * ds(2)
-  
+
           def time_integrated_qoi(t):
               u = solutions["u"]
               return dt * inner(u, u) * ds(2)
-  
+
           if self.qoi_type == "end_time":
               return end_time_qoi
           else:
               return time_integrated_qoi
-  
-  
+
+
 Notice that the :meth:`get_solver` and :meth:`get_qoi_function`
 methods have been modified to account for both ``"end_time"`` and
 ``"time_integrated"`` QoIs.
@@ -114,14 +114,14 @@ We apply exactly the same setup as before, except that the
   )
   mesh_seq = BurgersMeshSeq(P, meshes, qoi_type="end_time")
   solutions = mesh_seq.solve_adjoint()
-  
+
 Plotting this, we find that the results are identical to those generated previously. ::
 
   fig, axes, tcs = plot_snapshots(
       solutions, P, "u", "adjoint", levels=np.linspace(0, 0.8, 9)
   )
   fig.savefig("burgers-oo.jpg")
-  
+
 .. figure:: burgers-oo.jpg
    :figwidth: 90%
    :align: center

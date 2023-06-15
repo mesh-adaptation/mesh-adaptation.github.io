@@ -10,20 +10,20 @@ equations differ in both the diffusion and reaction terms. ::
 
   from firedrake import *
   from pyroteus_adjoint import *
-  
+
 This time, we have two fields instead of one, as well as two function spaces. ::
 
   fields = ["a", "b"]
   mesh = PeriodicSquareMesh(65, 65, 2.5, quadrilateral=True, direction="both")
-  
-  
+
+
   def get_function_spaces(mesh):
       return {
           "a": FunctionSpace(mesh, "CG", 1),
           "b": FunctionSpace(mesh, "CG", 1),
       }
-  
-  
+
+
 Therefore, the initial condition must be constructed using separate
 :class:`Function`\s. ::
 
@@ -43,8 +43,8 @@ Therefore, the initial condition must be constructed using separate
       )
       a_init.interpolate(1 - 2 * b_init)
       return {"a": a_init, "b": b_init}
-  
-  
+
+
 We now see why :func:`get_form` needs to provide a function whose return value is a
 dictionary: its keys correspond to the different equations being solved. ::
 
@@ -55,14 +55,14 @@ dictionary: its keys correspond to the different equations being solved. ::
           b, b_ = sols["b"]
           psi_a = TestFunction(mesh_seq.function_spaces["a"][index])
           psi_b = TestFunction(mesh_seq.function_spaces["b"][index])
-  
+
           # Define constants
           dt = Constant(mesh_seq.time_partition[index].timestep)
           D_a = Constant(8.0e-05)
           D_b = Constant(4.0e-05)
           gamma = Constant(0.024)
           kappa = Constant(0.06)
-  
+
           # Write the two equations in variational form
           F_a = (
               psi_a * (a - a_) * dx
@@ -75,10 +75,10 @@ dictionary: its keys correspond to the different equations being solved. ::
               - dt * psi_b * (a * b**2 - (gamma + kappa) * b) * dx
           )
           return {"a": F_a, "b": F_b}
-  
+
       return form
-  
-  
+
+
 Correspondingly the solver needs to be constructed from the two parts and must
 include two nonlinear solves at each timestep. ::
 
@@ -89,13 +89,13 @@ include two nonlinear solves at each timestep. ::
           fs_b = mesh_seq.function_spaces["b"][index]
           a = Function(fs_a, name="a")
           b = Function(fs_b, name="b")
-  
+
           # Initialise 'lagged' solutions
           a_ = Function(fs_a, name="a_old")
           a_.assign(ics["a"])
           b_ = Function(fs_b, name="b_old")
           b_.assign(ics["b"])
-  
+
           # Setup solver objects
           forms = mesh_seq.form(index, {"a": (a, a_), "b": (b, b_)})
           F_a = forms["a"]
@@ -104,7 +104,7 @@ include two nonlinear solves at each timestep. ::
           nlvs_a = NonlinearVariationalSolver(nlvp_a, ad_block_tag="a")
           nlvp_b = NonlinearVariationalProblem(F_b, b)
           nlvs_b = NonlinearVariationalSolver(nlvp_b, ad_block_tag="b")
-  
+
           # Time integrate from t_start to t_end
           P = mesh_seq.time_partition
           t_start, t_end = P.subintervals[index]
@@ -117,10 +117,10 @@ include two nonlinear solves at each timestep. ::
               b_.assign(b)
               t += dt
           return {"a": a, "b": b}
-  
+
       return solver
-  
-  
+
+
 Let's consider the same QoI, time partition, and mesh sequence as in the previous
 demo, so that the outputs can be straightforwardly compared. ::
 
@@ -130,10 +130,10 @@ demo, so that the outputs can be straightforwardly compared. ::
           a = sols["a"]
           b = sols["b"]
           return a * b**2 * dx
-  
+
       return qoi
-  
-  
+
+
   test = os.environ.get("PYROTEUS_REGRESSION_TEST") is not None
   end_time = 10.0 if test else 2000.0
   dt = [0.0001, 0.001, 0.01, 0.1, (end_time - 1) / end_time]
@@ -153,7 +153,7 @@ demo, so that the outputs can be straightforwardly compared. ::
           (1.0, end_time),
       ],
   )
-  
+
   mesh_seq = AdjointMeshSeq(
       time_partition,
       mesh,
@@ -165,7 +165,7 @@ demo, so that the outputs can be straightforwardly compared. ::
       qoi_type="end_time",
   )
   solutions = mesh_seq.solve_adjoint()
-  
+
   if not test:
       ic = mesh_seq.get_initial_condition()
       for field, sols in solutions.items():
@@ -178,5 +178,5 @@ demo, so that the outputs can be straightforwardly compared. ::
               for sol in sols["adjoint"][i]:
                   adj_outfile.write(sol)
           adj_outfile.write(Function(ic[field]).assign(0.0))
-  
+
 This tutorial can be dowloaded as a `Python script <gray_scott_split.py>`__.
