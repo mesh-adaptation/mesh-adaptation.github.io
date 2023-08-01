@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Adjoint of Burgers equation &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -145,7 +145,7 @@ concrete parts of the solver, which mimic the original demo.</p>
 Pyroteus is a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>. In our case, there is a
 single mesh, so the partition is trivial and we can use the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInterval</span></code> constructor.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInterval</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInterval</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Finally, we are able to construct an <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code> and
@@ -255,7 +255,7 @@ on two subintervals and check that the results match.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>

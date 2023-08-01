@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>pyroteus package &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -69,11 +69,10 @@ as well as an index for the <a class="reference internal" href="#pyroteus.mesh_s
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.adjoint.AdjointMeshSeq.check_qoi_convergence">
 <span class="sig-name descname"><span class="pre">check_qoi_convergence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/adjoint.html#AdjointMeshSeq.check_qoi_convergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.adjoint.AdjointMeshSeq.check_qoi_convergence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check for convergence of the fixed point iteration
-due to the relative difference in QoI value being
-smaller than the specified tolerance.</p>
-<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">AdjointMeshSeq.converged</span></code> attribute
-is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> if convergence is detected.</p>
+<dd><p>Check for convergence of the fixed point iteration due to the relative
+difference in QoI value being smaller than the specified tolerance.</p>
+<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">AdjointMeshSeq.converged</span></code> attribute is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> across all
+entries if convergence is detected.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -240,11 +239,10 @@ as well as an index for the <a class="reference internal" href="#pyroteus.mesh_s
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.check_estimator_convergence">
 <span class="sig-name descname"><span class="pre">check_estimator_convergence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/go_mesh_seq.html#GoalOrientedMeshSeq.check_estimator_convergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.check_estimator_convergence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check for convergence of the fixed point iteration
-due to the relative difference in error estimator
-value being smaller than the specified tolerance.</p>
-<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.converged</span></code> attribute
-is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> if convergence is detected.</p>
+<dd><p>Check for convergence of the fixed point iteration due to the relative
+difference in error estimator value being smaller than the specified tolerance.</p>
+<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.converged</span></code> attribute is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> across
+all entries if convergence is detected.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -339,7 +337,7 @@ space(s) as arguments</p></li>
 <dt class="sig sig-object py" id="pyroteus.interpolation.clement_interpolant">
 <span class="sig-name descname"><span class="pre">clement_interpolant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionSpace</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/interpolation.html#clement_interpolant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.interpolation.clement_interpolant" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the Clement interpolant of a <span class="math notranslate nohighlight">\(\mathbb P0\)</span> source field, i.e. take the
-volume average over neighbouring cells at each vertex. See <span id="id1">[<a class="reference internal" href="#id8" title="Ph Clément. Approximation by finite element functions using local regularization. Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique, 9(R2):77–84, 1975.">Clement75</a>]</span>.</p>
+volume average over neighbouring cells at each vertex. See <span id="id1">[<a class="reference internal" href="#id12" title="Ph Clément. Approximation by finite element functions using local regularization. Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique, 9(R2):77–84, 1975.">Clement75</a>]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -440,14 +438,14 @@ a true value, e.g.</p>
 <dt class="sig sig-object py" id="pyroteus.math.bessi0">
 <span class="sig-name descname"><span class="pre">bessi0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/math.html#bessi0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.math.bessi0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modified Bessel function of the first kind.</p>
-<p>Code taken from <span id="id2">[<a class="reference internal" href="#id9" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
+<p>Code taken from <span id="id2">[<a class="reference internal" href="#id13" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.math.bessk0">
 <span class="sig-name descname"><span class="pre">bessk0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/math.html#bessk0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.math.bessk0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modified Bessel function of the second kind.</p>
-<p>Code taken from <span id="id3">[<a class="reference internal" href="#id9" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
+<p>Code taken from <span id="id3">[<a class="reference internal" href="#id13" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -516,7 +514,6 @@ that integrates initial data over a subinterval</p></li>
 <a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq" title="pyroteus.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which returns a function that
 determines any Dirichlet boundary conditions</p></li>
 <li><p><strong>parameters</strong> – <a class="reference internal" href="#pyroteus.options.AdaptParameters" title="pyroteus.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a> instance</p></li>
-<li><p><strong>warnings</strong> – print warnings?</p></li>
 </ul>
 </dd>
 </dl>
@@ -528,11 +525,10 @@ determines any Dirichlet boundary conditions</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.check_element_count_convergence">
 <span class="sig-name descname"><span class="pre">check_element_count_convergence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.check_element_count_convergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.check_element_count_convergence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check for convergence of the fixed point iteration
-due to the relative difference in element count being
-smaller than the specified tolerance.</p>
-<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">MeshSeq.converged</span></code> attribute
-is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> if convergence is detected.</p>
+<dd><p>Check for convergence of the fixed point iteration due to the relative
+difference in element count being smaller than the specified tolerance.</p>
+<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">MeshSeq.converged</span></code> attribute is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> in the
+appropriate entry if convergence is detected on a subinterval.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -638,6 +634,11 @@ field on a given subinterval.</p>
 <span class="sig-name descname"><span class="pre">get_solver</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a></span></span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.get_solver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.get_solver" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/mesh_seq.html#MeshSeq.info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="pyroteus.mesh_seq.MeshSeq.initial_condition">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_condition</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyroteus.utility.AttrDict" title="pyroteus.utility.AttrDict"><span class="pre">AttrDict</span></a></em><a class="headerlink" href="#pyroteus.mesh_seq.MeshSeq.initial_condition" title="Permalink to this definition">¶</a></dt>
@@ -714,109 +715,194 @@ lagged versions.</p>
 <section id="module-pyroteus.metric">
 <span id="pyroteus-metric-module"></span><h2>pyroteus.metric module<a class="headerlink" href="#module-pyroteus.metric" title="Permalink to this heading">¶</a></h2>
 <p>Driver functions for metric-based mesh adaptation.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.metric.anisotropic_metric">
-<span class="sig-name descname"><span class="pre">anisotropic_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessian</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RiemannianMetric</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RiemannianMetric</span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#anisotropic_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.anisotropic_metric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute an element-wise anisotropic metric from some
-error indicator, given a Hessian field.</p>
-<dl class="simple">
-<dt>Two formulations are currently available:</dt><dd><ul class="simple">
-<li><p>the element-wise formulation presented
-in <span id="id4">[<a class="reference internal" href="#id12" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>; and</p></li>
-<li><p>the vertex-wise formulation presented in
-<span id="id5">[<a class="reference internal" href="#id10" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006. doi:10.1016/j.camwa.2006.11.003.">PPP+06</a>]</span>.</p></li>
-</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RiemannianMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></p>
+<p>Subclass of <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.meshadapt.RiemannianMetric</span></code> to allow adding methods.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>function_space</strong> – the tensor <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>, on which to build
+this <a class="reference internal" href="#pyroteus.metric.RiemannianMetric" title="pyroteus.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>. Alternatively, another <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>
+may be passed here and its function space will be used to build this
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>. In this case, the function values are copied. If a
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a> is passed here then a tensor <span class="math notranslate nohighlight">\(\mathbb P1\)</span>
+space is built on top of it.</p>
 </dd>
 </dl>
-<p>In both cases, a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> metric is
-returned by default.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.assemble_eigendecomposition">
+<span class="sig-name descname"><span class="pre">assemble_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalues</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.assemble_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.assemble_eigendecomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assemble a matrix from its eigenvectors and eigenvalues.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>error_indicator</strong> – (list of) error indicator(s)</p></li>
-<li><p><strong>hessian</strong> – (list of) Hessian(s)</p></li>
-<li><p><strong>target_space</strong> – <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a>
-in which the metric will exist</p></li>
-<li><p><strong>interpolant</strong> – choose from ‘Clement’, ‘L2’,
-‘interpolate’, ‘project’</p></li>
+<li><p><strong>evectors</strong> – eigenvector <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p></li>
+<li><p><strong>evalues</strong> – eigenvalue <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.metric.assemble_eigendecomposition">
-<span class="sig-name descname"><span class="pre">assemble_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalues</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RiemannianMetric</span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#assemble_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.assemble_eigendecomposition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assemble a matrix from its eigenvectors and
-eigenvalues.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.combine">
+<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.combine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine metrics using either averaging or intersection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>evectors</strong> – eigenvector
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p></li>
-<li><p><strong>evalues</strong> – eigenvalue
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p></li>
+<li><p><strong>metrics</strong> – the list of metrics to combine with</p></li>
+<li><p><strong>average</strong> – toggle between averaging and intersection</p></li>
 </ul>
+</dd>
+</dl>
+<p>All other keyword arguments are passed to the relevant method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.compute_anisotropic_dwr_metric">
+<span class="sig-name descname"><span class="pre">compute_anisotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessian</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.compute_anisotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.compute_anisotropic_dwr_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute an anisotropic metric from some error indicator, given a Hessian field.</p>
+<p>The formulation used is based on that presented in <span id="id4">[<a class="reference internal" href="#id16" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+normalisation is implicit in the metric construction and involves the
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id5">[<a class="reference internal" href="#id16" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<p>If a Hessian is not provided then an isotropic formulation is used.</p>
+<p>Whilst an element-based formulation is used to derive the metric, the result is
+projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – the error indicator</p></li>
+<li><p><strong>hessian</strong> – the Hessian</p></li>
+<li><p><strong>convergence_rate</strong> – normalisation parameter</p></li>
+<li><p><strong>min_eigenvalue</strong> – minimum tolerated eigenvalue</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.compute_boundary_hessian">
+<span class="sig-name descname"><span class="pre">compute_boundary_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mixed_L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.compute_boundary_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.compute_boundary_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover the Hessian of a scalar field on the domain boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – field to recover over the domain boundary</p></li>
+<li><p><strong>method</strong> – choose from ‘mixed_L2’ and ‘Clement’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.compute_eigendecomposition">
+<span class="sig-name descname"><span class="pre">compute_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.compute_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.compute_eigendecomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the eigenvectors and eigenvalues of a matrix-valued function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reorder</strong> – should the eigendecomposition be reordered in order of
+<em>descending</em> eigenvalue magnitude?</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the assembled matrix as a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.meshadapt.RiemannianMetric</span></code></p>
+<dd class="field-even"><p>eigenvector <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> and eigenvalue
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> from the
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a> underpinning the metric</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.metric.combine_metrics">
-<span class="sig-name descname"><span class="pre">combine_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RiemannianMetric</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RiemannianMetric</span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#combine_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.combine_metrics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Combine a list of metrics.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>average</strong> – combination by averaging or intersection?</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.metric.compute_eigendecomposition">
-<span class="sig-name descname"><span class="pre">compute_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RiemannianMetric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#compute_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.compute_eigendecomposition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the eigenvectors and eigenvalues of
-a matrix-valued function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.compute_hessian">
+<span class="sig-name descname"><span class="pre">compute_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mixed_L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.compute_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.compute_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover the Hessian of a scalar field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>M</strong> – a <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.meshadapt.RiemannianMetric</span></code></p></li>
-<li><p><strong>reorder</strong> – should the eigendecomposition
-be reordered in order of <em>descending</em>
-eigenvalue magnitude?</p></li>
+<li><p><strong>f</strong> – the scalar field whose Hessian we seek to recover</p></li>
+<li><p><strong>method</strong> – recovery method</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>eigenvector <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> and
-eigenvalue <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> from the
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a>
-underpinning the metric</p>
+</dl>
+<p>All other keyword arguments are passed to the chosen recovery routine.</p>
+<p>In the case of the <cite>‘L2’</cite> method, the <cite>target_space</cite> keyword argument is used
+for the gradient recovery. The target space for the Hessian recovery is
+inherited from the metric itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.compute_isotropic_dwr_metric">
+<span class="sig-name descname"><span class="pre">compute_isotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.compute_isotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.compute_isotropic_dwr_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute an isotropic metric from some error indicator using an element-based
+formulation.</p>
+<p>The formulation is based on that presented in <span id="id6">[<a class="reference internal" href="#id16" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+normalisation is implicit in the metric construction and involves the
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id7">[<a class="reference internal" href="#id16" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<p>Whilst an element-based formulation is used to derive the metric, the result is
+projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – the error indicator</p></li>
+<li><p><strong>convergence_rate</strong> – normalisation parameter</p></li>
+<li><p><strong>min_eigenvalue</strong> – minimum tolerated eigenvalue</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.metric.density_and_quotients">
-<span class="sig-name descname"><span class="pre">density_and_quotients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RiemannianMetric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#density_and_quotients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.density_and_quotients" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract the density and anisotropy quotients from a
-metric.</p>
-<p>By symmetry, Riemannian metrics admit an orthogonal
-eigendecomposition,</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.compute_isotropic_metric">
+<span class="sig-name descname"><span class="pre">compute_isotropic_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Clement'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.compute_isotropic_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.compute_isotropic_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute an isotropic metric from some error indicator.</p>
+<p>The result is a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> diagonal tensor field whose entries are
+projections of the error indicator in modulus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – the error indicator</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.compute_weighted_hessian_metric">
+<span class="sig-name descname"><span class="pre">compute_weighted_hessian_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessians</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.compute_weighted_hessian_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.compute_weighted_hessian_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a vertex-wise anisotropic metric from a list of error indicators, given
+a list of corresponding Hessian fields.</p>
+<p>The formulation used is based on that presented in <span id="id8">[<a class="reference internal" href="#id14" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006. doi:10.1016/j.camwa.2006.11.003.">PPP+06</a>]</span>. It is
+assumed that the error indicators have been constructed in the appropriate way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicators</strong> – list of error indicators</p></li>
+<li><p><strong>hessians</strong> – list of Hessians</p></li>
+<li><p><strong>average</strong> – should metric components be averaged or intersected?</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyroteus.metric.RiemannianMetric.density_and_quotients">
+<span class="sig-name descname"><span class="pre">density_and_quotients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#RiemannianMetric.density_and_quotients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.RiemannianMetric.density_and_quotients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the density and anisotropy quotients from a metric.</p>
+<p>By symmetry, Riemannian metrics admit an orthogonal eigendecomposition,</p>
 <div class="math notranslate nohighlight">
 \[\underline{\mathbf M}(\mathbf x)
 = \underline{\mathbf V}(\mathbf x)\:
 \underline{\boldsymbol\Lambda}(\mathbf x)\:
 \underline{\mathbf V}(\mathbf x)^T,\]</div>
 <p>at each point <span class="math notranslate nohighlight">\(\mathbf x\in\Omega\)</span>, where
-<span class="math notranslate nohighlight">\(\underline{\mathbf V}\)</span> and
-<span class="math notranslate nohighlight">\(\underline{\boldsymbol\Sigma}\)</span> are matrices
-holding the eigenvectors and eigenvalues, respectively.
-By positive-definiteness, entries of
-<span class="math notranslate nohighlight">\(\underline{\boldsymbol\Lambda}\)</span> are all positive.</p>
+<span class="math notranslate nohighlight">\(\underline{\mathbf V}\)</span> and <span class="math notranslate nohighlight">\(\underline{\boldsymbol\Sigma}\)</span> are
+matrices holding the eigenvectors and eigenvalues, respectively. By
+positive-definiteness, entries of <span class="math notranslate nohighlight">\(\underline{\boldsymbol\Lambda}\)</span> are all
+positive.</p>
 <p>An alternative decomposition,</p>
 <div class="math notranslate nohighlight">
 \[\underline{\mathbf M}(\mathbf x)
@@ -824,36 +910,31 @@ By positive-definiteness, entries of
 \underline{\mathbf V}(\mathbf x)\:
 \underline{\mathbf R}(\mathbf x)^{-\frac2n}
 \underline{\mathbf V}(\mathbf x)^T\]</div>
-<p>can also be deduced, in terms of the <cite>metric density</cite>
-and <cite>anisotropy quotients</cite>,</p>
+<p>can also be deduced, in terms of the <cite>metric density</cite> and
+<cite>anisotropy quotients</cite>,</p>
 <div class="math notranslate nohighlight">
 \[d = \prod_{i=1}^n h_i,\qquad
 r_i = h_i^n d,\qquad \forall i=1:n,\]</div>
 <p>where <span class="math notranslate nohighlight">\(h_i := \frac1{\sqrt{\lambda_i}}\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>metric</strong> – the metric to extract density and
-quotients from</p></li>
-<li><p><strong>reorder</strong> – should the eigendecomposition be
-reordered?</p></li>
-</ul>
+<dd class="field-odd"><p><strong>reorder</strong> – should the eigendecomposition be reordered?</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>metric density, anisotropy quotients and
-eigenvector matrix</p>
+<dd class="field-even"><p>metric density, anisotropy quotients and eigenvector matrix</p>
 </dd>
 </dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.metric.determine_metric_complexity">
 <span class="sig-name descname"><span class="pre">determine_metric_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H_interior</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_boundary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#determine_metric_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.determine_metric_complexity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Solve an algebraic problem to obtain coefficients
-for the interior and boundary metrics to obtain a
-given metric complexity.</p>
-<p>See <span id="id6">[<a class="reference internal" href="#id11" title="Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. Journal of computational physics, 229(8):2866–2897, 2010. doi:10.1016/j.jcp.2009.12.021.">LDA10</a>]</span> for details. Note that we use a
-slightly different formulation here.</p>
+<dd><p>Solve an algebraic problem to obtain coefficients for the interior and boundary
+metrics to obtain a given metric complexity.</p>
+<p>See <span id="id9">[<a class="reference internal" href="#id15" title="Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. Journal of computational physics, 229(8):2866–2897, 2010. doi:10.1016/j.jcp.2009.12.021.">LDA10</a>]</span> for details. Note that we use a slightly different formulation
+here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -870,7 +951,7 @@ slightly different formulation here.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.metric.enforce_element_constraints">
-<span class="sig-name descname"><span class="pre">enforce_element_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RiemannianMetric</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#enforce_element_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.enforce_element_constraints" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">enforce_element_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyroteus.metric.RiemannianMetric" title="pyroteus.metric.RiemannianMetric"><span class="pre">RiemannianMetric</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#enforce_element_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.enforce_element_constraints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Post-process a list of metrics to enforce minimum and
 maximum element sizes, as well as maximum anisotropy.</p>
 <dl class="field-list simple">
@@ -895,7 +976,7 @@ or a number.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.metric.intersect_on_boundary">
-<span class="sig-name descname"><span class="pre">intersect_on_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RiemannianMetric</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'on_boundary'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#intersect_on_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.intersect_on_boundary" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">intersect_on_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyroteus.metric.RiemannianMetric" title="pyroteus.metric.RiemannianMetric"><span class="pre">RiemannianMetric</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'on_boundary'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#intersect_on_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.intersect_on_boundary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine a list of metrics by intersection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -905,30 +986,6 @@ or a number.</p></li>
 ID for boundary intersection. Otherwise, the
 intersection is over the whole domain (‘on_boundary’)</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.metric.isotropic_metric">
-<span class="sig-name descname"><span class="pre">isotropic_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Clement'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RiemannianMetric</span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#isotropic_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.isotropic_metric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute an isotropic metric from some error indicator.</p>
-<p>The result is a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> diagonal tensor
-field whose entries are projections of the error
-indicator in modulus.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>error_indicator</strong> – the error indicator</p></li>
-<li><p><strong>target_space</strong> – <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a>
-in which the metric will exist</p></li>
-<li><p><strong>interpolant</strong> – choose from ‘Clement’, ‘L2’,
-‘interpolate’, ‘project’</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the isotropic
-<code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.meshadapt.RiemannianMetric</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -951,22 +1008,21 @@ in which the metric will exist</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.metric.space_time_normalise">
-<span class="sig-name descname"><span class="pre">space_time_normalise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RiemannianMetric</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyroteus.time_partition.TimePartition" title="pyroteus.time_partition.TimePartition"><span class="pre">TimePartition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RiemannianMetric</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#space_time_normalise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.space_time_normalise" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">space_time_normalise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyroteus.metric.RiemannianMetric" title="pyroteus.metric.RiemannianMetric"><span class="pre">RiemannianMetric</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyroteus.time_partition.TimePartition" title="pyroteus.time_partition.TimePartition"><span class="pre">TimePartition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><span class="pre">list</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restrict_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restrict_anisotropy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyroteus.metric.RiemannianMetric" title="pyroteus.metric.RiemannianMetric"><span class="pre">RiemannianMetric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyroteus/metric.html#space_time_normalise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.metric.space_time_normalise" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply <span class="math notranslate nohighlight">\(L^p\)</span> normalisation in both space and time.</p>
+<p>Based on Equation (1) in <span id="id10">[<a class="reference internal" href="#id17" title="N. Barral, M. G. Knepley, M. Lange, M. D. Piggott, and G. J. Gorman. Anisotropic mesh adaptation in Firedrake with PETSc DMPlex. In 25th Intl Meshing Roundtable. 2016.">BKL+16</a>]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>metrics</strong> – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.meshadapt.RiemannianMetric</span></code>s
-corresponding to the metric associated with
-each subinterval</p></li>
+<li><p><strong>metrics</strong> – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.meshadapt.RiemannianMetric</span></code>s corresponding
+to the metric associated with each subinterval</p></li>
 <li><p><strong>time_partition</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> for the problem at hand</p></li>
-<li><p><strong>metric_parameters</strong> – dictionary containing the target <em>space-time</em>
-metric complexity under <cite>dm_plex_metric_target_complexity</cite> and the
-normalisation order under <cite>dm_plex_metric_p</cite>, or a list thereof</p></li>
+<li><p><strong>metric_parameters</strong> – dictionary containing the target <em>space-time</em> metric
+complexity under <cite>dm_plex_metric_target_complexity</cite> and the normalisation order
+under <cite>dm_plex_metric_p</cite>, or a list thereof</p></li>
 <li><p><strong>global_factor</strong> – pre-computed global normalisation factor</p></li>
 <li><p><strong>boundary</strong> – is the normalisation to be done over the boundary?</p></li>
-<li><p><strong>restrict_sizes</strong> – should minimum and maximum metric magnitudes
-be enforced?</p></li>
+<li><p><strong>restrict_sizes</strong> – should minimum and maximum metric magnitudes be enforced?</p></li>
 <li><p><strong>restrict_anisotropy</strong> – should maximum anisotropy be enforced?</p></li>
 </ul>
 </dd>
@@ -1130,14 +1186,13 @@ encoded by the metric.</p></li>
 <p>Driver functions for derivative recovery.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyroteus.recovery.recover_boundary_hessian">
-<span class="sig-name descname"><span class="pre">recover_boundary_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><span class="pre">MeshGeometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Clement'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionSpace</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/recovery.html#recover_boundary_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.recovery.recover_boundary_hessian" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">recover_boundary_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Clement'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionSpace</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/recovery.html#recover_boundary_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.recovery.recover_boundary_hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recover the Hessian of a scalar field on the domain boundary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>f</strong> – field to recover over the domain boundary</p></li>
-<li><p><strong>mesh</strong> – the mesh</p></li>
-<li><p><strong>method</strong> – choose from ‘L2’ and ‘Clement’</p></li>
+<li><p><strong>method</strong> – choose from ‘mixed_L2’ and ‘Clement’</p></li>
 <li><p><strong>target_space</strong> – the <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a>
 in which the metric will exist</p></li>
 </ul>
@@ -1146,18 +1201,34 @@ in which the metric will exist</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pyroteus.recovery.recover_hessian">
-<span class="sig-name descname"><span class="pre">recover_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/recovery.html#recover_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.recovery.recover_hessian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recover the Hessian of a scalar field.</p>
+<dt class="sig sig-object py" id="pyroteus.recovery.recover_gradient_l2">
+<span class="sig-name descname"><span class="pre">recover_gradient_l2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FunctionSpace</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/recovery.html#recover_gradient_l2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.recovery.recover_gradient_l2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover the gradient of a scalar or vector field using <span class="math notranslate nohighlight">\(L^2\)</span> projection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>f</strong> – the scalar field whose Hessian we seek to recover</p></li>
-<li><p><strong>method</strong> – recovery method</p></li>
+<li><p><strong>f</strong> – the scalar field whose derivatives we seek to recover</p></li>
+<li><p><strong>mesh</strong> – the underlying mesh</p></li>
+<li><p><strong>target_space</strong> – the <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.FunctionSpace()</span></code></a>
+recovered gradient should live in</p></li>
 </ul>
 </dd>
 </dl>
-<p>All other keyword arguments are passed to the chosen recovery routine.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyroteus.recovery.recover_hessian_clement">
+<span class="sig-name descname"><span class="pre">recover_hessian_clement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><span class="pre">Function</span></a></span></span><a class="reference internal" href="_modules/pyroteus/recovery.html#recover_hessian_clement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.recovery.recover_hessian_clement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recover the gradient and Hessian of a scalar field using two applications of
+Clement interpolation.</p>
+<p>Note that if the field is of degree 2 then projection will be used to obtain the
+gradient. If the field is of degree 3 or greater then projection will be used
+for the Hessian recovery, too.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>f</strong> – the scalar field whose derivatives we seek to recover</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1174,21 +1245,17 @@ a single timestep.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>end_time</strong> – end time of the interval
-of interest</p></li>
-<li><p><strong>num_subintervals</strong> – number of
-subintervals in the partition</p></li>
-<li><p><strong>timesteps</strong> – (list of values for the)
-timestep used on each subinterval</p></li>
-<li><p><strong>fields</strong> – (list of) field names ordered
-by call sequence</p></li>
-<li><p><strong>timesteps_per_export</strong> – (list of)
-timesteps per export (default 1)</p></li>
-<li><p><strong>start_time</strong> – start time of the
-interval of interest (default 0.0)</p></li>
-<li><p><strong>subinterals</strong> – user-provided sequence
-of subintervals, which need not be of
-uniform length (defaults to None)</p></li>
+<li><p><strong>end_time</strong> – end time of the interval of interest</p></li>
+<li><p><strong>num_subintervals</strong> – number of subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> – (list of values for the) timestep used on each subinterval</p></li>
+<li><p><strong>fields</strong> – (list of) field names</p></li>
+<li><p><strong>num_timesteps_per_export</strong> – (list of) number of timesteps per export</p></li>
+<li><p><strong>start_time</strong> – start time of the interval of interest</p></li>
+<li><p><strong>subinterals</strong> – user-provided sequence of subintervals, which need not be of
+uniform length</p></li>
+<li><p><strong>field_types</strong> – (list of) strings indicating whether each field is
+‘unsteady’ or ‘steady’, i.e., does the corresponding equation involve time
+derivatives or not?</p></li>
 </ul>
 </dd>
 </dl>
@@ -1202,21 +1269,17 @@ uniform length (defaults to None)</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>end_time</strong> – end time of the interval
-of interest</p></li>
-<li><p><strong>num_subintervals</strong> – number of
-subintervals in the partition</p></li>
-<li><p><strong>timesteps</strong> – (list of values for the)
-timestep used on each subinterval</p></li>
-<li><p><strong>fields</strong> – (list of) field names ordered
-by call sequence</p></li>
-<li><p><strong>timesteps_per_export</strong> – (list of)
-timesteps per export (default 1)</p></li>
-<li><p><strong>start_time</strong> – start time of the
-interval of interest (default 0.0)</p></li>
-<li><p><strong>subinterals</strong> – user-provided sequence
-of subintervals, which need not be of
-uniform length (defaults to None)</p></li>
+<li><p><strong>end_time</strong> – end time of the interval of interest</p></li>
+<li><p><strong>num_subintervals</strong> – number of subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> – (list of values for the) timestep used on each subinterval</p></li>
+<li><p><strong>fields</strong> – (list of) field names</p></li>
+<li><p><strong>num_timesteps_per_export</strong> – (list of) number of timesteps per export</p></li>
+<li><p><strong>start_time</strong> – start time of the interval of interest</p></li>
+<li><p><strong>subinterals</strong> – user-provided sequence of subintervals, which need not be of
+uniform length</p></li>
+<li><p><strong>field_types</strong> – (list of) strings indicating whether each field is
+‘unsteady’ or ‘steady’, i.e., does the corresponding equation involve time
+derivatives or not?</p></li>
 </ul>
 </dd>
 </dl>
@@ -1229,31 +1292,25 @@ uniform length (defaults to None)</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TimePartition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_subintervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TimePartition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_subintervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_timesteps_per_export</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subintervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Object describing the partition of the time
-interval of interest into subintervals.</p>
-<p>For now, the subintervals are assumed to be
-uniform in length. However, different values
-may be used of the timestep on each.</p>
+<p>A partition of the time interval of interest into subintervals.</p>
+<p>The subintervals are assumed to be uniform in length. However, different timestep
+values may be used on each subinterval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>end_time</strong> – end time of the interval
-of interest</p></li>
-<li><p><strong>num_subintervals</strong> – number of
-subintervals in the partition</p></li>
-<li><p><strong>timesteps</strong> – (list of values for the)
-timestep used on each subinterval</p></li>
-<li><p><strong>fields</strong> – (list of) field names ordered
-by call sequence</p></li>
-<li><p><strong>timesteps_per_export</strong> – (list of)
-timesteps per export (default 1)</p></li>
-<li><p><strong>start_time</strong> – start time of the
-interval of interest (default 0.0)</p></li>
-<li><p><strong>subinterals</strong> – user-provided sequence
-of subintervals, which need not be of
-uniform length (defaults to None)</p></li>
+<li><p><strong>end_time</strong> – end time of the interval of interest</p></li>
+<li><p><strong>num_subintervals</strong> – number of subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> – (list of values for the) timestep used on each subinterval</p></li>
+<li><p><strong>fields</strong> – (list of) field names</p></li>
+<li><p><strong>num_timesteps_per_export</strong> – (list of) number of timesteps per export</p></li>
+<li><p><strong>start_time</strong> – start time of the interval of interest</p></li>
+<li><p><strong>subinterals</strong> – user-provided sequence of subintervals, which need not be of
+uniform length</p></li>
+<li><p><strong>field_types</strong> – (list of) strings indicating whether each field is
+‘unsteady’ or ‘steady’, i.e., does the corresponding equation involve time
+derivatives or not?</p></li>
 </ul>
 </dd>
 </dl>
@@ -1262,6 +1319,11 @@ uniform length (defaults to None)</p></li>
 <span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroteus/time_partition.html#TimePartition.debug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyroteus.time_partition.TimePartition.debug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print attribute ‘msg’ for debugging purposes.</p>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyroteus.time_partition.TimePartition.num_timesteps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_timesteps</span></span><a class="headerlink" href="#pyroteus.time_partition.TimePartition.num_timesteps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1432,24 +1494,30 @@ the domain boundary?</p></li>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h2>
 <p class="rubric">References</p>
-<div class="docutils container" id="id7">
-<div class="citation" id="id12" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">CPB13</a><span class="fn-bracket">]</span></span>
+<div class="docutils container" id="id11">
+<div role="list" class="citation-list">
+<div class="citation" id="id17" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">BKL+16</a><span class="fn-bracket">]</span></span>
+<p>N. Barral, M. G. Knepley, M. Lange, M. D. Piggott, and G. J. Gorman. Anisotropic mesh adaptation in Firedrake with PETSc DMPlex. In <em>25th Intl Meshing Roundtable</em>. 2016.</p>
+</div>
+<div class="citation" id="id16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>CPB13<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id5">2</a>,<a role="doc-backlink" href="#id6">3</a>,<a role="doc-backlink" href="#id7">4</a>)</span>
 <p>Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. <em>SIAM Journal on Scientific Computing</em>, 35(2):A861–A885, 2013. <a class="reference external" href="https://doi.org/10.1137/120874606">doi:10.1137/120874606</a>.</p>
 </div>
-<div class="citation" id="id8" role="doc-biblioentry">
+<div class="citation" id="id12" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Clement75</a><span class="fn-bracket">]</span></span>
 <p>Ph Clément. Approximation by finite element functions using local regularization. <em>Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique</em>, 9(R2):77–84, 1975.</p>
 </div>
-<div class="citation" id="id11" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">LDA10</a><span class="fn-bracket">]</span></span>
+<div class="citation" id="id15" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">LDA10</a><span class="fn-bracket">]</span></span>
 <p>Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. <em>Journal of computational physics</em>, 229(8):2866–2897, 2010. <a class="reference external" href="https://doi.org/10.1016/j.jcp.2009.12.021">doi:10.1016/j.jcp.2009.12.021</a>.</p>
 </div>
-<div class="citation" id="id10" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">PPP+06</a><span class="fn-bracket">]</span></span>
+<div class="citation" id="id14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">PPP+06</a><span class="fn-bracket">]</span></span>
 <p>PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. <em>Computers &amp; Mathematics with Applications</em>, 52(8-9):1213–1242, 2006. <a class="reference external" href="https://doi.org/10.1016/j.camwa.2006.11.003">doi:10.1016/j.camwa.2006.11.003</a>.</p>
 </div>
-<div class="citation" id="id9" role="doc-biblioentry">
+<div class="citation" id="id13" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>VVP+92<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
 <p>William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. <em>Numerical recipes: example book C</em>. Cambridge University Press, 1992.</p>
@@ -1539,6 +1607,7 @@ the domain boundary?</p></li>
 <li><a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq.get_initial_condition"><code class="docutils literal notranslate"><span class="pre">MeshSeq.get_initial_condition()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq.get_solve_blocks"><code class="docutils literal notranslate"><span class="pre">MeshSeq.get_solve_blocks()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq.get_solver"><code class="docutils literal notranslate"><span class="pre">MeshSeq.get_solver()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq.info"><code class="docutils literal notranslate"><span class="pre">MeshSeq.info()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq.initial_condition"><code class="docutils literal notranslate"><span class="pre">MeshSeq.initial_condition</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq.plot"><code class="docutils literal notranslate"><span class="pre">MeshSeq.plot()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.mesh_seq.MeshSeq.solve_forward"><code class="docutils literal notranslate"><span class="pre">MeshSeq.solve_forward()</span></code></a></li>
@@ -1549,15 +1618,22 @@ the domain boundary?</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-pyroteus.metric">pyroteus.metric module</a><ul>
-<li><a class="reference internal" href="#pyroteus.metric.anisotropic_metric"><code class="docutils literal notranslate"><span class="pre">anisotropic_metric()</span></code></a></li>
-<li><a class="reference internal" href="#pyroteus.metric.assemble_eigendecomposition"><code class="docutils literal notranslate"><span class="pre">assemble_eigendecomposition()</span></code></a></li>
-<li><a class="reference internal" href="#pyroteus.metric.combine_metrics"><code class="docutils literal notranslate"><span class="pre">combine_metrics()</span></code></a></li>
-<li><a class="reference internal" href="#pyroteus.metric.compute_eigendecomposition"><code class="docutils literal notranslate"><span class="pre">compute_eigendecomposition()</span></code></a></li>
-<li><a class="reference internal" href="#pyroteus.metric.density_and_quotients"><code class="docutils literal notranslate"><span class="pre">density_and_quotients()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a><ul>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.assemble_eigendecomposition"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.assemble_eigendecomposition()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.combine"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.combine()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.compute_anisotropic_dwr_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_anisotropic_dwr_metric()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.compute_boundary_hessian"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_boundary_hessian()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.compute_eigendecomposition"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_eigendecomposition()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.compute_hessian"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_hessian()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.compute_isotropic_dwr_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_isotropic_dwr_metric()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.compute_isotropic_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_isotropic_metric()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.compute_weighted_hessian_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_weighted_hessian_metric()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.metric.RiemannianMetric.density_and_quotients"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.density_and_quotients()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#pyroteus.metric.determine_metric_complexity"><code class="docutils literal notranslate"><span class="pre">determine_metric_complexity()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.metric.enforce_element_constraints"><code class="docutils literal notranslate"><span class="pre">enforce_element_constraints()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.metric.intersect_on_boundary"><code class="docutils literal notranslate"><span class="pre">intersect_on_boundary()</span></code></a></li>
-<li><a class="reference internal" href="#pyroteus.metric.isotropic_metric"><code class="docutils literal notranslate"><span class="pre">isotropic_metric()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.metric.ramp_complexity"><code class="docutils literal notranslate"><span class="pre">ramp_complexity()</span></code></a></li>
 <li><a class="reference internal" href="#pyroteus.metric.space_time_normalise"><code class="docutils literal notranslate"><span class="pre">space_time_normalise()</span></code></a></li>
 </ul>
@@ -1583,7 +1659,8 @@ the domain boundary?</p></li>
 </li>
 <li><a class="reference internal" href="#module-pyroteus.recovery">pyroteus.recovery module</a><ul>
 <li><a class="reference internal" href="#pyroteus.recovery.recover_boundary_hessian"><code class="docutils literal notranslate"><span class="pre">recover_boundary_hessian()</span></code></a></li>
-<li><a class="reference internal" href="#pyroteus.recovery.recover_hessian"><code class="docutils literal notranslate"><span class="pre">recover_hessian()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.recovery.recover_gradient_l2"><code class="docutils literal notranslate"><span class="pre">recover_gradient_l2()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.recovery.recover_hessian_clement"><code class="docutils literal notranslate"><span class="pre">recover_hessian_clement()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-pyroteus.time_partition">pyroteus.time_partition module</a><ul>
@@ -1594,6 +1671,7 @@ the domain boundary?</p></li>
 </li>
 <li><a class="reference internal" href="#pyroteus.time_partition.TimePartition"><code class="docutils literal notranslate"><span class="pre">TimePartition</span></code></a><ul>
 <li><a class="reference internal" href="#pyroteus.time_partition.TimePartition.debug"><code class="docutils literal notranslate"><span class="pre">TimePartition.debug()</span></code></a></li>
+<li><a class="reference internal" href="#pyroteus.time_partition.TimePartition.num_timesteps"><code class="docutils literal notranslate"><span class="pre">TimePartition.num_timesteps</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1668,7 +1746,7 @@ the domain boundary?</p></li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>

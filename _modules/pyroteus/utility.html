@@ -40,6 +40,7 @@
 <span class="kn">from</span> <span class="nn">.quality</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">mpi4py</span>
 <span class="kn">import</span> <span class="nn">petsc4py</span>
+<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="n">assemble</span>
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -70,9 +71,7 @@
     <span class="c1"># Facet area</span>
     <span class="n">boundary_markers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">)</span>
     <span class="n">one</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">bnd_len</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
-        <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">one</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">boundary_markers</span><span class="p">}</span>
-    <span class="p">)</span>
+    <span class="n">bnd_len</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="n">assemble</span><span class="p">(</span><span class="n">one</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">boundary_markers</span><span class="p">})</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">mesh</span><span class="o">.</span><span class="n">boundary_len</span> <span class="o">=</span> <span class="n">bnd_len</span>
     <span class="k">else</span><span class="p">:</span>
@@ -136,7 +135,7 @@
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; not recognised.&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">lhs</span><span class="p">)</span><span class="o">.</span><span class="n">petscmat</span></div>
+    <span class="k">return</span> <span class="n">assemble</span><span class="p">(</span><span class="n">lhs</span><span class="p">)</span><span class="o">.</span><span class="n">petscmat</span></div>
 
 
 <div class="viewcode-block" id="norm"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.norm">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.norm&quot;</span><span class="p">)</span>
@@ -196,7 +195,7 @@
             <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">integrand</span> <span class="o">**</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">dX</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">assemble</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">integrand</span> <span class="o">**</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">dX</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="errornorm"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.utility.errornorm">[docs]</a><span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;pyroteus.errornorm&quot;</span><span class="p">)</span>
@@ -245,7 +244,7 @@
         <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;L2&quot;</span><span class="p">:</span>
             <span class="n">vv</span> <span class="o">=</span> <span class="p">[</span><span class="n">uu</span> <span class="o">-</span> <span class="n">uuh</span> <span class="k">for</span> <span class="n">uu</span><span class="p">,</span> <span class="n">uuh</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">,</span> <span class="n">uh</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)]</span>
             <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;boundary&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
-            <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vv</span><span class="p">])</span> <span class="o">*</span> <span class="n">dX</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">assemble</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vv</span><span class="p">])</span> <span class="o">*</span> <span class="n">dX</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; not supported for mixed spaces.&quot;</span>
@@ -350,7 +349,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>

@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Hessian-based mesh adaptation for a 2D steady-state problem &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -132,8 +132,16 @@ adaptation functionality from Firedrake, which can be found in <code class="docu
 steady-state problem), and put everything together in a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>. For this
 demo, we also create a <code class="xref py py-class docutils literal notranslate"><span class="pre">MetricParameters</span></code> object and set the <cite>element_rtol</cite>
 parameter to 0.005. This means that the fixed point iteration will terminate if the
-element count changes by less than 0.5% between iterations.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">MetricParameters</span><span class="p">({</span><span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">})</span>
+element count changes by less than 0.5% between iterations. As standard, we allow
+35 iterations before establishing that the iteration is not going to converge.
+To cut down the cost of the regresssion tests, we just use three iterations
+instead.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">MetricParameters</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYROTEUS_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">RectangleMesh</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
@@ -210,8 +218,8 @@ count.</p>
     <span class="n">metric</span><span class="o">.</span><span class="n">normalise</span><span class="p">()</span>
     <span class="n">complexity</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">complexity</span><span class="p">()</span>
     <span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">adapt</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">metric</span><span class="p">)</span>
-    <span class="n">num_dofs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">vertex_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">num_elem</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">element_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">num_dofs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_vertices</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">num_elem</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">pyrint</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iteration</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">2d</span><span class="si">}</span><span class="s2">, complexity: </span><span class="si">{</span><span class="n">complexity</span><span class="si">:</span><span class="s2">4.0f</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="sa">f</span><span class="s2">&quot;, dofs: </span><span class="si">{</span><span class="n">num_dofs</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">, elements: </span><span class="si">{</span><span class="n">num_elem</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -228,7 +236,7 @@ count.</p>
     <span class="c1"># return ``True`` to indicate that convergence checks should be skipped until the</span>
     <span class="c1"># next fixed point iteration.</span>
     <span class="n">continue_unconditionally</span> <span class="o">=</span> <span class="n">complexity</span> <span class="o">&lt;</span> <span class="mf">0.95</span> <span class="o">*</span> <span class="n">target</span>
-    <span class="k">return</span> <span class="n">continue_unconditionally</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">continue_unconditionally</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>With the adaptor function defined, we can call the fixed point iteration method, which
@@ -239,14 +247,14 @@ are met.</p>
 </div>
 <p>Mesh adaptation often gives slightly different results on difference machines. However,
 the output should look something like</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> 1, complexity:  433, dofs:  561, elements: 1000</span>
-<span class="go"> 2, complexity:  630, dofs:  618, elements: 1161</span>
-<span class="go"> 3, complexity:  825, dofs:  898, elements: 1725</span>
-<span class="go"> 4, complexity: 1023, dofs: 1128, elements: 2180</span>
-<span class="go"> 5, complexity: 1020, dofs: 1336, elements: 2592</span>
-<span class="go"> 6, complexity: 1022, dofs: 1354, elements: 2629</span>
-<span class="go"> 7, complexity: 1022, dofs: 1362, elements: 2643</span>
-<span class="go">Terminated due to element count convergence after 7 iterations</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> 1, complexity:  433, dofs:  618, elements: 1161</span>
+<span class="go"> 2, complexity:  630, dofs:  898, elements: 1725</span>
+<span class="go"> 3, complexity:  825, dofs: 1128, elements: 2180</span>
+<span class="go"> 4, complexity: 1023, dofs: 1336, elements: 2592</span>
+<span class="go"> 5, complexity: 1020, dofs: 1354, elements: 2629</span>
+<span class="go"> 6, complexity: 1022, dofs: 1362, elements: 2643</span>
+<span class="go"> 7, complexity: 1022, dofs: 1356, elements: 2635</span>
+<span class="go">Element count converged after 7 iterations under relative tolerance 0.005.</span>
 </pre></div>
 </div>
 <p>We can plot the final mesh and the corresponding solution as follows.</p>
@@ -342,7 +350,7 @@ problem again, but using <em>goal-oriented</em> mesh adaptation.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>

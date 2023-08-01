@@ -73,7 +73,7 @@ in the same way. ::
       end_time,
       dt,
       fields,
-      timesteps_per_export=25,
+      num_timesteps_per_export=25,
   )
   mesh_seq = AdjointMeshSeq(
       time_partition,
@@ -88,7 +88,7 @@ in the same way. ::
   )
   solutions = mesh_seq.solve_adjoint()
 
-  if os.environ.get("PYROTEUS_REGRESSION_TEST") is None:
+  if not test:
       for field, sols in solutions.items():
           fwd_outfile = File(f"solid_body_rotation_split/{field}_forward.pvd")
           adj_outfile = File(f"solid_body_rotation_split/{field}_adjoint.pvd")

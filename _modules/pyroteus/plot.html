@@ -63,7 +63,7 @@
 <span class="sd">        ``&#39;adjoint&#39;`` and ``&#39;adjoint_next&#39;``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">time_partition</span>
-    <span class="n">rows</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="n">cols</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_subintervals</span>
     <span class="n">steady</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">==</span> <span class="n">cols</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="n">figsize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;figsize&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">cols</span><span class="p">,</span> <span class="mi">24</span> <span class="o">//</span> <span class="n">cols</span><span class="p">))</span>
@@ -79,7 +79,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">steady</span><span class="p">:</span>
                 <span class="n">time</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">i</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">end_time</span> <span class="o">/</span> <span class="n">cols</span>
-                    <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;t=</span><span class="si">{</span><span class="n">time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
         <span class="n">tcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tc</span><span class="p">)</span>
@@ -101,7 +101,7 @@
 <span class="sd">        object used to solve the problem</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">time_partition</span>
-    <span class="n">rows</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="n">cols</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_subintervals</span>
     <span class="n">steady</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">==</span> <span class="n">cols</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="n">figsize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;figsize&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">cols</span><span class="p">,</span> <span class="mi">24</span> <span class="o">//</span> <span class="n">cols</span><span class="p">))</span>
@@ -117,7 +117,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">steady</span><span class="p">:</span>
                 <span class="n">time</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">i</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">end_time</span> <span class="o">/</span> <span class="n">cols</span>
-                    <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;t=</span><span class="si">{</span><span class="n">time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
         <span class="n">tcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tc</span><span class="p">)</span>
@@ -161,7 +161,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>

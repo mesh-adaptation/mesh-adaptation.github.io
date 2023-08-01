@@ -262,7 +262,7 @@
             <span class="n">run_final_subinterval</span><span class="o">=</span><span class="n">test_checkpoint_qoi</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">J_chk</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">test_checkpoint_qoi</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">J_chk</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">test_checkpoint_qoi</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">J_chk</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Zero QoI. Is it implemented as intended?&quot;</span><span class="p">)</span>
 
         <span class="c1"># Reset the QoI to zero</span>
@@ -282,7 +282,7 @@
                         <span class="n">label</span><span class="p">:</span> <span class="p">[</span>
                             <span class="p">[</span>
                                 <span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                             <span class="p">]</span>
                             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
                         <span class="p">]</span>
@@ -317,8 +317,8 @@
         <span class="c1"># Loop over subintervals in reverse</span>
         <span class="n">seeds</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">)):</span>
-            <span class="n">stride</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">num_exports</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">stride</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">num_exports</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
             <span class="c1"># Annotate tape on current subinterval</span>
             <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">wrapped_solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
@@ -328,7 +328,7 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
                     <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qoi</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="n">qoi</span><span class="p">(</span><span class="o">**</span><span class="n">qoi_kwargs</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Zero QoI. Is it implemented as intended?&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">stop_annotating</span><span class="p">():</span>
@@ -422,17 +422,16 @@
                             <span class="p">)</span>
 
                 <span class="c1"># Check non-zero adjoint solution/value</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Adjoint solution for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot; subinterval is zero.&quot;</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">get_adj_values</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">adj_value</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Adjoint action for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot; subinterval is zero.&quot;</span>
-                        <span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Adjoint solution for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot; subinterval is zero.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">get_adj_values</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">adj_value</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot; subinterval is zero.&quot;</span>
+                    <span class="p">)</span>
 
             <span class="c1"># Get adjoint action on each subinterval</span>
             <span class="n">seeds</span> <span class="o">=</span> <span class="p">{</span>
@@ -441,13 +440,12 @@
                 <span class="p">)</span>
                 <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">control</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controls</span><span class="p">)</span>
             <span class="p">}</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">warn</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Adjoint action for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot; subinterval is zero.&quot;</span>
-                        <span class="p">)</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">seeds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Adjoint action for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot; subinterval is zero.&quot;</span>
+                    <span class="p">)</span>
 
             <span class="c1"># Clear the tape to reduce the memory footprint</span>
             <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
@@ -473,30 +471,32 @@
             <span class="n">c</span> <span class="o">=</span> <span class="s2">&quot;th&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num</span><span class="si">}{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
+    <span class="k">def</span> <span class="nf">_subintervals_not_checked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">num_not_checked</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="p">[</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[</span><span class="n">num_not_checked</span><span class="p">]</span>
+
 <div class="viewcode-block" id="AdjointMeshSeq.check_qoi_convergence"><a class="viewcode-back" href="../../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.check_qoi_convergence">[docs]</a>    <span class="k">def</span> <span class="nf">check_qoi_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Check for convergence of the fixed point iteration</span>
-<span class="sd">        due to the relative difference in QoI value being</span>
-<span class="sd">        smaller than the specified tolerance.</span>
+<span class="sd">        Check for convergence of the fixed point iteration due to the relative</span>
+<span class="sd">        difference in QoI value being smaller than the specified tolerance.</span>
 
-<span class="sd">        The :attr:`AdjointMeshSeq.converged` attribute</span>
-<span class="sd">        is set to ``True`` if convergence is detected.</span>
+<span class="sd">        The :attr:`AdjointMeshSeq.converged` attribute is set to ``True`` across all</span>
+<span class="sd">        entries if convergence is detected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">miniter</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
-        <span class="n">qoi_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
-        <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi</span> <span class="o">-</span> <span class="n">qoi_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">P</span><span class="o">.</span><span class="n">qoi_rtol</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi_</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">converged</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
-            <span class="n">pyrint</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Terminated due to QoI convergence after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_iteration</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; iterations.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Skipping QoI convergence check because check_convergence contains&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; False values for indices </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_subintervals_not_checked</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">miniter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">qoi_</span><span class="p">,</span> <span class="n">qoi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_values</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi</span> <span class="o">-</span> <span class="n">qoi_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">qoi_rtol</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">qoi_</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">pyrint</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;QoI converged after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fp_iteration</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iterations&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; under relative tolerance </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">qoi_rtol</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span></div></div>
 </pre></div>
 
@@ -536,7 +536,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>

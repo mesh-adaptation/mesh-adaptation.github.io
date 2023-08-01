@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Goal-oriented mesh adaptation for a 2D steady-state problem &#8212; Pyroteus 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Burgers equation with Hessian-based mesh adaptation" href="burgers-hessian.py.html" />
     <link rel="prev" title="Hessian-based mesh adaptation for a 2D steady-state problem" href="point_discharge2d-hessian.py.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -24,6 +25,9 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="burgers-hessian.py.html" title="Burgers equation with Hessian-based mesh adaptation"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="point_discharge2d-hessian.py.html" title="Hessian-based mesh adaptation for a 2D steady-state problem"
              accesskey="P">previous</a> |</li>
@@ -137,7 +141,13 @@ exposition of goal-oriented mesh adaptation in these demos.</p>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code>. In addition to the element count convergence criterion,
 we add another relative tolerance condition for the change in QoI value between
 iterations.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">GoalOrientedMetricParameters</span><span class="p">({</span><span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span> <span class="s2">&quot;qoi_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">})</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">GoalOrientedMetricParameters</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+        <span class="s2">&quot;qoi_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYROTEUS_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">RectangleMesh</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
@@ -186,7 +196,9 @@ as well as forward solution data. For simplicity, we begin by using Pyroteus’ 
 isotropic metric function.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">adaptor</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">solutions</span><span class="p">,</span> <span class="n">indicators</span><span class="p">):</span>
     <span class="c1"># Deduce an isotropic metric from the error indicator field</span>
-    <span class="n">metric</span> <span class="o">=</span> <span class="n">isotropic_metric</span><span class="p">(</span><span class="n">indicators</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">RiemannianMetric</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
+    <span class="n">metric</span><span class="o">.</span><span class="n">compute_isotropic_metric</span><span class="p">(</span><span class="n">indicators</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="c1"># Ramp the target metric complexity from 400 to 1000 over the first few iterations</span>
     <span class="n">base</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">iteration</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fp_iteration</span>
@@ -197,8 +209,8 @@ isotropic metric function.</p>
     <span class="n">metric</span><span class="o">.</span><span class="n">normalise</span><span class="p">()</span>
     <span class="n">complexity</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">complexity</span><span class="p">()</span>
     <span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">adapt</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">metric</span><span class="p">)</span>
-    <span class="n">num_dofs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">vertex_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">num_elem</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">element_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">num_dofs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_vertices</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">num_elem</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">pyrint</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iteration</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">2d</span><span class="si">}</span><span class="s2">, complexity: </span><span class="si">{</span><span class="n">complexity</span><span class="si">:</span><span class="s2">4.0f</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="sa">f</span><span class="s2">&quot;, dofs: </span><span class="si">{</span><span class="n">num_dofs</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">, elements: </span><span class="si">{</span><span class="n">num_elem</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -226,7 +238,7 @@ isotropic metric function.</p>
     <span class="c1"># return ``True`` to indicate that convergence checks should be skipped until the</span>
     <span class="c1"># next fixed point iteration.</span>
     <span class="n">continue_unconditionally</span> <span class="o">=</span> <span class="n">complexity</span> <span class="o">&lt;</span> <span class="mf">0.95</span> <span class="o">*</span> <span class="n">target</span>
-    <span class="k">return</span> <span class="n">continue_unconditionally</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">continue_unconditionally</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>With the adaptor function defined, we can call the fixed point iteration method. Note
@@ -242,11 +254,14 @@ we should expect the computation to take more time.</p>
 <p>This time, we find that the fixed point iteration converges in five iterations.
 Convergence is reached because the relative change in QoI is found to be smaller than
 the default tolerance.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> 1, complexity:  371, dofs:  561, elements: 1000</span>
-<span class="go"> 2, complexity:  588, dofs:  526, elements:  988</span>
-<span class="go"> 3, complexity:  785, dofs:  729, elements: 1392</span>
-<span class="go"> 4, complexity:  982, dofs:  916, elements: 1754</span>
-<span class="go">Terminated due to QoI convergence after 5 iterations</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> 1, complexity:  371, dofs:  526, elements:  988</span>
+<span class="go"> 2, complexity:  588, dofs:  729, elements: 1392</span>
+<span class="go"> 3, complexity:  785, dofs:  916, elements: 1754</span>
+<span class="go"> 4, complexity:  982, dofs: 1171, elements: 2264</span>
+<span class="go"> 5, complexity:  984, dofs: 1151, elements: 2225</span>
+<span class="go"> 6, complexity:  988, dofs: 1174, elements: 2269</span>
+<span class="go"> 7, complexity:  985, dofs: 1170, elements: 2264</span>
+<span class="go">Element count converged after 7 iterations under relative tolerance 0.005.</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -292,22 +307,26 @@ where the <code class="docutils literal notranslate"><span class="pre">normalise
 is already normalised within the call to <code class="docutils literal notranslate"><span class="pre">anisotropic_dwr_metric</span></code>, so this is not
 required.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">adaptor</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">solutions</span><span class="p">,</span> <span class="n">indicators</span><span class="p">):</span>
-    <span class="n">base</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">iteration</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fp_iteration</span>
+    <span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="c1"># Deduce an anisotropic metric from the error indicator field and the Hessian of the</span>
-    <span class="c1"># forward solution</span>
-    <span class="n">hessian</span> <span class="o">=</span> <span class="n">recover_hessian</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">metric</span> <span class="o">=</span> <span class="n">anisotropic_metric</span><span class="p">(</span>
-        <span class="n">indicators</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-        <span class="n">hessian</span><span class="p">,</span>
-        <span class="n">target_complexity</span><span class="o">=</span><span class="n">ramp_complexity</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">iteration</span><span class="p">),</span>
-    <span class="p">)</span>
+    <span class="c1"># Recover the Hessian of the forward solution</span>
+    <span class="n">hessian</span> <span class="o">=</span> <span class="n">RiemannianMetric</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
+    <span class="n">hessian</span><span class="o">.</span><span class="n">compute_hessian</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Ramp the target metric complexity from 400 to 1000 over the first few iterations</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">RiemannianMetric</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
+    <span class="n">base</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">iteration</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fp_iteration</span>
+    <span class="n">mp</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dm_plex_metric_target_complexity&quot;</span><span class="p">:</span> <span class="n">ramp_complexity</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)}</span>
+    <span class="n">metric</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span>
+
+    <span class="c1"># Deduce an anisotropic metric from the error indicator field and the Hessian</span>
+    <span class="n">metric</span><span class="o">.</span><span class="n">compute_anisotropic_dwr_metric</span><span class="p">(</span><span class="n">indicators</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">hessian</span><span class="p">)</span>
     <span class="n">complexity</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">complexity</span><span class="p">()</span>
 
     <span class="c1"># Adapt the mesh</span>
     <span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">adapt</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">metric</span><span class="p">)</span>
-    <span class="n">num_dofs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">vertex_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">num_elem</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">element_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">num_dofs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_vertices</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">num_elem</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">pyrint</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iteration</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">2d</span><span class="si">}</span><span class="s2">, complexity: </span><span class="si">{</span><span class="n">complexity</span><span class="si">:</span><span class="s2">4.0f</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="sa">f</span><span class="s2">&quot;, dofs: </span><span class="si">{</span><span class="n">num_dofs</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">, elements: </span><span class="si">{</span><span class="n">num_elem</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -335,7 +354,7 @@ required.</p>
     <span class="c1"># return ``True`` to indicate that convergence checks should be skipped until the</span>
     <span class="c1"># next fixed point iteration.</span>
     <span class="n">continue_unconditionally</span> <span class="o">=</span> <span class="n">complexity</span> <span class="o">&lt;</span> <span class="mf">0.95</span> <span class="o">*</span> <span class="n">target</span>
-    <span class="k">return</span> <span class="n">continue_unconditionally</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">continue_unconditionally</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>To avoid confusion, we redefine the <code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code> object before using
@@ -356,11 +375,21 @@ it.</p>
 <span class="n">dofs_aniso</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">vertex_counts</span>
 </pre></div>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> 1, complexity:  400, dofs:  561, elements: 1000</span>
-<span class="go"> 2, complexity:  600, dofs:  590, elements: 1121</span>
-<span class="go"> 3, complexity:  800, dofs:  876, elements: 1700</span>
-<span class="go"> 4, complexity: 1000, dofs: 1079, elements: 2101</span>
-<span class="go">Terminated due to QoI convergence after 5 iterations</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> 1, complexity:  400, dofs:  542, elements: 1030</span>
+<span class="go"> 2, complexity:  600, dofs:  749, elements: 1450</span>
+<span class="go"> 3, complexity:  800, dofs:  977, elements: 1908</span>
+<span class="go"> 4, complexity: 1000, dofs: 1204, elements: 2364</span>
+<span class="go"> 5, complexity: 1000, dofs: 1275, elements: 2506</span>
+<span class="go"> 6, complexity: 1000, dofs: 1254, elements: 2464</span>
+<span class="go"> 7, complexity: 1000, dofs: 1315, elements: 2584</span>
+<span class="go"> 8, complexity: 1000, dofs: 1281, elements: 2519</span>
+<span class="go"> 9, complexity: 1000, dofs: 1351, elements: 2657</span>
+<span class="go">10, complexity: 1000, dofs: 1295, elements: 2546</span>
+<span class="go">11, complexity: 1000, dofs: 1283, elements: 2523</span>
+<span class="go">12, complexity: 1000, dofs: 1336, elements: 2628</span>
+<span class="go">13, complexity: 1000, dofs: 1309, elements: 2574</span>
+<span class="go">14, complexity: 1000, dofs: 1304, elements: 2564</span>
+<span class="go">Element count converged after 14 iterations under relative tolerance 0.005.</span>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -392,6 +421,8 @@ it.</p>
 <p>This time, the elements are clearly anisotropic. This anisotropy is inherited from the
 Hessian of the adjoint solution. There is still high resolution at the source and
 receiver, as well as coarse resolution downstream.</p>
+<p>In the <a class="reference external" href="./burgers-hessian.py.html">next demo</a>, we consider mesh adaptation in the
+time-dependent case.</p>
 <p>This demo can also be accessed as a <a class="reference external" href="point_discharge2d-goal_oriented.py">Python script</a>.</p>
 </section>
 
@@ -406,6 +437,11 @@ receiver, as well as coarse resolution downstream.</p>
     <h4>Previous topic</h4>
     <p class="topless"><a href="point_discharge2d-hessian.py.html"
                           title="previous chapter">Hessian-based mesh adaptation for a 2D steady-state problem</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="burgers-hessian.py.html"
+                          title="next chapter">Burgers equation with Hessian-based mesh adaptation</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -438,6 +474,9 @@ receiver, as well as coarse resolution downstream.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="burgers-hessian.py.html" title="Burgers equation with Hessian-based mesh adaptation"
+             >next</a> |</li>
+        <li class="right" >
           <a href="point_discharge2d-hessian.py.html" title="Hessian-based mesh adaptation for a 2D steady-state problem"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
@@ -446,7 +485,7 @@ receiver, as well as coarse resolution downstream.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>
