@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Advection-diffusion-reaction with multiple prognostic variables &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Advection-diffusion-reaction with multiple prognostic variables &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Error estimation for Burgers equation" href="burgers_ee.py.html" />
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="gray_scott.py.html" title="Advection-diffusion-reaction"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Advection-diffusion-reaction with multiple prognostic variables</a></li> 
       </ul>
     </div>  
@@ -42,7 +42,7 @@
           <div class="body" role="main">
             
   <section id="advection-diffusion-reaction-with-multiple-prognostic-variables">
-<h1>Advection-diffusion-reaction with multiple prognostic variables<a class="headerlink" href="#advection-diffusion-reaction-with-multiple-prognostic-variables" title="Permalink to this heading">¶</a></h1>
+<h1>Advection-diffusion-reaction with multiple prognostic variables<a class="headerlink" href="#advection-diffusion-reaction-with-multiple-prognostic-variables" title="Link to this heading">¶</a></h1>
 <p>In the the <a class="reference external" href="./gray_scott.py.html">previous demo</a>, we solved the Gray-Scott
 equation using a mixed formulation for the two tracer species. Here, we instead use
 different fields for each of them, treating the corresponding equations separately.
@@ -50,7 +50,7 @@ This considers an additional level of complexity compared with the
 <a class="reference external" href="./solid_body_rotation_split.py.html">split solid body rotation demo</a> because the
 equations differ in both the diffusion and reaction terms.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>This time, we have two fields instead of one, as well as two function spaces.</p>
@@ -94,11 +94,12 @@ dictionary: its keys correspond to the different equations being solved.</p>
         <span class="n">psi_b</span> <span class="o">=</span> <span class="n">TestFunction</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">])</span>
 
         <span class="c1"># Define constants</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
-        <span class="n">D_a</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">8.0e-05</span><span class="p">)</span>
-        <span class="n">D_b</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">4.0e-05</span><span class="p">)</span>
-        <span class="n">gamma</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.024</span><span class="p">)</span>
-        <span class="n">kappa</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.06</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
+        <span class="n">D_a</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">8.0e-05</span><span class="p">)</span>
+        <span class="n">D_b</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">4.0e-05</span><span class="p">)</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.024</span><span class="p">)</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.06</span><span class="p">)</span>
 
         <span class="c1"># Write the two equations in variational form</span>
         <span class="n">F_a</span> <span class="o">=</span> <span class="p">(</span>
@@ -167,7 +168,7 @@ demo, so that the outputs can be straightforwardly compared.</p>
     <span class="k">return</span> <span class="n">qoi</span>
 
 
-<span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYROTEUS_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 <span class="n">end_time</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mf">2000.0</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">end_time</span><span class="p">]</span>
 <span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">5</span>
@@ -269,13 +270,13 @@ demo, so that the outputs can be straightforwardly compared.</p>
         <li class="right" >
           <a href="gray_scott.py.html" title="Advection-diffusion-reaction"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Advection-diffusion-reaction with multiple prognostic variables</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

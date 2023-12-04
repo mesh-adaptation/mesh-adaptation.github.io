@@ -11,7 +11,7 @@
 # which is solved for a tracer concentration :math:`c`. The
 # velocity field :math:`\mathbf{u}` drives the transport.
 # A new piece of information in this demo is the approach to
-# strongly imposing Dirichlet boundary conditions in Pyroteus.
+# strongly imposing Dirichlet boundary conditions in Goalie.
 # In particular, we impose
 #
 # .. math::
@@ -33,11 +33,11 @@
 # curve of discontinuities. The test case was introduced in
 # :cite:`LeVeque:1996`.
 #
-# As usual, we import from Firedrake and Pyroteus, with
+# As usual, we import from Firedrake and Goalie, with
 # adjoint mode activated. ::
 
 from firedrake import *
-from pyroteus_adjoint import *
+from goalie_adjoint import *
 
 # For simplicity, we use a :math:`\mathbb P1` space for each
 # field. The domain of interest is again the unit square, in
@@ -94,11 +94,11 @@ def get_initial_condition(mesh_seq, field="c"):
     return {field: interpolate(bell + cone + slot_cyl, fs)}
 
 
-# Now let's set up the time interval of interest. The `"PYROTEUS_REGRESSION_TEST"` flag
+# Now let's set up the time interval of interest. The `"GOALIE_REGRESSION_TEST"` flag
 # can be ignored here and in subsequent demos; it is used to cut down the runtime in
-# Pyroteus' continuous integration suite. ::
+# Goalie's continuous integration suite. ::
 
-test = os.environ.get("PYROTEUS_REGRESSION_TEST") is not None
+test = os.environ.get("GOALIE_REGRESSION_TEST") is not None
 end_time = pi / 4 if test else 2 * pi
 dt = pi / 300
 fields = ["c"]
@@ -151,10 +151,14 @@ def get_form(mesh_seq):
         V = mesh_seq.function_spaces[field][index]
         mesh = mesh_seq[index]
 
+        # Define velocity field
         x, y = SpatialCoordinate(mesh)
         u = as_vector([-y, x])
-        dt = Constant(mesh_seq.time_partition[index].timestep)
-        theta = Constant(0.5)
+
+        # Define constants
+        R = FunctionSpace(mesh_seq[index], "R", 0)
+        dt = Function(R).assign(mesh_seq.time_partition[index].timestep)
+        theta = Function(R).assign(0.5)
 
         psi = TrialFunction(V)
         phi = TestFunction(V)
@@ -254,7 +258,7 @@ solutions = mesh_seq.solve_adjoint()
 # So far, we have visualised outputs using `Matplotlib`. In many cases, it is better to
 # use Paraview. To save all adjoint solution components in Paraview format, use the
 # following. The `if` statement is used here to check whether this demo is being run as
-# part of Pyroteus' continuous integration testing and can be ignored. ::
+# part of Goalie's continuous integration testing and can be ignored. ::
 
 if not test:
     for field, sols in solutions.items():

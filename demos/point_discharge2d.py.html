@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Point discharge with diffusion &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Point discharge with diffusion &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="burgers_ee.py.html" title="Error estimation for Burgers equation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Point discharge with diffusion</a></li> 
       </ul>
     </div>  
@@ -43,14 +43,14 @@
           <div class="body" role="main">
             
   <section id="point-discharge-with-diffusion">
-<h1>Point discharge with diffusion<a class="headerlink" href="#point-discharge-with-diffusion" title="Permalink to this heading">¶</a></h1>
-<p>Pyroteus has been developed primarily with time-dependent problems in
+<h1>Point discharge with diffusion<a class="headerlink" href="#point-discharge-with-diffusion" title="Link to this heading">¶</a></h1>
+<p>Goalie has been developed primarily with time-dependent problems in
 mind, since the loop structures required to solve forward and adjoint
 problems and do goal-oriented error estimation and mesh adaptation are
 rather complex for such cases. However, it can also be used to solve
 steady-state problems.</p>
 <p>Consider the same steady-state advection-diffusion test case as in the
-motivation for the Pyroteus manual: the “point discharge with diffusion”
+motivation for the Goalie manual: the “point discharge with diffusion”
 test case from <span id="id1">[<a class="reference internal" href="../maths/1-motivation.html#id6" title="A Riadh, G Cedric, and MH Jean. TELEMAC modeling system: 2D hydrodynamics TELEMAC-2D software release 7.0 user manual. Paris: R&amp;D, Electricite de France, pages 134, 2014.">RCJ14</a>]</span>. In this test case, we solve</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\left\{\begin{array}{rl}
@@ -62,9 +62,9 @@ test case from <span id="id1">[<a class="reference internal" href="../maths/1-mo
 <span class="math notranslate nohighlight">\(\mathbf u\)</span>, diffusion coefficient <span class="math notranslate nohighlight">\(D\)</span> and point source
 representation <span class="math notranslate nohighlight">\(S\)</span>. The domain of interest is the rectangle
 <span class="math notranslate nohighlight">\(\Omega = [0, 50] \times [0, 10]\)</span>.</p>
-<p>As always, start by importing Firedrake and Pyroteus.</p>
+<p>As always, start by importing Firedrake and Goalie.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>We solve the advection-diffusion problem in <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space.</p>
@@ -101,10 +101,15 @@ Galerkin (SUPG)</cite> stabilisation by modifying the test function
     <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
         <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">D</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">as_vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">CellSize</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">source</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+
+        <span class="c1"># Define constants</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">u_x</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">u_y</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">as_vector</span><span class="p">([</span><span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">])</span>
 
         <span class="c1"># SUPG stabilisation parameter</span>
         <span class="n">unorm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
@@ -162,7 +167,7 @@ applying the corresponding <cite>ad_block_tag</cite> to the solve call.</p>
 <p>The fact that we create a lagged solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>, assign it to
 some initial conditions and then use the value for a solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>
 that will immediately get over-written may seem odd. It works this way because
-Pyroteus is primarily geared up for time-dependent problems, where initialisation
+Goalie is primarily geared up for time-dependent problems, where initialisation
 is important. Even for linear, steady-state problems, we need to maintain a
 programatic dependence on the initial condition so that it is possible to
 automatically differentiate the QoI with respect to this as an input.</p>
@@ -309,13 +314,13 @@ metric-based mesh adaptation to the point discharge test case considered here.</
         <li class="right" >
           <a href="burgers_ee.py.html" title="Error estimation for Burgers equation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Point discharge with diffusion</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

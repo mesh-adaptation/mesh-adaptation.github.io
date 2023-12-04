@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Partitioning a time interval &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Partitioning a time interval &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Creating a mesh sequence" href="mesh_seq.py.html" />
-    <link rel="prev" title="pyroteus package" href="../pyroteus.html" /> 
+    <link rel="prev" title="goalie package" href="../goalie.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,9 +30,9 @@
           <a href="mesh_seq.py.html" title="Creating a mesh sequence"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../pyroteus.html" title="pyroteus package"
+          <a href="../goalie.html" title="goalie package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Partitioning a time interval</a></li> 
       </ul>
     </div>  
@@ -43,8 +43,8 @@
           <div class="body" role="main">
             
   <section id="partitioning-a-time-interval">
-<h1>Partitioning a time interval<a class="headerlink" href="#partitioning-a-time-interval" title="Permalink to this heading">¶</a></h1>
-<p>Pyroteus is focused on solving PDEs and
+<h1>Partitioning a time interval<a class="headerlink" href="#partitioning-a-time-interval" title="Link to this heading">¶</a></h1>
+<p>Goalie is focused on solving PDEs and
 their adjoints over some time interval
 on sequences of meshes.</p>
 <p>Suppose we have a time interval</p>
@@ -53,7 +53,7 @@ on sequences of meshes.</p>
 <p>for simulation start and end times
 <span class="math notranslate nohighlight">\(0 \leq t_{\mathrm{start}} &lt; t_{\mathrm{end}}\)</span>.
 One of the fundamental objects in
-Pyroteus is the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>,
+Goalie is the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>,
 which subdivides <span class="math notranslate nohighlight">\(\mathcal T\)</span> into
 <span class="math notranslate nohighlight">\(n\in\mathbb N\)</span> subintervals,</p>
 <div class="math notranslate nohighlight">
@@ -63,8 +63,8 @@ and <span class="math notranslate nohighlight">\(t^{(n)}=t_{\mathrm{end}}\)</spa
 a time-dependent mesh adaptive simulation,
 each subinterval will be associated with a
 single mesh.</p>
-<p>We begin by importing Pyroteus.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+<p>We begin by importing Goalie.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>To create a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>, we
@@ -93,7 +93,7 @@ code as</p>
 one subinterval of <span class="math notranslate nohighlight">\((0,1]\)</span> containing
 eight timesteps. When constructing a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> (or any other object),
-it is often useful to use Pyroteus’ debugging
+it is often useful to use Goalie’s debugging
 mode. This is specified using <code class="xref py py-func docutils literal notranslate"><span class="pre">set_log_level()</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">set_log_level</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">)</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
@@ -165,8 +165,8 @@ we can solve PDEs on multiple meshes.</p>
         <div class="sphinxsidebarwrapper">
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="../pyroteus.html"
-                          title="previous chapter">pyroteus package</a></p>
+    <p class="topless"><a href="../goalie.html"
+                          title="previous chapter">goalie package</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
@@ -207,15 +207,15 @@ we can solve PDEs on multiple meshes.</p>
           <a href="mesh_seq.py.html" title="Creating a mesh sequence"
              >next</a> |</li>
         <li class="right" >
-          <a href="../pyroteus.html" title="pyroteus package"
+          <a href="../goalie.html" title="goalie package"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Partitioning a time interval</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

@@ -2,20 +2,21 @@ Hessian-based mesh adaptation for a 2D steady-state problem
 ===========================================================
 
 Previous demos have covered the fundamental time partition and mesh sequence objects
-of Pyroteus, using them to solve PDEs over multiple meshes and perform
+of Goalie, using them to solve PDEs over multiple meshes and perform
 goal-oriented error estimation. Here, we demonstrate how to use them for Hessian-based
 mesh adaptation for a steady-state problem in 2D.
 
 It is recommended that you read the documentation on metric-based mesh adaptation
 before progressing with this demo.
 
-In addition to importing from Firedrake and Pyroteus, we also import the mesh
+In addition to importing from Firedrake and Goalie, we also import the mesh
 adaptation functionality from Firedrake, which can be found in ``firedrake.meshadapt``.
 ::
 
   from firedrake import *
-  from firedrake.meshadapt import *
-  from pyroteus import *
+  from animate.adapt import adapt
+  from animate.metric import RiemannianMetric
+  from goalie import *
 
 
 We again consider the "point discharge with diffusion" test case from the
@@ -39,10 +40,15 @@ We again consider the "point discharge with diffusion" test case from the
       def form(index, sols):
           c, c_ = sols["c"]
           function_space = mesh_seq.function_spaces["c"][index]
-          D = Constant(0.1)
-          u = Constant(as_vector([1, 0]))
           h = CellSize(mesh_seq[index])
           S = source(mesh_seq[index])
+
+          # Define constants
+          R = FunctionSpace(mesh_seq[index], "R", 0)
+          D = Function(R).assign(0.1)
+          u_x = Function(R).assign(1.0)
+          u_y = Function(R).assign(0.0)
+          u = as_vector([u_x, u_y])
 
           # SUPG stabilisation parameter
           unorm = sqrt(dot(u, u))
@@ -102,7 +108,7 @@ instead. ::
   params = MetricParameters(
       {
           "element_rtol": 0.005,
-          "maxiter": 35 if os.environ.get("PYROTEUS_REGRESSION_TEST") is None else 3,
+          "maxiter": 35 if os.environ.get("GOALIE_REGRESSION_TEST") is None else 3,
       }
   )
 

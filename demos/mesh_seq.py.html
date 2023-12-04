@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Creating a mesh sequence &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Creating a mesh sequence &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Burgers equation on a sequence of meshes" href="burgers.py.html" />
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="time_partition.py.html" title="Partitioning a time interval"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Creating a mesh sequence</a></li> 
       </ul>
     </div>  
@@ -42,17 +42,17 @@
           <div class="body" role="main">
             
   <section id="creating-a-mesh-sequence">
-<h1>Creating a mesh sequence<a class="headerlink" href="#creating-a-mesh-sequence" title="Permalink to this heading">¶</a></h1>
+<h1>Creating a mesh sequence<a class="headerlink" href="#creating-a-mesh-sequence" title="Link to this heading">¶</a></h1>
 <p>In the <a class="reference external" href="./time_partition.py.html">previous demo</a>,
 we saw how to create a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code> instance
-- one of the fundamental objects in Pyroteus. Another
+- one of the fundamental objects in Goalie. Another
 fundamental object is the mesh sequence, <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>,
 which is built on top of a time partition. The idea is
 that a single mesh is associated with each subinterval.</p>
 <p>For this and subsequent demos, we import from the namespaces
-of both Firedrake and Pyroteus.</p>
+of both Firedrake and Goalie.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>Again, turn debugging mode on to get verbose output.</p>
@@ -154,13 +154,13 @@ PDE using a <code class="xref py py-class docutils literal notranslate"><span cl
         <li class="right" >
           <a href="time_partition.py.html" title="Partitioning a time interval"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Creating a mesh sequence</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

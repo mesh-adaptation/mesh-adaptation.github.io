@@ -9,7 +9,7 @@
 # equations differ in both the diffusion and reaction terms. ::
 
 from firedrake import *
-from pyroteus_adjoint import *
+from goalie_adjoint import *
 
 # This time, we have two fields instead of one, as well as two function spaces. ::
 
@@ -57,11 +57,12 @@ def get_form(mesh_seq):
         psi_b = TestFunction(mesh_seq.function_spaces["b"][index])
 
         # Define constants
-        dt = Constant(mesh_seq.time_partition[index].timestep)
-        D_a = Constant(8.0e-05)
-        D_b = Constant(4.0e-05)
-        gamma = Constant(0.024)
-        kappa = Constant(0.06)
+        R = FunctionSpace(mesh_seq[index], "R", 0)
+        dt = Function(R).assign(mesh_seq.time_partition[index].timestep)
+        D_a = Function(R).assign(8.0e-05)
+        D_b = Function(R).assign(4.0e-05)
+        gamma = Function(R).assign(0.024)
+        kappa = Function(R).assign(0.06)
 
         # Write the two equations in variational form
         F_a = (
@@ -134,7 +135,7 @@ def get_qoi(mesh_seq, sols, index):
     return qoi
 
 
-test = os.environ.get("PYROTEUS_REGRESSION_TEST") is not None
+test = os.environ.get("GOALIE_REGRESSION_TEST") is not None
 end_time = 10.0 if test else 2000.0
 dt = [0.0001, 0.001, 0.01, 0.1, (end_time - 1) / end_time]
 num_subintervals = 5

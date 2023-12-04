@@ -8,11 +8,12 @@
 # exposition of goal-oriented mesh adaptation in these demos.
 #
 # We copy over the setup as before. The only difference is that we import from
-# `pyroteus_adjoint` rather than `pyroteus`. ::
+# `goalie_adjoint` rather than `goalie`. ::
 
 from firedrake import *
-from firedrake.meshadapt import *
-from pyroteus_adjoint import *
+from animate.adapt import adapt
+from animate.metric import RiemannianMetric
+from goalie_adjoint import *
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib import ticker
@@ -35,10 +36,15 @@ def get_form(mesh_seq):
     def form(index, sols):
         c, c_ = sols["c"]
         function_space = mesh_seq.function_spaces["c"][index]
-        D = Constant(0.1)
-        u = Constant(as_vector([1, 0]))
         h = CellSize(mesh_seq[index])
         S = source(mesh_seq[index])
+
+        # Define constants
+        R = FunctionSpace(mesh_seq[index], "R", 0)
+        D = Function(R).assign(0.1)
+        u_x = Function(R).assign(1.0)
+        u_y = Function(R).assign(0.0)
+        u = as_vector([u_x, u_y])
 
         # SUPG stabilisation parameter
         unorm = sqrt(dot(u, u))
@@ -106,7 +112,7 @@ params = GoalOrientedMetricParameters(
     {
         "element_rtol": 0.005,
         "qoi_rtol": 0.005,
-        "maxiter": 35 if os.environ.get("PYROTEUS_REGRESSION_TEST") is None else 3,
+        "maxiter": 35 if os.environ.get("GOALIE_REGRESSION_TEST") is None else 3,
     }
 )
 
@@ -155,7 +161,7 @@ plt.close()
 #    :align: center
 
 # The adaptor takes a different form in this case, depending on adjoint solution data
-# as well as forward solution data. For simplicity, we begin by using Pyroteus' inbuilt
+# as well as forward solution data. For simplicity, we begin by using Goalie's inbuilt
 # isotropic metric function. ::
 
 
@@ -212,9 +218,7 @@ def adaptor(mesh_seq, solutions, indicators):
 # again on a globally uniformly refined mesh. The latter is particularly expensive, so
 # we should expect the computation to take more time. ::
 
-solutions = mesh_seq.fixed_point_iteration(adaptor)
-qoi_iso = mesh_seq.qoi_values
-dofs_iso = mesh_seq.vertex_counts
+solutions, indicators = mesh_seq.fixed_point_iteration(adaptor)
 
 # This time, we find that the fixed point iteration converges in five iterations.
 # Convergence is reached because the relative change in QoI is found to be smaller than
@@ -268,7 +272,7 @@ plt.close()
 # because we have an advection-dominated problem, so the QoI value is independent of the
 # dynamics there.
 #
-# Pyroteus also provides drivers for *anisotropic* goal-oriented mesh adaptation. Here,
+# Goalie also provides drivers for *anisotropic* goal-oriented mesh adaptation. Here,
 # we consider the ``anisotropic_dwr_metric`` driver. (See documentation for details.) To
 # use it, we just need to define a different adaptor function. The same error indicator
 # is used as for the isotropic approach. In addition, the Hessian of the forward
@@ -345,9 +349,7 @@ mesh_seq = GoalOrientedMeshSeq(
     qoi_type="steady",
     parameters=params,
 )
-solutions = mesh_seq.fixed_point_iteration(adaptor)
-qoi_aniso = mesh_seq.qoi_values
-dofs_aniso = mesh_seq.vertex_counts
+solutions, indicators = mesh_seq.fixed_point_iteration(adaptor)
 
 # .. code-block:: console
 #

@@ -6,12 +6,12 @@ This demo solves the same problem as `the previous one
 automatic differentiation functionality in order to
 automatically form and solve discrete adjoint problems.
 
-We always begin by importing Pyroteus. Adjoint mode is used
+We always begin by importing Goalie. Adjoint mode is used
 so that we have access to the :class:`AdjointMeshSeq` class.
 ::
 
   from firedrake import *
-  from pyroteus_adjoint import *
+  from goalie_adjoint import *
 
 For ease, the field list and functions for obtaining the
 function spaces, forms, solvers, and initial conditions
@@ -28,10 +28,11 @@ are redefined as in the previous demo. ::
       def form(index, solutions):
           u, u_ = solutions["u"]
           P = mesh_seq.time_partition
-          dt = Constant(P.timesteps[index])
 
-          # Specify viscosity coefficient
-          nu = Constant(0.0001)
+          # Define constants
+          R = FunctionSpace(mesh_seq[index], "R", 0)
+          dt = Function(R).assign(P.timesteps[index])
+          nu = Function(R).assign(0.0001)
 
           # Setup variational problem
           v = TestFunction(u.function_space())
@@ -108,7 +109,7 @@ concrete parts of the solver, which mimic the original demo. ::
   dt = 1 / n
 
 Another requirement to solve the adjoint problem using
-Pyroteus is a :class:`TimePartition`. In our case, there is a
+Goalie is a :class:`TimePartition`. In our case, there is a
 single mesh, so the partition is trivial and we can use the
 :class:`TimeInterval` constructor. ::
 

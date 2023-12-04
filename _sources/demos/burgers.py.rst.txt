@@ -3,7 +3,7 @@ Burgers equation on a sequence of meshes
 
 This demo shows how to solve the `Firedrake`
 `Burgers equation demo <https://firedrakeproject.org/demos/burgers.py.html>`__
-on a sequence of meshes using Pyroteus.
+on a sequence of meshes using Goalie.
 The PDE
 
 .. math::
@@ -23,7 +23,7 @@ side. See the Firedrake demo for details on the discretisation used.
 ::
 
   from firedrake import *
-  from pyroteus import *
+  from goalie import *
 
 In this problem, we have a single prognostic variable,
 :math:`\mathbf u`. Its name is recorded in a list of
@@ -42,7 +42,7 @@ dictionary, indexed by the prognostic solution field names. ::
 
 
 In order to solve PDEs using the finite element method, we
-require a weak form. For this, Pyroteus requires a function
+require a weak form. For this, Goalie requires a function
 that maps the :class:`MeshSeq` index and a dictionary of
 solution data to the form. For each field, the dictionary
 should provide a tuple containing the solution :class:`Function`\s
@@ -52,17 +52,19 @@ being solved for.
 
 Timestepping information associated with a given subinterval
 can be accessed via the :attr:`TimePartition` attribute of
-the :class:`MeshSeq`. ::
+the :class:`MeshSeq`. For technical reasons, we need to create a :class:`Function`
+in the `'R'` space (of real numbers) to hold constants. ::
 
 
   def get_form(mesh_seq):
       def form(index, solutions):
           u, u_ = solutions["u"]
           P = mesh_seq.time_partition
-          dt = Constant(P.timesteps[index])
 
-          # Specify viscosity coefficient
-          nu = Constant(0.0001)
+          # Define constants
+          R = FunctionSpace(mesh_seq[index], "R", 0)
+          dt = Function(R).assign(P.timesteps[index])
+          nu = Function(R).assign(0.0001)
 
           # Setup variational problem
           v = TestFunction(u.function_space())
@@ -121,7 +123,7 @@ The dictionary usage may seem cumbersome when applied to such a
 simple problem, but it comes in handy when solving adjoint
 problems associated with coupled systems of equations.
 
-Pyroteus also requires a function for generating an initial
+Goalie also requires a function for generating an initial
 condition from the function space defined on the
 :math:`0^{th}` mesh. ::
 
@@ -173,7 +175,7 @@ During the :func:`solve_forward` call, the solver that was provided
 is applied on the first subinterval. The forward solution at the end
 of that subinterval is transferred to the mesh associated with the
 second subinterval and used as an initial condition for the same solver
-applied again there. Pyroteus uses a conservative interpolation
+applied again there. Goalie uses a conservative interpolation
 operator to transfer solution data between the two meshes. In this
 example, the meshes (and hence function spaces) are identical so the
 projection operation will in fact be the identity.
@@ -202,7 +204,7 @@ timestep using the plotting driver function :func:`plot_snapshots`. ::
 
 We see that the initial sinusoid is nonlinearly advected Eastwards.
 
-In the `next demo <./burgers1.py.html>`__, we use Pyroteus to
+In the `next demo <./burgers1.py.html>`__, we use Goalie to
 automatically solve the adjoint problem associated with Burgers
 equation.
 

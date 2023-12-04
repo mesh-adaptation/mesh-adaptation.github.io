@@ -6,11 +6,10 @@
 # is still no error estimation or mesh adaptation; the same mesh
 # is used in each case to verify that the framework works.
 #
-# Again, begin by importing Pyroteus with adjoint mode
-# activated. ::
+# Again, begin by importing Goalie with adjoint mode activated. ::
 
 from firedrake import *
-from pyroteus_adjoint import *
+from goalie_adjoint import *
 
 
 set_log_level(DEBUG)
@@ -29,10 +28,11 @@ def get_form(mesh_seq):
     def form(index, solutions):
         u, u_ = solutions["u"]
         P = mesh_seq.time_partition
-        dt = Constant(P.timesteps[index])
 
-        # Specify viscosity coefficient
-        nu = Constant(0.0001)
+        # Define constants
+        R = FunctionSpace(mesh_seq[index], "R", 0)
+        dt = Function(R).assign(P.timesteps[index])
+        nu = Function(R).assign(0.0001)
 
         # Setup variational problem
         v = TestFunction(u.function_space())
@@ -137,7 +137,7 @@ fig.savefig("burgers2-end_time.jpg")
 #
 # The adjoint solution fields at each time level appear to match
 # those due to the previous demo at each timestep. That they actually
-# do coincide is checked in Pyroteus' test suite.
+# do coincide is checked in Goalie's test suite.
 #
 # .. rubric:: Exercise
 #

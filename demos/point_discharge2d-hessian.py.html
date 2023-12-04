@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Hessian-based mesh adaptation for a 2D steady-state problem &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Hessian-based mesh adaptation for a 2D steady-state problem &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="point_discharge2d.py.html" title="Point discharge with diffusion"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Hessian-based mesh adaptation for a 2D steady-state problem</a></li> 
       </ul>
     </div>  
@@ -43,18 +43,19 @@
           <div class="body" role="main">
             
   <section id="hessian-based-mesh-adaptation-for-a-2d-steady-state-problem">
-<h1>Hessian-based mesh adaptation for a 2D steady-state problem<a class="headerlink" href="#hessian-based-mesh-adaptation-for-a-2d-steady-state-problem" title="Permalink to this heading">¶</a></h1>
+<h1>Hessian-based mesh adaptation for a 2D steady-state problem<a class="headerlink" href="#hessian-based-mesh-adaptation-for-a-2d-steady-state-problem" title="Link to this heading">¶</a></h1>
 <p>Previous demos have covered the fundamental time partition and mesh sequence objects
-of Pyroteus, using them to solve PDEs over multiple meshes and perform
+of Goalie, using them to solve PDEs over multiple meshes and perform
 goal-oriented error estimation. Here, we demonstrate how to use them for Hessian-based
 mesh adaptation for a steady-state problem in 2D.</p>
 <p>It is recommended that you read the documentation on metric-based mesh adaptation
 before progressing with this demo.</p>
-<p>In addition to importing from Firedrake and Pyroteus, we also import the mesh
+<p>In addition to importing from Firedrake and Goalie, we also import the mesh
 adaptation functionality from Firedrake, which can be found in <code class="docutils literal notranslate"><span class="pre">firedrake.meshadapt</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">firedrake.meshadapt</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">animate.adapt</span> <span class="kn">import</span> <span class="n">adapt</span>
+<span class="kn">from</span> <span class="nn">animate.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
+<span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>We again consider the “point discharge with diffusion” test case from the
@@ -77,10 +78,15 @@ adaptation functionality from Firedrake, which can be found in <code class="docu
     <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
         <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">D</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">as_vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">CellSize</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">source</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+
+        <span class="c1"># Define constants</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">u_x</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">u_y</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">as_vector</span><span class="p">([</span><span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">])</span>
 
         <span class="c1"># SUPG stabilisation parameter</span>
         <span class="n">unorm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
@@ -139,7 +145,7 @@ instead.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">MetricParameters</span><span class="p">(</span>
     <span class="p">{</span>
         <span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
-        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYROTEUS_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
@@ -344,13 +350,13 @@ problem again, but using <em>goal-oriented</em> mesh adaptation.</p>
         <li class="right" >
           <a href="point_discharge2d.py.html" title="Point discharge with diffusion"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Hessian-based mesh adaptation for a 2D steady-state problem</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

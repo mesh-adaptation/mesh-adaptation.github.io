@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>1. Motivation &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>1. Motivation &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="2. Goal-oriented error estimation" href="2-goal-oriented-error-estimation.html" />
-    <link rel="prev" title="Pyroteus manual" href="index.html" /> 
+    <link rel="prev" title="Goalie manual" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,10 +30,10 @@
           <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Pyroteus manual"
+          <a href="index.html" title="Goalie manual"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Pyroteus manual</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Goalie manual</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href=""><span class="section-number">1. </span>Motivation</a></li> 
       </ul>
     </div>  
@@ -44,12 +44,12 @@
           <div class="body" role="main">
             
   <section id="motivation">
-<h1><span class="section-number">1. </span>Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading">¶</a></h1>
+<h1><span class="section-number">1. </span>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">¶</a></h1>
 <p>Computational physics contains a wide variety of applications
 for which the accurate evaluation of a diagnostic
 <cite>quantity of interest (QoI)</cite> is more important than the solution
 of the prognostic equation that it is associated with. It is such
-problems that Pyroteus is designed to solve.</p>
+problems that Goalie is designed to solve.</p>
 <p>Given a partial differential equation (PDE) and a QoI, we are able
 to formulate and solve the associated <cite>adjoint problem</cite>, which
 describes how sensitivities of the QoI with respect to the PDE
@@ -74,7 +74,7 @@ unnecessarily.</p>
 and mesh adaptation, we provide an example application to demonstrate
 a use-case where this technology is useful.</p>
 <section id="tracer-transport">
-<h2><span class="section-number">1.1. </span>Tracer transport<a class="headerlink" href="#tracer-transport" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">1.1. </span>Tracer transport<a class="headerlink" href="#tracer-transport" title="Link to this heading">¶</a></h2>
 <p>Consider a relatively simple, steady-state PDE. Suppose we are
 interested in the advection and diffusion of a tracer concentration,
 which is being released from a point source. The tracer could represent
@@ -83,7 +83,7 @@ a chemical species or pollutant suspended in water, for example.</p>
 <span class="math notranslate nohighlight">\(\mathbf x\in\Omega\)</span>. The advection and diffusion processes are
 governed by the PDE</p>
 <div class="math notranslate nohighlight" id="equation-tracer-eq">
-<span class="eqno">(1)<a class="headerlink" href="#equation-tracer-eq" title="Permalink to this equation">¶</a></span>\[\mathbf u\cdot\nabla c
+<span class="eqno">(1)<a class="headerlink" href="#equation-tracer-eq" title="Link to this equation">¶</a></span>\[\mathbf u\cdot\nabla c
 -\nabla\cdot(D\nabla c)
 =S,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mathbf u\)</span> is the advective velocity, <span class="math notranslate nohighlight">\(D\)</span> is the
@@ -100,7 +100,7 @@ channel sides, we are able to formulate and solve the problem numerically.</p>
 <img alt="../_images/point_discharge2d_forward.jpg" src="../_images/point_discharge2d_forward.jpg" />
 <figcaption>
 <p><span class="caption-text">Finite element solution of the tracer transport problem.
-Image taken from <span id="id2">[<a class="reference internal" href="#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> with authors’ permission.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+Image taken from <span id="id2">[<a class="reference internal" href="#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> with authors’ permission.</span><a class="headerlink" href="#id8" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>In the above plot, the source term is centred at <span class="math notranslate nohighlight">\((2,5)\)</span>.
@@ -114,7 +114,7 @@ for the plant. In such a setup, the point source is the plant’s
 outlet pipe and the receiver region is the plant’s inlet. As such,
 we would like to accurately measure the functional</p>
 <div class="math notranslate nohighlight" id="equation-tracer-qoi">
-<span class="eqno">(2)<a class="headerlink" href="#equation-tracer-qoi" title="Permalink to this equation">¶</a></span>\[J(c)=\int_R c\;\mathrm dx,\]</div>
+<span class="eqno">(2)<a class="headerlink" href="#equation-tracer-qoi" title="Link to this equation">¶</a></span>\[J(c)=\int_R c\;\mathrm dx,\]</div>
 <p>where <span class="math notranslate nohighlight">\(R\)</span> denotes the receiver region. Taking this as QoI,
 the solution of the corresponding adjoint problem takes the form
 below.</p>
@@ -122,7 +122,7 @@ below.</p>
 <img alt="../_images/point_discharge2d_adjoint.jpg" src="../_images/point_discharge2d_adjoint.jpg" />
 <figcaption>
 <p><span class="caption-text">Finite element solution of the adjoint tracer transport problem.
-Image taken from <span id="id3">[<a class="reference internal" href="#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> with authors’ permission.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+Image taken from <span id="id3">[<a class="reference internal" href="#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> with authors’ permission.</span><a class="headerlink" href="#id9" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>Here the receiver region becomes a <cite>source</cite> for the adjoint problem.
@@ -157,7 +157,7 @@ meshes.</p>
 <img alt="../_images/point_discharge2d_weighted_gradient.jpg" src="../_images/point_discharge2d_weighted_gradient.jpg" />
 <figcaption>
 <p><span class="caption-text">Goal-oriented adapted meshes generated using various metric strategies.
-Images taken from <span id="id4">[<a class="reference internal" href="#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> with authors’ permission.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+Images taken from <span id="id4">[<a class="reference internal" href="#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> with authors’ permission.</span><a class="headerlink" href="#id10" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>The adapted meshes take rather different forms, but there are a number of
@@ -170,8 +170,9 @@ general overview of goal-oriented error estimation, including the main
 ideas and fundamental mathematical results.</p>
 </section>
 <section id="references">
-<h2><span class="section-number">1.2. </span>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">1.2. </span>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <div class="docutils container" id="id5">
+<div role="list" class="citation-list">
 <div class="citation" id="id6" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">RCJ14</a><span class="fn-bracket">]</span></span>
 <p>A Riadh, G Cedric, and MH Jean. TELEMAC modeling system: 2D hydrodynamics TELEMAC-2D software release 7.0 user manual. <em>Paris: R&amp;D, Electricite de France</em>, pages 134, 2014.</p>
@@ -207,7 +208,7 @@ ideas and fundamental mathematical results.</p>
   <div>
     <h4>Previous topic</h4>
     <p class="topless"><a href="index.html"
-                          title="previous chapter">Pyroteus manual</a></p>
+                          title="previous chapter">Goalie manual</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
@@ -248,16 +249,16 @@ ideas and fundamental mathematical results.</p>
           <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Pyroteus manual"
+          <a href="index.html" title="Goalie manual"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Pyroteus manual</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Goalie manual</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href=""><span class="section-number">1. </span>Motivation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

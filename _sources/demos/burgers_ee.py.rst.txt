@@ -22,10 +22,10 @@ solution in an enriched finite element space. That is, a superspace,
 obtained by adding more degrees of freedom to the base space. This could
 be done by solving global or local auxiliary PDEs, or by applying patch
 recovery type methods. Currently, only global enrichment is supported in
-Pyroteus. ::
+Goalie. ::
 
   from firedrake import *
-  from pyroteus_adjoint import *
+  from goalie_adjoint import *
 
   set_log_level(DEBUG)
 
@@ -43,10 +43,11 @@ adjoint Burgers demo. ::
       def form(index, solutions):
           u, u_ = solutions["u"]
           P = mesh_seq.time_partition
-          dt = Constant(P.timesteps[index])
 
-          # Specify viscosity coefficient
-          nu = Constant(0.0001)
+          # Define constants
+          R = FunctionSpace(mesh_seq[index], "R", 0)
+          dt = Function(R).assign(P.timesteps[index])
+          nu = Function(R).assign(0.0001)
 
           # Setup variational problem
           v = TestFunction(u.function_space())
@@ -128,10 +129,10 @@ functionality. Note that :class:`GoalOrientedMeshSeq` is a subclass of
   )
 
 Given the description of the PDE problem in the form of a :class:`GoalOrientedMeshSeq`,
-Pyroteus is able to extract all of the relevant information to automatically compute
+Goalie is able to extract all of the relevant information to automatically compute
 error estimators. During the computation, we solve the forward and adjoint equations
 over the mesh sequence, as before. In addition, we solve the adjoint problem again
-in an *enriched* finite element space. Currently, Pyroteus supports uniform refinement
+in an *enriched* finite element space. Currently, Goalie supports uniform refinement
 of the meshes (:math:`h`-refinement) or globally increasing the polynomial order
 (:math:`p`-refinement). Choosing one (or both) of these as the ``"enrichment_method"``,
 we are able to compute error indicator fields as follows. ::

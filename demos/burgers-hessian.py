@@ -10,8 +10,9 @@
 # As before, we copy over what is now effectively boiler plate to set up our problem. ::
 
 from firedrake import *
-from firedrake.meshadapt import adapt
-from pyroteus import *
+from animate.adapt import adapt
+from animate.metric import RiemannianMetric
+from goalie import *
 import matplotlib.pyplot as plt
 
 
@@ -26,10 +27,11 @@ def get_form(mesh_seq):
     def form(index, solutions):
         u, u_ = solutions["u"]
         P = mesh_seq.time_partition
-        dt = Constant(P.timesteps[index])
 
-        # Specify viscosity coefficient
-        nu = Constant(0.0001)
+        # Define constants
+        R = FunctionSpace(mesh_seq[index], "R", 0)
+        dt = Function(R).assign(P.timesteps[index])
+        nu = Function(R).assign(0.0001)
 
         # Setup variational problem
         v = TestFunction(u.function_space())
@@ -88,7 +90,7 @@ time_partition = TimePartition(
 params = MetricParameters(
     {
         "element_rtol": 0.001,
-        "maxiter": 35 if os.environ.get("PYROTEUS_REGRESSION_TEST") is None else 3,
+        "maxiter": 35 if os.environ.get("GOALIE_REGRESSION_TEST") is None else 3,
     }
 )
 mesh_seq = MeshSeq(
@@ -110,7 +112,7 @@ mesh_seq = MeshSeq(
 # to give the metric contribution from each subinterval. Given that we use a simple
 # implicit Euler method for time integration in the PDE, we do the same here, too.
 #
-# Pyroteus provides functionality to normalise a list of metrics using *space-time*
+# Goalie provides functionality to normalise a list of metrics using *space-time*
 # normalisation. This ensures that the target complexity is attained on average across
 # all timesteps.
 #

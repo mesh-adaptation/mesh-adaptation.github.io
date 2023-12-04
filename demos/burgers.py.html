@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Burgers equation on a sequence of meshes &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Burgers equation on a sequence of meshes &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="mesh_seq.py.html" title="Creating a mesh sequence"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Burgers equation on a sequence of meshes</a></li> 
       </ul>
     </div>  
@@ -43,10 +43,10 @@
           <div class="body" role="main">
             
   <section id="burgers-equation-on-a-sequence-of-meshes">
-<h1>Burgers equation on a sequence of meshes<a class="headerlink" href="#burgers-equation-on-a-sequence-of-meshes" title="Permalink to this heading">¶</a></h1>
+<h1>Burgers equation on a sequence of meshes<a class="headerlink" href="#burgers-equation-on-a-sequence-of-meshes" title="Link to this heading">¶</a></h1>
 <p>This demo shows how to solve the <cite>Firedrake</cite>
 <a class="reference external" href="https://firedrakeproject.org/demos/burgers.py.html">Burgers equation demo</a>
-on a sequence of meshes using Pyroteus.
+on a sequence of meshes using Goalie.
 The PDE</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}\begin{split}\frac{\partial\mathbf u}{\partial t}
@@ -58,7 +58,7 @@ The PDE</p>
 as a sine wave and is nonlinearly advected to the right hand
 side. See the Firedrake demo for details on the discretisation used.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>In this problem, we have a single prognostic variable,
@@ -76,7 +76,7 @@ dictionary, indexed by the prognostic solution field names.</p>
 </pre></div>
 </div>
 <p>In order to solve PDEs using the finite element method, we
-require a weak form. For this, Pyroteus requires a function
+require a weak form. For this, Goalie requires a function
 that maps the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> index and a dictionary of
 solution data to the form. For each field, the dictionary
 should provide a tuple containing the solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s
@@ -85,15 +85,17 @@ returned inside its own dictionary, with an entry for each equation
 being solved for.</p>
 <p>Timestepping information associated with a given subinterval
 can be accessed via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">TimePartition</span></code> attribute of
-the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>.</p>
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>. For technical reasons, we need to create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>
+in the <cite>‘R’</cite> space (of real numbers) to hold constants.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">solutions</span><span class="p">):</span>
         <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
 
-        <span class="c1"># Specify viscosity coefficient</span>
-        <span class="n">nu</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
+        <span class="c1"># Define constants</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
 
         <span class="c1"># Setup variational problem</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">TestFunction</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">function_space</span><span class="p">())</span>
@@ -148,7 +150,7 @@ appended by <code class="docutils literal notranslate"><span class="pre">'_old'<
 <p>The dictionary usage may seem cumbersome when applied to such a
 simple problem, but it comes in handy when solving adjoint
 problems associated with coupled systems of equations.</p>
-<p>Pyroteus also requires a function for generating an initial
+<p>Goalie also requires a function for generating an initial
 condition from the function space defined on the
 <span class="math notranslate nohighlight">\(0^{th}\)</span> mesh.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
@@ -198,7 +200,7 @@ solve Burgers equation over the meshes in sequence.</p>
 is applied on the first subinterval. The forward solution at the end
 of that subinterval is transferred to the mesh associated with the
 second subinterval and used as an initial condition for the same solver
-applied again there. Pyroteus uses a conservative interpolation
+applied again there. Goalie uses a conservative interpolation
 operator to transfer solution data between the two meshes. In this
 example, the meshes (and hence function spaces) are identical so the
 projection operation will in fact be the identity.</p>
@@ -223,7 +225,7 @@ timestep using the plotting driver function <code class="xref py py-func docutil
 <img alt="../_images/burgers.jpg" src="../_images/burgers.jpg" />
 </figure>
 <p>We see that the initial sinusoid is nonlinearly advected Eastwards.</p>
-<p>In the <a class="reference external" href="./burgers1.py.html">next demo</a>, we use Pyroteus to
+<p>In the <a class="reference external" href="./burgers1.py.html">next demo</a>, we use Goalie to
 automatically solve the adjoint problem associated with Burgers
 equation.</p>
 <p>This demo can also be accessed as a <a class="reference external" href="burgers.py">Python script</a>.</p>
@@ -282,13 +284,13 @@ equation.</p>
         <li class="right" >
           <a href="mesh_seq.py.html" title="Creating a mesh sequence"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Burgers equation on a sequence of meshes</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>
