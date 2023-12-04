@@ -1,4 +1,4 @@
-.. title:: Goalie Goal-Oriented Mesh Adaptation Toolkit
+.. title:: Welcome to the documentation for Animate and Goalie!
 
 .. only:: html
 
