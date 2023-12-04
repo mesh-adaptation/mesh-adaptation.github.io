@@ -66,12 +66,7 @@ source code for both packages is hosted on GitHub:
 `Goalie <https://github.com/pyroteus/goalie/>`__.
 
 
-.. rubric:: Demos
-
-Goalie contains a number of demos to illustrate the correct
-usage of its different functionalities. It is highly recommended
-that these are read in order, as many of the demos build upon
-earlier ones.
+.. rubric:: Goalie demos
 
 *Time partitions and mesh sequences*
 
