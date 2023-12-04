@@ -177,7 +177,6 @@ intersphinx_mapping = {
     "firedrake": ("https://firedrakeproject.org/", None),
     "python": ("https://docs.python.org/3/", None),
     "thetis": ("https://thetisproject.org/", None),
-    'ufl': ('https://fenics.readthedocs.io/projects/ufl/en/latest/', None),
 }
 
 autoclass_content = "both"
