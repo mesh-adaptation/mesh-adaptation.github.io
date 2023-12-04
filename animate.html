@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>animate package &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=601dbdee" />
+    <script src="_static/documentation_options.js?v=2709fde1"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="goalie package" href="goalie.html" />
+    <link rel="prev" title="4. Goal-oriented mesh adaptation" href="maths/4-goal-oriented-mesh-adaptation.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="goalie.html" title="goalie package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="maths/4-goal-oriented-mesh-adaptation.html" title="4. Goal-oriented mesh adaptation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">animate package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="animate-package">
+<h1>animate package<a class="headerlink" href="#animate-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-animate.adapt">
+<span id="animate-adapt-module"></span><h2>animate.adapt module<a class="headerlink" href="#module-animate.adapt" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="animate.adapt.MetricBasedAdaptor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MetricBasedAdaptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#MetricBasedAdaptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.MetricBasedAdaptor" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptorBase</span></code></p>
+<p>Class for driving metric-based mesh adaptation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a> to be adapted</p></li>
+<li><p><strong>metric</strong> – <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a> to use for the adaptation</p></li>
+<li><p><strong>name</strong> – name for the adapted mesh</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="animate.adapt.MetricBasedAdaptor.adapted_mesh">
+<span class="sig-name descname"><span class="pre">adapted_mesh</span></span><a class="reference internal" href="_modules/animate/adapt.html#MetricBasedAdaptor.adapted_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.MetricBasedAdaptor.adapted_mesh" title="Link to this definition">¶</a></dt>
+<dd><p>Adapt the mesh with respect to the provided metric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a new <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.adapt.MetricBasedAdaptor.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#MetricBasedAdaptor.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.MetricBasedAdaptor.interpolate" title="Link to this definition">¶</a></dt>
+<dd><p>Interpolate a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> into the corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
+defined on the adapted mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the scalar <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> on the initial mesh</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>its interpolation onto the adapted mesh</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.adapt.MetricBasedAdaptor.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#MetricBasedAdaptor.project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.MetricBasedAdaptor.project" title="Link to this definition">¶</a></dt>
+<dd><p>Project a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> into the corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
+defined on the adapted mesh using supermeshing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the scalar <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> on the initial mesh</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>its projection onto the adapted mesh</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.adapt.adapt">
+<span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.adapt" title="Link to this definition">¶</a></dt>
+<dd><p>Adapt a mesh with respect to a metric and some adaptor parameters.</p>
+<p>If multiple metrics are provided, then they are intersected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a> to be adapted.</p></li>
+<li><p><strong>metrics</strong> – list of <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s</p></li>
+<li><p><strong>name</strong> – name for the adapted mesh</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a new <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-animate.interpolation">
+<span id="animate-interpolation-module"></span><h2>animate.interpolation module<a class="headerlink" href="#module-animate.interpolation" title="Link to this heading">¶</a></h2>
+<p>Driver functions for mesh-to-mesh data transfer.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.interpolation.clement_interpolant">
+<span class="sig-name descname"><span class="pre">clement_interpolant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/interpolation.html#clement_interpolant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.interpolation.clement_interpolant" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the Clement interpolant of a <span class="math notranslate nohighlight">\(\mathbb P0\)</span> source field, i.e. take the
+volume average over neighbouring cells at each vertex. See <span id="id1">[<a class="reference internal" href="goalie.html#id5" title="Ph Clément. Approximation by finite element functions using local regularization. Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique, 9(R2):77–84, 1975.">Clement75</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – the <span class="math notranslate nohighlight">\(\mathbb P0\)</span> source field</p></li>
+<li><p><strong>target_space</strong> – the <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space to interpolate into</p></li>
+<li><p><strong>boundary</strong> – interpolate over boundary facets or cells?</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-animate.math">
+<span id="animate-math-module"></span><h2>animate.math module<a class="headerlink" href="#module-animate.math" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.math.construct_basis">
+<span class="sig-name descname"><span class="pre">construct_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/math.html#construct_basis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.math.construct_basis" title="Link to this definition">¶</a></dt>
+<dd><p>Construct a basis from a given vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> – the starting vector</p>
+</dd>
+<dt class="field-even">Kwargs normalise<span class="colon">:</span></dt>
+<dd class="field-even"><p>do we want an orthonormal basis?</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.math.gram_schmidt">
+<span class="sig-name descname"><span class="pre">gram_schmidt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/math.html#gram_schmidt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.math.gram_schmidt" title="Link to this definition">¶</a></dt>
+<dd><p>Given some vectors, construct an orthogonal basis
+using Gram-Schmidt orthogonalisation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args vectors<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the vectors to orthogonalise</p>
+</dd>
+<dt class="field-even">Kwargs normalise<span class="colon">:</span></dt>
+<dd class="field-even"><p>do we want an orthonormal basis?</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-animate.metric">
+<span id="animate-metric-module"></span><h2>animate.metric module<a class="headerlink" href="#module-animate.metric" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RiemannianMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code></a></p>
+<p>Class for defining a Riemannian metric over a given mesh.</p>
+<p>A metric is a symmetric positive-definite field, which conveys how the mesh is to
+be adapted. If the mesh is of dimension <span class="math notranslate nohighlight">\(d\)</span> then the metric takes the value
+of a square <span class="math notranslate nohighlight">\(d\times d\)</span> matrix at each point.</p>
+<p>The implementation of metric-based mesh adaptation used in PETSc assumes that the
+metric is piece-wise linear and continuous, with its degrees of freedom at the
+mesh vertices.</p>
+<dl class="simple">
+<dt>For details, see the PETSc manual entry:</dt><dd><p><a class="reference external" href="https://petsc.org/release/docs/manual/dmplex/#metric-based-mesh-adaptation">https://petsc.org/release/docs/manual/dmplex/#metric-based-mesh-adaptation</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>function_space</strong> – the tensor <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>, on which to build
+this <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>. Alternatively, another <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>
+may be passed here and its function space will be used to build this
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>. In this case, the function values are copied. If a
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a> is passed here then a tensor
+<span class="math notranslate nohighlight">\(\mathbb P1\)</span> space is built on top of it.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.assemble_eigendecomposition">
+<span class="sig-name descname"><span class="pre">assemble_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalues</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.assemble_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.assemble_eigendecomposition" title="Link to this definition">¶</a></dt>
+<dd><p>Assemble a matrix from its eigenvectors and eigenvalues.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>evectors</strong> – eigenvector <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p></li>
+<li><p><strong>evalues</strong> – eigenvalue <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.average">
+<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.average"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.average" title="Link to this definition">¶</a></dt>
+<dd><p>Average the metric with other metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args metrics<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the metrics to be averaged with</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>weights</strong> – list of weights to apply to each metric</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the averaged <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>, modified in-place</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.combine">
+<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.combine" title="Link to this definition">¶</a></dt>
+<dd><p>Combine metrics using either averaging or intersection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> – the list of metrics to combine with</p></li>
+<li><p><strong>average</strong> – toggle between averaging and intersection</p></li>
+</ul>
+</dd>
+</dl>
+<p>All other keyword arguments are passed to the relevant method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.complexity">
+<span class="sig-name descname"><span class="pre">complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.complexity" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the metric complexity - the continuous analogue
+of the (inherently discrete) mesh vertex count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>boundary</strong> – should the complexity be computed over the domain boundary?</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the complexity of the <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric">
+<span class="sig-name descname"><span class="pre">compute_anisotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_anisotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric" title="Link to this definition">¶</a></dt>
+<dd><p>Compute an anisotropic metric from some error indicator, given a Hessian field.</p>
+<p>The formulation used is based on that presented in <span id="id2">[<a class="reference internal" href="goalie.html#id9" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+normalisation is implicit in the metric construction and involves the
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id3">[<a class="reference internal" href="goalie.html#id9" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<p>If a Hessian is not provided then an isotropic formulation is used.</p>
+<p>Whilst an element-based formulation is used to derive the metric, the result is
+projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – the error indicator</p></li>
+<li><p><strong>hessian</strong> – the Hessian</p></li>
+<li><p><strong>convergence_rate</strong> – normalisation parameter</p></li>
+<li><p><strong>min_eigenvalue</strong> – minimum tolerated eigenvalue</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_boundary_hessian">
+<span class="sig-name descname"><span class="pre">compute_boundary_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mixed_L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_boundary_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_boundary_hessian" title="Link to this definition">¶</a></dt>
+<dd><p>Recover the Hessian of a scalar field on the domain boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – field to recover over the domain boundary</p></li>
+<li><p><strong>method</strong> – choose from ‘mixed_L2’ and ‘Clement’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_eigendecomposition">
+<span class="sig-name descname"><span class="pre">compute_eigendecomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_eigendecomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_eigendecomposition" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the eigenvectors and eigenvalues of a matrix-valued function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reorder</strong> – should the eigendecomposition be reordered in order of
+<em>descending</em> eigenvalue magnitude?</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>eigenvector <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> and eigenvalue
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> from the
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a> underpinning the metric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_hessian">
+<span class="sig-name descname"><span class="pre">compute_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mixed_L2'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_hessian" title="Link to this definition">¶</a></dt>
+<dd><p>Recover the Hessian of a scalar field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – the scalar field whose Hessian we seek to recover</p></li>
+<li><p><strong>method</strong> – recovery method</p></li>
+</ul>
+</dd>
+</dl>
+<p>All other keyword arguments are passed to the chosen recovery routine.</p>
+<p>In the case of the <cite>‘L2’</cite> method, the <cite>target_space</cite> keyword argument is used
+for the gradient recovery. The target space for the Hessian recovery is
+inherited from the metric itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_isotropic_dwr_metric">
+<span class="sig-name descname"><span class="pre">compute_isotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_isotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_isotropic_dwr_metric" title="Link to this definition">¶</a></dt>
+<dd><p>Compute an isotropic metric from some error indicator using an element-based
+formulation.</p>
+<p>The formulation is based on that presented in <span id="id4">[<a class="reference internal" href="goalie.html#id9" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+normalisation is implicit in the metric construction and involves the
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id5">[<a class="reference internal" href="goalie.html#id9" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<p>Whilst an element-based formulation is used to derive the metric, the result is
+projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – the error indicator</p></li>
+<li><p><strong>convergence_rate</strong> – normalisation parameter</p></li>
+<li><p><strong>min_eigenvalue</strong> – minimum tolerated eigenvalue</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_isotropic_metric">
+<span class="sig-name descname"><span class="pre">compute_isotropic_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_isotropic_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_isotropic_metric" title="Link to this definition">¶</a></dt>
+<dd><p>Compute an isotropic metric from some error indicator.</p>
+<p>The result is a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> diagonal tensor field whose entries are
+projections of the error indicator in modulus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicator</strong> – the error indicator</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_weighted_hessian_metric">
+<span class="sig-name descname"><span class="pre">compute_weighted_hessian_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessians</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_weighted_hessian_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_weighted_hessian_metric" title="Link to this definition">¶</a></dt>
+<dd><p>Compute a vertex-wise anisotropic metric from a list of error indicators, given
+a list of corresponding Hessian fields.</p>
+<p>The formulation used is based on that presented in <span id="id6">[<a class="reference internal" href="goalie.html#id7" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006. doi:10.1016/j.camwa.2006.11.003.">PPP+06</a>]</span>. It is
+assumed that the error indicators have been constructed in the appropriate way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error_indicators</strong> – list of error indicators</p></li>
+<li><p><strong>hessians</strong> – list of Hessians</p></li>
+<li><p><strong>average</strong> – should metric components be averaged or intersected?</p></li>
+<li><p><strong>interpolant</strong> – choose from ‘Clement’ or ‘L2’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deepcopy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.copy" title="Link to this definition">¶</a></dt>
+<dd><p>Copy the metric and any associated parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>deepcopy</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the new <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a> will allocate
+new space and copy values.  If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the default, then the new
+<a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a> will share the dof values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a copy of the metric with the same parameters set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.density_and_quotients">
+<span class="sig-name descname"><span class="pre">density_and_quotients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.density_and_quotients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.density_and_quotients" title="Link to this definition">¶</a></dt>
+<dd><p>Extract the density and anisotropy quotients from a metric.</p>
+<p>By symmetry, Riemannian metrics admit an orthogonal eigendecomposition,</p>
+<div class="math notranslate nohighlight">
+\[\underline{\mathbf M}(\mathbf x)
+= \underline{\mathbf V}(\mathbf x)\:
+\underline{\boldsymbol\Lambda}(\mathbf x)\:
+\underline{\mathbf V}(\mathbf x)^T,\]</div>
+<p>at each point <span class="math notranslate nohighlight">\(\mathbf x\in\Omega\)</span>, where
+<span class="math notranslate nohighlight">\(\underline{\mathbf V}\)</span> and <span class="math notranslate nohighlight">\(\underline{\boldsymbol\Sigma}\)</span> are
+matrices holding the eigenvectors and eigenvalues, respectively. By
+positive-definiteness, entries of <span class="math notranslate nohighlight">\(\underline{\boldsymbol\Lambda}\)</span> are all
+positive.</p>
+<p>An alternative decomposition,</p>
+<div class="math notranslate nohighlight">
+\[\underline{\mathbf M}(\mathbf x)
+= d(\mathbf x)^\frac2n
+\underline{\mathbf V}(\mathbf x)\:
+\underline{\mathbf R}(\mathbf x)^{-\frac2n}
+\underline{\mathbf V}(\mathbf x)^T\]</div>
+<p>can also be deduced, in terms of the <cite>metric density</cite> and
+<cite>anisotropy quotients</cite>,</p>
+<div class="math notranslate nohighlight">
+\[d = \prod_{i=1}^n h_i,\qquad
+r_i = h_i^n d,\qquad \forall i=1:n,\]</div>
+<p>where <span class="math notranslate nohighlight">\(h_i := \frac1{\sqrt{\lambda_i}}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reorder</strong> – should the eigendecomposition be reordered?</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>metric density, anisotropy quotients and eigenvector matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.enforce_spd">
+<span class="sig-name descname"><span class="pre">enforce_spd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">restrict_sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restrict_anisotropy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.enforce_spd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.enforce_spd" title="Link to this definition">¶</a></dt>
+<dd><p>Enforce that the metric is symmetric positive-definite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>restrict_sizes</strong> – should minimum and maximum metric magnitudes be enforced?</p></li>
+<li><p><strong>restrict_anisotropy</strong> – should maximum anisotropy be enforced?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>, modified in-place.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.intersect">
+<span class="sig-name descname"><span class="pre">intersect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.intersect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.intersect" title="Link to this definition">¶</a></dt>
+<dd><p>Intersect the metric with other metrics.</p>
+<p>Metric intersection means taking the minimal ellipsoid in the direction of each
+eigenvector at each point in the domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>metrics</strong> – the metrics to be intersected with</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the intersected <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>, modified in-place</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.normalise">
+<span class="sig-name descname"><span class="pre">normalise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.normalise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.normalise" title="Link to this definition">¶</a></dt>
+<dd><p>Apply <span class="math notranslate nohighlight">\(L^p\)</span> normalisation to the metric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_factor</strong> – pre-computed global normalisation factor</p></li>
+<li><p><strong>boundary</strong> – is the normalisation to be done over the boundary?</p></li>
+<li><p><strong>restrict_sizes</strong> – should minimum and maximum metric magnitudes be enforced?</p></li>
+<li><p><strong>restrict_anisotropy</strong> – should maximum anisotropy be enforced?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the normalised <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>, modified in-place</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.set_parameters">
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.set_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Set metric parameter values internally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>metric_parameters</strong> – a dictionary of parameters to be passed to PETSc’s
+Riemannian metric implementation. All such options have the prefix
+<cite>dm_plex_metric_</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.metric.determine_metric_complexity">
+<span class="sig-name descname"><span class="pre">determine_metric_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H_interior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#determine_metric_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.determine_metric_complexity" title="Link to this definition">¶</a></dt>
+<dd><p>Solve an algebraic problem to obtain coefficients for the interior and boundary
+metrics to obtain a given metric complexity.</p>
+<p>See <span id="id7">[<a class="reference internal" href="goalie.html#id8" title="Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. Journal of computational physics, 229(8):2866–2897, 2010. doi:10.1016/j.jcp.2009.12.021.">LDA10</a>]</span> for details. Note that we use a slightly different formulation
+here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H_interior</strong> – Hessian component from domain interior</p></li>
+<li><p><strong>H_boundary</strong> – Hessian component from domain boundary</p></li>
+<li><p><strong>target</strong> – target metric complexity</p></li>
+<li><p><strong>p</strong> – normalisation order</p></li>
+<li><p><strong>H_interior_scaling</strong> – optional scaling for interior component</p></li>
+<li><p><strong>H_boundary_scaling</strong> – optional scaling for boundary component</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.metric.intersect_on_boundary">
+<span class="sig-name descname"><span class="pre">intersect_on_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'on_boundary'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#intersect_on_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.intersect_on_boundary" title="Link to this definition">¶</a></dt>
+<dd><p>Combine a list of metrics by intersection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics</strong> – the metrics to be combined</p></li>
+<li><p><strong>boundary_tag</strong> – optional boundary segment physical ID for boundary
+intersection. Otherwise, the intersection is over the whole boundary.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-animate.quality">
+<span id="animate-quality-module"></span><h2>animate.quality module<a class="headerlink" href="#module-animate.quality" title="Link to this heading">¶</a></h2>
+<p>Functions for computing mesh quality measures.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="animate.quality.QualityMeasure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">QualityMeasure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/quality.html#QualityMeasure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.quality.QualityMeasure" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for computing quality measures associated with a given mesh.</p>
+<dl class="simple">
+<dt>Choices of quality measure:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">min_angle</span></code>: the minimum angle of each cell</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">area</span></code>: the area of each cell in a 2D triangular mesh</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">volume</span></code>: the volume of each cell in a 3D tetrahedral mesh</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">facet_area</span></code>: the area of each <em>facet</em>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aspect_ratio</span></code>: the aspect ratio of each cell</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eskew</span></code>: the equiangle skew of each cell</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skewness</span></code>: the skewness of each cell in a 2D triangular mesh</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scaled_jacobian</span></code>: the scaled Jacobian of each cell</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metric</span></code>:  given a Riemannian metric, this function outputs the
+value of the quality measure <code class="xref eq docutils literal notranslate"><span class="pre">Q_M</span></code> based on the transformation
+encoded by the metric.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – the input mesh to do computations on</p></li>
+<li><p><strong>metric</strong> – the tensor field representing the metric space transformation</p></li>
+<li><p><strong>python</strong> – compute the measure using Python?</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-animate.recovery">
+<span id="animate-recovery-module"></span><h2>animate.recovery module<a class="headerlink" href="#module-animate.recovery" title="Link to this heading">¶</a></h2>
+<p>Driver functions for derivative recovery.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.recovery.recover_boundary_hessian">
+<span class="sig-name descname"><span class="pre">recover_boundary_hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/recovery.html#recover_boundary_hessian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.recovery.recover_boundary_hessian" title="Link to this definition">¶</a></dt>
+<dd><p>Recover the Hessian of a scalar field on the domain boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – field to recover over the domain boundary</p></li>
+<li><p><strong>method</strong> – choose from ‘mixed_L2’ and ‘Clement’</p></li>
+<li><p><strong>target_space</strong> – the <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.TensorFunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.TensorFunctionSpace()</span></code></a>
+in which the metric will exist</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.recovery.recover_gradient_l2">
+<span class="sig-name descname"><span class="pre">recover_gradient_l2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/recovery.html#recover_gradient_l2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.recovery.recover_gradient_l2" title="Link to this definition">¶</a></dt>
+<dd><p>Recover the gradient of a scalar or vector field using <span class="math notranslate nohighlight">\(L^2\)</span> projection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> – the scalar field whose derivatives we seek to recover</p></li>
+<li><p><strong>mesh</strong> – the underlying mesh</p></li>
+<li><p><strong>target_space</strong> – the <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspace.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.functionspace.FunctionSpace()</span></code></a>
+recovered gradient should live in</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.recovery.recover_hessian_clement">
+<span class="sig-name descname"><span class="pre">recover_hessian_clement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/recovery.html#recover_hessian_clement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.recovery.recover_hessian_clement" title="Link to this definition">¶</a></dt>
+<dd><p>Recover the gradient and Hessian of a scalar field using two applications of
+Clement interpolation.</p>
+<p>Note that if the field is of degree 2 then projection will be used to obtain the
+gradient. If the field is of degree 3 or greater then projection will be used
+for the Hessian recovery, too.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>f</strong> – the scalar field whose derivatives we seek to recover</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-animate">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-animate" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">animate package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-animate.adapt">animate.adapt module</a><ul>
+<li><a class="reference internal" href="#animate.adapt.MetricBasedAdaptor"><code class="docutils literal notranslate"><span class="pre">MetricBasedAdaptor</span></code></a><ul>
+<li><a class="reference internal" href="#animate.adapt.MetricBasedAdaptor.adapted_mesh"><code class="docutils literal notranslate"><span class="pre">MetricBasedAdaptor.adapted_mesh</span></code></a></li>
+<li><a class="reference internal" href="#animate.adapt.MetricBasedAdaptor.interpolate"><code class="docutils literal notranslate"><span class="pre">MetricBasedAdaptor.interpolate()</span></code></a></li>
+<li><a class="reference internal" href="#animate.adapt.MetricBasedAdaptor.project"><code class="docutils literal notranslate"><span class="pre">MetricBasedAdaptor.project()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#animate.adapt.adapt"><code class="docutils literal notranslate"><span class="pre">adapt()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-animate.interpolation">animate.interpolation module</a><ul>
+<li><a class="reference internal" href="#animate.interpolation.clement_interpolant"><code class="docutils literal notranslate"><span class="pre">clement_interpolant()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-animate.math">animate.math module</a><ul>
+<li><a class="reference internal" href="#animate.math.construct_basis"><code class="docutils literal notranslate"><span class="pre">construct_basis()</span></code></a></li>
+<li><a class="reference internal" href="#animate.math.gram_schmidt"><code class="docutils literal notranslate"><span class="pre">gram_schmidt()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-animate.metric">animate.metric module</a><ul>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a><ul>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.assemble_eigendecomposition"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.assemble_eigendecomposition()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.average"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.average()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.combine"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.combine()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.complexity"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.complexity()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_anisotropic_dwr_metric()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.compute_boundary_hessian"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_boundary_hessian()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.compute_eigendecomposition"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_eigendecomposition()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.compute_hessian"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_hessian()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.compute_isotropic_dwr_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_isotropic_dwr_metric()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.compute_isotropic_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_isotropic_metric()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.compute_weighted_hessian_metric"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.compute_weighted_hessian_metric()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.copy"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.copy()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.density_and_quotients"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.density_and_quotients()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.enforce_spd"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.enforce_spd()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.intersect"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.intersect()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.normalise"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.normalise()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.set_parameters"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.set_parameters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#animate.metric.determine_metric_complexity"><code class="docutils literal notranslate"><span class="pre">determine_metric_complexity()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.intersect_on_boundary"><code class="docutils literal notranslate"><span class="pre">intersect_on_boundary()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-animate.quality">animate.quality module</a><ul>
+<li><a class="reference internal" href="#animate.quality.QualityMeasure"><code class="docutils literal notranslate"><span class="pre">QualityMeasure</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-animate.recovery">animate.recovery module</a><ul>
+<li><a class="reference internal" href="#animate.recovery.recover_boundary_hessian"><code class="docutils literal notranslate"><span class="pre">recover_boundary_hessian()</span></code></a></li>
+<li><a class="reference internal" href="#animate.recovery.recover_gradient_l2"><code class="docutils literal notranslate"><span class="pre">recover_gradient_l2()</span></code></a></li>
+<li><a class="reference internal" href="#animate.recovery.recover_hessian_clement"><code class="docutils literal notranslate"><span class="pre">recover_hessian_clement()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-animate">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="maths/4-goal-oriented-mesh-adaptation.html"
+                          title="previous chapter"><span class="section-number">4. </span>Goal-oriented mesh adaptation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="goalie.html"
+                          title="next chapter">goalie package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/animate.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="goalie.html" title="goalie package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="maths/4-goal-oriented-mesh-adaptation.html" title="4. Goal-oriented mesh adaptation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">animate package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>

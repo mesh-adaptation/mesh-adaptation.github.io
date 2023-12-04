@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>animate.adapt &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">animate.adapt</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for animate.adapt</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">firedrake.cython.dmcommon</span> <span class="kn">import</span> <span class="n">to_petsc_local_numbering</span>
+<span class="kn">import</span> <span class="nn">firedrake.functionspace</span> <span class="k">as</span> <span class="nn">ffs</span>
+<span class="kn">import</span> <span class="nn">firedrake.mesh</span> <span class="k">as</span> <span class="nn">fmesh</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">from</span> <span class="nn">firedrake.projection</span> <span class="kn">import</span> <span class="n">Projector</span>
+<span class="kn">import</span> <span class="nn">firedrake.utils</span> <span class="k">as</span> <span class="nn">futils</span>
+<span class="kn">from</span> <span class="nn">.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MetricBasedAdaptor&quot;</span><span class="p">,</span> <span class="s2">&quot;adapt&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">AdaptorBase</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class that defines the API for all mesh adaptors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param mesh: mesh to be adapted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">adapted_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interpolate a field from the initial mesh to the adapted mesh.</span>
+
+<span class="sd">        :param f: the field to be interpolated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="MetricBasedAdaptor">
+<a class="viewcode-back" href="../../animate.html#animate.adapt.MetricBasedAdaptor">[docs]</a>
+<span class="k">class</span> <span class="nc">MetricBasedAdaptor</span><span class="p">(</span><span class="n">AdaptorBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for driving metric-based mesh adaptation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param mesh: :class:`~firedrake.mesh.MeshGeometry` to be adapted</span>
+<span class="sd">        :param metric: :class:`.RiemannianMetric` to use for the adaptation</span>
+<span class="sd">        :param name: name for the adapted mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">_mesh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">mesh</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The mesh associated with the metric is inconsistent&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">topology</span><span class="p">,</span> <span class="n">fmesh</span><span class="o">.</span><span class="n">ExtrudedMeshTopology</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Cannot adapt extruded meshes&quot;</span><span class="p">)</span>
+        <span class="n">coord_fe</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">coord_fe</span><span class="o">.</span><span class="n">family</span><span class="p">(),</span> <span class="n">coord_fe</span><span class="o">.</span><span class="n">degree</span><span class="p">())</span> <span class="o">!=</span> <span class="p">(</span><span class="s2">&quot;Lagrange&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mesh coordinates must be P1, not </span><span class="si">{</span><span class="n">coord_fe</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">RiemannianMetric</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">projectors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+<div class="viewcode-block" id="MetricBasedAdaptor.adapted_mesh">
+<a class="viewcode-back" href="../../animate.html#animate.adapt.MetricBasedAdaptor.adapted_mesh">[docs]</a>
+    <span class="nd">@futils</span><span class="o">.</span><span class="n">cached_property</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">adapted_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adapt the mesh with respect to the provided metric.</span>
+
+<span class="sd">        :return: a new :class:`~firedrake.mesh.MeshGeometry`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">enforce_spd</span><span class="p">(</span><span class="n">restrict_sizes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">restrict_anisotropy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">layout_vec</span><span class="o">.</span><span class="n">getSizes</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">_data</span><span class="p">[:</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">PETSc</span><span class="o">.</span><span class="n">Vec</span><span class="p">()</span><span class="o">.</span><span class="n">createWithArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">bsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">cdim</span><span class="p">,</span> <span class="n">comm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">comm</span>
+        <span class="p">)</span>
+        <span class="n">reordered</span> <span class="o">=</span> <span class="n">to_petsc_local_numbering</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">function_space</span><span class="p">())</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="n">newplex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">adaptMetric</span><span class="p">(</span><span class="n">reordered</span><span class="p">,</span> <span class="s2">&quot;Face Sets&quot;</span><span class="p">,</span> <span class="s2">&quot;Cell Sets&quot;</span><span class="p">)</span>
+        <span class="n">reordered</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">fmesh</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span>
+            <span class="n">newplex</span><span class="p">,</span> <span class="n">distribution_parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;partition&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetricBasedAdaptor.project">
+<a class="viewcode-back" href="../../animate.html#animate.adapt.MetricBasedAdaptor.project">[docs]</a>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Project a :class:`.Function` into the corresponding :class:`.FunctionSpace`</span>
+<span class="sd">        defined on the adapted mesh using supermeshing.</span>
+
+<span class="sd">        :param: the scalar :class:`.Function` on the initial mesh</span>
+<span class="sd">        :return: its projection onto the adapted mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fs</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">projector</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">projectors</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fs</span> <span class="o">==</span> <span class="n">projector</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">():</span>
+                <span class="n">projector</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">f</span>
+                <span class="k">return</span> <span class="n">projector</span><span class="o">.</span><span class="n">project</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deepcopy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_fs</span> <span class="o">=</span> <span class="n">ffs</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adapted_mesh</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">())</span>
+            <span class="n">projector</span> <span class="o">=</span> <span class="n">Projector</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">new_fs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">projector</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">projector</span><span class="o">.</span><span class="n">project</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deepcopy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetricBasedAdaptor.interpolate">
+<a class="viewcode-back" href="../../animate.html#animate.adapt.MetricBasedAdaptor.interpolate">[docs]</a>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interpolate a :class:`.Function` into the corresponding :class:`.FunctionSpace`</span>
+<span class="sd">        defined on the adapted mesh.</span>
+
+<span class="sd">        :param: the scalar :class:`.Function` on the initial mesh</span>
+<span class="sd">        :return: its interpolation onto the adapted mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Consistent interpolation has not yet been implemented in parallel&quot;</span>
+        <span class="p">)</span>  <span class="c1"># TODO</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="adapt">
+<a class="viewcode-back" href="../../animate.html#animate.adapt.adapt">[docs]</a>
+<span class="k">def</span> <span class="nf">adapt</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="o">*</span><span class="n">metrics</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adapt a mesh with respect to a metric and some adaptor parameters.</span>
+
+<span class="sd">    If multiple metrics are provided, then they are intersected.</span>
+
+<span class="sd">    :param mesh: :class:`~firedrake.mesh.MeshGeometry` to be adapted.</span>
+<span class="sd">    :param metrics: list of :class:`.RiemannianMetric`\s</span>
+<span class="sd">    :param name: name for the adapted mesh</span>
+<span class="sd">    :return: a new :class:`~firedrake.mesh.MeshGeometry`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">adaptor</span> <span class="o">=</span> <span class="n">MetricBasedAdaptor</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">adaptor</span><span class="o">.</span><span class="n">adapted_mesh</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">animate.adapt</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>

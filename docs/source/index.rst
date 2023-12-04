@@ -41,18 +41,20 @@ functionalities provided by Goalie are described in the manual.
 
 .. rubric:: API documentation
 
-The classes and functions which comprise Goalie may be found
-in the API documentation.
+The classes and functions which comprise Animate and Goalie may be found in
+their API documentation.
 
 .. toctree::
     :maxdepth: 1
 
+    Animate API documentation <animate>
     Goalie API documentation <goalie>
 
-They are also listed alphabetically on the :ref:`index <genindex>`
-page. The index may be searched using the inbuilt
-:ref:`search engine <search>`. Goalie source code is hosted on
-`GitHub <https://github.com/pyroteus/goalie/>`__.
+They are also listed alphabetically on the :ref:`index <genindex>` page. The
+index may be searched using the inbuilt :ref:`search engine <search>`. The
+source code for both packages is hosted on GitHub:
+`Animate <https://github.com/pyroteus/animate/>`__,
+`Goalie <https://github.com/pyroteus/goalie/>`__.
 
 
 .. rubric:: Demos

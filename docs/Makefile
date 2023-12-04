@@ -4,11 +4,12 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXAPIDOC  = sphinx-apidoc
-SPHINXPROJ    = Goalie
+SPHINXPROJ    = Documentation
 SOURCEDIR     = source
 BUILDDIR      = build
 PYTHON        = ${VIRTUAL_ENV}/bin/python3
 
+ANIMATE       = ${VIRTUAL_ENV}/src/animate
 GOALIE        = ${VIRTUAL_ENV}/src/goalie
 
 # Put it first so that "make" without argument is like "make help".
@@ -51,7 +52,12 @@ html: apidoc $(GENERATED_FILES)
 	cp -r $(BUILDDIR)/html/* ..
 
 .PHONY: apidoc
-apidoc:
+apidoc: apidoc-animate apidoc-goalie
+
+apidoc-animate:
+	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import animate; import os; print(os.path.dirname(animate.__file__))') -o source -f -T
+
+apidoc-goalie:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import goalie; import os; print(os.path.dirname(goalie.__file__))') -o source -f -T
 	# TODO: Do this in a less hacky way
 	echo "" >> source/goalie.rst
@@ -62,7 +68,6 @@ apidoc:
 	echo "" >> source/goalie.rst
 	echo ".. bibliography:: references.bib" >> source/goalie.rst
 	echo "    :all:" >> source/goalie.rst
-
 
 clean:
 	-git clean -fdx $(BUILDDIR)/html/
