@@ -38,14 +38,15 @@ discretisation approach assumed throughout. The
 `dolfin-adjoint` package (which Goalie uses to solve adjoint
 problems) contains some `excellent documentation
 <http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html>`__
-on the mathematical background of adjoint problems. The
-goal-oriented error estimation and metric-based mesh adaptation
-functionalities provided by Goalie are described in the manual.
+on the mathematical background of adjoint problems. The metric-based mesh
+adaptation and goal-oriented error estimation functionalities provided by
+Animate Goalie are described in the respective manuals.
 
 .. toctree::
     :maxdepth: 2
 
-    Goalie manual <maths/index>
+    Animate manual <animate/index>
+    Goalie manual <goalie/index>
 
 
 .. rubric:: API documentation
