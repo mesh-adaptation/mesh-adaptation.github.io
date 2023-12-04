@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3. The metric-based framework &#8212; Goalie 0.1 documentation</title>
+    <title>1. The metric-based framework &#8212; Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
@@ -14,8 +14,8 @@
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4. Goal-oriented mesh adaptation" href="4-goal-oriented-mesh-adaptation.html" />
-    <link rel="prev" title="2. Goal-oriented error estimation" href="2-goal-oriented-error-estimation.html" /> 
+    <link rel="next" title="Goalie manual" href="../goalie/index.html" />
+    <link rel="prev" title="Animate manual" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -27,14 +27,14 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="4-goal-oriented-mesh-adaptation.html" title="4. Goal-oriented mesh adaptation"
+          <a href="../goalie/index.html" title="Goalie manual"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
+          <a href="index.html" title="Animate manual"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Goalie manual</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>The metric-based framework</a></li> 
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Animate manual</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">1. </span>The metric-based framework</a></li> 
       </ul>
     </div>  
 
@@ -44,7 +44,7 @@
           <div class="body" role="main">
             
   <section id="the-metric-based-framework">
-<h1><span class="section-number">3. </span>The metric-based framework<a class="headerlink" href="#the-metric-based-framework" title="Link to this heading">¶</a></h1>
+<h1><span class="section-number">1. </span>The metric-based framework<a class="headerlink" href="#the-metric-based-framework" title="Link to this heading">¶</a></h1>
 <p>The goal-oriented mesh adaptation functionality in Goalie
 is designed such that it is agnostic of the specific method
 used to modify the mesh. However, to give a concrete example,
@@ -52,7 +52,7 @@ this section describes the <em>metric-based</em> mesh adaptation
 framework. Integration of this adaptation approach into the
 Firedrake finite element library is currently underway.</p>
 <section id="metric-spaces">
-<h2><span class="section-number">3.1. </span>Metric spaces<a class="headerlink" href="#metric-spaces" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">1.1. </span>Metric spaces<a class="headerlink" href="#metric-spaces" title="Link to this heading">¶</a></h2>
 <p>The metric-based framework has its roots in Riemannian
 geometry - in particular, Riemannian metric spaces.</p>
 <p>A <cite>metric space</cite>
@@ -142,7 +142,7 @@ The following example code snippet defines a uniform metric, for example:</p>
 </div>
 </section>
 <section id="geometric-interpretation">
-<h2><span class="section-number">3.2. </span>Geometric interpretation<a class="headerlink" href="#geometric-interpretation" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">1.2. </span>Geometric interpretation<a class="headerlink" href="#geometric-interpretation" title="Link to this heading">¶</a></h2>
 <p>A convenient way of visualising a Riemannian metric field
 is using an ellipse (in 2D) or an ellipsoid (in 3D). As
 mentioned above, the metric takes the form of an SPD matrix
@@ -211,7 +211,7 @@ adaptation methods can only usually control element sizes.</p>
 using the function <code class="xref py py-func docutils literal notranslate"><span class="pre">density_and_quotients()</span></code>.</p>
 </section>
 <section id="continuous-mesh-analogy">
-<h2><span class="section-number">3.3. </span>Continuous mesh analogy<a class="headerlink" href="#continuous-mesh-analogy" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">1.3. </span>Continuous mesh analogy<a class="headerlink" href="#continuous-mesh-analogy" title="Link to this heading">¶</a></h2>
 <p>The work of <span id="id2">[<a class="reference internal" href="#id7" title="A Loseille and F Alauzet. Continuous mesh framework part I: well-posed continuous interpolation error. SIAM Journal on Numerical Analysis, 49(1):38–60, 2011. doi:10.1137/090754078.">LA11</a>]</span> established duality between
 the (inherently discrete) mesh and a (continuous)
 Riemannian metric field. Having a continuous
@@ -227,7 +227,7 @@ complexity is expressed using the formula</p>
 domain in metric space (recall the formula for
 volume in Riemannian space). Metric complexity may
 be computed in Firedrake using the method
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">complexity()</span></code>.
+<a class="reference internal" href="../animate.html#animate.metric.RiemannianMetric.complexity" title="animate.metric.RiemannianMetric.complexity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">complexity()</span></code></a>.
 The time-dependent extension of metric complexity,</p>
 <div class="math notranslate nohighlight" id="equation-space-time-complexity">
 <span class="eqno">(10)<a class="headerlink" href="#equation-space-time-complexity" title="Link to this equation">¶</a></span>\[\mathcal C(\mathcal M)=\int_{\mathcal T}\int_\Omega\sqrt{\mathrm{det}(\mathcal M(\mathbf x,t)})\;\mathrm dx\;\mathrm dt\]</div>
@@ -235,7 +235,7 @@ The time-dependent extension of metric complexity,</p>
 to the total number of mesh vertices over all timesteps.</p>
 </section>
 <section id="metric-based-mesh-adaptation">
-<h2><span class="section-number">3.4. </span>Metric-based mesh adaptation<a class="headerlink" href="#metric-based-mesh-adaptation" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">1.4. </span>Metric-based mesh adaptation<a class="headerlink" href="#metric-based-mesh-adaptation" title="Link to this heading">¶</a></h2>
 <p>The idea of metric-based mesh adaptation is to use
 a Riemannian metric space <cite>within</cite> the mesher. In
 doing so, we seek to modify the mesh so that in
@@ -268,7 +268,7 @@ can be shown that <span class="math notranslate nohighlight">\(Q_{\mathcal M}\)<
 for an equilateral triangular element.</p>
 </section>
 <section id="operations-on-metrics">
-<h2><span class="section-number">3.5. </span>Operations on metrics<a class="headerlink" href="#operations-on-metrics" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">1.5. </span>Operations on metrics<a class="headerlink" href="#operations-on-metrics" title="Link to this heading">¶</a></h2>
 <p>In order to use metrics to drive mesh adaptation
 algorithms for solving real problems, they must
 first be made relevant to the application. Metrics
@@ -277,7 +277,7 @@ geometry, dimensional scales and other properties
 of the problem, such as the extent to which it is
 multi-scale.</p>
 <p>In Firedrake, normalisation is performed by the
-method <code class="xref py py-meth docutils literal notranslate"><span class="pre">normalise()</span></code> in the
+method <a class="reference internal" href="../animate.html#animate.metric.RiemannianMetric.normalise" title="animate.metric.RiemannianMetric.normalise"><code class="xref py py-meth docutils literal notranslate"><span class="pre">normalise()</span></code></a> in the
 <span class="math notranslate nohighlight">\(L^p\)</span> sense:</p>
 <div class="math notranslate nohighlight" id="equation-lp-metric">
 <span class="eqno">(12)<a class="headerlink" href="#equation-lp-metric" title="Link to this equation">¶</a></span>\[\mathcal M_{L^p}:=
@@ -341,12 +341,9 @@ Image taken from <span id="id4">[<a class="reference internal" href="#id8" title
 <p>Metric combination may be achieved in Goalie using the
 function <code class="xref py py-func docutils literal notranslate"><span class="pre">combine_metrics()</span></code>, which defaults to the
 metric average.</p>
-<p>Now that a concrete example of a mesh adaptation approach has
-been described, we move on to discuss goal-oriented mesh
-adaptation using Goalie in the <a class="reference external" href="4-goal-oriented-mesh-adaptation.html">following section</a>.</p>
 </section>
 <section id="references">
-<h2><span class="section-number">3.6. </span>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">1.6. </span>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <div class="docutils container" id="id5">
 <div role="list" class="citation-list">
 <div class="citation" id="id7" role="doc-biblioentry">
@@ -377,13 +374,13 @@ adaptation using Goalie in the <a class="reference external" href="4-goal-orient
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
     <ul>
-<li><a class="reference internal" href="#">3. The metric-based framework</a><ul>
-<li><a class="reference internal" href="#metric-spaces">3.1. Metric spaces</a></li>
-<li><a class="reference internal" href="#geometric-interpretation">3.2. Geometric interpretation</a></li>
-<li><a class="reference internal" href="#continuous-mesh-analogy">3.3. Continuous mesh analogy</a></li>
-<li><a class="reference internal" href="#metric-based-mesh-adaptation">3.4. Metric-based mesh adaptation</a></li>
-<li><a class="reference internal" href="#operations-on-metrics">3.5. Operations on metrics</a></li>
-<li><a class="reference internal" href="#references">3.6. References</a></li>
+<li><a class="reference internal" href="#">1. The metric-based framework</a><ul>
+<li><a class="reference internal" href="#metric-spaces">1.1. Metric spaces</a></li>
+<li><a class="reference internal" href="#geometric-interpretation">1.2. Geometric interpretation</a></li>
+<li><a class="reference internal" href="#continuous-mesh-analogy">1.3. Continuous mesh analogy</a></li>
+<li><a class="reference internal" href="#metric-based-mesh-adaptation">1.4. Metric-based mesh adaptation</a></li>
+<li><a class="reference internal" href="#operations-on-metrics">1.5. Operations on metrics</a></li>
+<li><a class="reference internal" href="#references">1.6. References</a></li>
 </ul>
 </li>
 </ul>
@@ -391,18 +388,18 @@ adaptation using Goalie in the <a class="reference external" href="4-goal-orient
   </div>
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="2-goal-oriented-error-estimation.html"
-                          title="previous chapter"><span class="section-number">2. </span>Goal-oriented error estimation</a></p>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Animate manual</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="4-goal-oriented-mesh-adaptation.html"
-                          title="next chapter"><span class="section-number">4. </span>Goal-oriented mesh adaptation</a></p>
+    <p class="topless"><a href="../goalie/index.html"
+                          title="next chapter">Goalie manual</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/maths/3-metric-based.rst.txt"
+      <li><a href="../_sources/animate/1-metric-based.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -430,14 +427,14 @@ adaptation using Goalie in the <a class="reference external" href="4-goal-orient
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="4-goal-oriented-mesh-adaptation.html" title="4. Goal-oriented mesh adaptation"
+          <a href="../goalie/index.html" title="Goalie manual"
              >next</a> |</li>
         <li class="right" >
-          <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
+          <a href="index.html" title="Animate manual"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Goalie manual</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>The metric-based framework</a></li> 
+          <li class="nav-item nav-item-1"><a href="index.html" >Animate manual</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">1. </span>The metric-based framework</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

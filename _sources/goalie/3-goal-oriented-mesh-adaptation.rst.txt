@@ -72,7 +72,7 @@ are used when it is applied to quadrilateral and hexahedral meshes,
 respectively. Sadly, this form of mesh adaptation is not supported
 in Firedrake.
 
-As described in the `previous section <3-metric-based.html>`__,
+As described in the `Animate documentation <1-metric-based.html>`__,
 metric-based mesh adaptation is another approach which is currently
 being integrated into Firedrake and is supported on developer branches.
 In that case, we need to construct a Riemannian metric from an
@@ -154,4 +154,4 @@ similarly deduced if the error estimate value changes by less than
 References
 ----------
 
-.. bibliography:: 4-references.bib
+.. bibliography:: 3-references.bib

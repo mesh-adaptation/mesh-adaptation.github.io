@@ -51,7 +51,7 @@ rather complex for such cases. However, it can also be used to solve
 steady-state problems.</p>
 <p>Consider the same steady-state advection-diffusion test case as in the
 motivation for the Goalie manual: the “point discharge with diffusion”
-test case from <span id="id1">[<a class="reference internal" href="../maths/1-motivation.html#id6" title="A Riadh, G Cedric, and MH Jean. TELEMAC modeling system: 2D hydrodynamics TELEMAC-2D software release 7.0 user manual. Paris: R&amp;D, Electricite de France, pages 134, 2014.">RCJ14</a>]</span>. In this test case, we solve</p>
+test case from <span id="id1">[<a class="reference internal" href="../goalie/1-motivation.html#id6" title="A Riadh, G Cedric, and MH Jean. TELEMAC modeling system: 2D hydrodynamics TELEMAC-2D software release 7.0 user manual. Paris: R&amp;D, Electricite de France, pages 134, 2014.">RCJ14</a>]</span>. In this test case, we solve</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\left\{\begin{array}{rl}
     \mathbf u\cdot\nabla c - \nabla\cdot(D\nabla c) = S &amp; \text{in}\:\Omega\\
@@ -76,11 +76,11 @@ representation <span class="math notranslate nohighlight">\(S\)</span>. The doma
 </pre></div>
 </div>
 <p>Point sources are difficult to represent in numerical models. Here we
-follow <span id="id2">[<a class="reference internal" href="../maths/1-motivation.html#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> in using a Gaussian approximation. Let
+follow <span id="id2">[<a class="reference internal" href="../goalie/1-motivation.html#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> in using a Gaussian approximation. Let
 <span class="math notranslate nohighlight">\((x_0,y_0)=(2,5)\)</span> denote the point source location and
 <span class="math notranslate nohighlight">\(r=0.05606388\)</span> be a radius parameter, which has been calibrated
 so that the finite element approximation is as close as possible to the
-analytical solution, in some sense (see <span id="id3">[<a class="reference internal" href="../maths/1-motivation.html#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> for details).</p>
+analytical solution, in some sense (see <span id="id3">[<a class="reference internal" href="../goalie/1-motivation.html#id7" title="JG Wallwork, N Barral, DA Ham, and MD Piggott. Goal-oriented error estimation and mesh adaptation for tracer transport modelling. Computer-Aided Design, 145:103187, 2022. doi:10.1016/j.cad.2021.103187.">WBHP22</a>]</span> for details).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
     <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">0.05606388</span>

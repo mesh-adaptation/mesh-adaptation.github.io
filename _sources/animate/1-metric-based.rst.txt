@@ -386,12 +386,7 @@ function :func:`~.combine_metrics`, which defaults to the
 metric average.
 
 
-Now that a concrete example of a mesh adaptation approach has
-been described, we move on to discuss goal-oriented mesh
-adaptation using Goalie in the `following section
-<4-goal-oriented-mesh-adaptation.html>`__.
-
 References
 ----------
 
-.. bibliography:: 3-references.bib
+.. bibliography:: 1-references.bib

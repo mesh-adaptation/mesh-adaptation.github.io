@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>4. Goal-oriented mesh adaptation &#8212; Goalie 0.1 documentation</title>
+    <title>3. Goal-oriented mesh adaptation &#8212; Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
@@ -14,8 +14,8 @@
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="goalie package" href="../goalie.html" />
-    <link rel="prev" title="3. The metric-based framework" href="3-metric-based.html" /> 
+    <link rel="next" title="animate package" href="../animate.html" />
+    <link rel="prev" title="2. Goal-oriented error estimation" href="2-goal-oriented-error-estimation.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -27,14 +27,14 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../goalie.html" title="goalie package"
+          <a href="../animate.html" title="animate package"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="3-metric-based.html" title="3. The metric-based framework"
+          <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Goalie manual</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href=""><span class="section-number">4. </span>Goal-oriented mesh adaptation</a></li> 
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>Goal-oriented mesh adaptation</a></li> 
       </ul>
     </div>  
 
@@ -44,9 +44,9 @@
           <div class="body" role="main">
             
   <section id="goal-oriented-mesh-adaptation">
-<h1><span class="section-number">4. </span>Goal-oriented mesh adaptation<a class="headerlink" href="#goal-oriented-mesh-adaptation" title="Link to this heading">¶</a></h1>
+<h1><span class="section-number">3. </span>Goal-oriented mesh adaptation<a class="headerlink" href="#goal-oriented-mesh-adaptation" title="Link to this heading">¶</a></h1>
 <section id="error-indicators">
-<h2><span class="section-number">4.1. </span>Error indicators<a class="headerlink" href="#error-indicators" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">3.1. </span>Error indicators<a class="headerlink" href="#error-indicators" title="Link to this heading">¶</a></h2>
 <p>Goal-oriented mesh adaptation is the term used to refer to
 mesh adaptation methods that are driven by goal-oriented
 error estimates. Recall from <a class="reference external" href="2-goal-oriented-error-estimation.html">the error estimation section</a> of the manual
@@ -85,7 +85,7 @@ will be that the weak residual also includes a term that
 discretises the time derivative.</p>
 </section>
 <section id="adapting-based-on-error-indicators">
-<h2><span class="section-number">4.2. </span>Adapting based on error indicators<a class="headerlink" href="#adapting-based-on-error-indicators" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">3.2. </span>Adapting based on error indicators<a class="headerlink" href="#adapting-based-on-error-indicators" title="Link to this heading">¶</a></h2>
 <p>Once error indicator fields have been computed, there are many
 different ways to perform mesh adaptation. One common approach is
 to use a hierarchical type approach, where the mesh resolution is
@@ -97,7 +97,7 @@ not entirely consistent on this. The terms “quad-tree” and “oct-tree”
 are used when it is applied to quadrilateral and hexahedral meshes,
 respectively. Sadly, this form of mesh adaptation is not supported
 in Firedrake.</p>
-<p>As described in the <a class="reference external" href="3-metric-based.html">previous section</a>,
+<p>As described in the <a class="reference external" href="1-metric-based.html">Animate documentation</a>,
 metric-based mesh adaptation is another approach which is currently
 being integrated into Firedrake and is supported on developer branches.
 In that case, we need to construct a Riemannian metric from an
@@ -118,7 +118,7 @@ Firedrake on a number of occasions (such as <span id="id1">[<a class="reference 
 and could plausibly be driven by goal-oriented error estimates.</p>
 </section>
 <section id="fixed-point-iteration-loops">
-<h2><span class="section-number">4.3. </span>Fixed point iteration loops<a class="headerlink" href="#fixed-point-iteration-loops" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">3.3. </span>Fixed point iteration loops<a class="headerlink" href="#fixed-point-iteration-loops" title="Link to this heading">¶</a></h2>
 <p>In some mesh adaptation approaches, it is common practice to adapt
 the mesh multiple times until convergence is attained, in some
 sense. This is often the case under metric based mesh adaptation,
@@ -131,8 +131,8 @@ This provides the flexibility to use different adaptation routines.
 The function should take as input the <a class="reference internal" href="../goalie.html#goalie.mesh_seq.MeshSeq" title="goalie.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a> instance
 and the dictionary of solution fields from each timestep. For
 example, it could compute the Hessian of the solution field at each
-timestep using <code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_hessian()</span></code>, ensure that
-it is a metric using <code class="xref py py-meth docutils literal notranslate"><span class="pre">enforce_spd()</span></code> and then
+timestep using <a class="reference internal" href="../animate.html#animate.metric.RiemannianMetric.compute_hessian" title="animate.metric.RiemannianMetric.compute_hessian"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_hessian()</span></code></a>, ensure that
+it is a metric using <a class="reference internal" href="../animate.html#animate.metric.RiemannianMetric.enforce_spd" title="animate.metric.RiemannianMetric.enforce_spd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enforce_spd()</span></code></a> and then
 combine this information using averaging or intersection.
 In each iteration, the PDE will be
 solved over the sequence of meshes (with data transferred inbetween)
@@ -171,7 +171,7 @@ similarly deduced if the error estimate value changes by less than
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">estimator_rtol</span></code>.</p>
 </section>
 <section id="references">
-<h2><span class="section-number">4.4. </span>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
+<h2><span class="section-number">3.4. </span>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <div class="docutils container" id="id2">
 <div role="list" class="citation-list">
 <div class="citation" id="id4" role="doc-biblioentry">
@@ -197,11 +197,11 @@ similarly deduced if the error estimate value changes by less than
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
     <ul>
-<li><a class="reference internal" href="#">4. Goal-oriented mesh adaptation</a><ul>
-<li><a class="reference internal" href="#error-indicators">4.1. Error indicators</a></li>
-<li><a class="reference internal" href="#adapting-based-on-error-indicators">4.2. Adapting based on error indicators</a></li>
-<li><a class="reference internal" href="#fixed-point-iteration-loops">4.3. Fixed point iteration loops</a></li>
-<li><a class="reference internal" href="#references">4.4. References</a></li>
+<li><a class="reference internal" href="#">3. Goal-oriented mesh adaptation</a><ul>
+<li><a class="reference internal" href="#error-indicators">3.1. Error indicators</a></li>
+<li><a class="reference internal" href="#adapting-based-on-error-indicators">3.2. Adapting based on error indicators</a></li>
+<li><a class="reference internal" href="#fixed-point-iteration-loops">3.3. Fixed point iteration loops</a></li>
+<li><a class="reference internal" href="#references">3.4. References</a></li>
 </ul>
 </li>
 </ul>
@@ -209,18 +209,18 @@ similarly deduced if the error estimate value changes by less than
   </div>
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="3-metric-based.html"
-                          title="previous chapter"><span class="section-number">3. </span>The metric-based framework</a></p>
+    <p class="topless"><a href="2-goal-oriented-error-estimation.html"
+                          title="previous chapter"><span class="section-number">2. </span>Goal-oriented error estimation</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="../goalie.html"
-                          title="next chapter">goalie package</a></p>
+    <p class="topless"><a href="../animate.html"
+                          title="next chapter">animate package</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/maths/4-goal-oriented-mesh-adaptation.rst.txt"
+      <li><a href="../_sources/goalie/3-goal-oriented-mesh-adaptation.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -248,14 +248,14 @@ similarly deduced if the error estimate value changes by less than
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../goalie.html" title="goalie package"
+          <a href="../animate.html" title="animate package"
              >next</a> |</li>
         <li class="right" >
-          <a href="3-metric-based.html" title="3. The metric-based framework"
+          <a href="2-goal-oriented-error-estimation.html" title="2. Goal-oriented error estimation"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Goalie manual</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href=""><span class="section-number">4. </span>Goal-oriented mesh adaptation</a></li> 
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">3. </span>Goal-oriented mesh adaptation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

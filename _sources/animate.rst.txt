@@ -59,3 +59,11 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+References
+----------
+
+.. rubric:: References
+
+.. bibliography:: references.bib
+    :all:
