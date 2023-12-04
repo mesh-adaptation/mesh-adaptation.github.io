@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2. Goal-oriented error estimation &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>2. Goal-oriented error estimation &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -32,8 +32,8 @@
         <li class="right" >
           <a href="1-motivation.html" title="1. Motivation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Pyroteus manual</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Goalie manual</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href=""><span class="section-number">2. </span>Goal-oriented error estimation</a></li> 
       </ul>
     </div>  
@@ -44,54 +44,54 @@
           <div class="body" role="main">
             
   <section id="goal-oriented-error-estimation">
-<h1><span class="section-number">2. </span>Goal-oriented error estimation<a class="headerlink" href="#goal-oriented-error-estimation" title="Permalink to this heading">¶</a></h1>
+<h1><span class="section-number">2. </span>Goal-oriented error estimation<a class="headerlink" href="#goal-oriented-error-estimation" title="Link to this heading">¶</a></h1>
 <p>In this manual page, it is assumed that you have read and understood
 the <a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">dolfin-adjoint</a>
 training material on adjoint methods.</p>
-<p>Pyroteus has been designed with time-dependent problems in mind. However,
+<p>Goalie has been designed with time-dependent problems in mind. However,
 the exposition of goal-oriented error estimation is most clearly presented
 in the steady-state case. Therefore, suppose we have a “forward” PDE that
 contains only derivatives in space and is written in the residual form,</p>
 <div class="math notranslate nohighlight" id="equation-forward">
-<span class="eqno">(1)<a class="headerlink" href="#equation-forward" title="Permalink to this equation">¶</a></span>\[F(u) = 0,\quad u\in V,\]</div>
+<span class="eqno">(1)<a class="headerlink" href="#equation-forward" title="Link to this equation">¶</a></span>\[F(u) = 0,\quad u\in V,\]</div>
 <p>where <span class="math notranslate nohighlight">\(u\)</span> is the solution, which lives in a function space <span class="math notranslate nohighlight">\(V\)</span>.
 In addition, suppose that there exists a diagnostic quantity of interest
 (QoI),</p>
 <div class="math notranslate nohighlight" id="equation-qoi">
-<span class="eqno">(2)<a class="headerlink" href="#equation-qoi" title="Permalink to this equation">¶</a></span>\[J:V\rightarrow\mathbb R,\]</div>
+<span class="eqno">(2)<a class="headerlink" href="#equation-qoi" title="Link to this equation">¶</a></span>\[J:V\rightarrow\mathbb R,\]</div>
 <p>for which we would like to accurately evaluate <span class="math notranslate nohighlight">\(J(u)\)</span>. The adjoint
 problem associated with <span class="math notranslate nohighlight">\(J\)</span> is then given by</p>
 <div class="math notranslate nohighlight" id="equation-adjoint">
-<span class="eqno">(3)<a class="headerlink" href="#equation-adjoint" title="Permalink to this equation">¶</a></span>\[\frac{\partial F}{\partial u}^Tu^*=\frac{\partial J}{\partial u}^T,
+<span class="eqno">(3)<a class="headerlink" href="#equation-adjoint" title="Link to this equation">¶</a></span>\[\frac{\partial F}{\partial u}^Tu^*=\frac{\partial J}{\partial u}^T,
 \quad u^*\in V,\]</div>
 <p>where <span class="math notranslate nohighlight">\(u^*\)</span> is the <em>adjoint solution</em>, which also lives in <span class="math notranslate nohighlight">\(V\)</span>.</p>
 <p>Consider now a finite-dimensional subspace <span class="math notranslate nohighlight">\(V_h\subset V\)</span> and suppose
 that we have a weak formulation of the forward problem given by</p>
 <div class="math notranslate nohighlight" id="equation-weak-forward">
-<span class="eqno">(4)<a class="headerlink" href="#equation-weak-forward" title="Permalink to this equation">¶</a></span>\[\rho(u_h,v)=0,\quad\forall v\in V_h,\]</div>
+<span class="eqno">(4)<a class="headerlink" href="#equation-weak-forward" title="Link to this equation">¶</a></span>\[\rho(u_h,v)=0,\quad\forall v\in V_h,\]</div>
 <p>where <span class="math notranslate nohighlight">\(u_h\)</span> is the approximate (weak) forward solution. Here
 <span class="math notranslate nohighlight">\(\rho(u_h,\cdot)\)</span> is often called the “weak residual” of the forward
 problem. This is the equation that we solve when we call
-<a class="reference internal" href="../pyroteus.html#pyroteus.mesh_seq.MeshSeq.solve_forward" title="pyroteus.mesh_seq.MeshSeq.solve_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve_forward()</span></code></a>. Similarly, suppose we have a weak formulation
+<a class="reference internal" href="../goalie.html#goalie.mesh_seq.MeshSeq.solve_forward" title="goalie.mesh_seq.MeshSeq.solve_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve_forward()</span></code></a>. Similarly, suppose we have a weak formulation
 of the adjoint problem with approximate (weak) adjoint solution <span class="math notranslate nohighlight">\(u_h^*\in V_h\)</span>:</p>
 <div class="math notranslate nohighlight" id="equation-weak-adjoint">
-<span class="eqno">(5)<a class="headerlink" href="#equation-weak-adjoint" title="Permalink to this equation">¶</a></span>\[\rho^*(u_h^*,v)=0,\quad\forall v\in V_h,\]</div>
+<span class="eqno">(5)<a class="headerlink" href="#equation-weak-adjoint" title="Link to this equation">¶</a></span>\[\rho^*(u_h^*,v)=0,\quad\forall v\in V_h,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\rho^*(u_h^*,\cdot)\)</span> is the weak residual of the adjoint problem.
 This is the equation that we solve when we call
-<a class="reference internal" href="../pyroteus.html#pyroteus.adjoint.AdjointMeshSeq.solve_adjoint" title="pyroteus.adjoint.AdjointMeshSeq.solve_adjoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve_adjoint()</span></code></a>.</p>
+<a class="reference internal" href="../goalie.html#goalie.adjoint.AdjointMeshSeq.solve_adjoint" title="goalie.adjoint.AdjointMeshSeq.solve_adjoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve_adjoint()</span></code></a>.</p>
 <p>Recall that we seek to accurately evaluate <span class="math notranslate nohighlight">\(J\)</span> using a finite element
 method. This is the same as saying that we seek to minimise the “QoI error”
 <span class="math notranslate nohighlight">\(J(u)-J(u_h)\)</span>. The fundamental result in goal-oriented error estimation
 is the first order <em>dual weighted residual</em> result <span id="id1">[<a class="reference internal" href="#id3" title="Roland Becker and Rolf Rannacher. An optimal control approach to a posteriori error estimation in finite element methods. Acta numerica, 10:1–102, 2001. doi:10.1017/S0962492901000010.">BR01</a>]</span>,</p>
 <div class="math notranslate nohighlight" id="equation-dwr1">
-<span class="eqno">(6)<a class="headerlink" href="#equation-dwr1" title="Permalink to this equation">¶</a></span>\[J(u)-J(u_h)=\rho(u_h,u^*)+R^{(2)},\]</div>
+<span class="eqno">(6)<a class="headerlink" href="#equation-dwr1" title="Link to this equation">¶</a></span>\[J(u)-J(u_h)=\rho(u_h,u^*)+R^{(2)},\]</div>
 <p>which relates the QoI error to the forward weak residual with the test function
 replaced by the adjoint solution. This result is “first order” in the sense
 that the remainder term <span class="math notranslate nohighlight">\(R^{(2)}\)</span> is quadratic in the forward and adjoint
 discretisation errors <span class="math notranslate nohighlight">\(u-u_h\)</span> and <span class="math notranslate nohighlight">\(u^*-u_h^*\)</span>. There also exists
 a second order result,</p>
 <div class="math notranslate nohighlight" id="equation-dwr2">
-<span class="eqno">(7)<a class="headerlink" href="#equation-dwr2" title="Permalink to this equation">¶</a></span>\[J(u)-J(u_h)=\frac12\rho(u_h,u^*)+\frac12\rho^*(u_h^*,u)+R^{(3)},\]</div>
+<span class="eqno">(7)<a class="headerlink" href="#equation-dwr2" title="Link to this equation">¶</a></span>\[J(u)-J(u_h)=\frac12\rho(u_h,u^*)+\frac12\rho^*(u_h^*,u)+R^{(3)},\]</div>
 <p>with remainder term <span class="math notranslate nohighlight">\(R^{(3)}\)</span> that is cubic in the forward and adjoint
 discretisation errors. We refer to the part of the RHS of each equation without
 the remainder term a <em>dual weighted residual error estimate</em>, since it approximates
@@ -104,11 +104,12 @@ residual error estimates in an approximate sense. Typically, this means approxim
 the true adjoint and/or forward solution using a higher order method. A simple – but
 computationally intensive – approach is to solve the appropriate equation again in a
 globally “enriched” finite element space. For example, on a uniformly refined mesh or
-in a function space with higher polynomial order. This can be achieved in Pyroteus
-using <a class="reference internal" href="../pyroteus.html#pyroteus.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors" title="pyroteus.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">indicate_errors()</span></code></a>. See <a class="reference external" href="../demos/burgers_ee.py.html">the Burgers error estimation demo</a> for example usage.</p>
+in a function space with higher polynomial order. This can be achieved in Goalie
+using <a class="reference internal" href="../goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors" title="goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">indicate_errors()</span></code></a>. See <a class="reference external" href="../demos/burgers_ee.py.html">the Burgers error estimation demo</a> for example usage.</p>
 <section id="references">
-<h2><span class="section-number">2.1. </span>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">2.1. </span>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <div class="docutils container" id="id2">
+<div role="list" class="citation-list">
 <div class="citation" id="id3" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">BR01</a><span class="fn-bracket">]</span></span>
 <p>Roland Becker and Rolf Rannacher. An optimal control approach to a posteriori error estimation in finite element methods. <em>Acta numerica</em>, 10:1–102, 2001. <a class="reference external" href="https://doi.org/10.1017/S0962492901000010">doi:10.1017/S0962492901000010</a>.</p>
@@ -181,14 +182,14 @@ using <a class="reference internal" href="../pyroteus.html#pyroteus.go_mesh_seq.
         <li class="right" >
           <a href="1-motivation.html" title="1. Motivation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Pyroteus manual</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Goalie manual</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href=""><span class="section-number">2. </span>Goal-oriented error estimation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

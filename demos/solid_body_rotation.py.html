@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Solid body rotation &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Solid body rotation &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="burgers_oo.py.html" title="Object-oriented Burgers equation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Solid body rotation</a></li> 
       </ul>
     </div>  
@@ -43,7 +43,7 @@
           <div class="body" role="main">
             
   <section id="solid-body-rotation">
-<h1>Solid body rotation<a class="headerlink" href="#solid-body-rotation" title="Permalink to this heading">¶</a></h1>
+<h1>Solid body rotation<a class="headerlink" href="#solid-body-rotation" title="Link to this heading">¶</a></h1>
 <p>So far, we have only solved Burgers equation, which can
 be thought of as a nonlinear advection-diffusion equation.
 Let us now consider a simple <cite>linear</cite> advection equation,</p>
@@ -52,7 +52,7 @@ Let us now consider a simple <cite>linear</cite> advection equation,</p>
 <p>which is solved for a tracer concentration <span class="math notranslate nohighlight">\(c\)</span>. The
 velocity field <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> drives the transport.
 A new piece of information in this demo is the approach to
-strongly imposing Dirichlet boundary conditions in Pyroteus.
+strongly imposing Dirichlet boundary conditions in Goalie.
 In particular, we impose</p>
 <div class="math notranslate nohighlight">
 \[c|_{\partial\Omega}=0,\]</div>
@@ -70,10 +70,10 @@ of its discontinuous gradient at its peak and the slotted
 cylinder is yet more difficult to advect because of its
 curve of discontinuities. The test case was introduced in
 <span id="id1">[<a class="reference internal" href="#id3" title="Randall J. LeVeque. High-Resolution Conservative Algorithms for Advection in Incompressible Flow. SIAM Journal on Numerical Analysis, 33(2):627–665, 1996. doi:10.1137/0733033.">LeV96</a>]</span>.</p>
-<p>As usual, we import from Firedrake and Pyroteus, with
+<p>As usual, we import from Firedrake and Goalie, with
 adjoint mode activated.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>For simplicity, we use a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space for each
@@ -126,10 +126,10 @@ better idea of the problem at hand.</p>
     <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">interpolate</span><span class="p">(</span><span class="n">bell</span> <span class="o">+</span> <span class="n">cone</span> <span class="o">+</span> <span class="n">slot_cyl</span><span class="p">,</span> <span class="n">fs</span><span class="p">)}</span>
 </pre></div>
 </div>
-<p>Now let’s set up the time interval of interest. The <cite>“PYROTEUS_REGRESSION_TEST”</cite> flag
+<p>Now let’s set up the time interval of interest. The <cite>“GOALIE_REGRESSION_TEST”</cite> flag
 can be ignored here and in subsequent demos; it is used to cut down the runtime in
-Pyroteus’ continuous integration suite.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYROTEUS_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+Goalie’s continuous integration suite.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 <span class="n">end_time</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">300</span>
 <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
@@ -179,10 +179,14 @@ output both of them.</p>
         <span class="n">V</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
+        <span class="c1"># Define velocity field</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">as_vector</span><span class="p">([</span><span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">])</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
-        <span class="n">theta</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c1"># Define constants</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">timestep</span><span class="p">)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
         <span class="n">psi</span> <span class="o">=</span> <span class="n">TrialFunction</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="n">TestFunction</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
@@ -275,7 +279,7 @@ time, make sure to pass the <code class="docutils literal notranslate"><span cla
 <p>So far, we have visualised outputs using <cite>Matplotlib</cite>. In many cases, it is better to
 use Paraview. To save all adjoint solution components in Paraview format, use the
 following. The <cite>if</cite> statement is used here to check whether this demo is being run as
-part of Pyroteus’ continuous integration testing and can be ignored.</p>
+part of Goalie’s continuous integration testing and can be ignored.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">sols</span> <span class="ow">in</span> <span class="n">solutions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">fwd_outfile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;solid_body_rotation/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_forward.pvd&quot;</span><span class="p">)</span>
@@ -356,13 +360,13 @@ field into multiple components.</p>
         <li class="right" >
           <a href="burgers_oo.py.html" title="Object-oriented Burgers equation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Solid body rotation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

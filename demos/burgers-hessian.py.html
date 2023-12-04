@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Burgers equation with Hessian-based mesh adaptation &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Burgers equation with Hessian-based mesh adaptation &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -28,7 +28,7 @@
         <li class="right" >
           <a href="point_discharge2d-goal_oriented.py.html" title="Goal-oriented mesh adaptation for a 2D steady-state problem"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Burgers equation with Hessian-based mesh adaptation</a></li> 
       </ul>
     </div>  
@@ -39,7 +39,7 @@
           <div class="body" role="main">
             
   <section id="burgers-equation-with-hessian-based-mesh-adaptation">
-<h1>Burgers equation with Hessian-based mesh adaptation<a class="headerlink" href="#burgers-equation-with-hessian-based-mesh-adaptation" title="Permalink to this heading">¶</a></h1>
+<h1>Burgers equation with Hessian-based mesh adaptation<a class="headerlink" href="#burgers-equation-with-hessian-based-mesh-adaptation" title="Link to this heading">¶</a></h1>
 <p>Yet again, we revisit the Burgers equation example. This time, we apply Hessian-based
 mesh adaptation. The interesting thing about this demo is that, unlike the
 <a class="reference external" href="./point_discharge2d-goal_oriented.py.html">previous demo</a> and its predecessor,
@@ -47,8 +47,9 @@ we consider the time-dependent case. Moreover, we consider a <code class="xref p
 multiple subintervals and hence multiple meshes to adapt.</p>
 <p>As before, we copy over what is now effectively boiler plate to set up our problem.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">firedrake.meshadapt</span> <span class="kn">import</span> <span class="n">adapt</span>
-<span class="kn">from</span> <span class="nn">pyroteus</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">animate.adapt</span> <span class="kn">import</span> <span class="n">adapt</span>
+<span class="kn">from</span> <span class="nn">animate.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
+<span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 
@@ -63,10 +64,11 @@ multiple subintervals and hence multiple meshes to adapt.</p>
     <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">solutions</span><span class="p">):</span>
         <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
 
-        <span class="c1"># Specify viscosity coefficient</span>
-        <span class="n">nu</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
+        <span class="c1"># Define constants</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
 
         <span class="c1"># Setup variational problem</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">TestFunction</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">function_space</span><span class="p">())</span>
@@ -125,7 +127,7 @@ multiple subintervals and hence multiple meshes to adapt.</p>
 <span class="n">params</span> <span class="o">=</span> <span class="n">MetricParameters</span><span class="p">(</span>
     <span class="p">{</span>
         <span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
-        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYROTEUS_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
 <span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">MeshSeq</span><span class="p">(</span>
@@ -146,7 +148,7 @@ and metrics.</p>
 component at each timestep and intersect them. We then time integrate these Hessians
 to give the metric contribution from each subinterval. Given that we use a simple
 implicit Euler method for time integration in the PDE, we do the same here, too.</p>
-<p>Pyroteus provides functionality to normalise a list of metrics using <em>space-time</em>
+<p>Goalie provides functionality to normalise a list of metrics using <em>space-time</em>
 normalisation. This ensures that the target complexity is attained on average across
 all timesteps.</p>
 <p>Note that when adapting the mesh, we need to be careful to check whether convergence
@@ -314,13 +316,13 @@ such as combining using metric addition and recovering a single Hessian of the s
         <li class="right" >
           <a href="point_discharge2d-goal_oriented.py.html" title="Goal-oriented mesh adaptation for a 2D steady-state problem"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Burgers equation with Hessian-based mesh adaptation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

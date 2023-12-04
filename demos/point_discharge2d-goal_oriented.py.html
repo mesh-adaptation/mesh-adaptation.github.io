@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Goal-oriented mesh adaptation for a 2D steady-state problem &#8212; Pyroteus 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <title>Goal-oriented mesh adaptation for a 2D steady-state problem &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Burgers equation with Hessian-based mesh adaptation" href="burgers-hessian.py.html" />
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="point_discharge2d-hessian.py.html" title="Hessian-based mesh adaptation for a 2D steady-state problem"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Goal-oriented mesh adaptation for a 2D steady-state problem</a></li> 
       </ul>
     </div>  
@@ -42,17 +42,18 @@
           <div class="body" role="main">
             
   <section id="goal-oriented-mesh-adaptation-for-a-2d-steady-state-problem">
-<h1>Goal-oriented mesh adaptation for a 2D steady-state problem<a class="headerlink" href="#goal-oriented-mesh-adaptation-for-a-2d-steady-state-problem" title="Permalink to this heading">¶</a></h1>
+<h1>Goal-oriented mesh adaptation for a 2D steady-state problem<a class="headerlink" href="#goal-oriented-mesh-adaptation-for-a-2d-steady-state-problem" title="Link to this heading">¶</a></h1>
 <p>In the <a class="reference external" href="./point_discharge2d-hessian.py.html">previous demo</a>, we applied
 Hessian-based mesh adaptation to the “point discharge with diffusion” steady-state 2D
 test case. Here, we combine the goal-oriented error estimation approach from
 <a class="reference external" href="./point_discharge2d.py.html">another previous demo</a> to provide the first
 exposition of goal-oriented mesh adaptation in these demos.</p>
 <p>We copy over the setup as before. The only difference is that we import from
-<cite>pyroteus_adjoint</cite> rather than <cite>pyroteus</cite>.</p>
+<cite>goalie_adjoint</cite> rather than <cite>goalie</cite>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">firedrake.meshadapt</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pyroteus_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">animate.adapt</span> <span class="kn">import</span> <span class="n">adapt</span>
+<span class="kn">from</span> <span class="nn">animate.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
+<span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">ticker</span>
@@ -75,10 +76,15 @@ exposition of goal-oriented mesh adaptation in these demos.</p>
     <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
         <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">D</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="n">as_vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">CellSize</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">source</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+
+        <span class="c1"># Define constants</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">u_x</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">u_y</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">as_vector</span><span class="p">([</span><span class="n">u_x</span><span class="p">,</span> <span class="n">u_y</span><span class="p">])</span>
 
         <span class="c1"># SUPG stabilisation parameter</span>
         <span class="n">unorm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
@@ -145,7 +151,7 @@ iterations.</p>
     <span class="p">{</span>
         <span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
         <span class="s2">&quot;qoi_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
-        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYROTEUS_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
@@ -192,7 +198,7 @@ corresponding solution looks like.</p>
 <img alt="../_images/point_discharge2d-adjoint_init.jpg" src="../_images/point_discharge2d-adjoint_init.jpg" />
 </figure>
 <p>The adaptor takes a different form in this case, depending on adjoint solution data
-as well as forward solution data. For simplicity, we begin by using Pyroteus’ inbuilt
+as well as forward solution data. For simplicity, we begin by using Goalie’s inbuilt
 isotropic metric function.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">adaptor</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">solutions</span><span class="p">,</span> <span class="n">indicators</span><span class="p">):</span>
     <span class="c1"># Deduce an isotropic metric from the error indicator field</span>
@@ -246,9 +252,7 @@ that, in addition to solving the forward problem, this version of the fixed poin
 iteration method solves the adjoint problem, as well as solving the forward problem
 again on a globally uniformly refined mesh. The latter is particularly expensive, so
 we should expect the computation to take more time.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solutions</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fixed_point_iteration</span><span class="p">(</span><span class="n">adaptor</span><span class="p">)</span>
-<span class="n">qoi_iso</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_values</span>
-<span class="n">dofs_iso</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">vertex_counts</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solutions</span><span class="p">,</span> <span class="n">indicators</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fixed_point_iteration</span><span class="p">(</span><span class="n">adaptor</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This time, we find that the fixed point iteration converges in five iterations.
@@ -297,7 +301,7 @@ over. There is also a band of increased resolution between these two regions. Fi
 the mesh has low resolution downstream of the receiver region. This is to be expected
 because we have an advection-dominated problem, so the QoI value is independent of the
 dynamics there.</p>
-<p>Pyroteus also provides drivers for <em>anisotropic</em> goal-oriented mesh adaptation. Here,
+<p>Goalie also provides drivers for <em>anisotropic</em> goal-oriented mesh adaptation. Here,
 we consider the <code class="docutils literal notranslate"><span class="pre">anisotropic_dwr_metric</span></code> driver. (See documentation for details.) To
 use it, we just need to define a different adaptor function. The same error indicator
 is used as for the isotropic approach. In addition, the Hessian of the forward
@@ -370,9 +374,7 @@ it.</p>
     <span class="n">qoi_type</span><span class="o">=</span><span class="s2">&quot;steady&quot;</span><span class="p">,</span>
     <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">solutions</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fixed_point_iteration</span><span class="p">(</span><span class="n">adaptor</span><span class="p">)</span>
-<span class="n">qoi_aniso</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">qoi_values</span>
-<span class="n">dofs_aniso</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">vertex_counts</span>
+<span class="n">solutions</span><span class="p">,</span> <span class="n">indicators</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fixed_point_iteration</span><span class="p">(</span><span class="n">adaptor</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go"> 1, complexity:  400, dofs:  542, elements: 1030</span>
@@ -479,13 +481,13 @@ time-dependent case.</p>
         <li class="right" >
           <a href="point_discharge2d-hessian.py.html" title="Hessian-based mesh adaptation for a 2D steady-state problem"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Pyroteus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Goal-oriented mesh adaptation for a 2D steady-state problem</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>goalie.time_partition &#8212; Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">goalie.time_partition</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for goalie.time_partition</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Partitioning for the temporal domain.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">debug</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimePartition&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeInterval&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeInstant&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="TimePartition">
+<a class="viewcode-back" href="../../goalie.html#goalie.time_partition.TimePartition">[docs]</a>
+<span class="k">class</span> <span class="nc">TimePartition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A partition of the time interval of interest into subintervals.</span>
+
+<span class="sd">    The subintervals are assumed to be uniform in length. However, different timestep</span>
+<span class="sd">    values may be used on each subinterval.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">end_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">num_subintervals</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">timesteps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">fields</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">num_timesteps_per_export</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">subintervals</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">field_types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg end_time: end time of the interval of interest</span>
+<span class="sd">        :arg num_subintervals: number of subintervals in the partition</span>
+<span class="sd">        :arg timesteps: (list of values for the) timestep used on each subinterval</span>
+<span class="sd">        :arg fields: (list of) field names</span>
+<span class="sd">        :kwarg num_timesteps_per_export: (list of) number of timesteps per export</span>
+<span class="sd">        :kwarg start_time: start time of the interval of interest</span>
+<span class="sd">        :kwarg subinterals: user-provided sequence of subintervals, which need not be of</span>
+<span class="sd">            uniform length</span>
+<span class="sd">        :kwarg field_types: (list of) strings indicating whether each field is</span>
+<span class="sd">            &#39;unsteady&#39; or &#39;steady&#39;, i.e., does the corresponding equation involve time</span>
+<span class="sd">            derivatives or not?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">debug</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Non-integer number of subintervals &#39;</span><span class="si">{</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;num_subintervals&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;interval&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get subintervals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="n">subintervals</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">subinterval_time</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">/</span> <span class="n">num_subintervals</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">subinterval_time</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">subinterval_time</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_subintervals</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;subintervals&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get timestep on each subinterval</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timesteps</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">timesteps</span> <span class="o">=</span> <span class="p">[</span><span class="n">timesteps</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span> <span class="o">=</span> <span class="n">timesteps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_timesteps</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;timesteps&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get number of timesteps on each subinterval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">((</span><span class="n">ts</span><span class="p">,</span> <span class="n">tf</span><span class="p">),</span> <span class="n">dt</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)):</span>
+            <span class="n">num_timesteps</span> <span class="o">=</span> <span class="p">(</span><span class="n">tf</span> <span class="o">-</span> <span class="n">ts</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Non-integer number of timesteps on subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">:&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">num_timesteps</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;num_timesteps_per_subinterval&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get num timesteps per export</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_timesteps_per_export</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">num_timesteps_per_export</span> <span class="o">=</span> <span class="p">[</span><span class="n">num_timesteps_per_export</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_export</span> <span class="o">=</span> <span class="n">num_timesteps_per_export</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_num_timesteps_per_export</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;num_timesteps_per_export&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get num exports per subinterval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">tsps</span> <span class="o">//</span> <span class="n">tspe</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">tspe</span><span class="p">,</span> <span class="n">tsps</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;num_exports_per_subinterval&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;steady&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Process field types</span>
+        <span class="k">if</span> <span class="n">field_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">field_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;steady&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="k">else</span> <span class="s2">&quot;unsteady&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_types</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">field_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">field_types</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">=</span> <span class="n">field_types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_field_types</span><span class="p">()</span>
+        <span class="n">debug</span><span class="p">(</span><span class="s2">&quot;field_types&quot;</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TimePartition.debug">
+<a class="viewcode-back" href="../../goalie.html#goalie.time_partition.TimePartition.debug">[docs]</a>
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print attribute &#39;msg&#39; for debugging purposes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Attribute &#39;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&#39; cannot be debugged because it doesn&#39;t exist.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span>
+        <span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TimePartition: </span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">25s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">timesteps</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">])</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;TimePartition(&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;end_time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;num_subintervals=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;timesteps=[</span><span class="si">{</span><span class="n">timesteps</span><span class="si">}</span><span class="s2">], &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;fields=[</span><span class="si">{</span><span class="n">fields</span><span class="si">}</span><span class="s2">])&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg i: index</span>
+<span class="sd">        :return: subinterval bounds and timestep</span>
+<span class="sd">            associated with that index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;subinterval&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;timestep&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;num_timesteps_per_export&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;num_exports&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;num_timesteps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_timesteps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_subintervals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Number of subintervals provided differs from num_subintervals:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">)</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The first subinterval does not start at the start time:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The end of subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> does not match the start of&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; subinterval </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> !=&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The final subinterval does not end at the end time:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_timesteps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Number of timesteps does not match num_subintervals:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_num_timesteps_per_export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Number of timesteps per export and subinterval do not match:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; != </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">tspe</span><span class="p">,</span> <span class="n">tsps</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tspe</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected number of timesteps per export on subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> to be&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; an integer, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">tspe</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tsps</span> <span class="o">%</span> <span class="n">tspe</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Number of timesteps per export does not divide number of&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; timesteps per subinterval on subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">:&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">tsps</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">tspe</span><span class="si">}</span><span class="s2"> != 0.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_field_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Number of fields does not match number of field types:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">field_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;unsteady&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected field type for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; to be either &#39;unsteady&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; or &#39;steady&#39;, but got &#39;</span><span class="si">{</span><span class="n">field_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">subintervals</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span>
+            <span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">fields</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">field_types</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">subintervals</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">timesteps</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span>
+            <span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">fields</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">field_types</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="TimeInterval">
+<a class="viewcode-back" href="../../goalie.html#goalie.time_partition.TimeInterval">[docs]</a>
+<span class="k">class</span> <span class="nc">TimeInterval</span><span class="p">(</span><span class="n">TimePartition</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A trivial :class:`~.TimePartition`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">end_time</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;TimeInterval(&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;end_time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;timestep=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestep</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;fields=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">timestep</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="TimeInstant">
+<a class="viewcode-back" href="../../goalie.html#goalie.time_partition.TimeInstant">[docs]</a>
+<span class="k">class</span> <span class="nc">TimeInstant</span><span class="p">(</span><span class="n">TimeInterval</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A :class:`~.TimePartition` for steady-state problems.</span>
+
+<span class="sd">    Under the hood this means dividing :math:`[0,1)` into</span>
+<span class="sd">    a single timestep.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;end_time&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both &#39;time&#39; and &#39;end_time&#39; are set.&quot;</span><span class="p">)</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;end_time&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="n">time</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;TimeInstant(&quot;</span> <span class="sa">f</span><span class="s2">&quot;time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="sa">f</span><span class="s2">&quot;fields=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">goalie.time_partition</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>
