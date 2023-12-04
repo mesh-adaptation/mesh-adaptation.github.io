@@ -5,12 +5,13 @@
 Welcome to the documentation for Animate and Goalie!
 ====================================================
 
-Goalie provides metric-based goal-oriented mesh adaptation
-functionality to the Python-based finite element library
-`Firedrake <http://www.firedrakeproject.org/>`__. The 'y' is
-silent, so its pronunciation is identical to 'Proteus' - the
-ancient Greek god of the constantly changing surface of the
-sea.
+**Animate** is a package which provides anisotropic mesh adaptation
+functionality for the Python-based finite element library
+`Firedrake <http://www.firedrakeproject.org/>`__. Given an initial mesh, the
+user defines a Riemannian metric field (or simply 'metric'), which provides the
+'optimal mesh concept', i.e. a 'blueprint' for what adapted meshes will look
+like. Animate can then be used to transform the initial mesh into an adapted
+mesh, making use of the metric to guide the transformations.
 
 
 .. rubric:: Mathematical background
