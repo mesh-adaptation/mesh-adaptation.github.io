@@ -1,16 +1,27 @@
-.. title:: Goalie Goal-Oriented Mesh Adaptation Toolkit
+.. title:: Animate and Goalie
 
 .. only:: html
 
-Goalie Goal-Oriented Mesh Adaptation Toolkit
-============================================
+Welcome to the documentation for Animate and Goalie!
+====================================================
 
-Goalie provides metric-based goal-oriented mesh adaptation
-functionality to the Python-based finite element library
-`Firedrake <http://www.firedrakeproject.org/>`__. The 'y' is
-silent, so its pronunciation is identical to 'Proteus' - the
-ancient Greek god of the constantly changing surface of the
-sea.
+**Animate** is a package which provides anisotropic mesh adaptation
+functionality for the Python-based finite element library
+`Firedrake <http://www.firedrakeproject.org/>`__. Given an initial mesh, the
+user defines a Riemannian metric field (or simply 'metric'), which provides the
+'optimal mesh concept', i.e. a 'blueprint' for what adapted meshes will look
+like. Animate can then be used to transform the initial mesh into an adapted
+mesh, making use of the metric to guide the transformations.
+
+**Goalie** is more of an 'outer-loop' package and is focused on a
+goal-oriented mesh adaptation pipeline for solving partial differential
+equations (PDEs) using adapted meshes. Goalie supports solving time-dependent PDEs
+and their adjoints on sequences of meshes, performing goal-oriented error
+estimation, and adapting the meshes in the sequence with a user-provided adaptor
+function. A key example of such an adaptor function is one which uses Animate
+and the metric-based approach. Goalie uses a 'fixed-point iteration' approach,
+meaning that the PDE (and its adjoint) is solved over the whole space-time domain
+whenever mesh adaptation is applied.
 
 
 .. rubric:: Mathematical background
@@ -29,38 +40,36 @@ discretisation approach assumed throughout. The
 `dolfin-adjoint` package (which Goalie uses to solve adjoint
 problems) contains some `excellent documentation
 <http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html>`__
-on the mathematical background of adjoint problems. The
-goal-oriented error estimation and metric-based mesh adaptation
-functionalities provided by Goalie are described in the manual.
+on the mathematical background of adjoint problems. The metric-based mesh
+adaptation and goal-oriented error estimation functionalities provided by
+Animate Goalie are described in the respective manuals.
 
 .. toctree::
     :maxdepth: 2
 
-    Goalie manual <maths/index>
+    Animate manual <animate/index>
+    Goalie manual <goalie/index>
 
 
 .. rubric:: API documentation
 
-The classes and functions which comprise Goalie may be found
-in the API documentation.
+The classes and functions which comprise Animate and Goalie may be found in
+their API documentation.
 
 .. toctree::
     :maxdepth: 1
 
+    Animate API documentation <animate>
     Goalie API documentation <goalie>
 
-They are also listed alphabetically on the :ref:`index <genindex>`
-page. The index may be searched using the inbuilt
-:ref:`search engine <search>`. Goalie source code is hosted on
-`GitHub <https://github.com/pyroteus/goalie/>`__.
+They are also listed alphabetically on the :ref:`index <genindex>` page. The
+index may be searched using the inbuilt :ref:`search engine <search>`. The
+source code for both packages is hosted on GitHub:
+`Animate <https://github.com/pyroteus/animate/>`__,
+`Goalie <https://github.com/pyroteus/goalie/>`__.
 
 
-.. rubric:: Demos
-
-Goalie contains a number of demos to illustrate the correct
-usage of its different functionalities. It is highly recommended
-that these are read in order, as many of the demos build upon
-earlier ones.
+.. rubric:: Goalie demos
 
 *Time partitions and mesh sequences*
 

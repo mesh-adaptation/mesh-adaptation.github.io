@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Goalie Goal-Oriented Mesh Adaptation Toolkit &#8212; Goalie 0.1 documentation</title>
+    <title>Animate and Goalie &#8212; Animate and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=601dbdee" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
@@ -13,7 +13,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Goalie manual" href="maths/index.html" /> 
+    <link rel="next" title="Animate manual" href="animate/index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,10 +25,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="maths/index.html" title="Goalie manual"
+          <a href="animate/index.html" title="Animate manual"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Goalie Goal-Oriented Mesh Adaptation Toolkit</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Animate and Goalie</a></li> 
       </ul>
     </div>  
 
@@ -37,14 +37,24 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="goalie-goal-oriented-mesh-adaptation-toolkit">
-<h1>Goalie Goal-Oriented Mesh Adaptation Toolkit<a class="headerlink" href="#goalie-goal-oriented-mesh-adaptation-toolkit" title="Link to this heading">¶</a></h1>
-<p>Goalie provides metric-based goal-oriented mesh adaptation
-functionality to the Python-based finite element library
-<a class="reference external" href="http://www.firedrakeproject.org/">Firedrake</a>. The ‘y’ is
-silent, so its pronunciation is identical to ‘Proteus’ - the
-ancient Greek god of the constantly changing surface of the
-sea.</p>
+  <section id="welcome-to-the-documentation-for-animate-and-goalie">
+<h1>Welcome to the documentation for Animate and Goalie!<a class="headerlink" href="#welcome-to-the-documentation-for-animate-and-goalie" title="Link to this heading">¶</a></h1>
+<p><strong>Animate</strong> is a package which provides anisotropic mesh adaptation
+functionality for the Python-based finite element library
+<a class="reference external" href="http://www.firedrakeproject.org/">Firedrake</a>. Given an initial mesh, the
+user defines a Riemannian metric field (or simply ‘metric’), which provides the
+‘optimal mesh concept’, i.e. a ‘blueprint’ for what adapted meshes will look
+like. Animate can then be used to transform the initial mesh into an adapted
+mesh, making use of the metric to guide the transformations.</p>
+<p><strong>Goalie</strong> is more of an ‘outer-loop’ package and is focused on a
+goal-oriented mesh adaptation pipeline for solving partial differential
+equations (PDEs) using adapted meshes. Goalie supports solving time-dependent PDEs
+and their adjoints on sequences of meshes, performing goal-oriented error
+estimation, and adapting the meshes in the sequence with a user-provided adaptor
+function. A key example of such an adaptor function is one which uses Animate
+and the metric-based approach. Goalie uses a ‘fixed-point iteration’ approach,
+meaning that the PDE (and its adjoint) is solved for all time whenever mesh
+adaptation is applied.</p>
 <p class="rubric">Mathematical background</p>
 <p>Goal-oriented mesh adaptation presents one of the clearest
 examples of the intersection between adjoint methods and mesh
@@ -57,37 +67,38 @@ for an introduction to the finite element method - the
 discretisation approach assumed throughout. The
 <cite>dolfin-adjoint</cite> package (which Goalie uses to solve adjoint
 problems) contains some <a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">excellent documentation</a>
-on the mathematical background of adjoint problems. The
-goal-oriented error estimation and metric-based mesh adaptation
-functionalities provided by Goalie are described in the manual.</p>
+on the mathematical background of adjoint problems. The metric-based mesh
+adaptation and goal-oriented error estimation functionalities provided by
+Animate Goalie are described in the respective manuals.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="maths/index.html">Goalie manual</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="maths/1-motivation.html">1. Motivation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="maths/2-goal-oriented-error-estimation.html">2. Goal-oriented error estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="maths/3-metric-based.html">3. The metric-based framework</a></li>
-<li class="toctree-l2"><a class="reference internal" href="maths/4-goal-oriented-mesh-adaptation.html">4. Goal-oriented mesh adaptation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="animate/index.html">Animate manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="animate/1-metric-based.html">1. The metric-based framework</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="goalie/index.html">Goalie manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="goalie/1-motivation.html">1. Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="goalie/2-goal-oriented-error-estimation.html">2. Goal-oriented error estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html">3. Goal-oriented mesh adaptation</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <p class="rubric">API documentation</p>
-<p>The classes and functions which comprise Goalie may be found
-in the API documentation.</p>
+<p>The classes and functions which comprise Animate and Goalie may be found in
+their API documentation.</p>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="animate.html">Animate API documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="goalie.html">Goalie API documentation</a></li>
 </ul>
 </div>
-<p>They are also listed alphabetically on the <a class="reference internal" href="genindex.html"><span class="std std-ref">index</span></a>
-page. The index may be searched using the inbuilt
-<a class="reference internal" href="search.html"><span class="std std-ref">search engine</span></a>. Goalie source code is hosted on
-<a class="reference external" href="https://github.com/pyroteus/goalie/">GitHub</a>.</p>
-<p class="rubric">Demos</p>
-<p>Goalie contains a number of demos to illustrate the correct
-usage of its different functionalities. It is highly recommended
-that these are read in order, as many of the demos build upon
-earlier ones.</p>
+<p>They are also listed alphabetically on the <a class="reference internal" href="genindex.html"><span class="std std-ref">index</span></a> page. The
+index may be searched using the inbuilt <a class="reference internal" href="search.html"><span class="std std-ref">search engine</span></a>. The
+source code for both packages is hosted on GitHub:
+<a class="reference external" href="https://github.com/pyroteus/animate/">Animate</a>,
+<a class="reference external" href="https://github.com/pyroteus/goalie/">Goalie</a>.</p>
+<p class="rubric">Goalie demos</p>
 <p><em>Time partitions and mesh sequences</em></p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -130,8 +141,8 @@ earlier ones.</p>
         <div class="sphinxsidebarwrapper">
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="maths/index.html"
-                          title="next chapter">Goalie manual</a></p>
+    <p class="topless"><a href="animate/index.html"
+                          title="next chapter">Animate manual</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -164,10 +175,10 @@ earlier ones.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="maths/index.html" title="Goalie manual"
+          <a href="animate/index.html" title="Animate manual"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Goalie Goal-Oriented Mesh Adaptation Toolkit</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Animate and Goalie</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

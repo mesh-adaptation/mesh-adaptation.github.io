@@ -4,11 +4,12 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXAPIDOC  = sphinx-apidoc
-SPHINXPROJ    = Goalie
+SPHINXPROJ    = Documentation
 SOURCEDIR     = source
 BUILDDIR      = build
 PYTHON        = ${VIRTUAL_ENV}/bin/python3
 
+ANIMATE       = ${VIRTUAL_ENV}/src/animate
 GOALIE        = ${VIRTUAL_ENV}/src/goalie
 
 # Put it first so that "make" without argument is like "make help".
@@ -33,11 +34,13 @@ copy_demos:
 	cp source/demos/*.py $(BUILDDIR)/html/demos
 	cp source/demos/*.jpg $(BUILDDIR)/html/demos
 	cp source/demos/*.bib $(BUILDDIR)/html/demos
-	install -d $(BUILDDIR)/html/maths
+	install -d $(BUILDDIR)/html/animate
+	install -d $(BUILDDIR)/html/goalie
 	mkdir -p $(BUILDDIR)/html/_images
-	cp source/maths/images/*.jpg $(BUILDDIR)/html/_images
+	cp source/animate/images/*.jpg $(BUILDDIR)/html/_images
+	cp source/goalie/images/*.jpg $(BUILDDIR)/html/_images
 
-SPHINX_TARGETS = html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub \
+SPHINX_TARGETS = dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub \
 	latex latexpdf latexpdfja text man texinfo info gettext changes \
 	xml pseudoxml linkcheck doctest coverage
 
@@ -47,10 +50,25 @@ $(SPHINX_TARGETS): Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 html: apidoc $(GENERATED_FILES)
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cp -r $(BUILDDIR)/html/* ..
 
 .PHONY: apidoc
-apidoc:
+apidoc: apidoc-animate apidoc-goalie
+
+apidoc-animate:
+	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import animate; import os; print(os.path.dirname(animate.__file__))') -o source -f -T
+	# TODO: Do this in a less hacky way
+	echo "" >> source/animate.rst
+	echo "References" >> source/animate.rst
+	echo "----------" >> source/animate.rst
+	echo "" >> source/animate.rst
+	echo ".. rubric:: References" >> source/animate.rst
+	echo "" >> source/animate.rst
+	echo ".. bibliography:: references.bib" >> source/animate.rst
+	echo "    :all:" >> source/animate.rst
+
+apidoc-goalie:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import goalie; import os; print(os.path.dirname(goalie.__file__))') -o source -f -T
 	# TODO: Do this in a less hacky way
 	echo "" >> source/goalie.rst
@@ -61,7 +79,6 @@ apidoc:
 	echo "" >> source/goalie.rst
 	echo ".. bibliography:: references.bib" >> source/goalie.rst
 	echo "    :all:" >> source/goalie.rst
-
 
 clean:
 	-git clean -fdx $(BUILDDIR)/html/
