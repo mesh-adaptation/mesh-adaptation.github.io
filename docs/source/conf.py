@@ -184,8 +184,7 @@ autoclass_content = "both"
 bibtex_bibfiles = [
     "references.bib",
     "demos/demo_references.bib",
-    "maths/1-references.bib",
-    "maths/2-references.bib",
-    "maths/3-references.bib",
-    "maths/4-references.bib",
+    "goalie/1-references.bib",
+    "goalie/2-references.bib",
+    "goalie/3-references.bib",
 ]
