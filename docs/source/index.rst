@@ -13,13 +13,15 @@ user defines a Riemannian metric field (or simply 'metric'), which provides the
 like. Animate can then be used to transform the initial mesh into an adapted
 mesh, making use of the metric to guide the transformations.
 
-**Goalie** is more of an 'outer-loop' package, which is responsible for
-goal-oriented mesh adaptation pipelines for solving partial differential
-equations (PDEs) using adapted meshes. It supports solving time-dependent PDEs
+**Goalie** is more of an 'outer-loop' package and is focused on a
+goal-oriented mesh adaptation pipeline for solving partial differential
+equations (PDEs) using adapted meshes. Goalie supports solving time-dependent PDEs
 and their adjoints on sequences of meshes, performing goal-oriented error
 estimation, and adapting the meshes in the sequence with a user-provided adaptor
 function. A key example of such an adaptor function is one which uses Animate
-and the metric-based approach.
+and the metric-based approach. Goalie uses a 'fixed-point iteration' approach,
+meaning that the PDE (and its adjoint) is solved for all time whenever mesh
+adaptation is applied.
 
 
 .. rubric:: Mathematical background
