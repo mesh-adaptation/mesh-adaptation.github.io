@@ -62,6 +62,7 @@ author = "Joseph G. Wallwork et al."
 # built documents.
 #
 # The short X.Y version.
+import animate
 import goalie
 
 version = goalie.__version__
@@ -187,4 +188,5 @@ bibtex_bibfiles = [
     "goalie/1-references.bib",
     "goalie/2-references.bib",
     "goalie/3-references.bib",
+    "animate/1-references.bib",
 ]

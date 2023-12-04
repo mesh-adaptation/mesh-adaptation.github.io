@@ -58,6 +58,15 @@ apidoc: apidoc-animate apidoc-goalie
 
 apidoc-animate:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import animate; import os; print(os.path.dirname(animate.__file__))') -o source -f -T
+	# TODO: Do this in a less hacky way
+	echo "" >> source/animate.rst
+	echo "References" >> source/animate.rst
+	echo "----------" >> source/animate.rst
+	echo "" >> source/animate.rst
+	echo ".. rubric:: References" >> source/animate.rst
+	echo "" >> source/animate.rst
+	echo ".. bibliography:: references.bib" >> source/animate.rst
+	echo "    :all:" >> source/animate.rst
 
 apidoc-goalie:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import goalie; import os; print(os.path.dirname(goalie.__file__))') -o source -f -T
