@@ -1,9 +1,9 @@
-.. title:: Welcome to the documentation for Animate and Goalie!
+.. title:: Animate and Goalie
 
 .. only:: html
 
-Goalie Goal-Oriented Mesh Adaptation Toolkit
-============================================
+Welcome to the documentation for Animate and Goalie!
+====================================================
 
 Goalie provides metric-based goal-oriented mesh adaptation
 functionality to the Python-based finite element library
