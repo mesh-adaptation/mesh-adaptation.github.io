@@ -37,7 +37,7 @@ copy_demos:
 	mkdir -p $(BUILDDIR)/html/_images
 	cp source/maths/images/*.jpg $(BUILDDIR)/html/_images
 
-SPHINX_TARGETS = html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub \
+SPHINX_TARGETS = dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub \
 	latex latexpdf latexpdfja text man texinfo info gettext changes \
 	xml pseudoxml linkcheck doctest coverage
 
@@ -47,6 +47,7 @@ $(SPHINX_TARGETS): Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 html: apidoc $(GENERATED_FILES)
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cp -r $(BUILDDIR)/html/* ..
 
 .PHONY: apidoc
