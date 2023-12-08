@@ -14,7 +14,7 @@
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Partitioning a time interval" href="demos/time_partition.py.html" />
+    <link rel="next" title="Defining a simple metric field and adapting the mesh to it" href="demos/simple_metric.py.html" />
     <link rel="prev" title="animate package" href="animate.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -27,7 +27,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="demos/time_partition.py.html" title="Partitioning a time interval"
+          <a href="demos/simple_metric.py.html" title="Defining a simple metric field and adapting the mesh to it"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="animate.html" title="animate package"
@@ -229,8 +229,7 @@ in, or an appropriate dictionary</p></li>
 <dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedMeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq" title="goalie.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a></p>
-<p>An extension of <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq" title="goalie.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a> to account for
-goal-oriented problems.</p>
+<p>An extension of <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq" title="goalie.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a> to account for goal-oriented problems.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>get_qoi</strong> – a function, with two arguments, a <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq" title="goalie.adjoint.AdjointMeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code></a>,
@@ -280,51 +279,42 @@ error and enriched space(s) as arguments</p></li>
 <dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq">
 <span class="sig-name descname"><span class="pre">get_enriched_mesh_seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq" title="goalie.adjoint.AdjointMeshSeq"><span class="pre">AdjointMeshSeq</span></a></span></span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.get_enriched_mesh_seq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq" title="Link to this definition">¶</a></dt>
 <dd><p>Construct a sequence of globally enriched spaces.</p>
-<p>Currently, global enrichment may be
-achieved using one of:
+<p>Currently, global enrichment may be achieved using one of:
 * h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
 * p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>).</p>
-<p>The number of refinements may be controlled by
-the keyword argument <code class="docutils literal notranslate"><span class="pre">num_enrichments</span></code>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">
-<span class="sig-name descname"><span class="pre">global_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'p'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_enrichments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.global_enrichment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment" title="Link to this definition">¶</a></dt>
-<dd><p>Solve the forward and adjoint problems
-associated with
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">solver()</span></code> in a
-sequence of globally enriched spaces.</p>
-<p>Currently, global enrichment may be
-achieved using one of:
-* h-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'h'</span></code>);
-* p-refinement (<code class="docutils literal notranslate"><span class="pre">enrichment_method</span> <span class="pre">=</span> <span class="pre">'p'</span></code>).</p>
-<p>The number of refinements may be controlled by
-the keyword argument <code class="docutils literal notranslate"><span class="pre">num_enrichments</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>kwargs</strong> – keyword arguments to pass to the
-<a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq.solve_adjoint" title="goalie.adjoint.AdjointMeshSeq.solve_adjoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve_adjoint()</span></code></a> method</p>
-</dd>
-</dl>
+<p>The number of refinements may be controlled by the keyword argument
+<code class="docutils literal notranslate"><span class="pre">num_enrichments</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors">
 <span class="sig-name descname"><span class="pre">indicate_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn:</span> <span class="pre">~collections.abc.Callable</span> <span class="pre">=</span> <span class="pre">&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><span class="pre">AttrDict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.indicate_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors" title="Link to this definition">¶</a></dt>
-<dd><p>Compute goal-oriented error indicators for each
-subinterval based on solving the adjoint problem
-in a globally enriched space.</p>
+<dd><p>Compute goal-oriented error indicators for each subinterval based on solving the
+adjoint problem in a globally enriched space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>enrichment_kwargs</strong> – keyword arguments to pass
-to the global enrichment method</p></li>
-<li><p><strong>adj_kwargs</strong> – keyword arguments to pass to the
-adjoint solver</p></li>
-<li><p><strong>indicator_fn</strong> – function for error indication,
-which takes the form, adjoint error and enriched
-space(s) as arguments</p></li>
+<li><p><strong>enrichment_kwargs</strong> – keyword arguments to pass to the global enrichment
+method</p></li>
+<li><p><strong>adj_kwargs</strong> – keyword arguments to pass to the adjoint solver</p></li>
+<li><p><strong>indicator_fn</strong> – function for error indication, which takes the form,
+adjoint error and enriched space(s) as arguments</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators2estimator">
+<span class="sig-name descname"><span class="pre">indicators2estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indicators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.12)"><span class="pre">Iterable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.indicators2estimator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators2estimator" title="Link to this definition">¶</a></dt>
+<dd><p>Deduce the error estimator value associated with error indicator fields defined over
+a <a class="reference internal" href="#goalie.mesh_seq.MeshSeq" title="goalie.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indicators</strong> – the list of list of error indicator
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>s</p></li>
+<li><p><strong>absolute_value</strong> – toggle whether to take the modulus on each element</p></li>
 </ul>
 </dd>
 </dl>
@@ -1202,8 +1192,8 @@ over</p></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.check_estimator_convergence"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.check_estimator_convergence()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.fixed_point_iteration()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.get_enriched_mesh_seq()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.global_enrichment()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.indicate_errors()</span></code></a></li>
+<li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators2estimator"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.indicators2estimator()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1316,8 +1306,8 @@ over</p></li>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="demos/time_partition.py.html"
-                          title="next chapter">Partitioning a time interval</a></p>
+    <p class="topless"><a href="demos/simple_metric.py.html"
+                          title="next chapter">Defining a simple metric field and adapting the mesh to it</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -1350,7 +1340,7 @@ over</p></li>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="demos/time_partition.py.html" title="Partitioning a time interval"
+          <a href="demos/simple_metric.py.html" title="Defining a simple metric field and adapting the mesh to it"
              >next</a> |</li>
         <li class="right" >
           <a href="animate.html" title="animate package"
