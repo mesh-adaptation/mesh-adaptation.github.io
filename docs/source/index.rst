@@ -68,6 +68,12 @@ source code for both packages is hosted on GitHub:
 `Animate <https://github.com/pyroteus/animate/>`__,
 `Goalie <https://github.com/pyroteus/goalie/>`__.
 
+.. rubric:: Animate demos
+
+.. toctree::
+    :maxdepth: 1
+
+    Defining a simple metric and adapting a mesh with respect to it <demos/simple_metric.py>
 
 .. rubric:: Goalie demos
 

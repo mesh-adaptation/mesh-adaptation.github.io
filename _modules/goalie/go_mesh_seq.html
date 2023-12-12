@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>goalie.go_mesh_seq &#8212; Goalie 0.1 documentation</title>
+    <title>goalie.go_mesh_seq &#8212; Animate and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
@@ -22,7 +22,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.go_mesh_seq</a></li> 
       </ul>
@@ -38,12 +38,12 @@
 <span class="sd">Drivers for goal-oriented error estimation on sequences of meshes.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">.adjoint</span> <span class="kn">import</span> <span class="n">AdjointMeshSeq</span>
-<span class="kn">from</span> <span class="nn">.error_estimation</span> <span class="kn">import</span> <span class="n">get_dwr_indicator</span><span class="p">,</span> <span class="n">indicators2estimator</span>
+<span class="kn">from</span> <span class="nn">.error_estimation</span> <span class="kn">import</span> <span class="n">get_dwr_indicator</span>
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">pyrint</span>
 <span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
 <span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="n">Function</span><span class="p">,</span> <span class="n">FunctionSpace</span><span class="p">,</span> <span class="n">MeshHierarchy</span><span class="p">,</span> <span class="n">TransferManager</span><span class="p">,</span> <span class="n">project</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
@@ -56,8 +56,7 @@
 <a class="viewcode-back" href="../../goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq">[docs]</a>
 <span class="k">class</span> <span class="nc">GoalOrientedMeshSeq</span><span class="p">(</span><span class="n">AdjointMeshSeq</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    An extension of :class:`~.AdjointMeshSeq` to account for</span>
-<span class="sd">    goal-oriented problems.</span>
+<span class="sd">    An extension of :class:`~.AdjointMeshSeq` to account for goal-oriented problems.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -66,25 +65,24 @@
 
 <div class="viewcode-block" id="GoalOrientedMeshSeq.get_enriched_mesh_seq">
 <a class="viewcode-back" href="../../goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;goalie.GoalOrientedMeshSeq.get_enriched_mesh_seq&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">get_enriched_mesh_seq</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_enrichments</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AdjointMeshSeq</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct a sequence of globally enriched spaces.</span>
 
-<span class="sd">        Currently, global enrichment may be</span>
-<span class="sd">        achieved using one of:</span>
+<span class="sd">        Currently, global enrichment may be achieved using one of:</span>
 <span class="sd">        * h-refinement (``enrichment_method = &#39;h&#39;``);</span>
 <span class="sd">        * p-refinement (``enrichment_method = &#39;p&#39;``).</span>
 
-<span class="sd">        The number of refinements may be controlled by</span>
-<span class="sd">        the keyword argument ``num_enrichments``.</span>
+<span class="sd">        The number of refinements may be controlled by the keyword argument</span>
+<span class="sd">        ``num_enrichments``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">enrichment_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Enrichment method </span><span class="si">{</span><span class="n">enrichment_method</span><span class="si">}</span><span class="s2"> not supported&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Enrichment method &#39;</span><span class="si">{</span><span class="n">enrichment_method</span><span class="si">}</span><span class="s2">&#39; not supported.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_enrichments</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A positive number of enrichments is required&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A positive number of enrichments is required.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Apply h-refinement</span>
         <span class="k">if</span> <span class="n">enrichment_method</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
@@ -120,39 +118,16 @@
         <span class="k">return</span> <span class="n">mesh_seq_e</span></div>
 
 
-<div class="viewcode-block" id="GoalOrientedMeshSeq.global_enrichment">
-<a class="viewcode-back" href="../../goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.global_enrichment">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;goalie.GoalOrientedMeshSeq.global_enrichment&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">global_enrichment</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">enrichment_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="n">num_enrichments</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Solve the forward and adjoint problems</span>
-<span class="sd">        associated with</span>
-<span class="sd">        :meth:`~.GoalOrientedMeshSeq.solver` in a</span>
-<span class="sd">        sequence of globally enriched spaces.</span>
-
-<span class="sd">        Currently, global enrichment may be</span>
-<span class="sd">        achieved using one of:</span>
-<span class="sd">        * h-refinement (``enrichment_method = &#39;h&#39;``);</span>
-<span class="sd">        * p-refinement (``enrichment_method = &#39;p&#39;``).</span>
-
-<span class="sd">        The number of refinements may be controlled by</span>
-<span class="sd">        the keyword argument ``num_enrichments``.</span>
-
-<span class="sd">        :kwarg kwargs: keyword arguments to pass to the</span>
-<span class="sd">            :meth:`~.AdjointMeshSeq.solve_adjoint` method</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mesh_seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enriched_mesh_seq</span><span class="p">(</span>
-            <span class="n">enrichment_method</span><span class="o">=</span><span class="n">enrichment_method</span><span class="p">,</span>
-            <span class="n">num_enrichments</span><span class="o">=</span><span class="n">num_enrichments</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_transfer_function</span><span class="p">(</span><span class="n">enrichment_method</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">enrichment_method</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TransferManager</span><span class="p">()</span><span class="o">.</span><span class="n">prolong</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">lambda</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">target</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GoalOrientedMeshSeq.indicate_errors">
 <a class="viewcode-back" href="../../goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;goalie.GoalOrientedMeshSeq.indicate_errors&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">indicate_errors</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">enrichment_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
@@ -160,28 +135,21 @@
         <span class="n">indicator_fn</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">get_dwr_indicator</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">AttrDict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute goal-oriented error indicators for each</span>
-<span class="sd">        subinterval based on solving the adjoint problem</span>
-<span class="sd">        in a globally enriched space.</span>
+<span class="sd">        Compute goal-oriented error indicators for each subinterval based on solving the</span>
+<span class="sd">        adjoint problem in a globally enriched space.</span>
 
-<span class="sd">        :kwarg enrichment_kwargs: keyword arguments to pass</span>
-<span class="sd">            to the global enrichment method</span>
-<span class="sd">        :kwarg adj_kwargs: keyword arguments to pass to the</span>
-<span class="sd">            adjoint solver</span>
-<span class="sd">        :kwarg indicator_fn: function for error indication,</span>
-<span class="sd">            which takes the form, adjoint error and enriched</span>
-<span class="sd">            space(s) as arguments</span>
+<span class="sd">        :kwarg enrichment_kwargs: keyword arguments to pass to the global enrichment</span>
+<span class="sd">            method</span>
+<span class="sd">        :kwarg adj_kwargs: keyword arguments to pass to the adjoint solver</span>
+<span class="sd">        :kwarg indicator_fn: function for error indication, which takes the form,</span>
+<span class="sd">            adjoint error and enriched space(s) as arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">enrichment_method</span> <span class="o">=</span> <span class="n">enrichment_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enrichment_method&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">enrichment_method</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
-            <span class="n">tm</span> <span class="o">=</span> <span class="n">TransferManager</span><span class="p">()</span>
-            <span class="n">transfer</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">prolong</span>
-        <span class="k">else</span><span class="p">:</span>
-
-            <span class="k">def</span> <span class="nf">transfer</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-                <span class="n">target</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-
+        <span class="n">enrichment_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;enrichment_method&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">)</span>
+        <span class="n">enrichment_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;num_enrichments&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">mesh_seq_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enriched_mesh_seq</span><span class="p">(</span><span class="o">**</span><span class="n">enrichment_kwargs</span><span class="p">)</span>
+        <span class="n">transfer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_transfer_function</span><span class="p">(</span><span class="n">enrichment_kwargs</span><span class="p">[</span><span class="s2">&quot;enrichment_method&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Solve the forward and adjoint problems on the MeshSeq and its enriched version</span>
         <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">adj_kwargs</span><span class="p">)</span>
         <span class="n">sols_e</span> <span class="o">=</span> <span class="n">mesh_seq_e</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">adj_kwargs</span><span class="p">)</span>
 
@@ -230,8 +198,8 @@
             <span class="n">forms</span> <span class="o">=</span> <span class="n">mesh_seq_e</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forms</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                    <span class="s2">&quot;The function defined by get_form should return a dictionary, not a&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">forms</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="s2">&quot;The function defined by get_form should return a dictionary&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;, not type &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">forms</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
                 <span class="p">)</span>
 
             <span class="c1"># Loop over each strongly coupled field</span>
@@ -260,6 +228,50 @@
                     <span class="n">indicators</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">max_value</span><span class="p">(</span><span class="n">indi</span><span class="p">,</span> <span class="mf">1.0e-16</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">sols</span><span class="p">,</span> <span class="n">indicators</span></div>
+
+
+<div class="viewcode-block" id="GoalOrientedMeshSeq.indicators2estimator">
+<a class="viewcode-back" href="../../goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators2estimator">[docs]</a>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">indicators2estimator</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">indicators</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">absolute_value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deduce the error estimator value associated with error indicator fields defined over</span>
+<span class="sd">        a :class:`~.MeshSeq`.</span>
+
+<span class="sd">        :arg indicators: the list of list of error indicator</span>
+<span class="sd">            :class:`firedrake.function.Function`\s</span>
+<span class="sd">        :kwarg absolute_value: toggle whether to take the modulus on each element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">indicators</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected &#39;indicators&#39; to be a dict, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">indicators</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">absolute_value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected &#39;absolute_value&#39; to be a bool, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">absolute_value</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">estimator</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">by_field</span> <span class="ow">in</span> <span class="n">indicators</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Key &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; does not exist in the TimePartition provided.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">by_field</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">by_field</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected values of &#39;indicators&#39; to be iterables, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">by_field</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">by_mesh</span><span class="p">,</span> <span class="n">dt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">by_field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">by_mesh</span><span class="p">,</span> <span class="n">Function</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">by_mesh</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Expected entries of &#39;indicators&#39; to be iterables, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">by_mesh</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">by_mesh</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">absolute_value</span><span class="p">:</span>
+                        <span class="n">indicator</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">indicator</span><span class="p">))</span>
+                    <span class="n">estimator</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">indicator</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">estimator</span></div>
 
 
 <div class="viewcode-block" id="GoalOrientedMeshSeq.check_estimator_convergence">
@@ -346,8 +358,7 @@
                 <span class="k">break</span>
 
             <span class="c1"># Check for error estimator convergence</span>
-            <span class="n">ee</span> <span class="o">=</span> <span class="n">indicators2estimator</span><span class="p">(</span><span class="n">indicators</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ee</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indicators2estimator</span><span class="p">(</span><span class="n">indicators</span><span class="p">))</span>
             <span class="n">ee_converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_estimator_convergence</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">convergence_criteria</span> <span class="o">==</span> <span class="s2">&quot;any&quot;</span> <span class="ow">and</span> <span class="n">ee_converged</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -417,7 +428,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.go_mesh_seq</a></li> 
       </ul>

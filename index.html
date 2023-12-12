@@ -53,8 +53,8 @@ and their adjoints on sequences of meshes, performing goal-oriented error
 estimation, and adapting the meshes in the sequence with a user-provided adaptor
 function. A key example of such an adaptor function is one which uses Animate
 and the metric-based approach. Goalie uses a ‘fixed-point iteration’ approach,
-meaning that the PDE (and its adjoint) is solved for all time whenever mesh
-adaptation is applied.</p>
+meaning that the PDE (and its adjoint) is solved over the whole space-time domain
+whenever mesh adaptation is applied.</p>
 <p class="rubric">Mathematical background</p>
 <p>Goal-oriented mesh adaptation presents one of the clearest
 examples of the intersection between adjoint methods and mesh
@@ -98,6 +98,12 @@ index may be searched using the inbuilt <a class="reference internal" href="sear
 source code for both packages is hosted on GitHub:
 <a class="reference external" href="https://github.com/pyroteus/animate/">Animate</a>,
 <a class="reference external" href="https://github.com/pyroteus/goalie/">Goalie</a>.</p>
+<p class="rubric">Animate demos</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demos/simple_metric.py.html">Defining a simple metric and adapting a mesh with respect to it</a></li>
+</ul>
+</div>
 <p class="rubric">Goalie demos</p>
 <p><em>Time partitions and mesh sequences</em></p>
 <div class="toctree-wrapper compound">
