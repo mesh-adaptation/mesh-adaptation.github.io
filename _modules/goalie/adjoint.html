@@ -223,6 +223,29 @@
         <span class="k">return</span> <span class="n">solve_blocks</span></div>
 
 
+    <span class="k">def</span> <span class="nf">_create_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;forward_old&quot;</span><span class="p">,</span> <span class="s2">&quot;adjoint&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solutions</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">field</span><span class="p">:</span> <span class="n">AttrDict</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">label</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="p">]</span>
+                            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
 <div class="viewcode-block" id="AdjointMeshSeq.solve_adjoint">
 <a class="viewcode-back" href="../../goalie.html#goalie.adjoint.AdjointMeshSeq.solve_adjoint">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
@@ -236,40 +259,32 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve an adjoint problem on a sequence of subintervals.</span>
 
-<span class="sd">        As well as the quantity of interest value, a dictionary</span>
-<span class="sd">        of solution fields is computed, the contents of which</span>
-<span class="sd">        give values at all exported timesteps, indexed first by</span>
-<span class="sd">        the field label and then by type. The contents of these</span>
-<span class="sd">        nested dictionaries are lists which are indexed first by</span>
-<span class="sd">        subinterval and then by export. For a given exported</span>
-<span class="sd">        timestep, the solution types are:</span>
+<span class="sd">        As well as the quantity of interest value, a dictionary of solution fields is</span>
+<span class="sd">        computed, the contents of which give values at all exported timesteps, indexed</span>
+<span class="sd">        first by the field label and then by type. The contents of these nested</span>
+<span class="sd">        dictionaries are lists which are indexed first by subinterval and then by</span>
+<span class="sd">        export. For a given exported timestep, the solution types are:</span>
 
-<span class="sd">        * ``&#39;forward&#39;``: the forward solution after taking the</span>
-<span class="sd">            timestep;</span>
-<span class="sd">        * ``&#39;forward_old&#39;``: the forward solution before taking</span>
-<span class="sd">            the timestep</span>
-<span class="sd">        * ``&#39;adjoint&#39;``: the adjoint solution after taking the</span>
-<span class="sd">            timestep;</span>
-<span class="sd">        * ``&#39;adjoint_next&#39;``: the adjoint solution before taking</span>
-<span class="sd">            the timestep (backwards).</span>
+<span class="sd">        * ``&#39;forward&#39;``: the forward solution after taking the timestep;</span>
+<span class="sd">        * ``&#39;forward_old&#39;``: the forward solution before taking the timestep</span>
+<span class="sd">        * ``&#39;adjoint&#39;``: the adjoint solution after taking the timestep;</span>
+<span class="sd">        * ``&#39;adjoint_next&#39;``: the adjoint solution before taking the timestep</span>
+<span class="sd">          (backwards).</span>
 
-<span class="sd">        :kwarg solver_kwargs: a dictionary providing parameters</span>
-<span class="sd">            to the solver. Any keyword arguments for the QoI</span>
-<span class="sd">            should be included as a subdict with label &#39;qoi_kwargs&#39;</span>
-<span class="sd">        :kwarg adj_solver_kwargs: a dictionary providing parameters</span>
-<span class="sd">            to the adjoint solver.</span>
-<span class="sd">        :kwarg get_adj_values: additionally output adjoint</span>
-<span class="sd">            actions at exported timesteps</span>
-<span class="sd">        :kwarg test_checkpoint_qoi: solve over the final</span>
-<span class="sd">            subinterval when checkpointing so that the QoI</span>
-<span class="sd">            value can be checked across runs</span>
+<span class="sd">        :kwarg solver_kwargs: a dictionary providing parameters to the solver. Any</span>
+<span class="sd">            keyword arguments for the QoI should be included as a subdict with label</span>
+<span class="sd">            &#39;qoi_kwargs&#39;</span>
+<span class="sd">        :kwarg adj_solver_kwargs: a dictionary providing parameters to the adjoint</span>
+<span class="sd">            solver.</span>
+<span class="sd">        :kwarg get_adj_values: additionally output adjoint actions at exported timesteps</span>
+<span class="sd">        :kwarg test_checkpoint_qoi: solve over the final subinterval when checkpointing</span>
+<span class="sd">            so that the QoI value can be checked across runs</span>
 
-<span class="sd">        :return solution: an :class:`~.AttrDict` containing</span>
-<span class="sd">            solution fields and their lagged versions.</span>
+<span class="sd">        :return solution: an :class:`~.AttrDict` containing solution fields and their</span>
+<span class="sd">            lagged versions. This can also be accessed as :meth:`solutions`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">function_spaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span>
         <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
+        <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span>
         <span class="n">qoi_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qoi_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
@@ -285,33 +300,11 @@
         <span class="c1"># Reset the QoI to zero</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="c1"># Create arrays to hold exported forward and adjoint solutions and their lagged</span>
-        <span class="c1"># counterparts, as well as the adjoint actions, if requested</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;forward_old&quot;</span><span class="p">,</span> <span class="s2">&quot;adjoint&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
-            <span class="n">labels</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;adjoint_next&quot;</span><span class="p">,)</span>
-        <span class="n">solutions</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="n">field</span><span class="p">:</span> <span class="n">AttrDict</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="n">label</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="p">[</span>
-                                <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                            <span class="p">]</span>
-                            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
-                        <span class="p">]</span>
-                        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
         <span class="k">if</span> <span class="n">get_adj_values</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
-                <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s2">&quot;adj_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">]):</span>
-                    <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s2">&quot;adj_value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s2">&quot;adj_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">]):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s2">&quot;adj_value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="p">[</span>
                             <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">(</span><span class="n">fs</span><span class="o">.</span><span class="n">dual</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_adj_value&quot;</span><span class="p">)</span>
                             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
@@ -362,9 +355,9 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Zero QoI. Is it implemented as intended?&quot;</span><span class="p">)</span>
                     <span class="n">pyadjoint</span><span class="o">.</span><span class="n">pause_annotation</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">checkpoint</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span> <span class="o">=</span> <span class="n">project</span><span class="p">(</span>
-                        <span class="n">seeds</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="n">seeds</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                     <span class="p">)</span>
 
             <span class="c1"># Update adjoint solver kwargs</span>
@@ -381,7 +374,7 @@
                         <span class="n">tape</span><span class="o">.</span><span class="n">evaluate_adj</span><span class="p">(</span><span class="n">markings</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Loop over prognostic variables</span>
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="c1"># Get solve blocks</span>
                 <span class="n">solve_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
                 <span class="n">num_solve_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span>
@@ -411,7 +404,7 @@
 
                 <span class="c1"># Update forward and adjoint solution data based on block dependencies</span>
                 <span class="c1"># and outputs</span>
-                <span class="n">sols</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+                <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_exports</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">]):</span>
                     <span class="c1"># Current forward solution is determined from outputs</span>
                     <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
@@ -441,10 +434,8 @@
                                 <span class="p">)</span>
                         <span class="k">elif</span> <span class="n">j</span> <span class="o">*</span> <span class="n">stride</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">num_solve_blocks</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">num_subintervals</span><span class="p">:</span>
-                                <span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                                    <span class="n">project</span><span class="p">(</span>
-                                        <span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">adjoint</span><span class="o">=</span><span class="kc">True</span>
-                                    <span class="p">)</span>
+                                <span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">project</span><span class="p">(</span>
+                                    <span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                                 <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
@@ -453,7 +444,7 @@
                             <span class="p">)</span>
 
                 <span class="c1"># Check non-zero adjoint solution/value</span>
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">adjoint</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Adjoint solution for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">th</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="s2">&quot; subinterval is zero.&quot;</span>
@@ -468,7 +459,7 @@
             <span class="k">with</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">stop_annotating</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">control</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controls</span><span class="p">):</span>
                     <span class="n">seeds</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">(</span>
-                        <span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dual</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dual</span><span class="p">()</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">control</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">seeds</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">control</span><span class="o">.</span><span class="n">block_variable</span><span class="o">.</span><span class="n">adj_value</span><span class="p">)</span>
@@ -490,7 +481,7 @@
                 <span class="p">)</span>
 
         <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">solutions</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span></div>
 
 
 <div class="viewcode-block" id="AdjointMeshSeq.th">
@@ -575,7 +566,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>

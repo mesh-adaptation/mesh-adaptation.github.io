@@ -74,6 +74,7 @@ source code for both packages is hosted on GitHub:
     :maxdepth: 1
 
     Defining a simple metric and adapting a mesh with respect to it <demos/simple_metric.py>
+    Combining metrics <demos/combining_metrics.py>
 
 .. rubric:: Goalie demos
 
