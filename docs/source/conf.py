@@ -53,7 +53,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "Animate and Goalie"
+project = "Animate, Movement and Goalie"
 copyright = f"2021-{datetime.datetime.now().year}, Joseph G. Wallwork et al."
 author = "Joseph G. Wallwork et al."
 
@@ -63,6 +63,7 @@ author = "Joseph G. Wallwork et al."
 #
 # The short X.Y version.
 import animate
+import movement
 import goalie
 
 version = "0.1"
@@ -139,7 +140,7 @@ latex_documents = [
     (
         master_doc,
         "Animate_Goalie.tex",
-        "Documentation for Animate and Goalie",
+        "Documentation for Animate, Movement and Goalie",
         "Joseph G. Wallwork et al.",
         "manual",
     ),
@@ -152,6 +153,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, "Animate", "Animate documentation", [author], 1),
+    (master_doc, "Movement", "Movement documentation", [author], 1),
     (master_doc, "goalie", "Goalie documentation", [author], 1),
 ]
 
@@ -164,11 +166,11 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "Animate and Goalie",
-        "Documentation for Animate and Goalie",
+        "Animate, Movement and Goalie",
+        "Documentation for Animate, Movement and Goalie",
         author,
-        "Animate and Goalie",
-        "Animate and Goalie Mesh Adaptation Toolkits",
+        "Animate, Movement and Goalie",
+        "Animate, Movement and Goalie Mesh Adaptation Toolkits",
         "Miscellaneous",
     ),
 ]
