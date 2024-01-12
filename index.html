@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Animate and Goalie &#8212; Animate and Goalie 0.1 documentation</title>
+    <title>Animate, Movement and Goalie &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=601dbdee" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
@@ -27,8 +27,8 @@
         <li class="right" >
           <a href="animate/index.html" title="Animate manual"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Animate and Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Animate and Goalie</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Animate, Movement and Goalie</a></li> 
       </ul>
     </div>  
 
@@ -37,8 +37,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="welcome-to-the-documentation-for-animate-and-goalie">
-<h1>Welcome to the documentation for Animate and Goalie!<a class="headerlink" href="#welcome-to-the-documentation-for-animate-and-goalie" title="Link to this heading">¶</a></h1>
+  <section id="welcome-to-the-documentation-for-animate-movement-and-goalie">
+<h1>Welcome to the documentation for Animate, Movement and Goalie!<a class="headerlink" href="#welcome-to-the-documentation-for-animate-movement-and-goalie" title="Link to this heading">¶</a></h1>
 <p><strong>Animate</strong> is a package which provides anisotropic mesh adaptation
 functionality for the Python-based finite element library
 <a class="reference external" href="http://www.firedrakeproject.org/">Firedrake</a>. Given an initial mesh, the
@@ -46,6 +46,12 @@ user defines a Riemannian metric field (or simply ‘metric’), which provides 
 ‘optimal mesh concept’, i.e. a ‘blueprint’ for what adapted meshes will look
 like. Animate can then be used to transform the initial mesh into an adapted
 mesh, making use of the metric to guide the transformations.</p>
+<p><strong>Movement</strong> focuses on alternative mesh adaptation strategies to the metric-based
+approach of Animate. Where Animate allows degrees of freedom to be added and removed
+from the input mesh in order to obtain an adapted mesh, Movement is concerned only
+with <em>mesh movement</em> methods, which simply move degrees of freedom around. In some
+cases the first approach is more suitable; in some cases the latter. Several different
+strategies are implemented within Movement.</p>
 <p><strong>Goalie</strong> is more of an ‘outer-loop’ package and is focused on a
 goal-oriented mesh adaptation pipeline for solving partial differential
 equations (PDEs) using adapted meshes. Goalie supports solving time-dependent PDEs
@@ -56,20 +62,15 @@ and the metric-based approach. Goalie uses a ‘fixed-point iteration’ approac
 meaning that the PDE (and its adjoint) is solved over the whole space-time domain
 whenever mesh adaptation is applied.</p>
 <p class="rubric">Mathematical background</p>
-<p>Goal-oriented mesh adaptation presents one of the clearest
-examples of the intersection between adjoint methods and mesh
-adaptation. It is an advanced topic, so it is highly
-recommended that users are familiar with adjoint methods,
-mesh adaptation and the goal-oriented framework before
-starting with Goalie.</p>
-<p>We refer to the <a class="reference external" href="https://firedrakeproject.org/documentation.html">Firedrake documentation</a>
-for an introduction to the finite element method - the
-discretisation approach assumed throughout. The
-<cite>dolfin-adjoint</cite> package (which Goalie uses to solve adjoint
-problems) contains some <a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">excellent documentation</a>
-on the mathematical background of adjoint problems. The metric-based mesh
-adaptation and goal-oriented error estimation functionalities provided by
-Animate Goalie are described in the respective manuals.</p>
+<p>We refer to the
+<a class="reference external" href="https://firedrakeproject.org/documentation.html">Firedrake documentation</a>
+for an introduction to the finite element method - the discretisation approach assumed
+throughout. The <cite>dolfin-adjoint</cite> package (which Goalie uses to solve adjoint problems)
+contains some
+<a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">excellent documentation</a>
+on the mathematical background of adjoint problems. The metric-based mesh adaptation,
+mesh movement, and goal-oriented error estimation functionalities provided by Animate,
+Movement and Goalie are described in the respective manuals.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="animate/index.html">Animate manual</a><ul>
@@ -85,24 +86,32 @@ Animate Goalie are described in the respective manuals.</p>
 </ul>
 </div>
 <p class="rubric">API documentation</p>
-<p>The classes and functions which comprise Animate and Goalie may be found in
-their API documentation.</p>
+<p>The classes and functions which comprise the packages may be found in their API
+documentation.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="animate.html">Animate API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.html">Movement API documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="goalie.html">Goalie API documentation</a></li>
 </ul>
 </div>
-<p>They are also listed alphabetically on the <a class="reference internal" href="genindex.html"><span class="std std-ref">index</span></a> page. The
-index may be searched using the inbuilt <a class="reference internal" href="search.html"><span class="std std-ref">search engine</span></a>. The
-source code for both packages is hosted on GitHub:
+<p>They are also listed alphabetically on the <a class="reference internal" href="genindex.html"><span class="std std-ref">index</span></a> page. The index may
+be searched using the inbuilt <a class="reference internal" href="search.html"><span class="std std-ref">search engine</span></a>. The source codes for all
+three packages are hosted on GitHub:
 <a class="reference external" href="https://github.com/pyroteus/animate/">Animate</a>,
+<a class="reference external" href="https://github.com/pyroteus/movement/">Movement</a>,
 <a class="reference external" href="https://github.com/pyroteus/goalie/">Goalie</a>.</p>
 <p class="rubric">Animate demos</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="demos/simple_metric.py.html">Defining a simple metric and adapting a mesh with respect to it</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demos/combining_metrics.py.html">Combining metrics</a></li>
+</ul>
+</div>
+<p class="rubric">Movement demos</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demos/monge_ampere1.py.html">Introduction to mesh movement driven by a Monge-Ampère type equation</a></li>
 </ul>
 </div>
 <p class="rubric">Goalie demos</p>
@@ -184,8 +193,8 @@ source code for both packages is hosted on GitHub:
         <li class="right" >
           <a href="animate/index.html" title="Animate manual"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Animate and Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Animate and Goalie</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Animate, Movement and Goalie</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

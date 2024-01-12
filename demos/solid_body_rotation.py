@@ -114,7 +114,7 @@ time_partition = TimeInterval(
 # methods implemented. ::
 
 import matplotlib.pyplot as plt
-
+from firedrake.pyplot import tricontourf
 
 mesh_seq = MeshSeq(
     time_partition,

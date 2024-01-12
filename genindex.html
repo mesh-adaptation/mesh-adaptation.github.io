@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; Animate and Goalie 0.1 documentation</title>
+    <title>Index &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=601dbdee" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
@@ -22,7 +22,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Index</a></li> 
       </ul>
     </div>  
@@ -44,6 +44,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
@@ -58,7 +59,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="animate.html#animate.adapt.adapt">adapt() (in module animate.adapt)</a>
+
+      <ul>
+        <li><a href="movement.html#movement.mover.PrimeMover.adapt">(PrimeMover method)</a>
 </li>
+      </ul></li>
       <li><a href="animate.html#animate.adapt.MetricBasedAdaptor.adapted_mesh">adapted_mesh (MetricBasedAdaptor attribute)</a>
 </li>
       <li><a href="goalie.html#goalie.options.AdaptParameters">AdaptParameters (class in goalie.options)</a>
@@ -146,6 +151,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="movement.html#movement.tangling.MeshTanglingChecker.check">check() (MeshTanglingChecker method)</a>
+</li>
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.check_element_count_convergence">check_element_count_convergence() (MeshSeq method)</a>
 </li>
       <li><a href="goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.check_estimator_convergence">check_estimator_convergence() (GoalOrientedMeshSeq method)</a>
@@ -177,6 +184,10 @@
       <li><a href="animate.html#animate.metric.RiemannianMetric.compute_weighted_hessian_metric">compute_weighted_hessian_metric() (RiemannianMetric method)</a>
 </li>
       <li><a href="animate.html#animate.math.construct_basis">construct_basis() (in module animate.math)</a>
+</li>
+      <li><a href="movement.html#movement.mover.PrimeMover.coordinate">coordinate() (PrimeMover method)</a>
+</li>
+      <li><a href="movement.html#movement.mover.PrimeMover.coordinate_offset">coordinate_offset() (PrimeMover method)</a>
 </li>
       <li><a href="animate.html#animate.metric.RiemannianMetric.copy">copy() (RiemannianMetric method)</a>
 </li>
@@ -214,12 +225,20 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="movement.html#movement.mover.PrimeMover.edge_vector_offset">edge_vector_offset() (PrimeMover method)</a>
+</li>
       <li><a href="goalie.html#goalie.utility.effectivity_index">effectivity_index() (in module goalie.utility)</a>
 </li>
       <li><a href="goalie.html#goalie.metric.enforce_element_constraints">enforce_element_constraints() (in module goalie.metric)</a>
 </li>
       <li><a href="animate.html#animate.metric.RiemannianMetric.enforce_spd">enforce_spd() (RiemannianMetric method)</a>
 </li>
+      <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor">equidistributor (MongeAmpereMover_QuasiNewton property)</a>
+
+      <ul>
+        <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor">(MongeAmpereMover_Relaxation property)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="goalie.html#goalie.log.error">error() (in module goalie.log)</a>
@@ -420,12 +439,22 @@
   </ul></td>
 </tr></table>
 
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="movement.html#movement.laplacian.LaplacianSmoother">LaplacianSmoother (class in movement.laplacian)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="goalie.html#goalie.utility.Mesh">Mesh() (in module goalie.utility)</a>
 </li>
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq">MeshSeq (class in goalie.mesh_seq)</a>
+</li>
+      <li><a href="movement.html#movement.tangling.MeshTanglingChecker">MeshTanglingChecker (class in movement.tangling)</a>
 </li>
       <li><a href="animate.html#animate.adapt.MetricBasedAdaptor">MetricBasedAdaptor (class in animate.adapt)</a>
 </li>
@@ -475,6 +504,91 @@
 </li>
         <li><a href="goalie.html#module-goalie.utility">goalie.utility</a>
 </li>
+        <li><a href="movement.html#module-movement">movement</a>
+</li>
+        <li><a href="movement.html#module-movement.laplacian">movement.laplacian</a>
+</li>
+        <li><a href="movement.html#module-movement.monge_ampere">movement.monge_ampere</a>
+</li>
+        <li><a href="movement.html#module-movement.mover">movement.mover</a>
+</li>
+        <li><a href="movement.html#module-movement.solver_parameters">movement.solver_parameters</a>
+</li>
+        <li><a href="movement.html#module-movement.spring">movement.spring</a>
+</li>
+        <li><a href="movement.html#module-movement.tangling">movement.tangling</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="movement.html#movement.monge_ampere.monge_ampere">monge_ampere() (in module movement.monge_ampere)</a>
+</li>
+      <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover">MongeAmpereMover() (in module movement.monge_ampere)</a>
+</li>
+      <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton">MongeAmpereMover_QuasiNewton (class in movement.monge_ampere)</a>
+</li>
+      <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation">MongeAmpereMover_Relaxation (class in movement.monge_ampere)</a>
+</li>
+      <li><a href="movement.html#movement.laplacian.LaplacianSmoother.move">move() (LaplacianSmoother method)</a>
+
+      <ul>
+        <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton.move">(MongeAmpereMover_QuasiNewton method)</a>
+</li>
+        <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation.move">(MongeAmpereMover_Relaxation method)</a>
+</li>
+        <li><a href="movement.html#movement.mover.PrimeMover.move">(PrimeMover method)</a>
+</li>
+        <li><a href="movement.html#movement.spring.SpringMover_Lineal.move">(SpringMover_Lineal method)</a>
+</li>
+      </ul></li>
+      <li>
+    movement
+
+      <ul>
+        <li><a href="movement.html#module-movement">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.laplacian
+
+      <ul>
+        <li><a href="movement.html#module-movement.laplacian">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.monge_ampere
+
+      <ul>
+        <li><a href="movement.html#module-movement.monge_ampere">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.mover
+
+      <ul>
+        <li><a href="movement.html#module-movement.mover">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.solver_parameters
+
+      <ul>
+        <li><a href="movement.html#module-movement.solver_parameters">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.spring
+
+      <ul>
+        <li><a href="movement.html#module-movement.spring">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.tangling
+
+      <ul>
+        <li><a href="movement.html#module-movement.tangling">module</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -502,6 +616,8 @@
 </li>
       <li><a href="goalie.html#goalie.plot.plot_snapshots">plot_snapshots() (in module goalie.plot)</a>
 </li>
+      <li><a href="movement.html#movement.mover.PrimeMover">PrimeMover (class in movement.mover)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="goalie.html#goalie.interpolation.project">project() (in module goalie.interpolation)</a>
@@ -510,7 +626,7 @@
         <li><a href="animate.html#animate.adapt.MetricBasedAdaptor.project">(MetricBasedAdaptor method)</a>
 </li>
       </ul></li>
-      <li><a href="goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.prolonged_solutions">prolonged_solutions (GoalOrientedMeshSeq property)</a>
+      <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper">pseudotimestepper (MongeAmpereMover_Relaxation property)</a>
 </li>
       <li><a href="goalie.html#goalie.log.pyrint">pyrint() (in module goalie.log)</a>
 </li>
@@ -546,11 +662,15 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="movement.html#movement.tangling.MeshTanglingChecker.scaled_jacobian">scaled_jacobian (MeshTanglingChecker property)</a>
+</li>
       <li><a href="goalie.html#goalie.log.set_log_level">set_log_level() (in module goalie.log)</a>
 </li>
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.set_meshes">set_meshes() (MeshSeq method)</a>
 </li>
       <li><a href="animate.html#animate.metric.RiemannianMetric.set_parameters">set_parameters() (RiemannianMetric method)</a>
+</li>
+      <li><a href="movement.html#movement.laplacian.LaplacianSmoother.setup_solver">setup_solver() (LaplacianSmoother method)</a>
 </li>
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.solutions">solutions (MeshSeq property)</a>
 </li>
@@ -563,6 +683,12 @@
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.solver">solver (MeshSeq property)</a>
 </li>
       <li><a href="goalie.html#goalie.metric.space_time_normalise">space_time_normalise() (in module goalie.metric)</a>
+</li>
+      <li><a href="movement.html#movement.spring.SpringMover">SpringMover() (in module movement.spring)</a>
+</li>
+      <li><a href="movement.html#movement.spring.SpringMover_Lineal">SpringMover_Lineal (class in movement.spring)</a>
+</li>
+      <li><a href="movement.html#movement.spring.SpringMover_Torsional">SpringMover_Torsional (class in movement.spring)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -628,7 +754,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Index</a></li> 
       </ul>
     </div>

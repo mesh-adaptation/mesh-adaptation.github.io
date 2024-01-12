@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Solid body rotation &#8212; Animate and Goalie 0.1 documentation</title>
+    <title>Solid body rotation &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="burgers_oo.py.html" title="Object-oriented Burgers equation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Solid body rotation</a></li> 
       </ul>
     </div>  
@@ -69,7 +69,7 @@ The cone is more difficult to advect than the bell because
 of its discontinuous gradient at its peak and the slotted
 cylinder is yet more difficult to advect because of its
 curve of discontinuities. The test case was introduced in
-<span id="id1">[<a class="reference internal" href="#id3" title="Randall J. LeVeque. High-Resolution Conservative Algorithms for Advection in Incompressible Flow. SIAM Journal on Numerical Analysis, 33(2):627–665, 1996. doi:10.1137/0733033.">LeV96</a>]</span>.</p>
+<span id="id1">[<a class="reference internal" href="#id4" title="Randall J. LeVeque. High-Resolution Conservative Algorithms for Advection in Incompressible Flow. SIAM Journal on Numerical Analysis, 33(2):627–665, 1996. doi:10.1137/0733033.">LeV96</a>]</span>.</p>
 <p>As usual, we import from Firedrake and Goalie, with
 adjoint mode activated.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
@@ -145,7 +145,7 @@ Goalie’s continuous integration suite.</p>
 only the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_function_spaces()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code>
 methods implemented.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
+<span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">tricontourf</span>
 
 <span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">MeshSeq</span><span class="p">(</span>
     <span class="n">time_partition</span><span class="p">,</span>
@@ -299,7 +299,7 @@ field into multiple components.</p>
 <p class="rubric">References</p>
 <div class="docutils container" id="id2">
 <div role="list" class="citation-list">
-<div class="citation" id="id3" role="doc-biblioentry">
+<div class="citation" id="id4" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">LeV96</a><span class="fn-bracket">]</span></span>
 <p>Randall J. LeVeque. High-Resolution Conservative Algorithms for Advection in Incompressible Flow. <em>SIAM Journal on Numerical Analysis</em>, 33(2):627–665, 1996. <a class="reference external" href="https://doi.org/10.1137/0733033">doi:10.1137/0733033</a>.</p>
 </div>
@@ -360,7 +360,7 @@ field into multiple components.</p>
         <li class="right" >
           <a href="burgers_oo.py.html" title="Object-oriented Burgers equation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Solid body rotation</a></li> 
       </ul>
     </div>

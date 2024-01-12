@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>movement package &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=601dbdee" />
+    <script src="_static/documentation_options.js?v=2709fde1"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="goalie package" href="goalie.html" />
+    <link rel="prev" title="animate package" href="animate.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="goalie.html" title="goalie package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="animate.html" title="animate package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">movement package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="movement-package">
+<h1>movement package<a class="headerlink" href="#movement-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-movement.laplacian">
+<span id="movement-laplacian-module"></span><h2>movement.laplacian module<a class="headerlink" href="#module-movement.laplacian" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.laplacian.LaplacianSmoother">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LaplacianSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian.html#LaplacianSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian.LaplacianSmoother" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#movement.mover.PrimeMover" title="movement.mover.PrimeMover"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrimeMover</span></code></a></p>
+<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is driven by a mesh
+velocity, which is determined by solving a
+Poisson problem.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.laplacian.LaplacianSmoother.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_forcings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_boundaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian.html#LaplacianSmoother.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian.LaplacianSmoother.move" title="Link to this definition">¶</a></dt>
+<dd><p>Assemble and solve the Laplacian system and
+update the coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> – the current time</p></li>
+<li><p><strong>update_forcings</strong> – function that updates
+the forcing <code class="xref py py-attr docutils literal notranslate"><span class="pre">f</span></code> at the current time</p></li>
+<li><p><strong>fixed_boundaries</strong> – list of boundaries
+where Dirichlet conditions are to be
+enforced</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.laplacian.LaplacianSmoother.setup_solver">
+<span class="sig-name descname"><span class="pre">setup_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_boundaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian.html#LaplacianSmoother.setup_solver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian.LaplacianSmoother.setup_solver" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-movement.monge_ampere">
+<span id="movement-monge-ampere-module"></span><h2>movement.monge_ampere module<a class="headerlink" href="#module-movement.monge_ampere" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover">
+<span class="sig-name descname"><span class="pre">MongeAmpereMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relaxation'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Movement of a <cite>mesh</cite> is determined by a <cite>monitor_function</cite>
+<span class="math notranslate nohighlight">\(m\)</span> and the Monge-Ampère type equation</p>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}m(x)\det(I + H(\phi)) = \theta,\\for a scalar potential :math:`\phi`, where :math:`I` is the
+identity matrix, :math:`\theta` is a normalisation coefficient
+and :math:`H(\phi)` denotes the Hessian of :math:`\phi` with
+respect to the coordinates :math:`\xi` of the computational mesh.\\The physical mesh coordinates :math:`x` are updated according to\end{aligned}\end{align} \]</div>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}x = \xi + \nabla\phi.\\:arg mesh: the physical mesh
+:arg monitor_function: a Python function which takes a mesh as input
+:kwarg method: choose from 'relaxation' and 'quasi_newton'
+:kwarg phi_init: initial guess for the scalar potential
+:kwarg sigma_init: initial guess for the Hessian
+:return: converged scalar potential and Hessian\end{aligned}\end{align} \]</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_QuasiNewton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_QuasiNewton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Base</span></code></p>
+<p>The elliptic Monge-Ampere equation is solved using a quasi-Newton
+method (see McRae et al. 2018 for details).</p>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<p>A. T. T. McRae, C. J. Cotter, C. J. Budd, Optimal-transport-based
+mesh adaptivity on the plane and sphere using finite elements, SIAM
+Journal on Scientific Computing 40 (2) (2018) 1121–1148.
+doi:10.1137/16M1109515.</p>
+<dl class="field-list simple">
+<dt class="field-odd">arg mesh<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the physical mesh</p>
+</dd>
+<dt class="field-even">arg monitor_function<span class="colon">:</span></dt>
+<dd class="field-even"><p>a Python function which takes a mesh as input</p>
+</dd>
+<dt class="field-odd">kwarg maxiter<span class="colon">:</span></dt>
+<dd class="field-odd"><p>maximum number of iterations for the relaxation</p>
+</dd>
+<dt class="field-even">kwarg rtol<span class="colon">:</span></dt>
+<dd class="field-even"><p>relative tolerance for the residual</p>
+</dd>
+<dt class="field-odd">kwarg dtol<span class="colon">:</span></dt>
+<dd class="field-odd"><p>divergence tolerance for the residual</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equidistributor</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor" title="Link to this definition">¶</a></dt>
+<dd><p>Setup the equidistributor for the quasi-newton method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_QuasiNewton.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton.move" title="Link to this definition">¶</a></dt>
+<dd><p>Run the quasi-Newton method to convergence and update the mesh.</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_Relaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_Relaxation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Base</span></code></p>
+<blockquote>
+<div><p>The elliptic Monge-Ampere equation is solved in a parabolised
+form using a pseudo-time relaxation,</p>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}-\frac\partial{\partial\tau}\Delta\phi = m(x)\det(I + H(\phi)) - \theta,\\where :math:`\tau` is the pseudo-time variable. Forward Euler is
+used for the pseudo-time integration (see McRae et al. 2018 for
+details).\\References
+==========
+A. T. T. McRae, C. J. Cotter, C. J. Budd, Optimal-transport-based
+mesh adaptivity on the plane and sphere using finite elements, SIAM
+Journal on Scientific Computing 40 (2) (2018) 1121–1148.
+doi:10.1137/16M1109515.\end{aligned}\end{align} \]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – the physical mesh</p></li>
+<li><p><strong>monitor_function</strong> – a Python function which takes a mesh as input</p></li>
+<li><p><strong>phi_init</strong> – initial guess for the scalar potential</p></li>
+<li><p><strong>sigma_init</strong> – initial guess for the Hessian</p></li>
+<li><p><strong>pseudo_timestep</strong> – pseudo-timestep to use for the relaxation</p></li>
+<li><p><strong>maxiter</strong> – maximum number of iterations for the relaxation</p></li>
+<li><p><strong>rtol</strong> – relative tolerance for the residual</p></li>
+<li><p><strong>dtol</strong> – divergence tolerance for the residual</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equidistributor</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor" title="Link to this definition">¶</a></dt>
+<dd><p>Setup the equidistributor for the relaxation method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_Relaxation.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.move" title="Link to this definition">¶</a></dt>
+<dd><p>Run the relaxation method to convergence and update the mesh.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pseudotimestepper</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper" title="Link to this definition">¶</a></dt>
+<dd><p>Setup the pseudo-timestepper for the relaxation method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.monge_ampere.monge_ampere">
+<span class="sig-name descname"><span class="pre">monge_ampere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relaxation'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#monge_ampere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.monge_ampere" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Movement of a <cite>mesh</cite> is determined by a <cite>monitor_function</cite>
+<span class="math notranslate nohighlight">\(m\)</span> and the Monge-Ampère type equation</p>
+</div></blockquote>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}m(x)\det(I + H(\phi)) = \theta,\\for a scalar potential :math:`\phi`, where :math:`I` is the
+identity matrix, :math:`\theta` is a normalisation coefficient
+and :math:`H(\phi)` denotes the Hessian of :math:`\phi` with
+respect to the coordinates :math:`\xi` of the computational mesh.\\The physical mesh coordinates :math:`x` are updated according to\end{aligned}\end{align} \]</div>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}x = \xi + \nabla\phi.\\:arg mesh: the physical mesh
+:arg monitor_function: a Python function which takes a mesh as input
+:kwarg method: choose from 'relaxation' and 'quasi_newton'
+:kwarg phi_init: initial guess for the scalar potential
+:kwarg sigma_init: initial guess for the Hessian
+:return: converged scalar potential and Hessian\end{aligned}\end{align} \]</div>
+</dd></dl>
+
+</section>
+<section id="module-movement.mover">
+<span id="movement-mover-module"></span><h2>movement.mover module<a class="headerlink" href="#module-movement.mover" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrimeMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base class for all mesh movers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.adapt">
+<span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.adapt" title="Link to this definition">¶</a></dt>
+<dd><p>Alias of <cite>move</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.coordinate">
+<span class="sig-name descname"><span class="pre">coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.coordinate" title="Link to this definition">¶</a></dt>
+<dd><p>Get the mesh coordinate associated with
+a given <cite>index</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.coordinate_offset">
+<span class="sig-name descname"><span class="pre">coordinate_offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.coordinate_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.coordinate_offset" title="Link to this definition">¶</a></dt>
+<dd><p>Get the DMPlex coordinate section offset
+for a given <cite>index</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.edge_vector_offset">
+<span class="sig-name descname"><span class="pre">edge_vector_offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.edge_vector_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.edge_vector_offset" title="Link to this definition">¶</a></dt>
+<dd><p>Get the DMPlex edge vector section offset
+for a given <cite>index</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.move" title="Link to this definition">¶</a></dt>
+<dd><p>Move the mesh according to the method of choice.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-movement.solver_parameters">
+<span id="movement-solver-parameters-module"></span><h2>movement.solver_parameters module<a class="headerlink" href="#module-movement.solver_parameters" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-movement.spring">
+<span id="movement-spring-module"></span><h2>movement.spring module<a class="headerlink" href="#module-movement.spring" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.spring.SpringMover">
+<span class="sig-name descname"><span class="pre">SpringMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lineal'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover" title="Link to this definition">¶</a></dt>
+<dd><p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting
+it as a structure of stiff beams and solving an
+associated discrete linear elasticity problem.</p>
+<p>See Farhat, Degand, Koobus and Lesoinne, “Torsional
+springs for two-dimensional dynamic unstructured fluid
+meshes” (1998), Computer methods in applied mechanics
+and engineering, 163:231-245.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.spring.SpringMover_Lineal">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpringMover_Lineal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Lineal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Lineal" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Base</span></code></p>
+<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting
+it as a structure of stiff beams and solving an
+associated discrete linear elasticity problem.</p>
+<p>We consider the ‘lineal’ case, as described in
+Farhat, Degand, Koobus and Lesoinne, “Torsional
+springs for two-dimensional dynamic unstructured fluid
+meshes” (1998), Computer methods in applied mechanics
+and engineering, 163:231-245.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mesh</strong> – the physical mesh</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.spring.SpringMover_Lineal.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_forcings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_boundaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Lineal.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Lineal.move" title="Link to this definition">¶</a></dt>
+<dd><p>Assemble and solve the lineal spring system and
+update the coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> – the current time</p></li>
+<li><p><strong>update_forcings</strong> – function that updates
+the forcing <code class="xref py py-attr docutils literal notranslate"><span class="pre">f</span></code> at the current time</p></li>
+<li><p><strong>fixed_boundaries</strong> – list of boundaries
+where Dirichlet conditions are to be
+enforced</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.spring.SpringMover_Torsional">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpringMover_Torsional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Torsional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Torsional" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#movement.spring.SpringMover_Lineal" title="movement.spring.SpringMover_Lineal"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Lineal</span></code></a></p>
+<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting
+it as a structure of stiff beams and solving an
+associated discrete linear elasticity problem.</p>
+<p>We consider the ‘torsional’ case, as described in
+Farhat, Degand, Koobus and Lesoinne, “Torsional
+springs for two-dimensional dynamic unstructured fluid
+meshes” (1998), Computer methods in applied mechanics
+and engineering, 163:231-245.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mesh</strong> – the physical mesh</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-movement.tangling">
+<span id="movement-tangling-module"></span><h2>movement.tangling module<a class="headerlink" href="#module-movement.tangling" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.tangling.MeshTanglingChecker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MeshTanglingChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'warn'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/tangling.html#MeshTanglingChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.tangling.MeshTanglingChecker" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A class for tracking whether a mesh has
+tangled, i.e. whether any of its elements
+have become inverted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> – the mesh to track if tangled</p></li>
+<li><p><strong>mode</strong> – should a warning or an error
+be raised when tangling is encountered?</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.tangling.MeshTanglingChecker.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/tangling.html#MeshTanglingChecker.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.tangling.MeshTanglingChecker.check" title="Link to this definition">¶</a></dt>
+<dd><p>Check for tangling.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.tangling.MeshTanglingChecker.scaled_jacobian">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scaled_jacobian</span></span><a class="headerlink" href="#movement.tangling.MeshTanglingChecker.scaled_jacobian" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-movement">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-movement" title="Link to this heading">¶</a></h2>
+</section>
+<section id="id1">
+<h2>References<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p class="rubric">References</p>
+<div class="docutils container" id="id2">
+<div role="list" class="citation-list">
+<div class="citation" id="id8" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BKL+16<span class="fn-bracket">]</span></span>
+<p>N. Barral, M. G. Knepley, M. Lange, M. D. Piggott, and G. J. Gorman. Anisotropic mesh adaptation in Firedrake with PETSc DMPlex. In <em>25th Intl Meshing Roundtable</em>. 2016.</p>
+</div>
+<div class="citation" id="id7" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>CPB13<span class="fn-bracket">]</span></span>
+<p>Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. <em>SIAM Journal on Scientific Computing</em>, 35(2):A861–A885, 2013. <a class="reference external" href="https://doi.org/10.1137/120874606">doi:10.1137/120874606</a>.</p>
+</div>
+<div class="citation" id="id3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Clement75<span class="fn-bracket">]</span></span>
+<p>Ph Clément. Approximation by finite element functions using local regularization. <em>Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique</em>, 9(R2):77–84, 1975.</p>
+</div>
+<div class="citation" id="id6" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>LDA10<span class="fn-bracket">]</span></span>
+<p>Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. <em>Journal of computational physics</em>, 229(8):2866–2897, 2010. <a class="reference external" href="https://doi.org/10.1016/j.jcp.2009.12.021">doi:10.1016/j.jcp.2009.12.021</a>.</p>
+</div>
+<div class="citation" id="id5" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PPP+06<span class="fn-bracket">]</span></span>
+<p>PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. <em>Computers &amp; Mathematics with Applications</em>, 52(8-9):1213–1242, 2006. <a class="reference external" href="https://doi.org/10.1016/j.camwa.2006.11.003">doi:10.1016/j.camwa.2006.11.003</a>.</p>
+</div>
+<div class="citation" id="id4" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>VVP+92<span class="fn-bracket">]</span></span>
+<p>William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. <em>Numerical recipes: example book C</em>. Cambridge University Press, 1992.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">movement package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-movement.laplacian">movement.laplacian module</a><ul>
+<li><a class="reference internal" href="#movement.laplacian.LaplacianSmoother"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother</span></code></a><ul>
+<li><a class="reference internal" href="#movement.laplacian.LaplacianSmoother.move"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother.move()</span></code></a></li>
+<li><a class="reference internal" href="#movement.laplacian.LaplacianSmoother.setup_solver"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother.setup_solver()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-movement.monge_ampere">movement.monge_ampere module</a><ul>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover()</span></code></a></li>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_QuasiNewton</span></code></a><ul>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_QuasiNewton.equidistributor</span></code></a></li>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton.move"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_QuasiNewton.move()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation</span></code></a><ul>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation.equidistributor</span></code></a></li>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.move"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation.move()</span></code></a></li>
+<li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation.pseudotimestepper</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#movement.monge_ampere.monge_ampere"><code class="docutils literal notranslate"><span class="pre">monge_ampere()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-movement.mover">movement.mover module</a><ul>
+<li><a class="reference internal" href="#movement.mover.PrimeMover"><code class="docutils literal notranslate"><span class="pre">PrimeMover</span></code></a><ul>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.adapt"><code class="docutils literal notranslate"><span class="pre">PrimeMover.adapt()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.coordinate"><code class="docutils literal notranslate"><span class="pre">PrimeMover.coordinate()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.coordinate_offset"><code class="docutils literal notranslate"><span class="pre">PrimeMover.coordinate_offset()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.edge_vector_offset"><code class="docutils literal notranslate"><span class="pre">PrimeMover.edge_vector_offset()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.move"><code class="docutils literal notranslate"><span class="pre">PrimeMover.move()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-movement.solver_parameters">movement.solver_parameters module</a></li>
+<li><a class="reference internal" href="#module-movement.spring">movement.spring module</a><ul>
+<li><a class="reference internal" href="#movement.spring.SpringMover"><code class="docutils literal notranslate"><span class="pre">SpringMover()</span></code></a></li>
+<li><a class="reference internal" href="#movement.spring.SpringMover_Lineal"><code class="docutils literal notranslate"><span class="pre">SpringMover_Lineal</span></code></a><ul>
+<li><a class="reference internal" href="#movement.spring.SpringMover_Lineal.move"><code class="docutils literal notranslate"><span class="pre">SpringMover_Lineal.move()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#movement.spring.SpringMover_Torsional"><code class="docutils literal notranslate"><span class="pre">SpringMover_Torsional</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-movement.tangling">movement.tangling module</a><ul>
+<li><a class="reference internal" href="#movement.tangling.MeshTanglingChecker"><code class="docutils literal notranslate"><span class="pre">MeshTanglingChecker</span></code></a><ul>
+<li><a class="reference internal" href="#movement.tangling.MeshTanglingChecker.check"><code class="docutils literal notranslate"><span class="pre">MeshTanglingChecker.check()</span></code></a></li>
+<li><a class="reference internal" href="#movement.tangling.MeshTanglingChecker.scaled_jacobian"><code class="docutils literal notranslate"><span class="pre">MeshTanglingChecker.scaled_jacobian</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-movement">Module contents</a></li>
+<li><a class="reference internal" href="#id1">References</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="animate.html"
+                          title="previous chapter">animate package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="goalie.html"
+                          title="next chapter">goalie package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/movement.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="goalie.html" title="goalie package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="animate.html" title="animate package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">movement package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>

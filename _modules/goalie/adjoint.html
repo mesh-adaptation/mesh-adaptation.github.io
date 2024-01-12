@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>goalie.adjoint &#8212; Animate and Goalie 0.1 documentation</title>
+    <title>goalie.adjoint &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
@@ -22,7 +22,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.adjoint</a></li> 
       </ul>
@@ -434,9 +434,7 @@
                                 <span class="p">)</span>
                         <span class="k">elif</span> <span class="n">j</span> <span class="o">*</span> <span class="n">stride</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">num_solve_blocks</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">num_subintervals</span><span class="p">:</span>
-                                <span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">project</span><span class="p">(</span>
-                                    <span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                                <span class="p">)</span>
+                                <span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">adjoint_next</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
                                 <span class="s2">&quot;Cannot extract solve block&quot;</span>
@@ -560,7 +558,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.adjoint</a></li> 
       </ul>

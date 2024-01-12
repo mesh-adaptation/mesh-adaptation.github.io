@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Adjoint Burgers equation with a time integrated QoI &#8212; Animate and Goalie 0.1 documentation</title>
+    <title>Adjoint Burgers equation with a time integrated QoI &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="burgers2.py.html" title="Adjoint Burgers equation on two meshes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Adjoint Burgers equation with a time integrated QoI</a></li> 
       </ul>
     </div>  
@@ -143,14 +143,16 @@ recompilation if the value is changed.</p>
     <span class="k">return</span> <span class="n">time_integrated_qoi</span>
 </pre></div>
 </div>
-<p>We use the same mesh setup as in <a class="reference external" href="./burgers2.py.html">the previous demo</a> and the same time partitioning.</p>
+<p>We use the same mesh setup as in <a class="reference external" href="./burgers2.py.html">the previous demo</a> and the
+same time partitioning, except that we export every timestep rather than every other
+timestep.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">32</span>
 <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">diagonal</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">),</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">diagonal</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)]</span>
 <span class="n">end_time</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n</span>
 <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">meshes</span><span class="p">)</span>
 <span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
-    <span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">],</span> <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">2</span>
+    <span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">],</span> <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">1</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -240,7 +242,7 @@ object-oriented approach.</p>
         <li class="right" >
           <a href="burgers2.py.html" title="Adjoint Burgers equation on two meshes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Adjoint Burgers equation with a time integrated QoI</a></li> 
       </ul>
     </div>
