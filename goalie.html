@@ -127,53 +127,34 @@ considered</p></li>
 <dt class="sig sig-object py" id="goalie.adjoint.AdjointMeshSeq.solve_adjoint">
 <span class="sig-name descname"><span class="pre">solve_adjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_solver_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_adj_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_checkpoint_qoi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="_modules/goalie/adjoint.html#AdjointMeshSeq.solve_adjoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.adjoint.AdjointMeshSeq.solve_adjoint" title="Link to this definition">¶</a></dt>
 <dd><p>Solve an adjoint problem on a sequence of subintervals.</p>
-<p>As well as the quantity of interest value, a dictionary
-of solution fields is computed, the contents of which
-give values at all exported timesteps, indexed first by
-the field label and then by type. The contents of these
-nested dictionaries are lists which are indexed first by
-subinterval and then by export. For a given exported
-timestep, the solution types are:</p>
+<p>As well as the quantity of interest value, a dictionary of solution fields is
+computed, the contents of which give values at all exported timesteps, indexed
+first by the field label and then by type. The contents of these nested
+dictionaries are lists which are indexed first by subinterval and then by
+export. For a given exported timestep, the solution types are:</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">'forward'</span></code>: the forward solution after taking the</dt><dd><p>timestep;</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>: the forward solution before taking</dt><dd><p>the timestep</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">'adjoint'</span></code>: the adjoint solution after taking the</dt><dd><p>timestep;</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">'adjoint_next'</span></code>: the adjoint solution before taking</dt><dd><p>the timestep (backwards).</p>
-</dd>
-</dl>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'forward'</span></code>: the forward solution after taking the timestep;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>: the forward solution before taking the timestep</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'adjoint'</span></code>: the adjoint solution after taking the timestep;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'adjoint_next'</span></code>: the adjoint solution before taking the timestep
+(backwards).</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>solver_kwargs</strong> – a dictionary providing parameters
-to the solver. Any keyword arguments for the QoI
-should be included as a subdict with label ‘qoi_kwargs’</p></li>
-<li><p><strong>adj_solver_kwargs</strong> – a dictionary providing parameters
-to the adjoint solver.</p></li>
-<li><p><strong>get_adj_values</strong> – additionally output adjoint
-actions at exported timesteps</p></li>
-<li><p><strong>test_checkpoint_qoi</strong> – solve over the final
-subinterval when checkpointing so that the QoI
-value can be checked across runs</p></li>
+<li><p><strong>solver_kwargs</strong> – a dictionary providing parameters to the solver. Any
+keyword arguments for the QoI should be included as a subdict with label
+‘qoi_kwargs’</p></li>
+<li><p><strong>adj_solver_kwargs</strong> – a dictionary providing parameters to the adjoint
+solver.</p></li>
+<li><p><strong>get_adj_values</strong> – additionally output adjoint actions at exported timesteps</p></li>
+<li><p><strong>test_checkpoint_qoi</strong> – solve over the final subinterval when checkpointing
+so that the QoI value can be checked across runs</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return solution<span class="colon">:</span></dt>
-<dd class="field-even"><p>an <a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> containing
-solution fields and their lagged versions.</p>
+<dd class="field-even"><p>an <a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> containing solution fields and their
+lagged versions. This can also be accessed as <code class="xref py py-meth docutils literal notranslate"><span class="pre">solutions()</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -251,6 +232,18 @@ difference in error estimator value being smaller than the specified tolerance.<
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.error_estimate">
+<span class="sig-name descname"><span class="pre">error_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">absolute_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.error_estimate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.error_estimate" title="Link to this definition">¶</a></dt>
+<dd><p>Deduce the error estimator value associated with error indicator fields defined over
+a <a class="reference internal" href="#goalie.mesh_seq.MeshSeq" title="goalie.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>absolute_value</strong> – toggle whether to take the modulus on each element</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration">
 <span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor:</span> <span class="pre">~collections.abc.Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn:</span> <span class="pre">~collections.abc.Callable</span> <span class="pre">=</span> <span class="pre">&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
 <dd><p>Apply goal-oriented mesh adaptation using a fixed point iteration loop.</p>
@@ -304,21 +297,16 @@ adjoint error and enriched space(s) as arguments</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators2estimator">
-<span class="sig-name descname"><span class="pre">indicators2estimator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indicators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.12)"><span class="pre">Iterable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">absolute_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.indicators2estimator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators2estimator" title="Link to this definition">¶</a></dt>
-<dd><p>Deduce the error estimator value associated with error indicator fields defined over
-a <a class="reference internal" href="#goalie.mesh_seq.MeshSeq" title="goalie.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indicators</strong> – the list of list of error indicator
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>s</p></li>
-<li><p><strong>absolute_value</strong> – toggle whether to take the modulus on each element</p></li>
-</ul>
-</dd>
-</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">indicators</span></span><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators" title="Link to this definition">¶</a></dt>
+<dd><p>Arrays holding exported error indicators.</p>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.prolonged_solutions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prolonged_solutions</span></span><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.prolonged_solutions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -631,6 +619,12 @@ associated attributes.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.solutions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solutions</span></span><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.solutions" title="Link to this definition">¶</a></dt>
+<dd><p>Arrays holding exported solution fields and their lagged counterparts.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.solve_forward">
 <span class="sig-name descname"><span class="pre">solve_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><span class="pre">AttrDict</span></a></span></span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.solve_forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.solve_forward" title="Link to this definition">¶</a></dt>
@@ -641,16 +635,8 @@ The contents of these nested dictionaries are nested lists which are indexed
 first by subinterval and then by export. For a given exported timestep, the
 solution types are:</p>
 <ul class="simple">
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">'forward'</span></code>: the forward solution after taking the</dt><dd><p>timestep;</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>: the forward solution before taking</dt><dd><p>the timestep.</p>
-</dd>
-</dl>
-</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'forward'</span></code>: the forward solution after taking the timestep;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'forward_old'</span></code>: the forward solution before taking the timestep.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -660,7 +646,7 @@ keyword arguments for the QoI should be included as a subdict with label
 </dd>
 <dt class="field-even">Return solution<span class="colon">:</span></dt>
 <dd class="field-even"><p>an <a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> containing solution fields and their
-lagged versions.</p>
+lagged versions. This can also be accessed as <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.solutions" title="goalie.mesh_seq.MeshSeq.solutions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solutions()</span></code></a>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1190,10 +1176,12 @@ over</p></li>
 <li><a class="reference internal" href="#module-goalie.go_mesh_seq">goalie.go_mesh_seq module</a><ul>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq</span></code></a><ul>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.check_estimator_convergence"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.check_estimator_convergence()</span></code></a></li>
+<li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.error_estimate"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.error_estimate()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.fixed_point_iteration()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.get_enriched_mesh_seq()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.indicate_errors()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators2estimator"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.indicators2estimator()</span></code></a></li>
+<li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.indicators</span></code></a></li>
+<li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.prolonged_solutions"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.prolonged_solutions</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1238,6 +1226,7 @@ over</p></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.initial_condition"><code class="docutils literal notranslate"><span class="pre">MeshSeq.initial_condition</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.plot"><code class="docutils literal notranslate"><span class="pre">MeshSeq.plot()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.set_meshes"><code class="docutils literal notranslate"><span class="pre">MeshSeq.set_meshes()</span></code></a></li>
+<li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.solutions"><code class="docutils literal notranslate"><span class="pre">MeshSeq.solutions</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.solve_forward"><code class="docutils literal notranslate"><span class="pre">MeshSeq.solve_forward()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.solver"><code class="docutils literal notranslate"><span class="pre">MeshSeq.solver</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.warning"><code class="docutils literal notranslate"><span class="pre">MeshSeq.warning()</span></code></a></li>
@@ -1350,7 +1339,7 @@ over</p></li>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>

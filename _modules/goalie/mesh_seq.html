@@ -565,6 +565,36 @@
                 <span class="s2">&quot; dependencies.&quot;</span>
             <span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_create_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;forward_old&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solutions</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">field</span><span class="p">:</span> <span class="n">AttrDict</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">label</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="p">]</span>
+                            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Arrays holding exported solution fields and their lagged counterparts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_solutions&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solutions</span>
+
 <div class="viewcode-block" id="MeshSeq.solve_forward">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.solve_forward">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
@@ -578,43 +608,19 @@
 <span class="sd">        first by subinterval and then by export. For a given exported timestep, the</span>
 <span class="sd">        solution types are:</span>
 
-<span class="sd">        * ``&#39;forward&#39;``: the forward solution after taking the</span>
-<span class="sd">            timestep;</span>
-<span class="sd">        * ``&#39;forward_old&#39;``: the forward solution before taking</span>
-<span class="sd">            the timestep.</span>
+<span class="sd">        * ``&#39;forward&#39;``: the forward solution after taking the timestep;</span>
+<span class="sd">        * ``&#39;forward_old&#39;``: the forward solution before taking the timestep.</span>
 
 <span class="sd">        :kwarg solver_kwargs: a dictionary providing parameters to the solver. Any</span>
 <span class="sd">            keyword arguments for the QoI should be included as a subdict with label</span>
 <span class="sd">            &#39;qoi_kwargs&#39;</span>
 
 <span class="sd">        :return solution: an :class:`~.AttrDict` containing solution fields and their</span>
-<span class="sd">            lagged versions.</span>
+<span class="sd">            lagged versions. This can also be accessed as :meth:`solutions`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">function_spaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span>
         <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
         <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span>
-
-        <span class="c1"># Create arrays to hold exported forward solutions and their lagged</span>
-        <span class="c1"># counterparts</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;forward_old&quot;</span><span class="p">)</span>
-        <span class="n">solutions</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="n">field</span><span class="p">:</span> <span class="n">AttrDict</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="n">label</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="p">[</span>
-                                <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                            <span class="p">]</span>
-                            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
-                        <span class="p">]</span>
-                        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
 
         <span class="c1"># Start annotating</span>
         <span class="k">if</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">annotate_tape</span><span class="p">():</span>
@@ -634,7 +640,7 @@
             <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
             <span class="c1"># Loop over prognostic variables</span>
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="c1"># Get solve blocks</span>
                 <span class="n">solve_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
                 <span class="n">num_solve_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span>
@@ -658,7 +664,7 @@
                     <span class="p">)</span>
 
                 <span class="c1"># Update solution data based on block dependencies and outputs</span>
-                <span class="n">sols</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+                <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_exports</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">]):</span>
                     <span class="c1"># Current solution is determined from outputs</span>
                     <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
@@ -682,7 +688,7 @@
             <span class="c1"># Clear the tape to reduce the memory footprint</span>
             <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_working_tape</span><span class="p">()</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">solutions</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span></div>
 
 
 <div class="viewcode-block" id="MeshSeq.check_element_count_convergence">
@@ -760,10 +766,11 @@
                 <span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp_iteration</span><span class="p">)</span>
 
             <span class="c1"># Solve the forward problem over all meshes</span>
-            <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solve_forward</span><span class="p">(</span><span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solve_forward</span><span class="p">(</span><span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
             <span class="c1"># Adapt meshes, logging element and vertex counts</span>
-            <span class="n">continue_unconditionally</span> <span class="o">=</span> <span class="n">adaptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sols</span><span class="p">)</span>
+            <span class="n">continue_unconditionally</span> <span class="o">=</span> <span class="n">adaptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">drop_out_converged</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">continue_unconditionally</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>
@@ -783,7 +790,7 @@
                         <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">maxiter</span><span class="si">}</span><span class="s2"> iterations.&quot;</span>
                     <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">sols</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span></div>
 </div>
 
 </pre></div>
@@ -823,7 +830,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021-2023, Joseph G. Wallwork et al..
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>

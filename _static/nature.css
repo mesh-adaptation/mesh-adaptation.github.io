@@ -13,7 +13,6 @@
 
 /* -- page layout ----------------------------------------------------------- */
 
-
 body {
     font-family: Arial, sans-serif;
     font-size: 100%;
@@ -29,7 +28,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 0 0 400px; /*acse-ej321 : custom for sidebar*/
+    margin: 0 0 0 230px;
 }
 
 hr {
@@ -75,13 +74,10 @@ div.related a {
 div.sphinxsidebar {
     font-size: 0.75em;
     line-height: 1.5em;
-    width: 400px; /*acse-ej321 : custom for sidebar*/
 }
 
 div.sphinxsidebarwrapper{
     padding: 20px 0;
-    overflow: auto; /*acse-ej321 : custom for sidebar*/
-    width: 400px; /*acse-ej321 : custom for sidebar*/
 }
 
 div.sphinxsidebar h3,
