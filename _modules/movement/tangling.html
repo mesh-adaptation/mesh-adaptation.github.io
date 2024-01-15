@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.tangling &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">movement.tangling</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for movement.tangling</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MeshTanglingChecker&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MeshTanglingChecker">
+<a class="viewcode-back" href="../../movement.html#movement.tangling.MeshTanglingChecker">[docs]</a>
+<span class="k">class</span> <span class="nc">MeshTanglingChecker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class for tracking whether a mesh has</span>
+<span class="sd">    tangled, i.e. whether any of its elements</span>
+<span class="sd">    have become inverted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg mesh: the mesh to track if tangled</span>
+<span class="sd">        :kwarg mode: should a warning or an error</span>
+<span class="sd">            be raised when tangling is encountered?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot check for tangling of </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">D meshes (only 2D)&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;warn&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Choose mode from &#39;warn&#39; and &#39;error&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+
+        <span class="c1"># Store initial signs of Jacobian determinant</span>
+        <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">detJ</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">JacobianDeterminant</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">detJ</span><span class="p">))</span>
+
+        <span class="c1"># Get scaled Jacobian expression</span>
+        <span class="n">P0_ten</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">Jacobian</span><span class="p">(</span><span class="n">mesh</span><span class="p">),</span> <span class="n">P0_ten</span><span class="p">)</span>
+        <span class="n">edge1</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">J</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">J</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">edge2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="n">J</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">J</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="n">edge3</span> <span class="o">=</span> <span class="n">edge1</span> <span class="o">-</span> <span class="n">edge2</span>
+        <span class="n">norm1</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge1</span><span class="p">,</span> <span class="n">edge1</span><span class="p">))</span>
+        <span class="n">norm2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge2</span><span class="p">,</span> <span class="n">edge2</span><span class="p">))</span>
+        <span class="n">norm3</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">edge3</span><span class="p">,</span> <span class="n">edge3</span><span class="p">))</span>
+        <span class="n">prod1</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">max_value</span><span class="p">(</span><span class="n">norm1</span> <span class="o">*</span> <span class="n">norm2</span><span class="p">,</span> <span class="n">norm1</span> <span class="o">*</span> <span class="n">norm3</span><span class="p">)</span>
+        <span class="n">prod2</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">max_value</span><span class="p">(</span><span class="n">norm2</span> <span class="o">*</span> <span class="n">norm3</span><span class="p">,</span> <span class="n">norm2</span> <span class="o">*</span> <span class="n">norm1</span><span class="p">)</span>
+        <span class="n">prod3</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">max_value</span><span class="p">(</span><span class="n">norm3</span> <span class="o">*</span> <span class="n">norm1</span><span class="p">,</span> <span class="n">norm3</span> <span class="o">*</span> <span class="n">norm2</span><span class="p">)</span>
+        <span class="n">maxval</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">max_value</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">max_value</span><span class="p">(</span><span class="n">prod1</span><span class="p">,</span> <span class="n">prod2</span><span class="p">),</span> <span class="n">prod3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sj_expr</span> <span class="o">=</span> <span class="n">detJ</span> <span class="o">/</span> <span class="n">maxval</span> <span class="o">*</span> <span class="n">s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sj</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scaled_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sj</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sj_expr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sj</span>
+
+<div class="viewcode-block" id="MeshTanglingChecker.check">
+<a class="viewcode-back" href="../../movement.html#movement.tangling.MeshTanglingChecker.check">[docs]</a>
+    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check for tangling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled_jacobian</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">num_tangled</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sj</span><span class="p">[</span><span class="n">sj</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">num_tangled</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mesh has </span><span class="si">{</span><span class="n">num_tangled</span><span class="si">}</span><span class="s2"> tangled elements&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;warn&quot;</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">warnings</span>
+
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">num_tangled</span></div>
+</div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">movement.tangling</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>

@@ -10,6 +10,7 @@ BUILDDIR      = build
 PYTHON        = ${VIRTUAL_ENV}/bin/python3
 
 ANIMATE       = ${VIRTUAL_ENV}/src/animate
+MOVEMENT      = ${VIRTUAL_ENV}/src/movement
 GOALIE        = ${VIRTUAL_ENV}/src/goalie
 
 # Put it first so that "make" without argument is like "make help".
@@ -28,18 +29,23 @@ copy_demos:
 	install -d source/demos
 	cp ${ANIMATE}/demos/*.py source/demos
 	cp ${ANIMATE}/demos/*.jpg source/demos
+	cp ${MOVEMENT}/demos/*.py source/demos
+	cp ${MOVEMENT}/demos/*.jpg source/demos
+	cp ${MOVEMENT}/demos/demo_references.bib source/demos
 	cp ${GOALIE}/demos/*.py source/demos
 	cp ${GOALIE}/demos/*.jpg source/demos
-	cp ${GOALIE}/demos/demo_references.bib source/demos
+	cat ${GOALIE}/demos/demo_references.bib >> source/demos/demo_references.bib
 	for file in source/demos/*.py; do pylit -c $$file; mv $$file.txt $$file.rst; done
 	install -d $(BUILDDIR)/html/demos
 	cp source/demos/*.py $(BUILDDIR)/html/demos
 	cp source/demos/*.jpg $(BUILDDIR)/html/demos
 	cp source/demos/*.bib $(BUILDDIR)/html/demos
 	install -d $(BUILDDIR)/html/animate
+	install -d $(BUILDDIR)/html/movement
 	install -d $(BUILDDIR)/html/goalie
 	mkdir -p $(BUILDDIR)/html/_images
 	cp source/animate/images/*.jpg $(BUILDDIR)/html/_images
+	# cp source/movement/images/*.jpg $(BUILDDIR)/html/_images
 	cp source/goalie/images/*.jpg $(BUILDDIR)/html/_images
 
 SPHINX_TARGETS = dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub \
@@ -56,7 +62,7 @@ html: apidoc $(GENERATED_FILES)
 	cp -r $(BUILDDIR)/html/* ..
 
 .PHONY: apidoc
-apidoc: apidoc-animate apidoc-goalie
+apidoc: apidoc-animate apidoc-movement apidoc-goalie
 
 apidoc-animate:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import animate; import os; print(os.path.dirname(animate.__file__))') -o source -f -T
@@ -69,6 +75,18 @@ apidoc-animate:
 	echo "" >> source/animate.rst
 	echo ".. bibliography:: references.bib" >> source/animate.rst
 	echo "    :all:" >> source/animate.rst
+
+apidoc-movement:
+	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import movement; import os; print(os.path.dirname(movement.__file__))') -o source -f -T
+	# TODO: Do this in a less hacky way
+	echo "" >> source/movement.rst
+	echo "References" >> source/movement.rst
+	echo "----------" >> source/movement.rst
+	echo "" >> source/movement.rst
+	echo ".. rubric:: References" >> source/movement.rst
+	echo "" >> source/movement.rst
+	echo ".. bibliography:: references.bib" >> source/movement.rst
+	echo "    :all:" >> source/movement.rst
 
 apidoc-goalie:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import goalie; import os; print(os.path.dirname(goalie.__file__))') -o source -f -T

@@ -114,7 +114,7 @@ only the :meth:`get_function_spaces` and :meth:`get_initial_condition`
 methods implemented. ::
 
   import matplotlib.pyplot as plt
-
+  from firedrake.pyplot import tricontourf
 
   mesh_seq = MeshSeq(
       time_partition,

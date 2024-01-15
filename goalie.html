@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>goalie package &#8212; Animate and Goalie 0.1 documentation</title>
+    <title>goalie package &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=601dbdee" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Defining a simple metric field and adapting the mesh to it" href="demos/simple_metric.py.html" />
-    <link rel="prev" title="animate package" href="animate.html" /> 
+    <link rel="prev" title="movement package" href="movement.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,9 +30,9 @@
           <a href="demos/simple_metric.py.html" title="Defining a simple metric field and adapting the mesh to it"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="animate.html" title="animate package"
+          <a href="movement.html" title="movement package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie package</a></li> 
       </ul>
     </div>  
@@ -303,11 +303,6 @@ adjoint error and enriched space(s) as arguments</p></li>
 <dd><p>Arrays holding exported error indicators.</p>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.prolonged_solutions">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prolonged_solutions</span></span><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.prolonged_solutions" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 </section>
@@ -405,14 +400,14 @@ a true value, e.g.</p>
 <dt class="sig sig-object py" id="goalie.math.bessi0">
 <span class="sig-name descname"><span class="pre">bessi0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/math.html#bessi0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.math.bessi0" title="Link to this definition">¶</a></dt>
 <dd><p>Modified Bessel function of the first kind.</p>
-<p>Code taken from <span id="id1">[<a class="reference internal" href="#id6" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
+<p>Code taken from <span id="id1">[<a class="reference internal" href="movement.html#id4" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="goalie.math.bessk0">
 <span class="sig-name descname"><span class="pre">bessk0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/math.html#bessk0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.math.bessk0" title="Link to this definition">¶</a></dt>
 <dd><p>Modified Bessel function of the second kind.</p>
-<p>Code taken from <span id="id2">[<a class="reference internal" href="#id6" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
+<p>Code taken from <span id="id2">[<a class="reference internal" href="movement.html#id4" title="William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. Numerical recipes: example book C. Cambridge University Press, 1992.">VVP+92</a>]</span>.</p>
 </dd></dl>
 
 </section>
@@ -598,8 +593,7 @@ field on a given subinterval.</p>
 </ul>
 </dd>
 <dt class="field-even">Kwargs<span class="colon">:</span></dt>
-<dd class="field-even"><p>parameters to pass to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.plot.triplot" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.triplot()</span></code></a>
-function</p>
+<dd class="field-even"><p>parameters to pass to <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.triplot()</span></code> function</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>matplotlib figure and axes for the plots</p>
@@ -712,7 +706,7 @@ or a number.</p></li>
 <dt class="sig sig-object py" id="goalie.metric.space_time_normalise">
 <span class="sig-name descname"><span class="pre">space_time_normalise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><span class="pre">RiemannianMetric</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_partition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><span class="pre">TimePartition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><span class="pre">list</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restrict_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restrict_anisotropy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><span class="pre">RiemannianMetric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/goalie/metric.html#space_time_normalise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.metric.space_time_normalise" title="Link to this definition">¶</a></dt>
 <dd><p>Apply <span class="math notranslate nohighlight">\(L^p\)</span> normalisation in both space and time.</p>
-<p>Based on Equation (1) in <span id="id3">[<a class="reference internal" href="#id10" title="N. Barral, M. G. Knepley, M. Lange, M. D. Piggott, and G. J. Gorman. Anisotropic mesh adaptation in Firedrake with PETSc DMPlex. In 25th Intl Meshing Roundtable. 2016.">BKL+16</a>]</span>.</p>
+<p>Based on Equation (1) in <span id="id3">[<a class="reference internal" href="movement.html#id8" title="N. Barral, M. G. Knepley, M. Lange, M. D. Piggott, and G. J. Gorman. Anisotropic mesh adaptation in Firedrake with PETSc DMPlex. In 25th Intl Meshing Roundtable. 2016.">BKL+16</a>]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -809,7 +803,7 @@ metric-based adaptive mesh fixed point iteration loops.</p>
 <dd><p>Plot a sequence of snapshots associated with
 <code class="docutils literal notranslate"><span class="pre">indicators</span></code> and a given <a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a></p>
 <p>Any keyword arguments are passed to
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.plot.tricontourf" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.tricontourf()</span></code></a>.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.tricontourf()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -829,7 +823,7 @@ object used to solve the problem</p></li>
 <code class="docutils literal notranslate"><span class="pre">solutions.field.label</span></code> and a given
 <a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a>.</p>
 <p>Any keyword arguments are passed to
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.plot.tricontourf" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.tricontourf()</span></code></a>.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.tricontourf()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1181,7 +1175,6 @@ over</p></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.get_enriched_mesh_seq()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.indicate_errors()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.indicators</span></code></a></li>
-<li><a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.prolonged_solutions"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMeshSeq.prolonged_solutions</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1290,8 +1283,8 @@ over</p></li>
   </div>
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="animate.html"
-                          title="previous chapter">animate package</a></p>
+    <p class="topless"><a href="movement.html"
+                          title="previous chapter">movement package</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
@@ -1332,9 +1325,9 @@ over</p></li>
           <a href="demos/simple_metric.py.html" title="Defining a simple metric field and adapting the mesh to it"
              >next</a> |</li>
         <li class="right" >
-          <a href="animate.html" title="animate package"
+          <a href="movement.html" title="movement package"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie package</a></li> 
       </ul>
     </div>
