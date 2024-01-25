@@ -85,9 +85,7 @@ html: apidoc $(GENERATED_FILES)
 
 .PHONY: apidoc
 
-apidoc: 
-
-# apidoc-animate apidoc-movement apidoc-goalie
+apidoc: apidoc-animate apidoc-movement apidoc-goalie
 
 apidoc-animate:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import animate; import os; print(os.path.dirname(animate.__file__))') -o source -f -T

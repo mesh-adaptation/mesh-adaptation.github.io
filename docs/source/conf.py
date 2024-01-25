@@ -39,7 +39,7 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinxcontrib.bibtex",
     "sphinx.ext.autosectionlabel",
-    ]
+]
 
 # Make sure the target is unique
 autosectionlabel_prefix_document = True
@@ -111,15 +111,15 @@ html_theme_path = ["_themes"]
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static/custom.css']
+html_static_path = ["_static/custom.css"]
 
-# Add custom static files (such as style sheets) to override all style themes. 
-# This is sphinx specific and not a theme-specific option. 
+# Add custom static files (such as style sheets) to override all style themes.
+# This is sphinx specific and not a theme-specific option.
 # reference:
 # https://stackoverflow.com/questions/23462494/how-to-add-custom-css-file-to-sphinx
 html_context = {
-    'css_files': ['_static/custom.css'],
-    }
+    "css_files": ["_static/custom.css"],
+}
 
 
 # -- Options for HTMLHelp output ------------------------------------------
