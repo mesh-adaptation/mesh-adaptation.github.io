@@ -13,6 +13,7 @@ ANIMATE       = ${VIRTUAL_ENV}/src/animate
 MOVEMENT      = ${VIRTUAL_ENV}/src/movement
 GOALIE        = ${VIRTUAL_ENV}/src/goalie
 
+
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
@@ -22,6 +23,27 @@ help:
 GENERATED_FILES = source/demos
 
 .PHONY: copy_demos
+
+run_animate_demos:
+	for file in ${ANIMATE}/demos/*.py; do \
+		cd  ${ANIMATE}/demos/ && \
+		${PYTHON} $$file ; \
+	done; \
+	cd . \
+
+run_movement_demos:
+	for file in ${MOVEMENT}/demos/*.py; do \
+		cd  ${MOVEMENT}/demos/ && \
+		${PYTHON} $$file ; \
+	done; \
+	cd . \
+
+run_goalie_demos:
+	for file in ${GOALIE}/demos/*.py; do \
+		cd  ${GOALIE}/demos/ && \
+		${PYTHON} $$file ; \
+	done; \
+	cd . \
 
 source/demos: copy_demos
 
@@ -62,43 +84,23 @@ html: apidoc $(GENERATED_FILES)
 	cp -r $(BUILDDIR)/html/* ..
 
 .PHONY: apidoc
-apidoc: apidoc-animate apidoc-movement apidoc-goalie
+
+apidoc: 
+
+# apidoc-animate apidoc-movement apidoc-goalie
 
 apidoc-animate:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import animate; import os; print(os.path.dirname(animate.__file__))') -o source -f -T
-	# TODO: Do this in a less hacky way
-	echo "" >> source/animate.rst
-	echo "References" >> source/animate.rst
-	echo "----------" >> source/animate.rst
-	echo "" >> source/animate.rst
-	echo ".. rubric:: References" >> source/animate.rst
-	echo "" >> source/animate.rst
-	echo ".. bibliography:: references.bib" >> source/animate.rst
-	echo "    :all:" >> source/animate.rst
+
+	
 
 apidoc-movement:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import movement; import os; print(os.path.dirname(movement.__file__))') -o source -f -T
-	# TODO: Do this in a less hacky way
-	echo "" >> source/movement.rst
-	echo "References" >> source/movement.rst
-	echo "----------" >> source/movement.rst
-	echo "" >> source/movement.rst
-	echo ".. rubric:: References" >> source/movement.rst
-	echo "" >> source/movement.rst
-	echo ".. bibliography:: references.bib" >> source/movement.rst
-	echo "    :all:" >> source/movement.rst
+
 
 apidoc-goalie:
 	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import goalie; import os; print(os.path.dirname(goalie.__file__))') -o source -f -T
-	# TODO: Do this in a less hacky way
-	echo "" >> source/goalie.rst
-	echo "References" >> source/goalie.rst
-	echo "----------" >> source/goalie.rst
-	echo "" >> source/goalie.rst
-	echo ".. rubric:: References" >> source/goalie.rst
-	echo "" >> source/goalie.rst
-	echo ".. bibliography:: references.bib" >> source/goalie.rst
-	echo "    :all:" >> source/goalie.rst
+
 
 clean:
 	-git clean -fdx $(BUILDDIR)/html/
