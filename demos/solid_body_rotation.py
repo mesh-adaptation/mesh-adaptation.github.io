@@ -38,6 +38,7 @@
 
 from firedrake import *
 from goalie_adjoint import *
+from firedrake.pyplot import tricontourf
 
 # For simplicity, we use a :math:`\mathbb P1` space for each
 # field. The domain of interest is again the unit square, in
@@ -114,7 +115,7 @@ time_partition = TimeInterval(
 # methods implemented. ::
 
 import matplotlib.pyplot as plt
-from firedrake.pyplot import tricontourf
+
 
 mesh_seq = MeshSeq(
     time_partition,

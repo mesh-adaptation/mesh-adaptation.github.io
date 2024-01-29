@@ -84,7 +84,11 @@ As before, we copy over what is now effectively boiler plate to set up our probl
 
   num_subintervals = len(meshes)
   time_partition = TimePartition(
-      end_time, num_subintervals, dt, fields, num_timesteps_per_export=2,
+      end_time,
+      num_subintervals,
+      dt,
+      fields,
+      num_timesteps_per_export=2,
   )
 
   params = MetricParameters(
@@ -167,7 +171,9 @@ skipped. ::
       num_dofs = mesh_seq.count_vertices()
       num_elem = mesh_seq.count_elements()
       pyrint(f"fixed point iteration {iteration + 1}:")
-      for i, (complexity, ndofs, nelem) in enumerate(zip(complexities, num_dofs, num_elem)):
+      for i, (complexity, ndofs, nelem) in enumerate(
+          zip(complexities, num_dofs, num_elem)
+      ):
           pyrint(
               f"  subinterval {i}, complexity: {complexity:4.0f}"
               f", dofs: {ndofs:4d}, elements: {nelem:4d}"

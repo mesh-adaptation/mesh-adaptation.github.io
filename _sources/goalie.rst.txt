@@ -111,7 +111,4 @@ Module contents
 References
 ----------
 
-.. rubric:: References
-
-.. bibliography:: references.bib
-    :all:
+:ref:`references:References`
