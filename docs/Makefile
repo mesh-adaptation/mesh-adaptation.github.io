@@ -85,20 +85,6 @@ html: apidoc $(GENERATED_FILES)
 
 .PHONY: apidoc
 
-apidoc: apidoc-animate apidoc-movement apidoc-goalie
-
-apidoc-animate:
-	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import animate; import os; print(os.path.dirname(animate.__file__))') -o source -f -T
-
-	
-
-apidoc-movement:
-	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import movement; import os; print(os.path.dirname(movement.__file__))') -o source -f -T
-
-
-apidoc-goalie:
-	$(SPHINXAPIDOC) $$($(PYTHON) -c 'import goalie; import os; print(os.path.dirname(goalie.__file__))') -o source -f -T
-
 
 clean:
 	-git clean -fdx $(BUILDDIR)/html/
