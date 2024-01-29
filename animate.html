@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>animate package &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -133,7 +132,7 @@ defined on the adapted mesh using supermeshing.</p>
 <dt class="sig sig-object py" id="animate.interpolation.clement_interpolant">
 <span class="sig-name descname"><span class="pre">clement_interpolant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/interpolation.html#clement_interpolant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.interpolation.clement_interpolant" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the Clement interpolant of a <span class="math notranslate nohighlight">\(\mathbb P0\)</span> source field, i.e. take the
-volume average over neighbouring cells at each vertex. See <span id="id1">[<a class="reference internal" href="movement.html#id3" title="Ph Clément. Approximation by finite element functions using local regularization. Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique, 9(R2):77–84, 1975.">Clement75</a>]</span>.</p>
+volume average over neighbouring cells at each vertex. See <span id="id1">[<a class="reference internal" href="references.html#id2" title="Ph Clément. Approximation by finite element functions using local regularization. Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique, 9(R2):77–84, 1975.">Clement75</a>]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -270,9 +269,9 @@ of the (inherently discrete) mesh vertex count.</p>
 <dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric">
 <span class="sig-name descname"><span class="pre">compute_anisotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_anisotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute an anisotropic metric from some error indicator, given a Hessian field.</p>
-<p>The formulation used is based on that presented in <span id="id2">[<a class="reference internal" href="movement.html#id7" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+<p>The formulation used is based on that presented in <span id="id2">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
 normalisation is implicit in the metric construction and involves the
-<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id3">[<a class="reference internal" href="movement.html#id7" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id3">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
 <p>If a Hessian is not provided then an isotropic formulation is used.</p>
 <p>Whilst an element-based formulation is used to derive the metric, the result is
 projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
@@ -343,9 +342,9 @@ inherited from the metric itself.</p>
 <span class="sig-name descname"><span class="pre">compute_isotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_isotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_isotropic_dwr_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute an isotropic metric from some error indicator using an element-based
 formulation.</p>
-<p>The formulation is based on that presented in <span id="id4">[<a class="reference internal" href="movement.html#id7" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+<p>The formulation is based on that presented in <span id="id4">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
 normalisation is implicit in the metric construction and involves the
-<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id5">[<a class="reference internal" href="movement.html#id7" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id5">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
 <p>Whilst an element-based formulation is used to derive the metric, the result is
 projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
 <dl class="field-list simple">
@@ -381,7 +380,7 @@ projections of the error indicator in modulus.</p>
 <span class="sig-name descname"><span class="pre">compute_weighted_hessian_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessians</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_weighted_hessian_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_weighted_hessian_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute a vertex-wise anisotropic metric from a list of error indicators, given
 a list of corresponding Hessian fields.</p>
-<p>The formulation used is based on that presented in <span id="id6">[<a class="reference internal" href="movement.html#id5" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006. doi:10.1016/j.camwa.2006.11.003.">PPP+06</a>]</span>. It is
+<p>The formulation used is based on that presented in <span id="id6">[<a class="reference internal" href="references.html#id4" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006. doi:10.1016/j.camwa.2006.11.003.">PPP+06</a>]</span>. It is
 assumed that the error indicators have been constructed in the appropriate way.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -521,7 +520,7 @@ Riemannian metric implementation. All such options have the prefix
 <span class="sig-name descname"><span class="pre">determine_metric_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H_interior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#determine_metric_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.determine_metric_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>Solve an algebraic problem to obtain coefficients for the interior and boundary
 metrics to obtain a given metric complexity.</p>
-<p>See <span id="id7">[<a class="reference internal" href="movement.html#id6" title="Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. Journal of computational physics, 229(8):2866–2897, 2010. doi:10.1016/j.jcp.2009.12.021.">LDA10</a>]</span> for details. Note that we use a slightly different formulation
+<p>See <span id="id7">[<a class="reference internal" href="references.html#id5" title="Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. Journal of computational physics, 229(8):2866–2897, 2010. doi:10.1016/j.jcp.2009.12.021.">LDA10</a>]</span> for details. Note that we use a slightly different formulation
 here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -645,36 +644,7 @@ for the Hessian recovery, too.</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
-<p class="rubric">References</p>
-<div class="docutils container" id="id8">
-<div role="list" class="citation-list">
-<div class="citation" id="id14" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>BKL+16<span class="fn-bracket">]</span></span>
-<p>N. Barral, M. G. Knepley, M. Lange, M. D. Piggott, and G. J. Gorman. Anisotropic mesh adaptation in Firedrake with PETSc DMPlex. In <em>25th Intl Meshing Roundtable</em>. 2016.</p>
-</div>
-<div class="citation" id="id13" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>CPB13<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id4">3</a>,<a role="doc-backlink" href="#id5">4</a>)</span>
-<p>Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. <em>SIAM Journal on Scientific Computing</em>, 35(2):A861–A885, 2013. <a class="reference external" href="https://doi.org/10.1137/120874606">doi:10.1137/120874606</a>.</p>
-</div>
-<div class="citation" id="id9" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Clement75</a><span class="fn-bracket">]</span></span>
-<p>Ph Clément. Approximation by finite element functions using local regularization. <em>Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique</em>, 9(R2):77–84, 1975.</p>
-</div>
-<div class="citation" id="id12" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">LDA10</a><span class="fn-bracket">]</span></span>
-<p>Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. <em>Journal of computational physics</em>, 229(8):2866–2897, 2010. <a class="reference external" href="https://doi.org/10.1016/j.jcp.2009.12.021">doi:10.1016/j.jcp.2009.12.021</a>.</p>
-</div>
-<div class="citation" id="id11" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">PPP+06</a><span class="fn-bracket">]</span></span>
-<p>PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. <em>Computers &amp; Mathematics with Applications</em>, 52(8-9):1213–1242, 2006. <a class="reference external" href="https://doi.org/10.1016/j.camwa.2006.11.003">doi:10.1016/j.camwa.2006.11.003</a>.</p>
-</div>
-<div class="citation" id="id10" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>VVP+92<span class="fn-bracket">]</span></span>
-<p>William T Vetterling, William T Vetterling, William H Press, William H Press, Saul A Teukolsky, Brian P Flannery, and Brian P Flannery. <em>Numerical recipes: example book C</em>. Cambridge University Press, 1992.</p>
-</div>
-</div>
-</div>
+<p><a class="reference internal" href="references.html#references"><span class="std std-ref">References</span></a></p>
 </section>
 </section>
 
@@ -768,7 +738,7 @@ for the Hessian recovery, too.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -776,7 +746,7 @@ for the Hessian recovery, too.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
@@ -803,7 +773,7 @@ for the Hessian recovery, too.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.0.
     </div>
   </body>
 </html>

@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Burgers equation with Hessian-based mesh adaptation &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -121,7 +120,11 @@ multiple subintervals and hence multiple meshes to adapt.</p>
 
 <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">meshes</span><span class="p">)</span>
 <span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
-    <span class="n">end_time</span><span class="p">,</span> <span class="n">num_subintervals</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">end_time</span><span class="p">,</span>
+    <span class="n">num_subintervals</span><span class="p">,</span>
+    <span class="n">dt</span><span class="p">,</span>
+    <span class="n">fields</span><span class="p">,</span>
+    <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">params</span> <span class="o">=</span> <span class="n">MetricParameters</span><span class="p">(</span>
@@ -200,7 +203,9 @@ skipped.</p>
     <span class="n">num_dofs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_vertices</span><span class="p">()</span>
     <span class="n">num_elem</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()</span>
     <span class="n">pyrint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fixed point iteration </span><span class="si">{</span><span class="n">iteration</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">complexity</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">,</span> <span class="n">nelem</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">complexities</span><span class="p">,</span> <span class="n">num_dofs</span><span class="p">,</span> <span class="n">num_elem</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">complexity</span><span class="p">,</span> <span class="n">ndofs</span><span class="p">,</span> <span class="n">nelem</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">complexities</span><span class="p">,</span> <span class="n">num_dofs</span><span class="p">,</span> <span class="n">num_elem</span><span class="p">)</span>
+    <span class="p">):</span>
         <span class="n">pyrint</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;  subinterval </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">, complexity: </span><span class="si">{</span><span class="n">complexity</span><span class="si">:</span><span class="s2">4.0f</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;, dofs: </span><span class="si">{</span><span class="n">ndofs</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">, elements: </span><span class="si">{</span><span class="n">nelem</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -290,7 +295,7 @@ such as combining using metric addition and recovering a single Hessian of the s
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -298,7 +303,7 @@ such as combining using metric addition and recovering a single Hessian of the s
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
@@ -322,7 +327,7 @@ such as combining using metric addition and recovering a single Hessian of the s
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.0.
     </div>
   </body>
 </html>

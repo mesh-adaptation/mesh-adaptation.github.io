@@ -38,6 +38,7 @@ adjoint mode activated. ::
 
   from firedrake import *
   from goalie_adjoint import *
+  from firedrake.pyplot import tricontourf
 
 For simplicity, we use a :math:`\mathbb P1` space for each
 field. The domain of interest is again the unit square, in
@@ -114,7 +115,7 @@ only the :meth:`get_function_spaces` and :meth:`get_initial_condition`
 methods implemented. ::
 
   import matplotlib.pyplot as plt
-  from firedrake.pyplot import tricontourf
+
 
   mesh_seq = MeshSeq(
       time_partition,
