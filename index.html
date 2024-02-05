@@ -8,12 +8,10 @@
     <title>Animate, Movement and Goalie &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Animate manual" href="animate/index.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -24,9 +22,6 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="animate/index.html" title="Animate manual"
-             accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Animate, Movement and Goalie</a></li> 
       </ul>
@@ -39,20 +34,20 @@
             
   <section id="welcome-to-the-documentation-for-animate-movement-and-goalie">
 <h1>Welcome to the documentation for Animate, Movement and Goalie!<a class="headerlink" href="#welcome-to-the-documentation-for-animate-movement-and-goalie" title="Link to this heading">¶</a></h1>
-<p><strong>Animate</strong> is a package which provides anisotropic mesh adaptation
+<p><a class="reference external" href="animate/index.html">Animate</a> is a package which provides anisotropic mesh adaptation
 functionality for the Python-based finite element library
 <a class="reference external" href="http://www.firedrakeproject.org/">Firedrake</a>. Given an initial mesh, the
 user defines a Riemannian metric field (or simply ‘metric’), which provides the
 ‘optimal mesh concept’, i.e. a ‘blueprint’ for what adapted meshes will look
 like. Animate can then be used to transform the initial mesh into an adapted
 mesh, making use of the metric to guide the transformations.</p>
-<p><strong>Movement</strong> focuses on alternative mesh adaptation strategies to the metric-based
-approach of Animate. Where Animate allows degrees of freedom to be added and removed
-from the input mesh in order to obtain an adapted mesh, Movement is concerned only
-with <em>mesh movement</em> methods, which simply move degrees of freedom around. In some
-cases the first approach is more suitable; in some cases the latter. Several different
-strategies are implemented within Movement.</p>
-<p><strong>Goalie</strong> is more of an ‘outer-loop’ package and is focused on a
+<p><a class="reference external" href="movement/index.html">Movement</a> focuses on alternative mesh adaptation strategies to
+the metric-based approach of Animate. Where Animate allows degrees of freedom to be
+added and removed from the input mesh in order to obtain an adapted mesh, Movement is
+concerned only with <em>mesh movement</em> methods, which simply move degrees of freedom
+around. In some cases the first approach is more suitable; in some cases the latter.
+Several different strategies are implemented within Movement.</p>
+<p><a class="reference external" href="goalie/index.html">Goalie</a> is more of an ‘outer-loop’ package and is focused on a
 goal-oriented mesh adaptation pipeline for solving partial differential
 equations (PDEs) using adapted meshes. Goalie supports solving time-dependent PDEs
 and their adjoints on sequences of meshes, performing goal-oriented error
@@ -69,83 +64,14 @@ throughout. The <cite>dolfin-adjoint</cite> package (which Goalie uses to solve 
 contains some
 <a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">excellent documentation</a>
 on the mathematical background of adjoint problems. The metric-based mesh adaptation,
-mesh movement, and goal-oriented error estimation functionalities provided by Animate,
-Movement and Goalie are described in the respective manuals.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="animate/index.html">Animate manual</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="animate/1-metric-based.html">1. The metric-based framework</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="goalie/index.html">Goalie manual</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="goalie/1-motivation.html">1. Motivation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="goalie/2-goal-oriented-error-estimation.html">2. Goal-oriented error estimation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html">3. Goal-oriented mesh adaptation</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<p class="rubric">API documentation</p>
-<p>The classes and functions which comprise the packages may be found in their API
-documentation.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="animate.html">Animate API documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.html">Movement API documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="goalie.html">Goalie API documentation</a></li>
-</ul>
-</div>
-<p>They are also listed alphabetically on the <a class="reference internal" href="genindex.html"><span class="std std-ref">index</span></a> page. The index may
-be searched using the inbuilt <a class="reference internal" href="search.html"><span class="std std-ref">search engine</span></a>. The source codes for all
-three packages are hosted on GitHub:
+mesh movement, and goal-oriented error estimation functionalities provided by
+<a class="reference external" href="animate/index.html">Animate</a>, <a class="reference external" href="movement/index.html">Movement</a> and
+<a class="reference external" href="goalie/index.html">Goalie</a> are described in the respective manuals.</p>
+<p class="rubric">Source code</p>
+<p>The source codes for all three packages are hosted on GitHub:
 <a class="reference external" href="https://github.com/pyroteus/animate/">Animate</a>,
 <a class="reference external" href="https://github.com/pyroteus/movement/">Movement</a>,
 <a class="reference external" href="https://github.com/pyroteus/goalie/">Goalie</a>.</p>
-<p class="rubric">Animate demos</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demos/simple_metric.py.html">Defining a simple metric and adapting a mesh with respect to it</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/combining_metrics.py.html">Combining metrics</a></li>
-</ul>
-</div>
-<p class="rubric">Movement demos</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demos/monge_ampere1.py.html">Introduction to mesh movement driven by a Monge-Ampère type equation</a></li>
-</ul>
-</div>
-<p class="rubric">Goalie demos</p>
-<p><em>Time partitions and mesh sequences</em></p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demos/time_partition.py.html">Partitioning a time interval</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/mesh_seq.py.html">Creating a mesh sequence</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers.py.html">Burgers equation on a sequence of meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers1.py.html">Adjoint Burgers equation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers2.py.html">Adjoint Burgers equation on two meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers_time_integrated.py.html">Adjoint Burgers equation with a time-integrated QoI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers_oo.py.html">Adjoint Burgers equation (object-oriented approach)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/solid_body_rotation.py.html">Solid body rotation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/solid_body_rotation_split.py.html">Solid body rotation with multiple prognostic variables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/gray_scott.py.html">Advection-diffusion-reaction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/gray_scott_split.py.html">Advection-diffusion-reaction with multiple prognostic variables</a></li>
-</ul>
-</div>
-<p><em>Error estimation</em></p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers_ee.py.html">Error estimation for Burgers equation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/point_discharge2d.py.html">Point discharge with diffusion</a></li>
-</ul>
-</div>
-<p><em>Mesh adaptation</em></p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demos/point_discharge2d-hessian.py.html">Hessian-based mesh adaptation for a 2D steady-state problem</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/point_discharge2d-goal_oriented.py.html">Goal-oriented mesh adaptation for a 2D steady-state problem</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/burgers-hessian.py.html">Hessian-based mesh adaptation for a 2D time-dependent problem</a></li>
-</ul>
-</div>
 </section>
 
 
@@ -155,11 +81,6 @@ three packages are hosted on GitHub:
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="animate/index.html"
-                          title="next chapter">Animate manual</a></p>
-  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -167,7 +88,7 @@ three packages are hosted on GitHub:
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<search id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -175,7 +96,7 @@ three packages are hosted on GitHub:
       <input type="submit" value="Go" />
     </form>
     </div>
-</search>
+</div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
@@ -190,16 +111,13 @@ three packages are hosted on GitHub:
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="animate/index.html" title="Animate manual"
-             >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Animate, Movement and Goalie</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>
