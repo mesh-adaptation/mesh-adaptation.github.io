@@ -8,13 +8,11 @@
     <title>goalie package &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Defining a simple metric field and adapting the mesh to it" href="demos/simple_metric.py.html" />
-    <link rel="prev" title="movement package" href="movement.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,12 +23,6 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="demos/simple_metric.py.html" title="Defining a simple metric field and adapting the mesh to it"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="movement.html" title="movement package"
-             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie package</a></li> 
       </ul>
@@ -592,7 +584,7 @@ field on a given subinterval.</p>
 </ul>
 </dd>
 <dt class="field-even">Kwargs<span class="colon">:</span></dt>
-<dd class="field-even"><p>parameters to pass to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.pyplot.html#firedrake.pyplot.triplot" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.pyplot.triplot()</span></code></a>
+<dd class="field-even"><p>parameters to pass to <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.triplot()</span></code>
 function</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -803,7 +795,7 @@ metric-based adaptive mesh fixed point iteration loops.</p>
 <dd><p>Plot a sequence of snapshots associated with
 <code class="docutils literal notranslate"><span class="pre">indicators</span></code> and a given <a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a></p>
 <p>Any keyword arguments are passed to
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.pyplot.html#firedrake.pyplot.tricontourf" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.pyplot.tricontourf()</span></code></a>.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.tricontourf()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -823,7 +815,7 @@ object used to solve the problem</p></li>
 <code class="docutils literal notranslate"><span class="pre">solutions.field.label</span></code> and a given
 <a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a>.</p>
 <p>Any keyword arguments are passed to
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.pyplot.html#firedrake.pyplot.tricontourf" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.pyplot.tricontourf()</span></code></a>.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.plot.tricontourf()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1252,16 +1244,6 @@ over</p></li>
 </ul>
 
   </div>
-  <div>
-    <h4>Previous topic</h4>
-    <p class="topless"><a href="movement.html"
-                          title="previous chapter">movement package</a></p>
-  </div>
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="demos/simple_metric.py.html"
-                          title="next chapter">Defining a simple metric field and adapting the mesh to it</a></p>
-  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1269,7 +1251,7 @@ over</p></li>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<search id="searchbox" style="display: none" role="search">
+<div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -1277,7 +1259,7 @@ over</p></li>
       <input type="submit" value="Go" />
     </form>
     </div>
-</search>
+</div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
@@ -1292,19 +1274,13 @@ over</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="demos/simple_metric.py.html" title="Defining a simple metric field and adapting the mesh to it"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="movement.html" title="movement package"
-             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie package</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     </div>
   </body>
 </html>
