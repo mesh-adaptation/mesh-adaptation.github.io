@@ -51,6 +51,7 @@
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
@@ -68,6 +69,8 @@
       <li><a href="goalie.html#goalie.options.AdaptParameters">AdaptParameters (class in goalie.options)</a>
 </li>
       <li><a href="goalie.html#goalie.adjoint.AdjointMeshSeq">AdjointMeshSeq (class in goalie.adjoint)</a>
+</li>
+      <li><a href="goalie.html#goalie.function_data.AdjointSolutionData">AdjointSolutionData (class in goalie.function_data)</a>
 </li>
       <li>
     animate
@@ -90,6 +93,8 @@
         <li><a href="animate.html#module-animate.interpolation">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     animate.math
 
@@ -97,8 +102,6 @@
         <li><a href="animate.html#module-animate.math">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     animate.metric
 
@@ -228,9 +231,9 @@
 </li>
       <li><a href="goalie.html#goalie.utility.effectivity_index">effectivity_index() (in module goalie.utility)</a>
 </li>
-      <li><a href="goalie.html#goalie.metric.enforce_element_constraints">enforce_element_constraints() (in module goalie.metric)</a>
-</li>
       <li><a href="animate.html#animate.metric.RiemannianMetric.enforce_spd">enforce_spd() (RiemannianMetric method)</a>
+</li>
+      <li><a href="goalie.html#goalie.metric.enforce_variable_constraints">enforce_variable_constraints() (in module goalie.metric)</a>
 </li>
       <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor">equidistributor (MongeAmpereMover_QuasiNewton property)</a>
 
@@ -254,17 +257,17 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="goalie.html#goalie.utility.File">File (class in goalie.utility)</a>
-</li>
       <li><a href="goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration">fixed_point_iteration() (GoalOrientedMeshSeq method)</a>
 
       <ul>
         <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.fixed_point_iteration">(MeshSeq method)</a>
 </li>
       </ul></li>
+      <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.form">form (MeshSeq property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.form">form (MeshSeq property)</a>
+      <li><a href="goalie.html#goalie.function_data.ForwardSolutionData">ForwardSolutionData (class in goalie.function_data)</a>
 </li>
       <li><a href="goalie.html#goalie.utility.function2cofunction">function2cofunction() (in module goalie.utility)</a>
 </li>
@@ -326,6 +329,13 @@
 </li>
       </ul></li>
       <li>
+    goalie.function_data
+
+      <ul>
+        <li><a href="goalie.html#module-goalie.function_data">module</a>
+</li>
+      </ul></li>
+      <li>
     goalie.go_mesh_seq
 
       <ul>
@@ -384,6 +394,13 @@
 </li>
       </ul></li>
       <li>
+    goalie.point_seq
+
+      <ul>
+        <li><a href="goalie.html#module-goalie.point_seq">module</a>
+</li>
+      </ul></li>
+      <li>
     goalie.time_partition
 
       <ul>
@@ -413,6 +430,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors">indicate_errors() (GoalOrientedMeshSeq method)</a>
 </li>
+      <li><a href="goalie.html#goalie.function_data.IndicatorData">IndicatorData (class in goalie.function_data)</a>
+</li>
       <li><a href="goalie.html#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicators">indicators (GoalOrientedMeshSeq property)</a>
 </li>
       <li><a href="goalie.html#goalie.log.info">info() (in module goalie.log)</a>
@@ -429,8 +448,12 @@
         <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.initial_condition">(MeshSeq property)</a>
 </li>
       </ul></li>
-      <li><a href="animate.html#animate.adapt.MetricBasedAdaptor.interpolate">interpolate() (MetricBasedAdaptor method)</a>
+      <li><a href="goalie.html#goalie.interpolation.interpolate">interpolate() (in module goalie.interpolation)</a>
+
+      <ul>
+        <li><a href="animate.html#animate.adapt.MetricBasedAdaptor.interpolate">(MetricBasedAdaptor method)</a>
 </li>
+      </ul></li>
       <li><a href="animate.html#animate.metric.RiemannianMetric.intersect">intersect() (RiemannianMetric method)</a>
 </li>
       <li><a href="animate.html#animate.metric.intersect_on_boundary">intersect_on_boundary() (in module animate.metric)</a>
@@ -441,7 +464,7 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="movement.html#movement.laplacian.LaplacianSmoother">LaplacianSmoother (class in movement.laplacian)</a>
+      <li><a href="movement.html#movement.laplacian_smoothing.LaplacianSmoother">LaplacianSmoother (class in movement.laplacian_smoothing)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -454,6 +477,8 @@
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq">MeshSeq (class in goalie.mesh_seq)</a>
 </li>
       <li><a href="movement.html#movement.tangling.MeshTanglingChecker">MeshTanglingChecker (class in movement.tangling)</a>
+</li>
+      <li><a href="animate.html#animate.metric.RiemannianMetric.metric_parameters">metric_parameters (RiemannianMetric property)</a>
 </li>
       <li><a href="animate.html#animate.adapt.MetricBasedAdaptor">MetricBasedAdaptor (class in animate.adapt)</a>
 </li>
@@ -483,6 +508,8 @@
 </li>
         <li><a href="goalie.html#module-goalie.error_estimation">goalie.error_estimation</a>
 </li>
+        <li><a href="goalie.html#module-goalie.function_data">goalie.function_data</a>
+</li>
         <li><a href="goalie.html#module-goalie.go_mesh_seq">goalie.go_mesh_seq</a>
 </li>
         <li><a href="goalie.html#module-goalie.interpolation">goalie.interpolation</a>
@@ -499,13 +526,15 @@
 </li>
         <li><a href="goalie.html#module-goalie.plot">goalie.plot</a>
 </li>
+        <li><a href="goalie.html#module-goalie.point_seq">goalie.point_seq</a>
+</li>
         <li><a href="goalie.html#module-goalie.time_partition">goalie.time_partition</a>
 </li>
         <li><a href="goalie.html#module-goalie.utility">goalie.utility</a>
 </li>
         <li><a href="movement.html#module-movement">movement</a>
 </li>
-        <li><a href="movement.html#module-movement.laplacian">movement.laplacian</a>
+        <li><a href="movement.html#module-movement.laplacian_smoothing">movement.laplacian_smoothing</a>
 </li>
         <li><a href="movement.html#module-movement.monge_ampere">movement.monge_ampere</a>
 </li>
@@ -528,7 +557,7 @@
 </li>
       <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation">MongeAmpereMover_Relaxation (class in movement.monge_ampere)</a>
 </li>
-      <li><a href="movement.html#movement.laplacian.LaplacianSmoother.move">move() (LaplacianSmoother method)</a>
+      <li><a href="movement.html#movement.laplacian_smoothing.LaplacianSmoother.move">move() (LaplacianSmoother method)</a>
 
       <ul>
         <li><a href="movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton.move">(MongeAmpereMover_QuasiNewton method)</a>
@@ -548,10 +577,10 @@
 </li>
       </ul></li>
       <li>
-    movement.laplacian
+    movement.laplacian_smoothing
 
       <ul>
-        <li><a href="movement.html#module-movement.laplacian">module</a>
+        <li><a href="movement.html#module-movement.laplacian_smoothing">module</a>
 </li>
       </ul></li>
       <li>
@@ -615,10 +644,12 @@
 </li>
       <li><a href="goalie.html#goalie.plot.plot_snapshots">plot_snapshots() (in module goalie.plot)</a>
 </li>
-      <li><a href="movement.html#movement.mover.PrimeMover">PrimeMover (class in movement.mover)</a>
+      <li><a href="goalie.html#goalie.point_seq.PointSeq">PointSeq (class in goalie.point_seq)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="movement.html#movement.mover.PrimeMover">PrimeMover (class in movement.mover)</a>
+</li>
       <li><a href="goalie.html#goalie.interpolation.project">project() (in module goalie.interpolation)</a>
 
       <ul>
@@ -666,10 +697,12 @@
       <li><a href="goalie.html#goalie.log.set_log_level">set_log_level() (in module goalie.log)</a>
 </li>
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.set_meshes">set_meshes() (MeshSeq method)</a>
+
+      <ul>
+        <li><a href="goalie.html#goalie.point_seq.PointSeq.set_meshes">(PointSeq method)</a>
 </li>
+      </ul></li>
       <li><a href="animate.html#animate.metric.RiemannianMetric.set_parameters">set_parameters() (RiemannianMetric method)</a>
-</li>
-      <li><a href="movement.html#movement.laplacian.LaplacianSmoother.setup_solver">setup_solver() (LaplacianSmoother method)</a>
 </li>
       <li><a href="goalie.html#goalie.mesh_seq.MeshSeq.solutions">solutions (MeshSeq property)</a>
 </li>
@@ -699,13 +732,23 @@
 </li>
       <li><a href="goalie.html#goalie.time_partition.TimeInstant">TimeInstant (class in goalie.time_partition)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="goalie.html#goalie.time_partition.TimeInterval">TimeInterval (class in goalie.time_partition)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="goalie.html#goalie.time_partition.TimePartition">TimePartition (class in goalie.time_partition)</a>
 </li>
       <li><a href="goalie.html#goalie.time_partition.TimeInterval.timestep">timestep (TimeInterval property)</a>
+</li>
+      <li><a href="goalie.html#goalie.interpolation.transfer">transfer() (in module goalie.interpolation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="goalie.html#goalie.utility.VTKFile">VTKFile (class in goalie.utility)</a>
 </li>
   </ul></td>
 </tr></table>

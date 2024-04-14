@@ -20,6 +20,14 @@ goalie.error\_estimation module
    :undoc-members:
    :show-inheritance:
 
+goalie.function\_data module
+----------------------------
+
+.. automodule:: goalie.function_data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 goalie.go\_mesh\_seq module
 ---------------------------
 
@@ -84,6 +92,14 @@ goalie.plot module
    :undoc-members:
    :show-inheritance:
 
+goalie.point\_seq module
+------------------------
+
+.. automodule:: goalie.point_seq
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 goalie.time\_partition module
 -----------------------------
 
@@ -107,8 +123,3 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
-
-References
-----------
-
-:ref:`references:References`

@@ -124,7 +124,7 @@ defined on the adapted mesh using supermeshing.</p>
 <dt class="sig sig-object py" id="animate.interpolation.clement_interpolant">
 <span class="sig-name descname"><span class="pre">clement_interpolant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/interpolation.html#clement_interpolant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.interpolation.clement_interpolant" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the Clement interpolant of a <span class="math notranslate nohighlight">\(\mathbb P0\)</span> source field, i.e. take the
-volume average over neighbouring cells at each vertex. See <span id="id1">[<a class="reference internal" href="references.html#id2" title="Ph Clément. Approximation by finite element functions using local regularization. Revue française d'automatique, informatique, recherche opérationnelle. Analyse numérique, 9(R2):77–84, 1975.">Clement75</a>]</span>.</p>
+volume average over neighbouring cells at each vertex. See <span id="id1">[]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -188,12 +188,15 @@ mesh vertices.</p>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>function_space</strong> – the tensor <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>, on which to build
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function_space</strong> – the tensor <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>, on which to build
 this <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>. Alternatively, another <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>
 may be passed here and its function space will be used to build this
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>. In this case, the function values are copied. If a
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a> is passed here then a tensor
-<span class="math notranslate nohighlight">\(\mathbb P1\)</span> space is built on top of it.</p>
+<span class="math notranslate nohighlight">\(\mathbb P1\)</span> space is built on top of it.</p></li>
+<li><p><strong>metric_parameters</strong> – same as for <a class="reference internal" href="#animate.metric.RiemannianMetric.set_parameters" title="animate.metric.RiemannianMetric.set_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_parameters</span></code></a>.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -261,9 +264,9 @@ of the (inherently discrete) mesh vertex count.</p>
 <dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric">
 <span class="sig-name descname"><span class="pre">compute_anisotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_anisotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute an anisotropic metric from some error indicator, given a Hessian field.</p>
-<p>The formulation used is based on that presented in <span id="id2">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+<p>The formulation used is based on that presented in <span id="id2">[]</span>. Note that
 normalisation is implicit in the metric construction and involves the
-<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id3">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id3">[]</span>.</p>
 <p>If a Hessian is not provided then an isotropic formulation is used.</p>
 <p>Whilst an element-based formulation is used to derive the metric, the result is
 projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
@@ -334,9 +337,9 @@ inherited from the metric itself.</p>
 <span class="sig-name descname"><span class="pre">compute_isotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_isotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_isotropic_dwr_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute an isotropic metric from some error indicator using an element-based
 formulation.</p>
-<p>The formulation is based on that presented in <span id="id4">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>. Note that
+<p>The formulation is based on that presented in <span id="id4">[]</span>. Note that
 normalisation is implicit in the metric construction and involves the
-<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id5">[<a class="reference internal" href="references.html#id6" title="Jaime Carpio, Juan Luis Prieto, and Rodolfo Bermejo. Anisotropic “goal-oriented” mesh adaptivity for elliptic problems. SIAM Journal on Scientific Computing, 35(2):A861–A885, 2013. doi:10.1137/120874606.">CPB13</a>]</span>.</p>
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id5">[]</span>.</p>
 <p>Whilst an element-based formulation is used to derive the metric, the result is
 projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
 <dl class="field-list simple">
@@ -372,7 +375,7 @@ projections of the error indicator in modulus.</p>
 <span class="sig-name descname"><span class="pre">compute_weighted_hessian_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessians</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_weighted_hessian_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_weighted_hessian_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute a vertex-wise anisotropic metric from a list of error indicators, given
 a list of corresponding Hessian fields.</p>
-<p>The formulation used is based on that presented in <span id="id6">[<a class="reference internal" href="references.html#id4" title="PW Power, Christopher C Pain, MD Piggott, Fangxin Fang, Gerard J Gorman, AP Umpleby, Anthony JH Goddard, and IM Navon. Adjoint a posteriori error measures for anisotropic mesh optimisation. Computers &amp; Mathematics with Applications, 52(8-9):1213–1242, 2006. doi:10.1016/j.camwa.2006.11.003.">PPP+06</a>]</span>. It is
+<p>The formulation used is based on that presented in <span id="id6">[]</span>. It is
 assumed that the error indicators have been constructed in the appropriate way.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -392,12 +395,14 @@ assumed that the error indicators have been constructed in the appropriate way.<
 <dd><p>Copy the metric and any associated parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>deepcopy</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the new <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a> will allocate
-new space and copy values.  If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the default, then the new
-<a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a> will share the dof values.</p>
+<dd class="field-odd"><p><strong>deepcopy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the new metric will allocate new space and copy
+values. If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default) then the new metric will share the DoF values.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>a copy of the metric with the same parameters set</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -473,6 +478,11 @@ eigenvector at each point in the domain.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="animate.metric.RiemannianMetric.metric_parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metric_parameters</span></span><a class="headerlink" href="#animate.metric.RiemannianMetric.metric_parameters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="animate.metric.RiemannianMetric.normalise">
 <span class="sig-name descname"><span class="pre">normalise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.normalise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.normalise" title="Link to this definition">¶</a></dt>
@@ -495,12 +505,106 @@ eigenvector at each point in the domain.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="animate.metric.RiemannianMetric.set_parameters">
 <span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.set_parameters" title="Link to this definition">¶</a></dt>
-<dd><p>Set metric parameter values internally.</p>
+<dd><p>Set metric parameter values internally. All options have the prefix
+<cite>dm_plex_metric_</cite> and are listed below (with prefix dropped for brevity). Note
+that any parameter which supports <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> values must be in a
+<span class="math notranslate nohighlight">\(\mathbb{P}1\)</span> space defined on the same mesh as the metric, i.e., from
+<code class="docutils literal notranslate"><span class="pre">FunctionSpace(mesh,</span> <span class="pre">&quot;CG&quot;,</span> <span class="pre">1)</span></code>.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>target_complexity</cite>: Strictly positive target metric complexity value. No</dt><dd><p>default - <strong>must be set</strong>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>h_min</cite>: Minimum tolerated metric magnitude, which allows approximate control</dt><dd><p>of minimum element size in the adapted mesh. Supports <code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code>
+and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Default: 1.0e-30.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>h_max</cite>: Maximum tolerated metric magnitude, which allows approximate control</dt><dd><p>of maximum element size in the adapted mesh. Supports <code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code>
+and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Default: 1.0e+30.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>a_max</cite>: Maximum tolerated metric anisotropy, which allows approximate control</dt><dd><p>of maximum element anisotropy in the adapted mesh. Supports
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.
+Default: 1.0e+05.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>p</cite>: <span class="math notranslate nohighlight">\(L^p\)</span> normalisation order. Supports <code class="docutils literal notranslate"><span class="pre">np.inf</span></code> as well as</dt><dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> values from <span class="math notranslate nohighlight">\([0,\infty)\)</span>. Default: 1.0.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>gradation_factor</cite>: Maximum ratio by which adjacent edges in the adapted mesh</dt><dd><p>may differ. Default: 1.3. For more detail, see
+<a class="reference external" href="https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-hgrad">https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-hgrad</a>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>hausdorff_number</cite>: Spatial scale factor for the problem. The default value</dt><dd><p>0.01 corresponds to an <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span> length scale. A rule of thumb
+is to scale this value appropriately to the length scale of your problem.
+For more detail, see
+<a class="reference external" href="https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-hausd">https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-hausd</a>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>boundary_tag</cite>: Mesh boundary tag to restrict attention to during</dt><dd><p>boundary-specific metric manipulations. Unset by default, which implies all
+boundaries are considered. (Note that this parameter does not currently exist
+in the underlying PETSc implementation.)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>no_insert</cite>: Boolean flag for turning off node insertion and deletion during</dt><dd><p>adaptation. Default: False.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>no_swap</cite>: Boolean flag for turning off edge and face swapping during</dt><dd><p>adaptation. Default: False.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>no_move</cite>: Boolean flag for turning off node movement during adaptation.</dt><dd><p>Default: False.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>no_surf</cite>: Boolean flag for turning off surface modification during adaptation.</dt><dd><p>Default: False.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>num_iterations</cite>: Number of adaptation-repartitioning iterations in the</dt><dd><p>parallel case. Default: 3. For details on the parallel algorithm, see
+<a class="reference external" href="https://inria.hal.science/hal-02386837">https://inria.hal.science/hal-02386837</a>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>verbosity</cite>: Verbosity of the mesh adaptation package (-1 = silent,</dt><dd><p>10 = maximum). Default: -1. For more detail, see
+<a class="reference external" href="https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-v">https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-v</a>.</p>
+</dd>
+</dl>
+</li>
+<li><p><cite>isotropic</cite>: Optimisation for isotropic metrics. (Currently unsupported.)</p></li>
+<li><p><cite>uniform</cite>: Optimisation for uniform metrics. (Currently unsupported.)</p></li>
+<li><dl class="simple">
+<dt><cite>restrict_anisotropy_first</cite>: Specify that anisotropy should be restricted</dt><dd><p>before normalisation? (Currently unsupported.)</p>
+</dd>
+</dl>
+</li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>metric_parameters</strong> – a dictionary of parameters to be passed to PETSc’s
-Riemannian metric implementation. All such options have the prefix
-<cite>dm_plex_metric_</cite>.</p>
+<dd class="field-odd"><p><strong>metric_parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and value which
+may take various types) – parameters as above</p>
 </dd>
 </dl>
 </dd></dl>
@@ -512,7 +616,7 @@ Riemannian metric implementation. All such options have the prefix
 <span class="sig-name descname"><span class="pre">determine_metric_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H_interior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#determine_metric_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.determine_metric_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>Solve an algebraic problem to obtain coefficients for the interior and boundary
 metrics to obtain a given metric complexity.</p>
-<p>See <span id="id7">[<a class="reference internal" href="references.html#id5" title="Adrien Loseille, Alain Dervieux, and Frédéric Alauzet. Fully anisotropic goal-oriented mesh adaptation for 3D steady Euler equations. Journal of computational physics, 229(8):2866–2897, 2010. doi:10.1016/j.jcp.2009.12.021.">LDA10</a>]</span> for details. Note that we use a slightly different formulation
+<p>See <span id="id7">[]</span> for details. Note that we use a slightly different formulation
 here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -634,10 +738,6 @@ for the Hessian recovery, too.</p>
 <section id="module-animate">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-animate" title="Link to this heading">¶</a></h2>
 </section>
-<section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
-<p><a class="reference internal" href="references.html#references"><span class="std std-ref">References</span></a></p>
-</section>
 </section>
 
 
@@ -688,6 +788,7 @@ for the Hessian recovery, too.</p>
 <li><a class="reference internal" href="#animate.metric.RiemannianMetric.density_and_quotients"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.density_and_quotients()</span></code></a></li>
 <li><a class="reference internal" href="#animate.metric.RiemannianMetric.enforce_spd"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.enforce_spd()</span></code></a></li>
 <li><a class="reference internal" href="#animate.metric.RiemannianMetric.intersect"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.intersect()</span></code></a></li>
+<li><a class="reference internal" href="#animate.metric.RiemannianMetric.metric_parameters"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.metric_parameters</span></code></a></li>
 <li><a class="reference internal" href="#animate.metric.RiemannianMetric.normalise"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.normalise()</span></code></a></li>
 <li><a class="reference internal" href="#animate.metric.RiemannianMetric.set_parameters"><code class="docutils literal notranslate"><span class="pre">RiemannianMetric.set_parameters()</span></code></a></li>
 </ul>
@@ -707,7 +808,6 @@ for the Hessian recovery, too.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-animate">Module contents</a></li>
-<li><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 </ul>

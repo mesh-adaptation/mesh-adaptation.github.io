@@ -38,38 +38,49 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
-<section id="module-movement.laplacian">
-<span id="movement-laplacian-module"></span><h2>movement.laplacian module<a class="headerlink" href="#module-movement.laplacian" title="Link to this heading">¶</a></h2>
+<section id="module-movement.laplacian_smoothing">
+<span id="movement-laplacian-smoothing-module"></span><h2>movement.laplacian_smoothing module<a class="headerlink" href="#module-movement.laplacian_smoothing" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="movement.laplacian.LaplacianSmoother">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LaplacianSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forcing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian.html#LaplacianSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian.LaplacianSmoother" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="movement.laplacian_smoothing.LaplacianSmoother">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LaplacianSmoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian_smoothing.html#LaplacianSmoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian_smoothing.LaplacianSmoother" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#movement.mover.PrimeMover" title="movement.mover.PrimeMover"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrimeMover</span></code></a></p>
-<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is driven by a mesh
-velocity, which is determined by solving a
-Poisson problem.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.laplacian.LaplacianSmoother.move">
-<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_forcings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_boundaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian.html#LaplacianSmoother.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian.LaplacianSmoother.move" title="Link to this definition">¶</a></dt>
-<dd><p>Assemble and solve the Laplacian system and
-update the coordinates.</p>
+<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is driven by a mesh velocity <span class="math notranslate nohighlight">\(\mathbf{v}\)</span>, which is
+determined by solving  a vector Laplace problem</p>
+<div class="math notranslate nohighlight">
+\[\nabla^2_{\boldsymbol{\xi}}\mathbf{v} = \boldsymbol{0}, \quad \boldsymbol{\xi}\in\Omega,\]</div>
+<p>under non-zero Dirichlet boundary conditions on a forced boundary section
+<span class="math notranslate nohighlight">\(\partial\Omega_f\)</span> and zero Dirichlet boundary conditions elsewhere:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{v} = \left\{\begin{array}{rl}
+    \mathbf{v}_D, &amp; \boldsymbol{\xi}\in\partial\Omega_f\\
+    \boldsymbol{0}, &amp; \boldsymbol{\xi}\in\partial\Omega\backslash\partial\Omega_f
+\end{array}\right.\end{split}\]</div>
+<p>where the computational coordinates <span class="math notranslate nohighlight">\(\boldsymbol{\xi} := \mathbf{x}(t_0)\)</span> are
+the physical coordinates at the beginning of the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>time</strong> – the current time</p></li>
-<li><p><strong>update_forcings</strong> – function that updates
-the forcing <code class="xref py py-attr docutils literal notranslate"><span class="pre">f</span></code> at the current time</p></li>
-<li><p><strong>fixed_boundaries</strong> – list of boundaries
-where Dirichlet conditions are to be
-enforced</p></li>
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.laplacian_smoothing.LaplacianSmoother.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_boundary_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian_smoothing.html#LaplacianSmoother.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian_smoothing.LaplacianSmoother.move" title="Link to this definition">¶</a></dt>
+<dd><p>Assemble and solve the Laplacian system and update the coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the current time</p></li>
+<li><p><strong>update_boundary_velocity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> with a single argument of
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary conditions at
+the current time</p></li>
+<li><p><strong>boundary_conditions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> thereof) – Dirichlet boundary conditions to be enforced</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.laplacian.LaplacianSmoother.setup_solver">
-<span class="sig-name descname"><span class="pre">setup_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed_boundaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian.html#LaplacianSmoother.setup_solver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian.LaplacianSmoother.setup_solver" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -264,47 +275,52 @@ for a given <cite>index</cite>.</p>
 <span id="movement-spring-module"></span><h2>movement.spring module<a class="headerlink" href="#module-movement.spring" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.spring.SpringMover">
-<span class="sig-name descname"><span class="pre">SpringMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lineal'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover" title="Link to this definition">¶</a></dt>
-<dd><p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting
-it as a structure of stiff beams and solving an
-associated discrete linear elasticity problem.</p>
-<p>See Farhat, Degand, Koobus and Lesoinne, “Torsional
-springs for two-dimensional dynamic unstructured fluid
-meshes” (1998), Computer methods in applied mechanics
-and engineering, 163:231-245.</p>
+<span class="sig-name descname"><span class="pre">SpringMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lineal'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover" title="Link to this definition">¶</a></dt>
+<dd><p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
+beams and solving an associated discrete linear elasticity problem.</p>
+<p>See Farhat, Degand, Koobus and Lesoinne, “Torsional springs for two-dimensional
+dynamic unstructured fluid meshes” (1998), Computer methods in applied mechanics and
+engineering, 163:231-245.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – flavour of spring-based method to use</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.spring.SpringMover_Lineal">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpringMover_Lineal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Lineal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Lineal" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpringMover_Lineal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Lineal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Lineal" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Base</span></code></p>
-<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting
-it as a structure of stiff beams and solving an
-associated discrete linear elasticity problem.</p>
-<p>We consider the ‘lineal’ case, as described in
-Farhat, Degand, Koobus and Lesoinne, “Torsional
-springs for two-dimensional dynamic unstructured fluid
-meshes” (1998), Computer methods in applied mechanics
-and engineering, 163:231-245.</p>
+<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
+beams and solving an associated discrete linear elasticity problem.</p>
+<p>We consider the ‘lineal’ case, as described in Farhat, Degand, Koobus and Lesoinne,
+“Torsional springs for two-dimensional dynamic unstructured fluid meshes” (1998),
+Computer methods in applied mechanics and engineering, 163:231-245.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mesh</strong> – the physical mesh</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.spring.SpringMover_Lineal.move">
-<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_forcings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_boundaries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Lineal.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Lineal.move" title="Link to this definition">¶</a></dt>
-<dd><p>Assemble and solve the lineal spring system and
-update the coordinates.</p>
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_boundary_displacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Lineal.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Lineal.move" title="Link to this definition">¶</a></dt>
+<dd><p>Assemble and solve the lineal spring system and update the coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>time</strong> – the current time</p></li>
-<li><p><strong>update_forcings</strong> – function that updates
-the forcing <code class="xref py py-attr docutils literal notranslate"><span class="pre">f</span></code> at the current time</p></li>
-<li><p><strong>fixed_boundaries</strong> – list of boundaries
-where Dirichlet conditions are to be
-enforced</p></li>
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the current time</p></li>
+<li><p><strong>update_boundary_displacement</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> with a single argument of
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary
+conditions at the current time</p></li>
+<li><p><strong>boundary_conditions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> thereof) – Dirichlet boundary conditions to be enforced</p></li>
 </ul>
 </dd>
 </dl>
@@ -316,17 +332,17 @@ enforced</p></li>
 <dt class="sig sig-object py" id="movement.spring.SpringMover_Torsional">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SpringMover_Torsional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover_Torsional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover_Torsional" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#movement.spring.SpringMover_Lineal" title="movement.spring.SpringMover_Lineal"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Lineal</span></code></a></p>
-<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting
-it as a structure of stiff beams and solving an
-associated discrete linear elasticity problem.</p>
-<p>We consider the ‘torsional’ case, as described in
-Farhat, Degand, Koobus and Lesoinne, “Torsional
-springs for two-dimensional dynamic unstructured fluid
-meshes” (1998), Computer methods in applied mechanics
-and engineering, 163:231-245.</p>
+<p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
+beams and solving an associated discrete linear elasticity problem.</p>
+<p>We consider the ‘torsional’ case, as described in Farhat, Degand, Koobus and
+Lesoinne, “Torsional springs for two-dimensional dynamic unstructured fluid meshes”
+(1998), Computer methods in applied mechanics and engineering, 163:231-245.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mesh</strong> – the physical mesh</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -336,24 +352,24 @@ and engineering, 163:231-245.</p>
 <span id="movement-tangling-module"></span><h2>movement.tangling module<a class="headerlink" href="#module-movement.tangling" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.tangling.MeshTanglingChecker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MeshTanglingChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'warn'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/tangling.html#MeshTanglingChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.tangling.MeshTanglingChecker" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MeshTanglingChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/tangling.html#MeshTanglingChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.tangling.MeshTanglingChecker" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>A class for tracking whether a mesh has
-tangled, i.e. whether any of its elements
+<p>A class for tracking whether a mesh has tangled, i.e. whether any of its elements
 have become inverted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mesh</strong> – the mesh to track if tangled</p></li>
-<li><p><strong>mode</strong> – should a warning or an error
-be raised when tangling is encountered?</p></li>
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the mesh to track if tangled</p></li>
+<li><p><strong>raise_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, an error is raised if any element is tangled,
+otherwise a warning is raised</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.tangling.MeshTanglingChecker.check">
 <span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/tangling.html#MeshTanglingChecker.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.tangling.MeshTanglingChecker.check" title="Link to this definition">¶</a></dt>
-<dd><p>Check for tangling.</p>
+<dd><p>Check whether any element orientations have changed since the tangling checker
+was created.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -366,10 +382,6 @@ be raised when tangling is encountered?</p></li>
 </section>
 <section id="module-movement">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-movement" title="Link to this heading">¶</a></h2>
-</section>
-<section id="id1">
-<h2>References<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p><a class="reference internal" href="references.html#references"><span class="std std-ref">References</span></a></p>
 </section>
 </section>
 
@@ -385,10 +397,9 @@ be raised when tangling is encountered?</p></li>
     <ul>
 <li><a class="reference internal" href="#">movement package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-movement.laplacian">movement.laplacian module</a><ul>
-<li><a class="reference internal" href="#movement.laplacian.LaplacianSmoother"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother</span></code></a><ul>
-<li><a class="reference internal" href="#movement.laplacian.LaplacianSmoother.move"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother.move()</span></code></a></li>
-<li><a class="reference internal" href="#movement.laplacian.LaplacianSmoother.setup_solver"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother.setup_solver()</span></code></a></li>
+<li><a class="reference internal" href="#module-movement.laplacian_smoothing">movement.laplacian_smoothing module</a><ul>
+<li><a class="reference internal" href="#movement.laplacian_smoothing.LaplacianSmoother"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother</span></code></a><ul>
+<li><a class="reference internal" href="#movement.laplacian_smoothing.LaplacianSmoother.move"><code class="docutils literal notranslate"><span class="pre">LaplacianSmoother.move()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -439,7 +450,6 @@ be raised when tangling is encountered?</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-movement">Module contents</a></li>
-<li><a class="reference internal" href="#id1">References</a></li>
 </ul>
 </li>
 </ul>

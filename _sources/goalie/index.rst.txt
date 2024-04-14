@@ -31,6 +31,7 @@ be searched using the inbuilt :ref:`search engine <search>`.
 
     Partitioning a time interval <../demos/time_partition.py>
     Creating a mesh sequence <../demos/mesh_seq.py>
+    Solving ordinary differential equations using Goalie <../demos/ode.py>
     Burgers equation on a sequence of meshes <../demos/burgers.py>
     Adjoint Burgers equation <../demos/burgers1.py>
     Adjoint Burgers equation on two meshes <../demos/burgers2.py>

@@ -96,21 +96,9 @@ print("L2-norm error on initial mesh:", sqrt(assemble(dot(error, error) * dx)))
 #    L2-norm error on initial mesh: 0.010233816824277465
 #
 # We will now try to use mesh movement to optimize the mesh to reduce
-# this numerical error. A good indicator for where resolution is required
-# is to look at the curvature of the solution which can be expressed
-# in terms of the norm of the Hessian. A monitor function
-# that targets high resolution in places of high curvature then looks like
-#
-# .. math::
-#
-#    m = 1 + \alpha \frac{H(u_h):H(u_h)}{\max_{{\bf x}\in\Omega} H(u_h):H(u_h)}
-#
-# where :math:`:` indicates the inner product, i.e. :math:`\sqrt{H:H}` is the Frobenius norm
-# of :math:`H`. We have normalized such that the minimum of the monitor function is one (where
-# the error is zero), and its maximum is :math:`1 + \alpha` (where the curvature is maximal). This
-# means we can select the ratio between the largest area and smallest area triangle in the
-# moved mesh as :math:`1+\alpha`.
-#
+# this numerical error. We use the same monitor function as
+# in the `previous Monge-Ampère demo <./monge_ampere_3d.py.html>`__
+# based on the norm of the Hessian of the solution.
 # In the following implementation we use the exact solution :math:`u_{\text{exact}}` which we
 # have as a symbolic UFL expression, and thus we can also obtain the Hessian symbolically as
 # :code:`grad(grad(u_exact))`. To compute its maximum norm however we do interpolate it
@@ -129,6 +117,8 @@ def monitor(mesh):
     return m
 
 
+# Plot the monitor function on the original mesh
+
 fig, axes = plt.subplots()
 m = Function(u_h, name="monitor")
 m.interpolate(monitor(mesh))
@@ -140,42 +130,34 @@ fig, axes = plt.subplots()
 # .. figure:: monge_ampere_helmholtz-monitor.jpg
 #    :figwidth: 60%
 #    :align: center
-#
-# As in the `previous Monge-Ampère demo <./monge_ampere1.py.html>`__, we use the
-# MongeAmpereMover to perform the mesh movement based on this monitor. We need
-# to provide the monitor as a callback function that takes the mesh as its
-# input just as we have defined it above. During the iterations of the mesh
-# movement process the monitor will then be re-evaluated in the (iteratively)
-# moved mesh nodes so that, as we improve the mesh, we can also more accurately
-# express the monitor function in the desired high-resolution areas.
 
 mover = MongeAmpereMover(mesh, monitor, method="quasi_newton")
 mover.move()
 
 # For every iteration the MongeAmpereMover prints the minimum to maximum ratio of
 # the cell areas in the mesh, the residual in the Monge Ampere equation, and the
-# normalized standard deviation of cell areas (equidistribution):
+# coefficient of variation of the cell areas:
 #
 # .. code-block:: none
 #
-#    0   Min/Max 2.0268e-01   Residual 4.7659e-01   Equidistribution 9.9384e-01
-#    1   Min/Max 3.7852e-01   Residual 2.4133e-01   Equidistribution 9.9659e-01
-#    2   Min/Max 5.9791e-01   Residual 1.2442e-01   Equidistribution 9.9774e-01
-#    3   Min/Max 7.1000e-01   Residual 6.5811e-02   Equidistribution 9.9804e-01
-#    4   Min/Max 7.7704e-01   Residual 3.4929e-02   Equidistribution 9.9818e-01
-#    5   Min/Max 8.3434e-01   Residual 1.7261e-02   Equidistribution 9.9829e-01
-#    6   Min/Max 8.5805e-01   Residual 7.7528e-03   Equidistribution 9.9833e-01
-#    7   Min/Max 8.6653e-01   Residual 3.1551e-03   Equidistribution 9.9835e-01
-#    8   Min/Max 8.6796e-01   Residual 1.1644e-03   Equidistribution 9.9835e-01
-#    9   Min/Max 8.6792e-01   Residual 3.8816e-04   Equidistribution 9.9835e-01
-#   10   Min/Max 8.6784e-01   Residual 1.1574e-04   Equidistribution 9.9835e-01
-#   11   Min/Max 8.6778e-01   Residual 1.5645e-05   Equidistribution 9.9835e-01
-#   12   Min/Max 8.6776e-01   Residual 7.5654e-06   Equidistribution 9.9835e-01
-#   13   Min/Max 8.6776e-01   Residual 3.5803e-06   Equidistribution 9.9835e-01
-#   14   Min/Max 8.6775e-01   Residual 1.5113e-06   Equidistribution 9.9835e-01
-#   15   Min/Max 8.6775e-01   Residual 5.7080e-07   Equidistribution 9.9835e-01
-#   16   Min/Max 8.6775e-01   Residual 1.9357e-07   Equidistribution 9.9835e-01
-#   17   Min/Max 8.6775e-01   Residual 5.8585e-08   Equidistribution 9.9835e-01
+#    0   Min/Max 2.0268e-01   Residual 4.7659e-01   Variation (σ/μ) 9.9384e-01
+#    1   Min/Max 3.7852e-01   Residual 2.4133e-01   Variation (σ/μ) 9.9659e-01
+#    2   Min/Max 5.9791e-01   Residual 1.2442e-01   Variation (σ/μ) 9.9774e-01
+#    3   Min/Max 7.1000e-01   Residual 6.5811e-02   Variation (σ/μ) 9.9804e-01
+#    4   Min/Max 7.7704e-01   Residual 3.4929e-02   Variation (σ/μ) 9.9818e-01
+#    5   Min/Max 8.3434e-01   Residual 1.7261e-02   Variation (σ/μ) 9.9829e-01
+#    6   Min/Max 8.5805e-01   Residual 7.7528e-03   Variation (σ/μ) 9.9833e-01
+#    7   Min/Max 8.6653e-01   Residual 3.1551e-03   Variation (σ/μ) 9.9835e-01
+#    8   Min/Max 8.6796e-01   Residual 1.1644e-03   Variation (σ/μ) 9.9835e-01
+#    9   Min/Max 8.6792e-01   Residual 3.8816e-04   Variation (σ/μ) 9.9835e-01
+#   10   Min/Max 8.6784e-01   Residual 1.1574e-04   Variation (σ/μ) 9.9835e-01
+#   11   Min/Max 8.6778e-01   Residual 1.5645e-05   Variation (σ/μ) 9.9835e-01
+#   12   Min/Max 8.6776e-01   Residual 7.5654e-06   Variation (σ/μ) 9.9835e-01
+#   13   Min/Max 8.6776e-01   Residual 3.5803e-06   Variation (σ/μ) 9.9835e-01
+#   14   Min/Max 8.6775e-01   Residual 1.5113e-06   Variation (σ/μ) 9.9835e-01
+#   15   Min/Max 8.6775e-01   Residual 5.7080e-07   Variation (σ/μ) 9.9835e-01
+#   16   Min/Max 8.6775e-01   Residual 1.9357e-07   Variation (σ/μ) 9.9835e-01
+#   17   Min/Max 8.6775e-01   Residual 5.8585e-08   Variation (σ/μ) 9.9835e-01
 #   Converged in 17 iterations.
 #
 # Plotting the resulting mesh
@@ -246,3 +228,5 @@ print("L2-norm error on moved mesh:", sqrt(assemble(dot(error, error) * dx)))
 # .. code-block:: none
 #
 #    L2-norm error on moved mesh: 0.00630874419681285
+#
+# This tutorial can be dowloaded as a `Python script <monge_ampere_helmholtz.py>`__.

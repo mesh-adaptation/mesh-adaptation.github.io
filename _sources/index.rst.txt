@@ -46,6 +46,6 @@ mesh movement, and goal-oriented error estimation functionalities provided by
 .. rubric:: Source code
 
 The source codes for all three packages are hosted on GitHub:
-`Animate <https://github.com/pyroteus/animate/>`__,
-`Movement <https://github.com/pyroteus/movement/>`__,
-`Goalie <https://github.com/pyroteus/goalie/>`__.
+`Animate <https://github.com/mesh-adaptation/animate/>`__,
+`Movement <https://github.com/mesh-adaptation/movement/>`__,
+`Goalie <https://github.com/mesh-adaptation/goalie/>`__.

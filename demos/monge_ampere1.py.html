@@ -50,7 +50,7 @@ physical domains:</p>
 and physical meshes.</p>
 <p>Let <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> denote the coordinate fields in
 the computational and physical domains. Skipping some of the details that can be
-found in <span id="id1">[<a class="reference internal" href="#id3" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>, of the possible mappings we choose one that takes the form</p>
+found in <span id="id1">[<a class="reference internal" href="monge_ampere_3d.py.html#id7" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>, of the possible mappings we choose one that takes the form</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{x} = \boldsymbol{\xi}+\nabla_{\boldsymbol{\xi}}\phi,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\phi\)</span> is a convex potential function. Further, we choose the potential
@@ -121,11 +121,31 @@ we see that the adapted mesh has its resolution focused around a ring, as expect
 <figure class="align-center" style="width: 60%">
 <img alt="../_images/monge_ampere1-adapted_mesh.jpg" src="../_images/monge_ampere1-adapted_mesh.jpg" />
 </figure>
+<p>Whilst it looks like the mesh might have tangled elements, closer inspection shows
+that this is not the case.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">mover</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;monge_ampere1-adapted_mesh_zoom.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 60%">
+<img alt="../_images/monge_ampere1-adapted_mesh_zoom.jpg" src="../_images/monge_ampere1-adapted_mesh_zoom.jpg" />
+</figure>
+<p class="rubric">Exercise</p>
+<p>To further convince yourself that there are no tangled elements, go back to the start
+of the demo and set up a <a class="reference internal" href="../movement.html#movement.tangling.MeshTanglingChecker" title="movement.tangling.MeshTanglingChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">movement.tangling.MeshTanglingChecker</span></code></a> object using
+the initial mesh. Use it to check for tangling after the mesh movement has been
+applied.</p>
+<p>In the <a class="reference external" href="./monge_ampere_3d.py.html">next demo</a>, we will demonstrate
+that the Monge Ampère method can also be applied in three dimensions.</p>
 <p>This tutorial can be dowloaded as a <a class="reference external" href="monge_ampere1.py">Python script</a>.</p>
 <p class="rubric">References</p>
 <div class="docutils container" id="id2">
 <div role="list" class="citation-list">
-<div class="citation" id="id3" role="doc-biblioentry">
+<div class="citation" id="id6" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">MCB18</a><span class="fn-bracket">]</span></span>
 <p>A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. <em>SIAM Journal on Scientific Computing</em>, 40(2):1121–1148, 2018. <a class="reference external" href="https://doi.org/10.1137/16M1109515">doi:10.1137/16M1109515</a>.</p>
 </div>

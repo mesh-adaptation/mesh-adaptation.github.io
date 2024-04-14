@@ -4,10 +4,10 @@ movement package
 Submodules
 ----------
 
-movement.laplacian module
--------------------------
+movement.laplacian\_smoothing module
+------------------------------------
 
-.. automodule:: movement.laplacian
+.. automodule:: movement.laplacian_smoothing
    :members:
    :undoc-members:
    :show-inheritance:
@@ -59,8 +59,3 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
-
-References
-----------
-
-:ref:`references:References`
