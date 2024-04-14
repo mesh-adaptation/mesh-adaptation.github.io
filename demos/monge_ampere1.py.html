@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Introduction to mesh movement driven by a Monge-Ampère type equation &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Introduction to mesh movement driven by a Monge-Ampère type equation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="introduction-to-mesh-movement-driven-by-a-monge-ampere-type-equation">
+<h1>Introduction to mesh movement driven by a Monge-Ampère type equation<a class="headerlink" href="#introduction-to-mesh-movement-driven-by-a-monge-ampere-type-equation" title="Link to this heading">¶</a></h1>
+<p>In this demo, we consider an example of mesh movement driven by solutions of a
+Monge-Ampère type equation.</p>
+<p>The idea is to consider two domains: the <em>physical domain</em> <span class="math notranslate nohighlight">\(\Omega_P\)</span> and the
+<em>computational domain</em> <span class="math notranslate nohighlight">\(\Omega_C\)</span>. Associated with these are the <em>physical mesh</em>
+<span class="math notranslate nohighlight">\(\mathcal{H}_P\)</span> and the <em>computational mesh</em> <span class="math notranslate nohighlight">\(\mathcal{H}_C\)</span>. The
+computational domain and mesh remain fixed throughout the simulation, whereas the
+physical domain and mesh are allowed to change. In this framework, we can interpret
+mesh movement algorithms as searches for mappings between the computational and
+physical domains:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x}:\Omega_C\rightarrow\Omega_P.\]</div>
+<p>In practice we are really searching for a discrete mapping between the computational
+and physical meshes.</p>
+<p>Let <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> denote the coordinate fields in
+the computational and physical domains. Skipping some of the details that can be
+found in <span id="id1">[<a class="reference internal" href="monge_ampere_3d.py.html#id7" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>, of the possible mappings we choose one that takes the form</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{x} = \boldsymbol{\xi}+\nabla_{\boldsymbol{\xi}}\phi,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\phi\)</span> is a convex potential function. Further, we choose the potential
+such that is the solution of the Monge-Ampère type equation,</p>
+<div class="math notranslate nohighlight">
+\[m(\mathbf{x}) \det(\underline{\mathbf{I}}+\nabla_{\boldsymbol{\xi}}\nabla_{\boldsymbol{\xi}}\phi) = \theta,\]</div>
+<p>where <span class="math notranslate nohighlight">\(m(\mathbf{x})\)</span> is a so-called <em>monitor function</em> and <span class="math notranslate nohighlight">\(\theta\)</span> is a
+strictly positive normalisation function. The monitor function is of key importance
+because it specifies the desired <em>density</em> of the adapted mesh across the domain,
+i.e., where resolution is focused. (Note that density is the reciprocal of area in 2D
+or of volume in 3D.)</p>
+<p>We begin the example by importing from the namespaces of Firedrake and Movement.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<p>To start with a simple example, consider a uniform mesh of the unit square.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can plot the initial mesh using Matplotlib as follows.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;monge_ampere1-initial_mesh.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 60%">
+<img alt="../_images/monge_ampere1-initial_mesh.jpg" src="../_images/monge_ampere1-initial_mesh.jpg" />
+</figure>
+<p>Let’s choose a monitor function which focuses mesh density in a ring centred within
+the domain, according to the formula,</p>
+<div class="math notranslate nohighlight">
+\[m(x,y) = 1 + \frac{\alpha}{\cosh^2\left(\beta\left(\left(x-\frac{1}{2}\right)^2+\left(y-\frac{1}{2}\right)^2-\gamma\right)\right)},\]</div>
+<p>for some values of the parameters <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, and <span class="math notranslate nohighlight">\(\gamma\)</span>.
+Unity is added at the start to ensure that the monitor function doesn’t get too
+close to zero.</p>
+<p>Here we can think of <span class="math notranslate nohighlight">\(\alpha\)</span> as relating to the amplitude of the monitor
+function, <span class="math notranslate nohighlight">\(\beta\)</span> as relating to the width of the ring, and <span class="math notranslate nohighlight">\(\gamma\)</span> as
+the radius of the ring.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ring_monitor</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">20.0</span><span class="p">)</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">200.0</span><span class="p">)</span>
+    <span class="n">gamma</span> <span class="o">=</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">0.15</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">/</span> <span class="n">cosh</span><span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="n">gamma</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>With an initial mesh and a monitor function, we are able to construct a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover</span></code> instance and adapt the mesh.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mover</span> <span class="o">=</span> <span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">ring_monitor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;quasi_newton&quot;</span><span class="p">)</span>
+<span class="n">mover</span><span class="o">.</span><span class="n">move</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The adapted mesh can be accessed via the <cite>mesh</cite> attribute of the mover. Plotting it,
+we see that the adapted mesh has its resolution focused around a ring, as expected.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">mover</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;monge_ampere1-adapted_mesh.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 60%">
+<img alt="../_images/monge_ampere1-adapted_mesh.jpg" src="../_images/monge_ampere1-adapted_mesh.jpg" />
+</figure>
+<p>Whilst it looks like the mesh might have tangled elements, closer inspection shows
+that this is not the case.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">mover</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;monge_ampere1-adapted_mesh_zoom.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 60%">
+<img alt="../_images/monge_ampere1-adapted_mesh_zoom.jpg" src="../_images/monge_ampere1-adapted_mesh_zoom.jpg" />
+</figure>
+<p class="rubric">Exercise</p>
+<p>To further convince yourself that there are no tangled elements, go back to the start
+of the demo and set up a <a class="reference internal" href="../movement.html#movement.tangling.MeshTanglingChecker" title="movement.tangling.MeshTanglingChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">movement.tangling.MeshTanglingChecker</span></code></a> object using
+the initial mesh. Use it to check for tangling after the mesh movement has been
+applied.</p>
+<p>In the <a class="reference external" href="./monge_ampere_3d.py.html">next demo</a>, we will demonstrate
+that the Monge Ampère method can also be applied in three dimensions.</p>
+<p>This tutorial can be dowloaded as a <a class="reference external" href="monge_ampere1.py">Python script</a>.</p>
+<p class="rubric">References</p>
+<div class="docutils container" id="id2">
+<div role="list" class="citation-list">
+<div class="citation" id="id6" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">MCB18</a><span class="fn-bracket">]</span></span>
+<p>A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. <em>SIAM Journal on Scientific Computing</em>, 40(2):1121–1148, 2018. <a class="reference external" href="https://doi.org/10.1137/16M1109515">doi:10.1137/16M1109515</a>.</p>
+</div>
+</div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/demos/monge_ampere1.py.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Introduction to mesh movement driven by a Monge-Ampère type equation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Defining a simple metric field and adapting the mesh to it &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <script src="../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Defining a simple metric field and adapting the mesh to it</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="defining-a-simple-metric-field-and-adapting-the-mesh-to-it">
+<h1>Defining a simple metric field and adapting the mesh to it<a class="headerlink" href="#defining-a-simple-metric-field-and-adapting-the-mesh-to-it" title="Link to this heading">¶</a></h1>
+<p>Animate provides the <a class="reference internal" href="../animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a> class which is simply
+a <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.Function</span></code> on a <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.TensorFunctionSpace</span></code>
+with additional functionality. For metric-based mesh adaptivity the metric
+is usually assumed to be vertex-based, so we need to define the metric in
+a Continuous Galerkin (CG) P1 tensor function space</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">animate</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
+
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">RiemannianMetric</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We start by choosing a uniform, and <em>isotropic</em> metric, which
+is to say that the metric tensor is just a constant diagonal matrix
+that is a scalar multiple of the identity matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">as_matrix</span><span class="p">([[</span><span class="n">alpha</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="p">]]))</span>
+</pre></div>
+</div>
+<p>In metric based adaptivity the metric is used to measure the length
+of edges: for any edge <span class="math notranslate nohighlight">\(\mathbf e={\mathbf v_2}-{\mathbf v_1}\)</span> written
+as a vector between vertices <span class="math notranslate nohighlight">\(\mathbf v_1\)</span> and <span class="math notranslate nohighlight">\(\mathbf v_2\)</span>, its
+length in metric space is given by:
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">ell_</span><span class="p">{</span>\<span class="n">mathcal</span> <span class="n">M</span><span class="p">}(</span>\<span class="n">vec</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}})</span>
+<span class="o">:=</span>\<span class="n">sqrt</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}</span><span class="o">^</span><span class="n">T</span><span class="p">{</span>\<span class="n">mathcal</span> <span class="n">M</span><span class="p">}</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>which in this case evaluates to a simple scalar multiple of its Euclidean length:
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">ell_</span><span class="p">{</span>\<span class="n">mathcal</span> <span class="n">M</span><span class="p">}(</span>\<span class="n">vec</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}})</span>
+<span class="o">:=</span>\<span class="n">sqrt</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}</span><span class="o">^</span><span class="n">T</span> \<span class="n">begin</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span> \<span class="n">alpha</span> <span class="o">&amp;</span> <span class="mi">0</span> \\ <span class="mi">0</span> <span class="o">&amp;</span> \<span class="n">alpha</span> \<span class="n">end</span><span class="p">{</span><span class="n">pmatrix</span><span class="p">}</span> \<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}}</span>
+ <span class="o">=</span>\<span class="n">sqrt</span><span class="p">{</span>\<span class="n">alpha</span><span class="p">}</span><span class="o">~</span>\<span class="n">sqrt</span><span class="p">{</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}</span><span class="o">^</span><span class="n">T</span>\<span class="n">mathbf</span><span class="p">{</span><span class="n">e</span><span class="p">}}</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The metric is used by the mesh adaptivity library to determine the optimal length of edges,
+where an edge is considered optimal if its length in metric space is 1. For our isotropic metric
+this means that an edge of (Euclidean) length <span class="math notranslate nohighlight">\(h=\sqrt{\mathbf{e}^T\mathbf{e}}\)</span> is considered optimal
+if <span class="math notranslate nohighlight">\(\sqrt{\alpha} h=1\)</span>, or <span class="math notranslate nohighlight">\(h=1/\sqrt{\alpha}\)</span>. Thus using <span class="math notranslate nohighlight">\(\alpha=100\)</span> we expect
+a mesh with edges of length <span class="math notranslate nohighlight">\(h=0.1\)</span></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">new_mesh</span> <span class="o">=</span> <span class="n">adapt</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">new_mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh1.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 90%">
+<img alt="../_images/mesh1.jpg" src="../_images/mesh1.jpg" />
+</figure>
+<p>To create a anisotropic mesh with edge lengths <span class="math notranslate nohighlight">\(h_x=0.1\)</span> in the x-direction, and
+<span class="math notranslate nohighlight">\(h_y=0.25\)</span> we simply create a diagonal Riemannian metric with, respectively, the values
+<span class="math notranslate nohighlight">\(1/0.1^2\)</span> and <span class="math notranslate nohighlight">\(1/0.25^2\)</span> along the diagonal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hx</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">hy</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">as_matrix</span><span class="p">([[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">hx</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">hy</span><span class="o">**</span><span class="mi">2</span><span class="p">]]))</span>
+<span class="n">new_mesh</span> <span class="o">=</span> <span class="n">adapt</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">new_mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh2.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 90%">
+<img alt="../_images/mesh2.jpg" src="../_images/mesh2.jpg" />
+</figure>
+<p>An example of a non-uniform mesh, in which we ask for higher resolution inside a circle of
+radius <span class="math notranslate nohighlight">\(r\)</span> is given below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">h1</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">high</span> <span class="o">=</span> <span class="n">as_matrix</span><span class="p">([[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">h1</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">h1</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">low</span> <span class="o">=</span> <span class="n">as_matrix</span><span class="p">([[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">h2</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">h2</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">conditional</span><span class="p">(</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">r</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">))</span>
+<span class="n">new_mesh</span> <span class="o">=</span> <span class="n">adapt</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Input mesh: 10 x 10&quot;</span><span class="p">)</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">new_mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Adapted mesh&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh3.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 90%">
+<img alt="../_images/mesh3.jpg" src="../_images/mesh3.jpg" />
+</figure>
+<p>As we can observe in the figure on the right, the circular region of high
+resolution is not very accurately approximated. This is a consequence of the
+low resolution of the initial mesh (left figure) on which we have defined our
+metric. For a more accurate result we therefore increase the resolution of
+this initial mesh</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">RiemannianMetric</span><span class="p">(</span><span class="n">P1_ten</span><span class="p">)</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">h1</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">high</span> <span class="o">=</span> <span class="n">as_matrix</span><span class="p">([[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">h1</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">h1</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">low</span> <span class="o">=</span> <span class="n">as_matrix</span><span class="p">([[</span><span class="mi">1</span> <span class="o">/</span> <span class="n">h2</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">h2</span><span class="o">**</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">metric</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">conditional</span><span class="p">(</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">r</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span><span class="p">))</span>
+<span class="n">new_mesh</span> <span class="o">=</span> <span class="n">adapt</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Input mesh: 50 x 50&quot;</span><span class="p">)</span>
+<span class="n">triplot</span><span class="p">(</span><span class="n">new_mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Adapted mesh&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh4.jpg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-center" style="width: 90%">
+<img alt="../_images/mesh4.jpg" src="../_images/mesh4.jpg" />
+</figure>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/demos/simple_metric.py.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Defining a simple metric field and adapting the mesh to it</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>
