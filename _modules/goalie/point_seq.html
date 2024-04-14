@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>goalie.point_seq &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">goalie.point_seq</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for goalie.point_seq</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">firedrake.mesh</span> <span class="k">as</span> <span class="nn">fmesh</span>
+<span class="kn">from</span> <span class="nn">.mesh_seq</span> <span class="kn">import</span> <span class="n">MeshSeq</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PointSeq&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="PointSeq">
+<a class="viewcode-back" href="../../goalie.html#goalie.point_seq.PointSeq">[docs]</a>
+<span class="k">class</span> <span class="nc">PointSeq</span><span class="p">(</span><span class="n">MeshSeq</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simplified subset of :class:`~.MeshSeq` for ODE problems.</span>
+
+<span class="sd">    In this version, a single mesh comprised of a single vertex is shared across all</span>
+<span class="sd">    subintervals.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg time_partition: the :class:`~.TimePartition` which partitions the temporal</span>
+<span class="sd">            domain</span>
+<span class="sd">        :kwarg get_function_spaces: a function, whose only argument is a</span>
+<span class="sd">            :class:`~.MeshSeq`, which constructs prognostic</span>
+<span class="sd">            :class:`firedrake.functionspaceimpl.FunctionSpace`\s for each subinterval</span>
+<span class="sd">        :kwarg get_initial_condition: a function, whose only argument is a</span>
+<span class="sd">            :class:`~.MeshSeq`, which specifies initial conditions on the first mesh</span>
+<span class="sd">        :kwarg get_form: a function, whose only argument is a :class:`~.MeshSeq`, which</span>
+<span class="sd">            returns a function that generates the ODE weak form</span>
+<span class="sd">        :kwarg get_solver: a function, whose only argument is a :class:`~.MeshSeq`,</span>
+<span class="sd">            which returns a function that integrates initial data over a subinterval</span>
+<span class="sd">        :kwarg get_bcs: a function, whose only argument is a :class:`~.MeshSeq`, which</span>
+<span class="sd">            returns a function that determines any Dirichlet boundary conditions</span>
+<span class="sd">        :kwarg parameters: :class:`~.AdaptParameters` instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">fmesh</span><span class="o">.</span><span class="n">VertexOnlyMesh</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">UnitIntervalMesh</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="p">[[</span><span class="mf">0.5</span><span class="p">]])</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">time_partition</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PointSeq.set_meshes">
+<a class="viewcode-back" href="../../goalie.html#goalie.point_seq.PointSeq.set_meshes">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_meshes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the mesh associated with the :class:`~.PointSeq`, as well as the</span>
+<span class="sd">        associated attributes.</span>
+
+<span class="sd">        :arg mesh: the vertex-only mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">mesh</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_counts</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">goalie.point_seq</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>
