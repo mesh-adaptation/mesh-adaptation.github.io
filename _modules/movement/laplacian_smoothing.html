@@ -34,12 +34,12 @@
             
   <h1>Source code for movement.laplacian_smoothing</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">firedrake</span>
-<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+
 <span class="kn">import</span> <span class="nn">movement.solver_parameters</span> <span class="k">as</span> <span class="nn">solver_parameters</span>
 <span class="kn">from</span> <span class="nn">movement.mover</span> <span class="kn">import</span> <span class="n">PrimeMover</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LaplacianSmoother&quot;</span><span class="p">]</span>
 
@@ -95,7 +95,7 @@
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_solver</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">LinearVariationalSolver</span><span class="p">(</span>
                 <span class="n">problem</span><span class="p">,</span>
-                <span class="n">solver_parameters</span><span class="o">=</span><span class="n">solver_parameters</span><span class="o">.</span><span class="n">cg</span><span class="p">,</span>
+                <span class="n">solver_parameters</span><span class="o">=</span><span class="n">solver_parameters</span><span class="o">.</span><span class="n">cg_ilu</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 
@@ -129,8 +129,8 @@
 
         <span class="c1"># Update mesh coordinates</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

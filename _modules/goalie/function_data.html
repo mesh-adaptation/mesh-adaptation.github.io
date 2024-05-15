@@ -37,10 +37,12 @@
 <span class="sd">Nested dictionaries of solution data :class:`~.Function`\s.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
 <span class="kn">import</span> <span class="nn">firedrake.function</span> <span class="k">as</span> <span class="nn">ffunc</span>
 <span class="kn">import</span> <span class="nn">firedrake.functionspace</span> <span class="k">as</span> <span class="nn">ffs</span>
+
 <span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
-<span class="kn">import</span> <span class="nn">abc</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;ForwardSolutionData&quot;</span><span class="p">,</span>
@@ -49,11 +51,12 @@
 <span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">FunctionData</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">FunctionData</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract base class for classes holding field data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="n">function_spaces</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :arg time_partition: the :class:`~.TimePartition` used to discretise the problem</span>

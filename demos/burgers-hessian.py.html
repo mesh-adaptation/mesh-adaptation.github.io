@@ -41,12 +41,12 @@ mesh adaptation. The interesting thing about this demo is that, unlike the
 we consider the time-dependent case. Moreover, we consider a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> with
 multiple subintervals and hence multiple meshes to adapt.</p>
 <p>As before, we copy over what is now effectively boiler plate to set up our problem.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">animate.adapt</span> <span class="kn">import</span> <span class="n">adapt</span>
 <span class="kn">from</span> <span class="nn">animate.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
-<span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
 
+<span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 

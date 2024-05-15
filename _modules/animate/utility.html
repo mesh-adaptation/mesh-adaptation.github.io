@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>animate.utility &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">animate.utility</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for animate.utility</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility functions and classes for metric-based mesh adaptation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">firedrake.function</span> <span class="k">as</span> <span class="nn">ffunc</span>
+<span class="kn">import</span> <span class="nn">firedrake.mesh</span> <span class="k">as</span> <span class="nn">fmesh</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span> <span class="nn">firedrake.__future__</span> <span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Mesh&quot;</span><span class="p">,</span> <span class="s2">&quot;VTKFile&quot;</span><span class="p">,</span> <span class="s2">&quot;norm&quot;</span><span class="p">,</span> <span class="s2">&quot;errornorm&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Mesh">
+<a class="viewcode-back" href="../../animate.html#animate.utility.Mesh">[docs]</a>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload :func:`firedrake.mesh.Mesh` to endow the output mesh with useful quantities.</span>
+
+<span class="sd">    The following quantities are computed by default:</span>
+<span class="sd">        * cell size;</span>
+<span class="sd">        * facet area.</span>
+
+<span class="sd">    The argument and keyword arguments are passed to Firedrake&#39;s</span>
+<span class="sd">    :func:`firedrake.mesh.Mesh` constructor, modified so that the argument could also be</span>
+<span class="sd">    a mesh.</span>
+
+<span class="sd">    Arguments and keyword arguments are the same as for :func:`firedrake.mesh.Mesh`.</span>
+
+<span class="sd">    :returns: the constructed mesh</span>
+<span class="sd">    :rtype: :class:`firedrake.mesh.MeshGeometry`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">_topology</span><span class="p">,</span> <span class="n">fmesh</span><span class="o">.</span><span class="n">VertexOnlyMeshTopology</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">mesh</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
+
+    <span class="c1"># Facet area</span>
+    <span class="n">boundary_markers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">)</span>
+    <span class="n">one</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">bnd_len</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+        <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">one</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">boundary_markers</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">boundary_len</span> <span class="o">=</span> <span class="n">bnd_len</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">boundary_area</span> <span class="o">=</span> <span class="n">bnd_len</span>
+
+    <span class="c1"># Cell size</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">cell</span> <span class="o">==</span> <span class="n">ufl</span><span class="o">.</span><span class="n">triangle</span><span class="p">:</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">CellDiameter</span><span class="p">(</span><span class="n">mesh</span><span class="p">),</span> <span class="n">P0</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">mesh</span></div>
+
+
+
+<div class="viewcode-block" id="VTKFile">
+<a class="viewcode-back" href="../../animate.html#animate.utility.VTKFile">[docs]</a>
+<span class="k">class</span> <span class="nc">VTKFile</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">VTKFile</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload :class:`firedrake.output.VTKFile` so that it uses ``adaptive`` mode by</span>
+<span class="sd">    default.</span>
+
+<span class="sd">    Whilst this means that the mesh topology is recomputed at every export, it removes</span>
+<span class="sd">    any need for the user to reset it manually.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;adaptive&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_vtu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">functions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overload the Firedrake functionality under the blind assumption that the same</span>
+<span class="sd">        list of functions are outputted each time (albeit on different meshes).</span>
+
+<span class="sd">        The arguments and return values are the same as for</span>
+<span class="sd">        :meth:`firedrake.output.File._write_vtu`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">functions</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Writing different number of functions: expected&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span><span class="p">)</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">functions</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fnames</span><span class="p">,</span> <span class="n">functions</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_write_vtu</span><span class="p">(</span><span class="o">*</span><span class="n">functions</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="norm">
+<a class="viewcode-back" href="../../animate.html#animate.utility.norm">[docs]</a>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload :func:`firedrake.norms.norm` to allow for :math:`\ell^p` norms.</span>
+
+<span class="sd">    Currently supported ``norm_type`` options:</span>
+<span class="sd">    * ``&#39;l1&#39;``</span>
+<span class="sd">    * ``&#39;l2&#39;``</span>
+<span class="sd">    * ``&#39;linf&#39;``</span>
+<span class="sd">    * ``&#39;L2&#39;``</span>
+<span class="sd">    * ``&#39;Linf&#39;``</span>
+<span class="sd">    * ``&#39;H1&#39;``</span>
+<span class="sd">    * ``&#39;Hdiv&#39;``</span>
+<span class="sd">    * ``&#39;Hcurl&#39;``</span>
+<span class="sd">    * or any ``&#39;Lp&#39;`` with :math:`p &gt;= 1`.</span>
+
+<span class="sd">    Note that this version is case sensitive, i.e. ``&#39;l2&#39;`` and ``&#39;L2&#39;`` will give</span>
+<span class="sd">    different results in general.</span>
+
+<span class="sd">    :arg v: the function to take the norm of</span>
+<span class="sd">    :type v: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :kwarg norm_type: the type of norm to use</span>
+<span class="sd">    :type norm_type: :class:`str`</span>
+<span class="sd">    :kwarg condition: a UFL condition for specifying a subdomain to compute the norm</span>
+<span class="sd">        over</span>
+<span class="sd">    :kwarg boundary: if ``True``, the norm is computed over the domain boundary</span>
+<span class="sd">    :type boundary: :class:`bool`</span>
+<span class="sd">    :returns: the norm value</span>
+<span class="sd">    :rtype: :class:`float`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">cofunction2function</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">norm_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;l1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;linf&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">norm_type</span> <span class="ow">in</span> <span class="n">norm_codes</span> <span class="ow">or</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;Linf&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">boundary</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;lp errors on the boundary not yet implemented.&quot;</span><span class="p">)</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;Linf&quot;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">v</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">vv</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">vv</span><span class="o">.</span><span class="n">max</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">v</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">vv</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">vv</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">norm_codes</span><span class="p">[</span><span class="n">norm_type</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">norm_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;l&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;lp norm of order </span><span class="si">{:s}</span><span class="s2"> not supported.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">norm_type</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> <span class="k">if</span> <span class="n">boundary</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
+        <span class="k">if</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;L&quot;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">norm_type</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to interpret &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; norm.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; norm does not make sense.&quot;</span><span class="p">)</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;h1&quot;</span><span class="p">:</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;hdiv&quot;</span><span class="p">:</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">norm_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;hcurl&quot;</span><span class="p">:</span>
+            <span class="n">integrand</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">curl</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">condition</span> <span class="o">*</span> <span class="n">integrand</span> <span class="o">**</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">dX</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="errornorm">
+<a class="viewcode-back" href="../../animate.html#animate.utility.errornorm">[docs]</a>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">errornorm</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">uh</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload :func:`firedrake.norms.errornorm` to allow for :math:`\ell^p` norms.</span>
+
+<span class="sd">    Currently supported ``norm_type`` options:</span>
+<span class="sd">    * ``&#39;l1&#39;``</span>
+<span class="sd">    * ``&#39;l2&#39;``</span>
+<span class="sd">    * ``&#39;linf&#39;``</span>
+<span class="sd">    * ``&#39;L2&#39;``</span>
+<span class="sd">    * ``&#39;Linf&#39;``</span>
+<span class="sd">    * ``&#39;H1&#39;``</span>
+<span class="sd">    * ``&#39;Hdiv&#39;``</span>
+<span class="sd">    * ``&#39;Hcurl&#39;``</span>
+<span class="sd">    * or any ``&#39;Lp&#39;`` with :math:`p &gt;= 1`.</span>
+
+<span class="sd">    Note that this version is case sensitive, i.e. ``&#39;l2&#39;`` and ``&#39;L2&#39;`` will give</span>
+<span class="sd">    different results in general.</span>
+
+<span class="sd">    :arg u: the &#39;true&#39; value</span>
+<span class="sd">    :type u: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :arg uh: the approximation of the &#39;truth&#39;</span>
+<span class="sd">    :type uh: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :kwarg norm_type: the type of norm to use</span>
+<span class="sd">    :type norm_type: :class:`str`</span>
+<span class="sd">    :kwarg boundary: if ``True``, the norm is computed over the domain boundary</span>
+<span class="sd">    :type boundary: :class:`bool`</span>
+<span class="sd">    :returns: the error norm value</span>
+<span class="sd">    :rtype: :class:`float`</span>
+
+<span class="sd">    Any other keyword arguments are passed to :func:`firedrake.norms.errornorm`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">):</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">cofunction2function</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uh</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">):</span>
+        <span class="n">uh</span> <span class="o">=</span> <span class="n">cofunction2function</span><span class="p">(</span><span class="n">uh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uh</span><span class="p">,</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;uh should be a Function, is a &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">uh</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">norm_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;l&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;u should be a Function, is a &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">ufl_shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uh</span><span class="o">.</span><span class="n">ufl_shape</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Mismatching rank between u and uh.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+        <span class="n">degree_u</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
+        <span class="n">degree_uh</span> <span class="o">=</span> <span class="n">uh</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">degree_uh</span> <span class="o">&gt;</span> <span class="n">degree_u</span><span class="p">:</span>
+            <span class="n">firedrake</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Degree of exact solution less than approximation degree&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Case 1: point-wise norms</span>
+    <span class="k">if</span> <span class="n">norm_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;l&quot;</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">u</span>
+        <span class="n">v</span> <span class="o">-=</span> <span class="n">uh</span>
+
+    <span class="c1"># Case 2: UFL norms for mixed function spaces</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">uh</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;L2&quot;</span><span class="p">:</span>
+            <span class="n">vv</span> <span class="o">=</span> <span class="p">[</span><span class="n">uu</span> <span class="o">-</span> <span class="n">uuh</span> <span class="k">for</span> <span class="n">uu</span><span class="p">,</span> <span class="n">uuh</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">,</span> <span class="n">uh</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)]</span>
+            <span class="n">dX</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">ds</span> <span class="k">if</span> <span class="n">boundary</span> <span class="k">else</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
+            <span class="k">return</span> <span class="n">ufl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vv</span><span class="p">])</span> <span class="o">*</span> <span class="n">dX</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; not supported for mixed spaces.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Case 3: UFL norms for non-mixed spaces</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">uh</span>
+
+    <span class="k">return</span> <span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="n">norm_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">assemble_mass_matrix</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">,</span> <span class="n">lumped</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assemble a mass matrix associated with some finite element space and norm.</span>
+
+<span class="sd">    :arg space: function space to build the mass matrix with</span>
+<span class="sd">    :type space: :class:`firedrake.functionspaceimpl.FunctionSpace`</span>
+<span class="sd">    :kwarg norm_type: the type norm to build the mass matrix with</span>
+<span class="sd">    :type norm_type: :class:`str`</span>
+<span class="sd">    :kwarg lumped: if `True`, mass lumping is applied</span>
+<span class="sd">    :type lumped: :class:`bool`</span>
+<span class="sd">    :returns: the corresponding mass matrix</span>
+<span class="sd">    :rtype: petsc4py.PETSc.Mat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trial</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="n">space</span><span class="p">)</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="n">space</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;L2&quot;</span><span class="p">:</span>
+        <span class="n">lhs</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
+    <span class="k">elif</span> <span class="n">norm_type</span> <span class="o">==</span> <span class="s2">&quot;H1&quot;</span><span class="p">:</span>
+        <span class="n">lhs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
+            <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">trial</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">test</span><span class="p">))</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Norm type &#39;</span><span class="si">{</span><span class="n">norm_type</span><span class="si">}</span><span class="s2">&#39; not recognised.&quot;</span><span class="p">)</span>
+    <span class="n">mass_matrix</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">lhs</span><span class="p">)</span><span class="o">.</span><span class="n">petscmat</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lumped</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mass_matrix</span>
+    <span class="n">rhs</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">space</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">product</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">space</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">rhs</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">b</span><span class="p">,</span> <span class="n">product</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
+        <span class="n">mass_matrix</span><span class="o">.</span><span class="n">mult</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mass_matrix</span><span class="o">.</span><span class="n">createDiagonal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">cofunction2function</span><span class="p">(</span><span class="n">cofunc</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :arg cofunc: a cofunction</span>
+<span class="sd">    :type cofunc: :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :returns: a function with the same underyling data</span>
+<span class="sd">    :rtype: :class:`firedrake.function.Function`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">cofunc</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">dual</span><span class="p">())</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">):</span>
+            <span class="n">arr</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">cofunc</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">func</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">cofunc</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span>
+    <span class="k">return</span> <span class="n">func</span>
+
+
+<span class="k">def</span> <span class="nf">function2cofunction</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :arg func: a function</span>
+<span class="sd">    :type func: :class:`firedrake.function.Function`</span>
+<span class="sd">    :returns: a cofunction with the same underlying data</span>
+<span class="sd">    :rtype: :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cofunc</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">dual</span><span class="p">())</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cofunc</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cofunc</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">):</span>
+            <span class="n">arr</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cofunc</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span>
+    <span class="k">return</span> <span class="n">cofunc</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">animate.utility</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    </div>
+  </body>
+</html>

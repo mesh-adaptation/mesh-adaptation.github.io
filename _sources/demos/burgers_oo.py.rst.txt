@@ -19,8 +19,8 @@ so that it gets modified internally to account for annotation.
 ::
 
   from firedrake import *
-  from goalie_adjoint import *
 
+  from goalie_adjoint import *
 
   set_log_level(DEBUG)
 

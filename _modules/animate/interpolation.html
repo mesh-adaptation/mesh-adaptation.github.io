@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>animate.interpolation &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -37,16 +36,304 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Driver functions for mesh-to-mesh data transfer.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">animate.quality</span> <span class="kn">import</span> <span class="n">QualityMeasure</span>
+
 <span class="kn">import</span> <span class="nn">firedrake</span>
-<span class="kn">from</span> <span class="nn">firedrake.functionspaceimpl</span> <span class="kn">import</span> <span class="n">FiredrakeDualSpace</span>
-<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
-<span class="kn">from</span> <span class="nn">pyop2</span> <span class="kn">import</span> <span class="n">op2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span> <span class="nn">firedrake.functionspaceimpl</span> <span class="kn">import</span> <span class="n">FiredrakeDualSpace</span><span class="p">,</span> <span class="n">WithGeometry</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">from</span> <span class="nn">firedrake.supermeshing</span> <span class="kn">import</span> <span class="n">assemble_mixed_mass_matrix</span>
+<span class="kn">from</span> <span class="nn">petsc4py</span> <span class="kn">import</span> <span class="n">PETSc</span> <span class="k">as</span> <span class="n">petsc4py</span>
+<span class="kn">from</span> <span class="nn">pyop2</span> <span class="kn">import</span> <span class="n">op2</span>
+
+<span class="kn">from</span> <span class="nn">animate.quality</span> <span class="kn">import</span> <span class="n">QualityMeasure</span>
+<span class="kn">from</span> <span class="nn">animate.utility</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">assemble_mass_matrix</span><span class="p">,</span>
+    <span class="n">cofunction2function</span><span class="p">,</span>
+    <span class="n">function2cofunction</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;transfer&quot;</span><span class="p">,</span> <span class="s2">&quot;interpolate&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;clement_interpolant&quot;</span><span class="p">]</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;clement_interpolant&quot;</span><span class="p">]</span>
+<div class="viewcode-block" id="transfer">
+<a class="viewcode-back" href="../../animate.html#animate.interpolation.transfer">[docs]</a>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">transfer</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="n">transfer_method</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload functions :func:`firedrake.__future__.interpolate` and</span>
+<span class="sd">    :func:`firedrake.projection.project` to account for the case of two mixed</span>
+<span class="sd">    function spaces defined on different meshes and for the adjoint interpolation</span>
+<span class="sd">    operator when applied to :class:`firedrake.cofunction.Cofunction`\s.</span>
+
+<span class="sd">    Note that the &quot;interpolate&quot; option works straightforwardly with MPI parallelism,</span>
+<span class="sd">    whereas the &quot;project&quot; option can be difficult to set up to make use of this.</span>
+
+<span class="sd">    :arg source: the function to be transferred</span>
+<span class="sd">    :type source: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :arg target_space: the function space which we seek to transfer onto, or the</span>
+<span class="sd">        function or cofunction to use as the target</span>
+<span class="sd">    :type target_space: :class:`firedrake.functionspaceimpl.FunctionSpace`,</span>
+<span class="sd">        :class:`firedrake.function.Function` or :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :kwarg transfer_method: the method to use for the transfer. Options are</span>
+<span class="sd">        &quot;interpolate&quot; (default) and &quot;project&quot;</span>
+<span class="sd">    :type transfer_method: str</span>
+<span class="sd">    :returns: the transferred function</span>
+<span class="sd">    :rtype: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+
+<span class="sd">    Extra keyword arguments are passed to :func:`firedrake.__future__.interpolate` or</span>
+<span class="sd">        :func:`firedrake.projection.project`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">transfer_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;interpolate&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid transfer method: </span><span class="si">{</span><span class="n">transfer_method</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="s2">&quot; Options are &#39;interpolate&#39; and &#39;project&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Can only currently </span><span class="si">{</span><span class="n">transfer_method</span><span class="si">}</span><span class="s2"> Functions and Cofunctions.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="n">WithGeometry</span><span class="p">):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">target_space</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_space</span><span class="p">,</span> <span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">target_space</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;Second argument must be a FunctionSpace, Function, or Cofunction.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Cofunction</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_transfer_adjoint</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">transfer_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">==</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_transfer_forward</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">transfer_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="interpolate">
+<a class="viewcode-back" href="../../animate.html#animate.interpolation.interpolate">[docs]</a>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload function :func:`firedrake.__future__.interpolate` to account for the case</span>
+<span class="sd">    of two mixed function spaces defined on different meshes and for the adjoint</span>
+<span class="sd">    interpolation operator when applied to :class:`firedrake.cofunction.Cofunction`\s.</span>
+
+<span class="sd">    :arg source: the function to be transferred</span>
+<span class="sd">    :type source: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :arg target_space: the function space which we seek to transfer onto, or the</span>
+<span class="sd">        function or cofunction to use as the target</span>
+<span class="sd">    :type target_space: :class:`firedrake.functionspaceimpl.FunctionSpace`,</span>
+<span class="sd">        :class:`firedrake.function.Function` or :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :returns: the transferred function</span>
+<span class="sd">    :rtype: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+
+<span class="sd">    Extra keyword arguments are passed to :func:`firedrake.__future__.interpolate`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">transfer</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="n">transfer_method</span><span class="o">=</span><span class="s2">&quot;interpolate&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="project">
+<a class="viewcode-back" href="../../animate.html#animate.interpolation.project">[docs]</a>
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Overload function :func:`firedrake.projection.project` to account for the case of</span>
+<span class="sd">    two mixed function spaces defined on different meshes and for the adjoint</span>
+<span class="sd">    projection operator when applied to :class:`firedrake.cofunction.Cofunction`\s.</span>
+
+<span class="sd">    For details on the approach for achieving boundedness through mass lumping and</span>
+<span class="sd">    post-processing, see :cite:`FPP+:2009`.</span>
+
+<span class="sd">    :arg source: the function to be transferred</span>
+<span class="sd">    :type source: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :arg target_space: the function space which we seek to transfer onto, or the</span>
+<span class="sd">        function or cofunction to use as the target</span>
+<span class="sd">    :type target_space: :class:`firedrake.functionspaceimpl.FunctionSpace`,</span>
+<span class="sd">        :class:`firedrake.function.Function` or :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :returns: the transferred function</span>
+<span class="sd">    :rtype: :class:`firedrake.function.Function` or</span>
+<span class="sd">        :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :kwarg bounded: apply mass lumping to the mass matrix to ensure boundedness</span>
+<span class="sd">    :type bounded: :class:`bool`</span>
+
+<span class="sd">    Extra keyword arguments are passed to :func:`firedrake.projection.project`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">transfer</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="n">transfer_method</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># TODO: Reimplement by introducing a LumpedSupermeshProjector subclass of</span>
+<span class="c1">#       firedrake.projection.SupermeshProjector (#123)</span>
+<span class="c1"># TODO: Implement minimal diffusion correction (#124)</span>
+<span class="k">def</span> <span class="nf">_supermesh_project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bounded</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">Vs</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">Vt</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">element_t</span> <span class="o">=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">bounded</span> <span class="ow">and</span> <span class="p">(</span><span class="n">element_t</span><span class="o">.</span><span class="n">family</span><span class="p">(),</span> <span class="n">element_t</span><span class="o">.</span><span class="n">degree</span><span class="p">())</span> <span class="o">!=</span> <span class="p">(</span><span class="s2">&quot;Lagrange&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mass lumping is not recommended for spaces other than P1.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create a linear system using the lumped mass matrix for the target space</span>
+    <span class="n">mixed_mass</span> <span class="o">=</span> <span class="n">assemble_mixed_mass_matrix</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="n">Vt</span><span class="p">)</span>
+    <span class="n">ksp</span> <span class="o">=</span> <span class="n">petsc4py</span><span class="o">.</span><span class="n">KSP</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+    <span class="n">ksp</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="n">assemble_mass_matrix</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="n">lumped</span><span class="o">=</span><span class="n">bounded</span><span class="p">))</span>
+
+    <span class="c1"># Solve the linear system</span>
+    <span class="k">with</span> <span class="n">source</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">s</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_wo</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+        <span class="n">rhs</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">mixed_mass</span><span class="o">.</span><span class="n">mult</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+        <span class="n">ksp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rhs</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_transfer_forward</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">transfer_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply mesh-to-mesh transfer operator to a Function.</span>
+
+<span class="sd">    This function extends the functionality of :func:`firedrake.__future__.interpolate`</span>
+<span class="sd">    and :func:`firedrake.projection.project` to account for mixed spaces.</span>
+
+<span class="sd">    :arg source: the Function to be transferred</span>
+<span class="sd">    :type source: :class:`firedrake.function.Function`</span>
+<span class="sd">    :arg target: the Function which we seek to transfer onto</span>
+<span class="sd">    :type target: :class:`firedrake.function.Function`</span>
+<span class="sd">    :kwarg transfer_method: the method to use for the transfer. Options are</span>
+<span class="sd">        &quot;interpolate&quot; (default) and &quot;project&quot;</span>
+<span class="sd">    :type transfer_method: str</span>
+<span class="sd">    :kwarg bounded: apply mass lumping to the mass matrix to ensure boundedness</span>
+<span class="sd">        (project only)</span>
+<span class="sd">    :type bounded: :class:`bool`</span>
+<span class="sd">    :returns: the transferred Function</span>
+<span class="sd">    :rtype: :class:`firedrake.function.Function`</span>
+
+<span class="sd">    Extra keyword arguments are passed to :func:`firedrake.__future__.interpolate` or</span>
+<span class="sd">        :func:`firedrake.projection.project`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_project</span> <span class="o">=</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span>
+    <span class="n">bounded</span> <span class="o">=</span> <span class="n">is_project</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;bounded&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">Vs</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">Vt</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">_validate_matching_spaces</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="n">Vt</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;interpolate&quot;</span><span class="p">:</span>
+                <span class="n">t</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">bounded</span><span class="p">:</span>
+                    <span class="n">_supermesh_project</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">bounded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">t</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid transfer method: </span><span class="si">{</span><span class="n">transfer_method</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="s2">&quot; Options are &#39;interpolate&#39; and &#39;project&#39;.&quot;</span>
+                <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;interpolate&quot;</span><span class="p">:</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">bounded</span><span class="p">:</span>
+                <span class="n">_supermesh_project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bounded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">target</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid transfer method: </span><span class="si">{</span><span class="n">transfer_method</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot; Options are &#39;interpolate&#39; and &#39;project&#39;.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">target</span>
+
+
+<span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_transfer_adjoint</span><span class="p">(</span><span class="n">target_b</span><span class="p">,</span> <span class="n">source_b</span><span class="p">,</span> <span class="n">transfer_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply an adjoint mesh-to-mesh transfer operator to a Cofunction.</span>
+
+<span class="sd">    :arg target_b: seed Cofunction from the target space of the forward projection</span>
+<span class="sd">    :type target_b: :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :arg source_b: output Cofunction from the source space of the forward projection</span>
+<span class="sd">    :type source_b: :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">    :kwarg transfer_method: the method to use for the transfer. Options are</span>
+<span class="sd">        &quot;interpolate&quot; (default) and &quot;project&quot;</span>
+<span class="sd">    :type transfer_method: str</span>
+<span class="sd">    :kwarg bounded: apply mass lumping to the mass matrix to ensure boundedness</span>
+<span class="sd">        (project only)</span>
+<span class="sd">    :type bounded: :class:`bool`</span>
+<span class="sd">    :returns: the transferred Cofunction</span>
+<span class="sd">    :rtype: :class:`firedrake.cofunction.Cofunction`</span>
+
+<span class="sd">    Extra keyword arguments are passed to :func:`firedrake.__future__.interpolate` or</span>
+<span class="sd">        :func:`firedrake.projection.project`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_project</span> <span class="o">=</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span>
+    <span class="n">bounded</span> <span class="o">=</span> <span class="n">is_project</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;bounded&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Map to Functions to apply the adjoint transfer</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_b</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+        <span class="n">target_b</span> <span class="o">=</span> <span class="n">cofunction2function</span><span class="p">(</span><span class="n">target_b</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_b</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+        <span class="n">source_b</span> <span class="o">=</span> <span class="n">cofunction2function</span><span class="p">(</span><span class="n">source_b</span><span class="p">)</span>
+
+    <span class="n">Vt</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="n">Vs</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">Vs</span> <span class="o">==</span> <span class="n">Vt</span><span class="p">:</span>
+        <span class="n">source_b</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">target_b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">function2cofunction</span><span class="p">(</span><span class="n">source_b</span><span class="p">)</span>
+
+    <span class="n">_validate_matching_spaces</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="n">Vt</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="n">target_b_split</span> <span class="o">=</span> <span class="n">target_b</span><span class="o">.</span><span class="n">subfunctions</span>
+        <span class="n">source_b_split</span> <span class="o">=</span> <span class="n">source_b</span><span class="o">.</span><span class="n">subfunctions</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">target_b_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_b</span><span class="p">]</span>
+        <span class="n">source_b_split</span> <span class="o">=</span> <span class="p">[</span><span class="n">source_b</span><span class="p">]</span>
+
+    <span class="c1"># Apply adjoint transfer operator to each component</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">t_b</span><span class="p">,</span> <span class="n">s_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">target_b_split</span><span class="p">,</span> <span class="n">source_b_split</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;interpolate&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Adjoint of interpolation operator not implemented.&quot;</span>
+            <span class="p">)</span>  <span class="c1"># TODO (#113)</span>
+        <span class="k">elif</span> <span class="n">transfer_method</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span>
+            <span class="n">ksp</span> <span class="o">=</span> <span class="n">petsc4py</span><span class="o">.</span><span class="n">KSP</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+            <span class="n">ksp</span><span class="o">.</span><span class="n">setOperators</span><span class="p">(</span><span class="n">assemble_mass_matrix</span><span class="p">(</span><span class="n">t_b</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="n">lumped</span><span class="o">=</span><span class="n">bounded</span><span class="p">))</span>
+            <span class="n">mixed_mass</span> <span class="o">=</span> <span class="n">assemble_mixed_mass_matrix</span><span class="p">(</span><span class="n">Vt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Vs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">with</span> <span class="n">t_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_ro</span> <span class="k">as</span> <span class="n">tb</span><span class="p">,</span> <span class="n">s_b</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec_wo</span> <span class="k">as</span> <span class="n">sb</span><span class="p">:</span>
+                <span class="n">residual</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">ksp</span><span class="o">.</span><span class="n">solveTranspose</span><span class="p">(</span><span class="n">tb</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
+                <span class="n">mixed_mass</span><span class="o">.</span><span class="n">mult</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">sb</span><span class="p">)</span>  <span class="c1"># NOTE: already transposed above</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid transfer method: </span><span class="si">{</span><span class="n">transfer_method</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot; Options are &#39;interpolate&#39; and &#39;project&#39;.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Map back to a Cofunction</span>
+    <span class="k">return</span> <span class="n">function2cofunction</span><span class="p">(</span><span class="n">source_b</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_matching_spaces</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="n">Vt</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Source space has multiple components but target space does not.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">Vs</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Inconsistent numbers of components in source and target spaces:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">Vs</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">Vt</span><span class="o">.</span><span class="n">num_sub_spaces</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="s2">&quot;num_sub_spaces&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Target space has multiple components but source space does not.&quot;</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="clement_interpolant">

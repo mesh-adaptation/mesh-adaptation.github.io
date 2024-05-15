@@ -36,14 +36,6 @@ goalie.go\_mesh\_seq module
    :undoc-members:
    :show-inheritance:
 
-goalie.interpolation module
----------------------------
-
-.. automodule:: goalie.interpolation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 goalie.log module
 -----------------
 

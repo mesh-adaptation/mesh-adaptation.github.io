@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>goalie.options &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -34,9 +33,9 @@
           <div class="body" role="main">
             
   <h1>Source code for goalie.options</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
-<span class="kn">from</span> <span class="nn">animate.adapt</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
+<span></span><span class="kn">from</span> <span class="nn">animate.adapt</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
 
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;AdaptParameters&quot;</span><span class="p">,</span>
@@ -54,10 +53,14 @@
 <span class="sd">    loops.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :arg parameters: dictionary of parameters to set</span>
+<span class="sd">        :arg parameters: parameters to set</span>
+<span class="sd">        :type parameters: :class:`dict` with :class:`str` keys and values which may take</span>
+<span class="sd">            various types</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span> <span class="ow">or</span> <span class="p">{}</span>
+
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;miniter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># Minimum iteration count</span>
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;maxiter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">35</span>  <span class="c1"># Maximum iteration count</span>
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;element_rtol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Relative tolerance for element count</span>
@@ -68,7 +71,7 @@
                 <span class="s2">&quot;Expected &#39;parameters&#39; keyword argument to be a dictionary, not of&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot; type &#39;</span><span class="si">{</span><span class="n">parameters</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
             <span class="p">)</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not have &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; attribute.&quot;</span>
@@ -80,6 +83,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_type</span><span class="p">(</span><span class="s2">&quot;drop_out_converged&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that a given parameter is of the expected type.</span>
+
+<span class="sd">        :arg key: the parameter label</span>
+<span class="sd">        :type key: :class:`str`</span>
+<span class="sd">        :arg expected: the expected type</span>
+<span class="sd">        :type expected: :class:`type`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">expected</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&#39; or &#39;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">])</span>
@@ -91,18 +102,26 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">possibilities</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check that a given parameter takes one of the possible values.</span>
+
+<span class="sd">        :arg key: the parameter label</span>
+<span class="sd">        :type key: :class:`str`</span>
+<span class="sd">        :arg possibilities: all possible values for the parameter</span>
+<span class="sd">        :type possibilities: :class:`list`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">possibilities</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Unsupported value &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39; for &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;. Choose from </span><span class="si">{</span><span class="n">possibilities</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">d</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
 
 
@@ -114,10 +133,14 @@
 <span class="sd">    metric-based adaptive mesh fixed point iteration loops.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :arg parameters: dictionary of parameters to set</span>
+<span class="sd">        :arg parameters: parameters to set</span>
+<span class="sd">        :type parameters: :class:`dict` with :class:`str` keys and values which may take</span>
+<span class="sd">            various types</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span> <span class="ow">or</span> <span class="p">{}</span>
+
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;num_ramp_iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># Number of iterations to ramp over</span>
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;verbosity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># -1 = silent, 10 = maximum</span>
 
@@ -167,7 +190,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set parameters appropriate to a given :class:`RiemannianMetric`.</span>
 
-<span class="sd">        :arg metric: the :class:`RiemannianMetric` to apply parameters to</span>
+<span class="sd">        :arg metric: the metric to apply parameters to</span>
+<span class="sd">        :type metric: :class:`animate.metric.RiemannianMetric`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">RiemannianMetric</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
@@ -189,11 +213,9 @@
             <span class="s2">&quot;hausdorff_number&quot;</span><span class="p">,</span>
             <span class="s2">&quot;gradation_factor&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">metric_parameters</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">petsc_specific</span><span class="p">}</span>
-        <span class="p">}</span>
-        <span class="n">metric_parameters</span><span class="p">[</span><span class="s2">&quot;num_iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;num_parmmg_iterations&quot;</span><span class="p">]</span>
-        <span class="n">metric</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">metric_parameters</span><span class="p">)</span></div>
+        <span class="n">metric_parameters_sub</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;num_iterations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;num_parmmg_iterations&quot;</span><span class="p">]}</span>
+        <span class="n">metric_parameters_sub</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">petsc_specific</span><span class="p">})</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">({</span><span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">:</span> <span class="n">metric_parameters_sub</span><span class="p">})</span></div>
 </div>
 
 
@@ -207,7 +229,14 @@
 <span class="sd">    loops.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg parameters: parameters to set</span>
+<span class="sd">        :type parameters: :class:`dict` with :class:`str` keys and values which may take</span>
+<span class="sd">            various types</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span> <span class="ow">or</span> <span class="p">{}</span>
+
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;qoi_rtol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Relative tolerance for QoI</span>
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;estimator_rtol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>  <span class="c1"># Relative tolerance for estimator</span>
         <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;convergence_criteria&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;any&quot;</span>  <span class="c1"># Mode for convergence checking</span>

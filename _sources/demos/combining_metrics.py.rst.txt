@@ -1,5 +1,6 @@
 Intersecting and averaging metric fields
 ===========================================
+
 As we saw in the `previous demo <./simple_metric.py.html>`__, the metric
 tells the mesh adaptivity library what the desired edge lengths is in
 different directions, in different parts of the domain.  As we will see these
@@ -26,7 +27,6 @@ the largest ellipsoid that can fit within the ellipsoids of the two metrics:
    :figwidth: 70%
    :align: center
 
-
 Below we first set up two metrics: Metric 1 asks for a medium resolution of
 :math:`hm=0.025` in the left, and a coarse resolution of :math:`hc=0.1` in
 the right half of the domain. Metric 2 prescribes the coarse resolution for
@@ -38,8 +38,9 @@ the right half of the domain. Metric 2 prescribes the coarse resolution for
 
   import matplotlib.pyplot as plt
   from firedrake import *
-  from animate import *
   from firedrake.pyplot import triplot
+
+  from animate import *
 
   mesh = UnitSquareMesh(100, 100)
   P1_ten = TensorFunctionSpace(mesh, "CG", 1)
@@ -68,10 +69,10 @@ the right half of the domain. Metric 2 prescribes the coarse resolution for
   axes[1].set_aspect("equal")
   axes[1].set_title("Mesh based on metric2")
   fig.show()
-  fig.savefig("combining_two_metrics.jpg")
+  fig.savefig("combining_metrics-inputs.jpg")
 
 
-.. figure:: combining_two_metrics.jpg
+.. figure:: combining_metrics-inputs.jpg
    :figwidth: 90%
    :align: center
 
@@ -91,10 +92,10 @@ then intersect it with metric2:
   axes.set_aspect("equal")
   axes.set_title("Mesh based on intersected metric")
   fig.show()
-  fig.savefig("combining_intersection.jpg")
+  fig.savefig("combining_metrics-intersection.jpg")
 
 
-.. figure:: combining_intersection.jpg
+.. figure:: combining_metrics-intersection.jpg
    :figwidth: 90%
    :align: center
 
@@ -117,12 +118,17 @@ If instead we average the metrics using the
   axes.set_aspect("equal")
   axes.set_title("Mesh based on averaged metric")
   fig.show()
-  fig.savefig("combining_averaging.jpg")
+  fig.savefig("combining_metrics-averaging.jpg")
 
 
-.. figure:: combining_averaging.jpg
+.. figure:: combining_metrics-averaging.jpg
    :figwidth: 90%
    :align: center
 
 the resolution in, e.g., the region :math:`x<0.5, y<0.3` is now based on an
 average of :math:`hm=0.02` and :math:`hc=0.1`, i.e. an edge length of 0.06.
+
+The `next demo <./ping_pong.py.html>`__ will consider a different topic: transferring
+fields between meshes.
+
+This demo can also be accessed as a `Python script <combining_metrics.py>`__.

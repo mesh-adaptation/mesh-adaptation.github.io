@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>movement.spring &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -34,34 +33,42 @@
           <div class="body" role="main">
             
   <h1>Source code for movement.spring</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">firedrake</span>
-<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
+<span></span><span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">firedrake.function</span> <span class="k">as</span> <span class="nn">ffunc</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+
 <span class="kn">import</span> <span class="nn">movement.solver_parameters</span> <span class="k">as</span> <span class="nn">solver_parameters</span>
 <span class="kn">from</span> <span class="nn">movement.mover</span> <span class="kn">import</span> <span class="n">PrimeMover</span>
-
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SpringMover_Lineal&quot;</span><span class="p">,</span> <span class="s2">&quot;SpringMover_Torsional&quot;</span><span class="p">,</span> <span class="s2">&quot;SpringMover&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="SpringMover">
 <a class="viewcode-back" href="../../movement.html#movement.spring.SpringMover">[docs]</a>
-<span class="k">def</span> <span class="nf">SpringMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lineal&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">SpringMover</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lineal&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Movement of a ``mesh`` is determined by reinterpreting</span>
-<span class="sd">    it as a structure of stiff beams and solving an</span>
-<span class="sd">    associated discrete linear elasticity problem.</span>
+<span class="sd">    Movement of a ``mesh`` is determined by reinterpreting it as a structure of stiff</span>
+<span class="sd">    beams and solving an associated discrete linear elasticity problem.</span>
 
-<span class="sd">    See Farhat, Degand, Koobus and Lesoinne, &quot;Torsional</span>
-<span class="sd">    springs for two-dimensional dynamic unstructured fluid</span>
-<span class="sd">    meshes&quot; (1998), Computer methods in applied mechanics</span>
-<span class="sd">    and engineering, 163:231-245.</span>
+<span class="sd">    See Farhat, Degand, Koobus and Lesoinne, &quot;Torsional springs for two-dimensional</span>
+<span class="sd">    dynamic unstructured fluid meshes&quot; (1998), Computer methods in applied mechanics and</span>
+<span class="sd">    engineering, 163:231-245.</span>
+
+<span class="sd">    :arg mesh: the physical mesh to be moved</span>
+<span class="sd">    :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
+<span class="sd">    :arg timestep: the timestep length used</span>
+<span class="sd">    :type timestep: :class:`float`</span>
+<span class="sd">    :kwarg method: flavour of spring-based method to use</span>
+<span class="sd">    :type method: :class:`str`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;lineal&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">SpringMover_Lineal</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SpringMover_Lineal</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;torsional&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">SpringMover_Torsional</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SpringMover_Torsional</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> not recognised.&quot;</span><span class="p">)</span></div>
 
@@ -69,33 +76,37 @@
 
 <span class="k">class</span> <span class="nc">SpringMover_Base</span><span class="p">(</span><span class="n">PrimeMover</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for mesh movers based on spring</span>
-<span class="sd">    analogies.</span>
+<span class="sd">    Base class for mesh movers based on spring analogies.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :arg mesh: the physical mesh</span>
+<span class="sd">        :arg mesh: the physical mesh to be moved</span>
+<span class="sd">        :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
+<span class="sd">        :arg timestep: the timestep length used</span>
+<span class="sd">        :type timestep: :class:`float`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">timestep</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">timestep</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;HDiv Trace&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace_vec</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;HDiv Trace&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">function_space</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span>
+        <span class="n">num_vertices</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_vertices</span><span class="p">,</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_vertices</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;SpringMover_Base.facet_areas&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">facet_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute the areas of all facets in the</span>
-<span class="sd">        mesh.</span>
+<span class="sd">        Compute the areas of all facets in the mesh.</span>
 
 <span class="sd">        In 2D, this corresponds to edge lengths.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_facet_area_solver&quot;</span><span class="p">):</span>
             <span class="n">test</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
             <span class="n">trial</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_facet_area</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_facet_area</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
             <span class="n">A</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetArea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">trial</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">test</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dS</span> <span class="o">+</span> <span class="n">trial</span> <span class="o">*</span> <span class="n">test</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
             <span class="n">L</span> <span class="o">=</span> <span class="n">test</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dS</span> <span class="o">+</span> <span class="n">test</span> <span class="o">*</span> <span class="n">A</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
@@ -108,16 +119,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_facet_area</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;SpringMover_Base.tangents&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">tangents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute tangent vectors for all edges in</span>
-<span class="sd">        the mesh.</span>
+<span class="sd">        Compute tangent vectors for all edges in the mesh.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_tangents_solver&quot;</span><span class="p">):</span>
             <span class="n">test</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace_vec</span><span class="p">)</span>
             <span class="n">trial</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace_vec</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_tangents</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace_vec</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tangents</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace_vec</span><span class="p">)</span>
             <span class="n">n</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetNormal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">perp</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="n">a</span> <span class="o">=</span> <span class="p">(</span>
@@ -134,18 +144,17 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tangents</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;SpringMover_Base.angles&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">angles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute the argument of each edge in the</span>
-<span class="sd">        mesh, i.e. its angle from the :math:`x`-axis</span>
-<span class="sd">        in the :math:`x-y` plane.</span>
+<span class="sd">        Compute the argument of each edge in the mesh, i.e. its angle from the</span>
+<span class="sd">        :math:`x`-axis in the :math:`x-y` plane.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tangents</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_angles_solver&quot;</span><span class="p">):</span>
             <span class="n">test</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
             <span class="n">trial</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HDivTrace</span><span class="p">)</span>
             <span class="n">e0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
             <span class="n">e0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
             <span class="n">X</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">as_vector</span><span class="p">(</span><span class="n">e0</span><span class="p">)</span>
@@ -167,9 +176,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_angles</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span>
 
-    <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;SpringMover_Base.stiffness_matrix&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">stiffness_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_stiffness_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">angles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles</span>
         <span class="n">edge_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">facet_areas</span>
         <span class="n">bnd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span>
@@ -207,70 +215,96 @@
                 <span class="n">K</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">s</span> <span class="o">/</span> <span class="n">l</span>
         <span class="k">return</span> <span class="n">K</span>
 
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;SpringMover_Lineal.apply_dirichlet_conditions&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">apply_dirichlet_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">assemble_stiffness_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boundary_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Enforce that nodes on certain tagged boundaries</span>
-<span class="sd">        do not move.</span>
+<span class="sd">        Enforce that nodes on certain tagged boundaries do not move.</span>
 
-<span class="sd">        :arg tags: a list of boundary tags</span>
+<span class="sd">        :kwarg boundary_conditions: Dirichlet boundary conditions to be enforced</span>
+<span class="sd">        :type boundary_conditions: :class:`~.DirichletBC` or :class:`list` thereof</span>
+<span class="sd">        :returns: the stiffness matrix with boundary conditions applied</span>
+<span class="sd">        :rtype: :class:`numpy.ndarray`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">bnd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">bnd</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tags</span><span class="si">}</span><span class="s2"> contains invalid boundary tags&quot;</span><span class="p">)</span>
-        <span class="n">subsets</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">bnd</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">physID</span><span class="p">)</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span> <span class="k">for</span> <span class="n">physID</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">],</span> <span class="n">start</span><span class="o">=</span><span class="p">[])</span>
-        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">):</span>
-            <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate_offset</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">getCone</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">bnd</span><span class="o">.</span><span class="n">point2facetnumber</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="ow">in</span> <span class="n">subsets</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">boundary_conditions</span><span class="p">:</span>
+            <span class="n">boundary_conditions</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coord_space</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;on_boundary&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">boundary_conditions</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">):</span>
+            <span class="n">boundary_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="n">boundary_conditions</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">boundary_conditions</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span>
+
+        <span class="c1"># Loop over each boundary condition provided</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stiffness_matrix</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">boundary_condition</span> <span class="ow">in</span> <span class="n">boundary_conditions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">boundary_condition</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_space</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Boundary conditions must have </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">.coord_space as their&quot;</span>
+                    <span class="s2">&quot; function space&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Determine boundary subsets for the associated tags</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="n">boundary_condition</span><span class="o">.</span><span class="n">sub_domain</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+                <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tags</span><span class="p">]</span>
+            <span class="n">bnd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">bnd</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tags</span><span class="si">}</span><span class="s2"> contains invalid boundary tags&quot;</span><span class="p">)</span>
+            <span class="n">subsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">bnd</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span><span class="o">.</span><span class="n">indices</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+            <span class="c1"># Get vertex-based boundary data to be enforced</span>
+            <span class="n">boundary_value</span> <span class="o">=</span> <span class="n">boundary_condition</span><span class="o">.</span><span class="n">_original_arg</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">boundary_value</span><span class="p">,</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+                <span class="n">boundary_value</span> <span class="o">=</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_space</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">boundary_value</span><span class="p">)</span>
+            <span class="n">boundary_data</span> <span class="o">=</span> <span class="n">boundary_value</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span>
+
+            <span class="c1"># Loop over boundary edges and enforce the boundary values at their vertices</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">bnd</span><span class="o">.</span><span class="n">point2facetnumber</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subsets</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate_offset</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">getCone</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">boundary_data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">boundary_data</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][:]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">K</span><span class="p">[:][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">K</span>
 
 
 <div class="viewcode-block" id="SpringMover_Lineal">
 <a class="viewcode-back" href="../../movement.html#movement.spring.SpringMover_Lineal">[docs]</a>
 <span class="k">class</span> <span class="nc">SpringMover_Lineal</span><span class="p">(</span><span class="n">SpringMover_Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Movement of a ``mesh`` is determined by reinterpreting</span>
-<span class="sd">    it as a structure of stiff beams and solving an</span>
-<span class="sd">    associated discrete linear elasticity problem.</span>
+<span class="sd">    Movement of a ``mesh`` is determined by reinterpreting it as a structure of stiff</span>
+<span class="sd">    beams and solving an associated discrete linear elasticity problem.</span>
 
-<span class="sd">    We consider the &#39;lineal&#39; case, as described in</span>
-<span class="sd">    Farhat, Degand, Koobus and Lesoinne, &quot;Torsional</span>
-<span class="sd">    springs for two-dimensional dynamic unstructured fluid</span>
-<span class="sd">    meshes&quot; (1998), Computer methods in applied mechanics</span>
-<span class="sd">    and engineering, 163:231-245.</span>
+<span class="sd">    We consider the &#39;lineal&#39; case, as described in Farhat, Degand, Koobus and Lesoinne,</span>
+<span class="sd">    &quot;Torsional springs for two-dimensional dynamic unstructured fluid meshes&quot; (1998),</span>
+<span class="sd">    Computer methods in applied mechanics and engineering, 163:231-245.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SpringMover_Lineal.move">
 <a class="viewcode-back" href="../../movement.html#movement.spring.SpringMover_Lineal.move">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;SpringMover_Lineal.move&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">update_forcings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fixed_boundaries</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">update_boundary_displacement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary_conditions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Assemble and solve the lineal spring system and</span>
-<span class="sd">        update the coordinates.</span>
+<span class="sd">        Assemble and solve the lineal spring system and update the coordinates.</span>
 
 <span class="sd">        :arg time: the current time</span>
-<span class="sd">        :kwarg update_forcings: function that updates</span>
-<span class="sd">            the forcing :attr:`f` at the current time</span>
-<span class="sd">        :kwarg fixed_boundaries: list of boundaries</span>
-<span class="sd">            where Dirichlet conditions are to be</span>
-<span class="sd">            enforced</span>
+<span class="sd">        :type time: :class:`float`</span>
+<span class="sd">        :kwarg update_boundary_displacement: function that updates the boundary</span>
+<span class="sd">            conditions at the current time</span>
+<span class="sd">        :type update_boundary_displacement: :class:`~.Callable` with a single argument of</span>
+<span class="sd">            :class:`float` type</span>
+<span class="sd">        :kwarg boundary_conditions: Dirichlet boundary conditions to be enforced</span>
+<span class="sd">        :type boundary_conditions: :class:`~.DirichletBC` or :class:`list` thereof</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">update_forcings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">update_forcings</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">update_boundary_displacement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">update_boundary_displacement</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
 
-        <span class="c1"># Assemble</span>
-        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stiffness_matrix</span>
-        <span class="n">rhs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-
-        <span class="c1"># Solve</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
-
-        <span class="c1"># Enforce Dirichlet conditions as a post-process</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fixed_boundaries</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">apply_dirichlet_conditions</span><span class="p">(</span><span class="n">fixed_boundaries</span><span class="p">)</span>
+        <span class="c1"># Assemble and solve the linear system</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assemble_stiffness_matrix</span><span class="p">(</span><span class="n">boundary_conditions</span><span class="o">=</span><span class="n">boundary_conditions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">displacement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
 
         <span class="c1"># Update mesh coordinates</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="o">.</span><span class="n">shape</span>
@@ -284,15 +318,12 @@
 <a class="viewcode-back" href="../../movement.html#movement.spring.SpringMover_Torsional">[docs]</a>
 <span class="k">class</span> <span class="nc">SpringMover_Torsional</span><span class="p">(</span><span class="n">SpringMover_Lineal</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Movement of a ``mesh`` is determined by reinterpreting</span>
-<span class="sd">    it as a structure of stiff beams and solving an</span>
-<span class="sd">    associated discrete linear elasticity problem.</span>
+<span class="sd">    Movement of a ``mesh`` is determined by reinterpreting it as a structure of stiff</span>
+<span class="sd">    beams and solving an associated discrete linear elasticity problem.</span>
 
-<span class="sd">    We consider the &#39;torsional&#39; case, as described in</span>
-<span class="sd">    Farhat, Degand, Koobus and Lesoinne, &quot;Torsional</span>
-<span class="sd">    springs for two-dimensional dynamic unstructured fluid</span>
-<span class="sd">    meshes&quot; (1998), Computer methods in applied mechanics</span>
-<span class="sd">    and engineering, 163:231-245.</span>
+<span class="sd">    We consider the &#39;torsional&#39; case, as described in Farhat, Degand, Koobus and</span>
+<span class="sd">    Lesoinne, &quot;Torsional springs for two-dimensional dynamic unstructured fluid meshes&quot;</span>
+<span class="sd">    (1998), Computer methods in applied mechanics and engineering, 163:231-245.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

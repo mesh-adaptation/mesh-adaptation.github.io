@@ -37,9 +37,10 @@
 <h1>Monge-Ampère mesh movement in three dimensions<a class="headerlink" href="#monge-ampere-mesh-movement-in-three-dimensions" title="Link to this heading">¶</a></h1>
 <p>In this demo we demonstrate that the  Monge-Ampère mesh movement
 can also be applied to 3D meshes. We employ the <cite>sinatan3</cite> function
-from <span id="id1">[<a class="reference internal" href="#id8" title="Michael A Park, Aravind Balan, William K Anderson, Marshall C Galbraith, Philip Caplan, Hugh A Carson, Todd R Michal, Joshua A Krakos, Dmitry S Kamenetskiy, Adrien Loseille, and others. Verification of unstructured grid adaptation components. In AIAA Scitech 2019 Forum, 1723. 2019. doi:10.2514/6.2019-1723.">PBA+19</a>]</span> to introduce an interesting pattern.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">movement</span>
-<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+from <span id="id1">[<a class="reference internal" href="#id9" title="Michael A Park, Aravind Balan, William K Anderson, Marshall C Galbraith, Philip Caplan, Hugh A Carson, Todd R Michal, Joshua A Krakos, Dmitry S Kamenetskiy, Adrien Loseille, and others. Verification of unstructured grid adaptation components. In AIAA Scitech 2019 Forum, 1723. 2019. doi:10.2514/6.2019-1723.">PBA+19</a>]</span> to introduce an interesting pattern.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">movement</span>
 
 
 <span class="k">def</span> <span class="nf">sinatan3</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
@@ -96,11 +97,15 @@ that we will write to in every call when the monitor gets re-evaluated.</p>
 </pre></div>
 </div>
 <p>Let us try this on a fairly coarse unit cube mesh. Note that
-we use the <cite>“relaxation”</cite> method (see <span id="id2">[<a class="reference internal" href="#id7" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>),
+we use the <cite>“relaxation”</cite> method (see <span id="id2">[<a class="reference internal" href="#id8" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>),
 which gives faster convergence for this case.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">20</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MOVEMENT_REGRESSION_TEST&quot;</span><span class="p">)</span>
+<span class="n">rtol</span> <span class="o">=</span> <span class="mf">1.0e-03</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mf">1.0e-08</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mi">20</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitCubeMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-<span class="n">mover</span> <span class="o">=</span> <span class="n">movement</span><span class="o">.</span><span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;relaxation&quot;</span><span class="p">)</span>
+<span class="n">mover</span> <span class="o">=</span> <span class="n">movement</span><span class="o">.</span><span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;relaxation&quot;</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
 <span class="n">mover</span><span class="o">.</span><span class="n">move</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -119,11 +124,11 @@ minimize its discretisation error.</p>
 <p class="rubric">References</p>
 <div class="docutils container" id="id3">
 <div role="list" class="citation-list">
-<div class="citation" id="id7" role="doc-biblioentry">
+<div class="citation" id="id8" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">MCB18</a><span class="fn-bracket">]</span></span>
 <p>A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. <em>SIAM Journal on Scientific Computing</em>, 40(2):1121–1148, 2018. <a class="reference external" href="https://doi.org/10.1137/16M1109515">doi:10.1137/16M1109515</a>.</p>
 </div>
-<div class="citation" id="id8" role="doc-biblioentry">
+<div class="citation" id="id9" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">PBA+19</a><span class="fn-bracket">]</span></span>
 <p>Michael A Park, Aravind Balan, William K Anderson, Marshall C Galbraith, Philip Caplan, Hugh A Carson, Todd R Michal, Joshua A Krakos, Dmitry S Kamenetskiy, Adrien Loseille, and others. Verification of unstructured grid adaptation components. In <em>AIAA Scitech 2019 Forum</em>, 1723. 2019. <a class="reference external" href="https://doi.org/10.2514/6.2019-1723">doi:10.2514/6.2019-1723</a>.</p>
 </div>

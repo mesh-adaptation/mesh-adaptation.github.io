@@ -61,10 +61,16 @@ purposes.</p>
 <p>Based on the code in the Firedrake demo, we first solve the PDE on a uniform mesh.
 Because our chosen solution does not satisfy homogeneous Neumann boundary conditions,
 we instead apply Dirichlet boundary conditions based on the chosen analytical solution.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+
 <span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">MongeAmpereMover</span>
 
-<span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>  <span class="c1"># initial mesh</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MOVEMENT_REGRESSION_TEST&quot;</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mi">20</span>
+
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>  <span class="c1"># initial mesh</span>
 
 
 <span class="k">def</span> <span class="nf">u_exact</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
@@ -148,7 +154,8 @@ to a P1 function space <cite>V</cite> and take the maximum of the array of nodal
 <figure class="align-center" style="width: 60%">
 <img alt="../_images/monge_ampere_helmholtz-monitor.jpg" src="../_images/monge_ampere_helmholtz-monitor.jpg" />
 </figure>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mover</span> <span class="o">=</span> <span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;quasi_newton&quot;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rtol</span> <span class="o">=</span> <span class="mf">1.0e-03</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mf">1.0e-08</span>
+<span class="n">mover</span> <span class="o">=</span> <span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;quasi_newton&quot;</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
 <span class="n">mover</span><span class="o">.</span><span class="n">move</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -230,7 +237,7 @@ slower for large problems.</p>
     <span class="k">return</span> <span class="n">m</span>
 
 
-<span class="n">mover</span> <span class="o">=</span> <span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;quasi_newton&quot;</span><span class="p">)</span>
+<span class="n">mover</span> <span class="o">=</span> <span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;quasi_newton&quot;</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
 <span class="n">mover</span><span class="o">.</span><span class="n">move</span><span class="p">()</span>
 
 <span class="n">u_h</span> <span class="o">=</span> <span class="n">solve_helmholtz</span><span class="p">(</span><span class="n">mover</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>

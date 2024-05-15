@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>goalie.metric &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -37,56 +36,48 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Driver functions for metric-based mesh adaptation.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">animate.interpolation</span> <span class="kn">import</span> <span class="n">clement_interpolant</span>
-<span class="kn">import</span> <span class="nn">animate.metric</span>
-<span class="kn">import</span> <span class="nn">animate.recovery</span>
-<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">debug</span>
-<span class="kn">from</span> <span class="nn">.time_partition</span> <span class="kn">import</span> <span class="n">TimePartition</span>
-<span class="kn">from</span> <span class="nn">animate.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
+
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
 <span class="kn">import</span> <span class="nn">firedrake</span>
-<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyop2</span> <span class="kn">import</span> <span class="n">op2</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span> <span class="nn">animate.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">debug</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;enforce_variable_constraints&quot;</span><span class="p">,</span> <span class="s2">&quot;space_time_normalise&quot;</span><span class="p">,</span> <span class="s2">&quot;ramp_complexity&quot;</span><span class="p">]</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;enforce_element_constraints&quot;</span><span class="p">,</span> <span class="s2">&quot;space_time_normalise&quot;</span><span class="p">,</span> <span class="s2">&quot;ramp_complexity&quot;</span><span class="p">]</span>
-
-
-<span class="c1"># TODO: Implement this on the PETSc level and port it through to Firedrake</span>
-<div class="viewcode-block" id="enforce_element_constraints">
-<a class="viewcode-back" href="../../goalie.html#goalie.metric.enforce_element_constraints">[docs]</a>
+<div class="viewcode-block" id="enforce_variable_constraints">
+<a class="viewcode-back" href="../../goalie.html#goalie.metric.enforce_variable_constraints">[docs]</a>
 <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">enforce_element_constraints</span><span class="p">(</span>
-    <span class="n">metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RiemannianMetric</span><span class="p">],</span>
-    <span class="n">h_min</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">],</span>
-    <span class="n">h_max</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">],</span>
-    <span class="n">a_max</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">],</span>
-    <span class="n">boundary_tag</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">optimise</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Post-process a list of metrics to enforce minimum and</span>
-<span class="sd">    maximum element sizes, as well as maximum anisotropy.</span>
+<span class="k">def</span> <span class="nf">enforce_variable_constraints</span><span class="p">(</span>
+    <span class="n">metrics</span><span class="p">,</span>
+    <span class="n">h_min</span><span class="o">=</span><span class="mf">1.0e-30</span><span class="p">,</span>
+    <span class="n">h_max</span><span class="o">=</span><span class="mf">1.0e30</span><span class="p">,</span>
+    <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0e5</span><span class="p">,</span>
+    <span class="n">boundary_tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Post-process a list of metrics to enforce minimum and maximum element sizes, as well</span>
+<span class="sd">    as maximum anisotropy.</span>
 
 <span class="sd">    :arg metrics: the metrics</span>
-<span class="sd">    :arg h_min: minimum tolerated element size,</span>
-<span class="sd">        which could be a :class:`firedrake.function.Function`</span>
-<span class="sd">        or a number.</span>
-<span class="sd">    :arg h_max: maximum tolerated element size,</span>
-<span class="sd">        which could be a :class:`firedrake.function.Function`</span>
-<span class="sd">        or a number.</span>
-<span class="sd">    :arg a_max: maximum tolerated element anisotropy,</span>
-<span class="sd">        which could be a :class:`firedrake.function.Function`</span>
-<span class="sd">        or a number.</span>
+<span class="sd">    :type metrics: :class:`list` of :class:`~.RiemannianMetric`\s</span>
+<span class="sd">    :kwarg h_min: minimum tolerated element size</span>
+<span class="sd">    :type h_min: :class:`firedrake.function.Function`, :class:`float`, or :class:`int`</span>
+<span class="sd">    :kwarg h_max: maximum tolerated element size</span>
+<span class="sd">    :type h_max: :class:`firedrake.function.Function`, :class:`float`, or :class:`int`</span>
+<span class="sd">    :kwarg a_max: maximum tolerated element anisotropy</span>
+<span class="sd">    :type a_max: :class:`firedrake.function.Function`, :class:`float`, or :class:`int`</span>
 <span class="sd">    :kwarg boundary_tag: optional tag to enforce sizes on.</span>
-<span class="sd">    :kwarg optimise: is this a timed run?</span>
+<span class="sd">    :type boundary_tag: :class:`str` or :class:`int`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
-
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">RiemannianMetric</span><span class="p">):</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">metrics</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h_min</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
         <span class="n">h_min</span> <span class="o">=</span> <span class="p">[</span><span class="n">h_min</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h_max</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
@@ -94,57 +85,15 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a_max</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
         <span class="n">a_max</span> <span class="o">=</span> <span class="p">[</span><span class="n">a_max</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">amax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">h_min</span><span class="p">,</span> <span class="n">h_max</span><span class="p">,</span> <span class="n">a_max</span><span class="p">):</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
-        <span class="n">mesh</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
-        <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">interp</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">clement_interpolant</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-
-        <span class="c1"># Interpolate hmin, hmax and amax into P1</span>
-        <span class="n">hmin</span> <span class="o">=</span> <span class="n">interp</span><span class="p">(</span><span class="n">hmin</span><span class="p">)</span>
-        <span class="n">hmax</span> <span class="o">=</span> <span class="n">interp</span><span class="p">(</span><span class="n">hmax</span><span class="p">)</span>
-        <span class="n">amax</span> <span class="o">=</span> <span class="n">interp</span><span class="p">(</span><span class="n">amax</span><span class="p">)</span>
-
-        <span class="c1"># Check the values are okay</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">optimise</span><span class="p">:</span>
-            <span class="n">_hmin</span> <span class="o">=</span> <span class="n">hmin</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">_hmin</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Encountered negative non-positive hmin value: </span><span class="si">{</span><span class="n">_hmin</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">_hmax</span> <span class="o">=</span> <span class="n">hmax</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">_hmax</span> <span class="o">&lt;</span> <span class="n">_hmin</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Encountered hmax value smaller than hmin: </span><span class="si">{</span><span class="n">_hmax</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">_hmin</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
-            <span class="n">integral</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="n">hmax</span> <span class="o">&lt;</span> <span class="n">hmin</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">integral</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Encountered regions where hmax &lt; hmin: volume </span><span class="si">{</span><span class="n">integral</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">_amax</span> <span class="o">=</span> <span class="n">amax</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">_amax</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encountered amax value smaller than unity: </span><span class="si">{</span><span class="n">_amax</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Enforce constraints</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">node_set</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">node_set</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">node_set</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">boundary_tag</span><span class="p">)</span><span class="o">.</span><span class="n">node_set</span>
-        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
-            <span class="n">animate</span><span class="o">.</span><span class="n">recovery</span><span class="o">.</span><span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;postproc_metric&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span>
-            <span class="n">node_set</span><span class="p">,</span>
-            <span class="n">metric</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
-            <span class="n">hmin</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-            <span class="n">hmax</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
-            <span class="n">amax</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;dm_plex_metric_h_min&quot;</span><span class="p">:</span> <span class="n">hmin</span><span class="p">,</span>
+                <span class="s2">&quot;dm_plex_metric_h_max&quot;</span><span class="p">:</span> <span class="n">hmax</span><span class="p">,</span>
+                <span class="s2">&quot;dm_plex_metric_a_max&quot;</span><span class="p">:</span> <span class="n">amax</span><span class="p">,</span>
+                <span class="s2">&quot;dm_plex_metric_boundary_tag&quot;</span><span class="p">:</span> <span class="n">boundary_tag</span><span class="p">,</span>
+            <span class="p">}</span>
         <span class="p">)</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">enforce_spd</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">metrics</span></div>
 
 
@@ -153,29 +102,39 @@
 <a class="viewcode-back" href="../../goalie.html#goalie.metric.space_time_normalise">[docs]</a>
 <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">space_time_normalise</span><span class="p">(</span>
-    <span class="n">metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RiemannianMetric</span><span class="p">],</span>
-    <span class="n">time_partition</span><span class="p">:</span> <span class="n">TimePartition</span><span class="p">,</span>
-    <span class="n">metric_parameters</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span>
-    <span class="n">global_factor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">restrict_sizes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">restrict_anisotropy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RiemannianMetric</span><span class="p">]:</span>
+    <span class="n">metrics</span><span class="p">,</span>
+    <span class="n">time_partition</span><span class="p">,</span>
+    <span class="n">metric_parameters</span><span class="p">,</span>
+    <span class="n">global_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">restrict_sizes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">restrict_anisotropy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply :math:`L^p` normalisation in both space and time.</span>
 
 <span class="sd">    Based on Equation (1) in :cite:`Barral:2016`.</span>
 
-<span class="sd">    :arg metrics: list of :class:`RiemannianMetric`\s corresponding</span>
-<span class="sd">        to the metric associated with each subinterval</span>
-<span class="sd">    :arg time_partition: :class:`TimePartition` for the problem at hand</span>
+<span class="sd">    :arg metrics: the metrics associated with each subinterval</span>
+<span class="sd">    :type metrics: :class:`list` of :class:`~.RiemannianMetric`\s</span>
+<span class="sd">    :arg time_partition: temporal discretisation for the problem at hand</span>
+<span class="sd">    :type time_partition: :class:`TimePartition`</span>
 <span class="sd">    :arg metric_parameters: dictionary containing the target *space-time* metric</span>
 <span class="sd">        complexity under `dm_plex_metric_target_complexity` and the normalisation order</span>
 <span class="sd">        under `dm_plex_metric_p`, or a list thereof</span>
+<span class="sd">    :type metric_parameters: :class:`list` of :class:`dict`\s or a single :class:`dict`</span>
+<span class="sd">        to use for all subintervals</span>
 <span class="sd">    :kwarg global_factor: pre-computed global normalisation factor</span>
-<span class="sd">    :kwarg boundary: is the normalisation to be done over the boundary?</span>
-<span class="sd">    :kwarg restrict_sizes: should minimum and maximum metric magnitudes be enforced?</span>
-<span class="sd">    :kwarg restrict_anisotropy: should maximum anisotropy be enforced?</span>
+<span class="sd">    :type global_factor: :class:`float`</span>
+<span class="sd">    :kwarg boundary: if ``True``, the normalisation to be performed over the boundary</span>
+<span class="sd">    :type boundary: :class:`bool`</span>
+<span class="sd">    :kwarg restrict_sizes: if ``True``, minimum and maximum metric magnitudes are</span>
+<span class="sd">        enforced</span>
+<span class="sd">    :type restrict_sizes: :class:`bool`</span>
+<span class="sd">    :kwarg restrict_anisotropy: if ``True``, maximum anisotropy is enforced</span>
+<span class="sd">    :type restrict_anisotropy: :class:`bool`</span>
+<span class="sd">    :returns: the space-time normalised metrics</span>
+<span class="sd">    :rtype: :class:`list` of :class:`~.RiemannianMetric`\s</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric_parameters</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">metric_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">metric_parameters</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_partition</span><span class="p">))]</span>
@@ -261,28 +220,32 @@
 
 <div class="viewcode-block" id="ramp_complexity">
 <a class="viewcode-back" href="../../goalie.html#goalie.metric.ramp_complexity">[docs]</a>
-<span class="k">def</span> <span class="nf">ramp_complexity</span><span class="p">(</span>
-    <span class="n">base</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">ramp_complexity</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">num_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ramp up the target complexity over the first few iterations.</span>
 
 <span class="sd">    :arg base: the base complexity to start from</span>
+<span class="sd">    :type base: :class:`float`</span>
 <span class="sd">    :arg target: the desired complexity</span>
-<span class="sd">    :arg i: the current iteration</span>
+<span class="sd">    :type target: :class:`float`</span>
+<span class="sd">    :arg iteration: the current iteration</span>
+<span class="sd">    :type iteration: :class:`int`</span>
 <span class="sd">    :kwarg num_iterations: how many iterations to ramp over?</span>
+<span class="sd">    :type num_iterations: :class:`int`</span>
+<span class="sd">    :returns: the ramped target complexity</span>
+<span class="sd">    :rtype: :class:`float`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">base</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Base complexity must be positive, not </span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">target</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target complexity must be positive, not </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current iteration must be non-negative, not </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">iteration</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current iteration must be non-negative, not </span><span class="si">{</span><span class="n">iteration</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_iterations</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Number of iterations must be non-negative, not </span><span class="si">{</span><span class="n">num_iterations</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
-    <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">num_iterations</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">num_iterations</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">num_iterations</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">iteration</span> <span class="o">/</span> <span class="n">num_iterations</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">target</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">base</span></div>
 
 </pre></div>

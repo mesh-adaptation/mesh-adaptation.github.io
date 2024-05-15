@@ -41,14 +41,14 @@ test case. Here, we combine the goal-oriented error estimation approach from
 exposition of goal-oriented mesh adaptation in these demos.</p>
 <p>We copy over the setup as before. The only difference is that we import from
 <cite>goalie_adjoint</cite> rather than <cite>goalie</cite>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">animate.adapt</span> <span class="kn">import</span> <span class="n">adapt</span>
 <span class="kn">from</span> <span class="nn">animate.metric</span> <span class="kn">import</span> <span class="n">RiemannianMetric</span>
-<span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
+<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">ticker</span>
 
+<span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
@@ -95,14 +95,6 @@ exposition of goal-oriented mesh adaptation in these demos.</p>
     <span class="k">return</span> <span class="n">form</span>
 
 
-<span class="k">def</span> <span class="nf">get_bcs</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">bcs</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
-        <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">DirichletBC</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">bcs</span>
-
-
 <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
@@ -115,7 +107,7 @@ exposition of goal-oriented mesh adaptation in these demos.</p>
 
         <span class="c1"># Setup variational problem</span>
         <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c_</span><span class="p">)})[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
-        <span class="n">bc</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">bcs</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">bc</span> <span class="o">=</span> <span class="n">DirichletBC</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bc</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
@@ -153,7 +145,6 @@ iterations.</p>
     <span class="n">mesh</span><span class="p">,</span>
     <span class="n">get_function_spaces</span><span class="o">=</span><span class="n">get_function_spaces</span><span class="p">,</span>
     <span class="n">get_form</span><span class="o">=</span><span class="n">get_form</span><span class="p">,</span>
-    <span class="n">get_bcs</span><span class="o">=</span><span class="n">get_bcs</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="o">=</span><span class="n">get_solver</span><span class="p">,</span>
     <span class="n">get_qoi</span><span class="o">=</span><span class="n">get_qoi</span><span class="p">,</span>
     <span class="n">qoi_type</span><span class="o">=</span><span class="s2">&quot;steady&quot;</span><span class="p">,</span>
@@ -359,7 +350,6 @@ it.</p>
     <span class="n">mesh</span><span class="p">,</span>
     <span class="n">get_function_spaces</span><span class="o">=</span><span class="n">get_function_spaces</span><span class="p">,</span>
     <span class="n">get_form</span><span class="o">=</span><span class="n">get_form</span><span class="p">,</span>
-    <span class="n">get_bcs</span><span class="o">=</span><span class="n">get_bcs</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="o">=</span><span class="n">get_solver</span><span class="p">,</span>
     <span class="n">get_qoi</span><span class="o">=</span><span class="n">get_qoi</span><span class="p">,</span>
     <span class="n">qoi_type</span><span class="o">=</span><span class="s2">&quot;steady&quot;</span><span class="p">,</span>

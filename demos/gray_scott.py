@@ -10,6 +10,7 @@
 # diffusivities and react with one another nonlinearly. ::
 
 from firedrake import *
+
 from goalie_adjoint import *
 
 # The problem is defined on a doubly periodic mesh of squares. ::
@@ -169,7 +170,7 @@ if not test:
         fwd_outfile = VTKFile(f"gray_scott/{field}_forward.pvd")
         adj_outfile = VTKFile(f"gray_scott/{field}_adjoint.pvd")
         fwd_outfile.write(*ic[field].subfunctions)
-        for i, mesh in enumerate(mesh_seq):
+        for i in range(num_subintervals):
             for sol in sols["forward"][i]:
                 fwd_outfile.write(*sol.subfunctions)
             for sol in sols["adjoint"][i]:

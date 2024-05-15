@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>animate.metric &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -34,23 +33,26 @@
           <div class="body" role="main">
             
   <h1>Source code for animate.metric</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">clement_interpolant</span>
-<span class="kn">from</span> <span class="nn">.recovery</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">recover_gradient_l2</span><span class="p">,</span>
-    <span class="n">recover_hessian_clement</span><span class="p">,</span>
-    <span class="n">recover_boundary_hessian</span><span class="p">,</span>
-    <span class="n">get_metric_kernel</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span></span><span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
 <span class="kn">import</span> <span class="nn">firedrake</span>
 <span class="kn">import</span> <span class="nn">firedrake.function</span> <span class="k">as</span> <span class="nn">ffunc</span>
 <span class="kn">import</span> <span class="nn">firedrake.functionspace</span> <span class="k">as</span> <span class="nn">ffs</span>
 <span class="kn">import</span> <span class="nn">firedrake.mesh</span> <span class="k">as</span> <span class="nn">fmesh</span>
-<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span><span class="p">,</span> <span class="n">OptionsManager</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyop2</span> <span class="kn">import</span> <span class="n">op2</span>
 <span class="kn">import</span> <span class="nn">sympy</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
+<span class="kn">from</span> <span class="nn">firedrake.__future__</span> <span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">OptionsManager</span><span class="p">,</span> <span class="n">PETSc</span>
+<span class="kn">from</span> <span class="nn">pyop2</span> <span class="kn">import</span> <span class="n">op2</span>
+
+<span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">clement_interpolant</span>
+<span class="kn">from</span> <span class="nn">.recovery</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_metric_kernel</span><span class="p">,</span>
+    <span class="n">recover_boundary_hessian</span><span class="p">,</span>
+    <span class="n">recover_gradient_l2</span><span class="p">,</span>
+    <span class="n">recover_hessian_clement</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RiemannianMetric&quot;</span><span class="p">,</span> <span class="s2">&quot;determine_metric_complexity&quot;</span><span class="p">,</span> <span class="s2">&quot;intersect_on_boundary&quot;</span><span class="p">]</span>
 
@@ -73,6 +75,26 @@
 <span class="sd">      https://petsc.org/release/docs/manual/dmplex/#metric-based-mesh-adaptation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">_supported_parameters</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;dm_plex_metric_target_complexity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_h_min&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_h_max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_a_max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_gradation_factor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_hausdorff_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_boundary_tag&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_no_insert&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_no_swap&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_no_move&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_no_surf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_num_iterations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_verbosity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_isotropic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_uniform&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dm_plex_metric_restrict_anisotropy_first&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_space</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -82,10 +104,12 @@
 <span class="sd">            :class:`~.Function`. In this case, the function values are copied. If a</span>
 <span class="sd">            :class:`~firedrake.mesh.MeshGeometry` is passed here then a tensor</span>
 <span class="sd">            :math:`\mathbb P1` space is built on top of it.</span>
+<span class="sd">        :kwarg metric_parameters: same as for :func:`set_parameters &lt;set_parameters&gt;`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">fmesh</span><span class="o">.</span><span class="n">MeshGeometry</span><span class="p">):</span>
             <span class="n">function_space</span> <span class="o">=</span> <span class="n">ffs</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metric_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metric_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">metric_parameters</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;metric_parameters&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># Check that we have an appropriate tensor P1 function</span>
@@ -116,7 +140,18 @@
         <span class="c1"># Adjust the section</span>
         <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">tdim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
         <span class="n">entity_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">tdim</span><span class="o">**</span><span class="mi">2</span>
-        <span class="n">plex</span><span class="o">.</span><span class="n">setSection</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">entity_dofs</span><span class="p">))</span>
+        <span class="n">plex</span><span class="o">.</span><span class="n">setSection</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">entity_dofs</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># Process spatially variable metric parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;dm_plex_metric_h_min&quot;</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0e-30</span><span class="p">),</span>
+            <span class="s2">&quot;dm_plex_metric_h_max&quot;</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0e30</span><span class="p">),</span>
+            <span class="s2">&quot;dm_plex_metric_a_max&quot;</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0e5</span><span class="p">),</span>
+            <span class="s2">&quot;dm_plex_metric_boundary_tag&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters_set</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">metric_parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">metric_parameters</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">el</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
@@ -124,26 +159,116 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Riemannian metric should be in P1 space, not &#39;</span><span class="si">{</span><span class="n">el</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_process_parameters</span><span class="p">(</span><span class="n">metric_parameters</span><span class="p">):</span>
-        <span class="n">mp</span> <span class="o">=</span> <span class="n">metric_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s2">&quot;dm_plex_metric&quot;</span> <span class="ow">in</span> <span class="n">mp</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mp</span><span class="p">[</span><span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">mp</span><span class="p">[</span><span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">])]</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="n">mp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">mp</span>
+    <span class="k">def</span> <span class="nf">_collapse_parameters</span><span class="p">(</span><span class="n">metric_parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Account for concise nested dictionary formatting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;dm_plex_metric&quot;</span> <span class="ow">in</span> <span class="n">metric_parameters</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metric_parameters</span><span class="p">[</span><span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">metric_parameters</span><span class="p">[</span><span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">])]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">metric_parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dm_plex_metric&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metric_parameters</span>
+
+    <span class="k">def</span> <span class="nf">_process_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_parameters</span><span class="p">):</span>
+        <span class="n">mp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collapse_parameters</span><span class="p">(</span><span class="n">metric_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+        <span class="c1"># Check all parameters</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">mp</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;dm_plex_metric_&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unsupported metric parameter &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="s2">&quot; Metric parameters must start with the prefix &#39;dm_plex_metric_&#39;.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supported_parameters</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported metric parameter &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Spatially varying parameters need to be treated differently</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;h_min&quot;</span><span class="p">,</span> <span class="s2">&quot;h_max&quot;</span><span class="p">,</span> <span class="s2">&quot;a_max&quot;</span><span class="p">):</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;dm_plex_metric_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">,</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">)):</span>
+                <span class="n">vp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">mp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters_set</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># The boundary_tag parameter does not currently exist in PETSc</span>
+        <span class="k">if</span> <span class="s2">&quot;dm_plex_metric_boundary_tag&quot;</span> <span class="ow">in</span> <span class="n">mp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters_set</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">vp</span><span class="p">[</span><span class="s2">&quot;dm_plex_metric_boundary_tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dm_plex_metric_boundary_tag&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mp</span><span class="p">,</span> <span class="n">vp</span>
 
 <div class="viewcode-block" id="RiemannianMetric.set_parameters">
 <a class="viewcode-back" href="../../animate.html#animate.metric.RiemannianMetric.set_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_parameters</span><span class="o">=</span><span class="p">{}):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set metric parameter values internally.</span>
+    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set metric parameter values internally. All options have the prefix</span>
+<span class="sd">        `dm_plex_metric_` and are listed below (with prefix dropped for brevity). Note</span>
+<span class="sd">        that any parameter which supports :class:`~.Function` values must be in a</span>
+<span class="sd">        :math:`\mathbb{P}1` space defined on the same mesh as the metric, i.e., from</span>
+<span class="sd">        ``FunctionSpace(mesh, &quot;CG&quot;, 1)``.</span>
 
-<span class="sd">        :kwarg metric_parameters: a dictionary of parameters to be passed to PETSc&#39;s</span>
-<span class="sd">            Riemannian metric implementation. All such options have the prefix</span>
-<span class="sd">            `dm_plex_metric_`.</span>
+<span class="sd">        * `target_complexity`: Strictly positive target metric complexity value. No</span>
+<span class="sd">            default - **must be set**.</span>
+<span class="sd">        * `h_min`: Minimum tolerated metric magnitude, which allows approximate control</span>
+<span class="sd">            of minimum element size in the adapted mesh. Supports :class:`~.Constant`</span>
+<span class="sd">            and :class:`~.Function` input, as well as :class:`float`. Default: 1.0e-30.</span>
+<span class="sd">        * `h_max`: Maximum tolerated metric magnitude, which allows approximate control</span>
+<span class="sd">            of maximum element size in the adapted mesh. Supports :class:`~.Constant`</span>
+<span class="sd">            and :class:`~.Function` input, as well as :class:`float`. Default: 1.0e+30.</span>
+<span class="sd">        * `a_max`: Maximum tolerated metric anisotropy, which allows approximate control</span>
+<span class="sd">            of maximum element anisotropy in the adapted mesh. Supports</span>
+<span class="sd">            :class:`~.Constant` and :class:`~.Function` input, as well as :class:`float`.</span>
+<span class="sd">            Default: 1.0e+05.</span>
+<span class="sd">        * `p`: :math:`L^p` normalisation order. Supports ``np.inf`` as well as</span>
+<span class="sd">            :class:`float` values from :math:`[0,\infty)`. Default: 1.0.</span>
+<span class="sd">        * `gradation_factor`: Maximum ratio by which adjacent edges in the adapted mesh</span>
+<span class="sd">            may differ. Default: 1.3. For more detail, see</span>
+<span class="sd">            https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-hgrad.</span>
+<span class="sd">        * `hausdorff_number`: Spatial scale factor for the problem. The default value</span>
+<span class="sd">            0.01 corresponds to an :math:`\mathcal{O}(1)` length scale. A rule of thumb</span>
+<span class="sd">            is to scale this value appropriately to the length scale of your problem.</span>
+<span class="sd">            For more detail, see</span>
+<span class="sd">            https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-hausd.</span>
+<span class="sd">        * `boundary_tag`: Mesh boundary tag to restrict attention to during</span>
+<span class="sd">            boundary-specific metric manipulations. Unset by default, which implies all</span>
+<span class="sd">            boundaries are considered. (Note that this parameter does not currently exist</span>
+<span class="sd">            in the underlying PETSc implementation.)</span>
+<span class="sd">        * `no_insert`: Boolean flag for turning off node insertion and deletion during</span>
+<span class="sd">            adaptation. Default: False.</span>
+<span class="sd">        * `no_swap`: Boolean flag for turning off edge and face swapping during</span>
+<span class="sd">            adaptation. Default: False.</span>
+<span class="sd">        * `no_move`: Boolean flag for turning off node movement during adaptation.</span>
+<span class="sd">            Default: False.</span>
+<span class="sd">        * `no_surf`: Boolean flag for turning off surface modification during adaptation.</span>
+<span class="sd">            Default: False.</span>
+<span class="sd">        * `num_iterations`: Number of adaptation-repartitioning iterations in the</span>
+<span class="sd">            parallel case. Default: 3. For details on the parallel algorithm, see</span>
+<span class="sd">            https://inria.hal.science/hal-02386837.</span>
+<span class="sd">        * `verbosity`: Verbosity of the mesh adaptation package (-1 = silent,</span>
+<span class="sd">            10 = maximum). Default: -1. For more detail, see</span>
+<span class="sd">            https://www.mmgtools.org/mmg-remesher-try-mmg/mmg-remesher-options/mmg-remesher-option-v.</span>
+<span class="sd">        * `isotropic`: Optimisation for isotropic metrics. (Currently unsupported.)</span>
+<span class="sd">        * `uniform`: Optimisation for uniform metrics. (Currently unsupported.)</span>
+<span class="sd">        * `restrict_anisotropy_first`: Specify that anisotropy should be restricted</span>
+<span class="sd">            before normalisation? (Currently unsupported.)</span>
+
+<span class="sd">        :kwarg metric_parameters: parameters as above</span>
+<span class="sd">        :type metric_parameters: :class:`dict` with :class:`str` keys and value which</span>
+<span class="sd">            may take various types</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">metric_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">(</span><span class="n">metric_parameters</span><span class="p">))</span>
-        <span class="k">with</span> <span class="n">OptionsManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_parameters</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">inserted_options</span><span class="p">():</span>
+        <span class="n">metric_parameters</span> <span class="o">=</span> <span class="n">metric_parameters</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">mp</span><span class="p">,</span> <span class="n">vp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">(</span><span class="n">metric_parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metric_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">vp</span><span class="p">)</span>
+
+        <span class="c1"># Pass parameters to PETSc</span>
+        <span class="k">with</span> <span class="n">OptionsManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metric_parameters</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">inserted_options</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">metricSetFromOptions</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">metricIsUniform</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
@@ -152,8 +277,19 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">metricIsIsotropic</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Isotropic metric optimisations are not supported in Firedrake.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">metricRestrictAnisotropyFirst</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Restricting metric anisotropy first is not supported in Firedrake.&quot;</span>
             <span class="p">)</span></div>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metric_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters_set</span><span class="p">:</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mp</span>
 
     <span class="k">def</span> <span class="nf">_create_from_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
         <span class="n">bsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">cdim</span>
@@ -169,7 +305,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tdim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
         <span class="n">entity_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span><span class="o">.</span><span class="n">geometric_dimension</span><span class="p">()</span>
-        <span class="n">coord_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">entity_dofs</span><span class="p">)</span>
+        <span class="n">coord_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mesh</span><span class="o">.</span><span class="n">create_section</span><span class="p">(</span><span class="n">entity_dofs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># NOTE: section doesn&#39;t have any fields, but PETSc assumes it to have one</span>
         <span class="n">coord_dm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">getCoordinateDM</span><span class="p">()</span>
         <span class="n">coord_dm</span><span class="o">.</span><span class="n">setSection</span><span class="p">(</span><span class="n">coord_section</span><span class="p">)</span>
@@ -187,13 +323,14 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Copy the metric and any associated parameters.</span>
 
-<span class="sd">        :kwarg deepcopy: If ``True``, the new :class:`~.RiemannianMetric` will allocate</span>
-<span class="sd">            new space and copy values.  If ``False``, the default, then the new</span>
-<span class="sd">            :class:`~.RiemannianMetric` will share the dof values.</span>
+<span class="sd">        :kwarg deepcopy: If ``True``, the new metric will allocate new space and copy</span>
+<span class="sd">            values. If ``False`` (default) then the new metric will share the DoF values.</span>
+<span class="sd">        :type deepcopy: :class:`bool`</span>
 <span class="sd">        :return: a copy of the metric with the same parameters set</span>
+<span class="sd">        :rtype: :class:`~.RiemannianMetric`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">metric</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deepcopy</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">))</span>
-        <span class="n">metric</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_parameters</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metric</span></div>
 
 
@@ -311,14 +448,90 @@
             <span class="s2">&quot;restrictSizes&quot;</span><span class="p">:</span> <span class="n">restrict_sizes</span><span class="p">,</span>
             <span class="s2">&quot;restrictAnisotropy&quot;</span><span class="p">:</span> <span class="n">restrict_anisotropy</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters_set</span><span class="p">:</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s2">&quot;restrictSizes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s2">&quot;restrictAnisotropy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_from_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">)</span>
         <span class="n">det</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">metricDeterminantCreate</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_plex</span><span class="o">.</span><span class="n">metricEnforceSPD</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">det</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="n">v</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">restrict_sizes</span> <span class="ow">and</span> <span class="n">restrict_anisotropy</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_variable_constraints</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">restrict_sizes</span> <span class="ow">or</span> <span class="n">restrict_anisotropy</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s2">&quot;Can only currently restrict both sizes and anisotropy.&quot;</span>
+                <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
+
+    <span class="c1"># TODO: Implement this on the PETSc side</span>
+    <span class="c1">#       See https://gitlab.com/petsc/petsc/-/issues/1450</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_enforce_variable_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Post-process a metric to enforce minimum and maximum metric magnitudes</span>
+<span class="sd">        and maximum anisotropy, any of which may vary spatially.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
+        <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">interp</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="w">            </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Try to apply a Clement interpolant.</span>
+<span class="sd">              * `TypeError` indicates something other than a :class:`Function` passed.</span>
+<span class="sd">              * `ValueError` indicates the :class:`Function` is not :math:`\mathbb{P}0`.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">clement_interpolant</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">target_space</span><span class="o">=</span><span class="n">P1</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ffunc</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">P1</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="n">h_min</span> <span class="o">=</span> <span class="n">interp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters</span><span class="p">[</span><span class="s2">&quot;dm_plex_metric_h_min&quot;</span><span class="p">])</span>
+        <span class="n">h_max</span> <span class="o">=</span> <span class="n">interp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters</span><span class="p">[</span><span class="s2">&quot;dm_plex_metric_h_max&quot;</span><span class="p">])</span>
+        <span class="n">a_max</span> <span class="o">=</span> <span class="n">interp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters</span><span class="p">[</span><span class="s2">&quot;dm_plex_metric_a_max&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Check minimal h_min value is positive and smaller than minimal h_max value</span>
+        <span class="n">_hmin</span> <span class="o">=</span> <span class="n">h_min</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">_hmin</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encountered non-positive h_min value: </span><span class="si">{</span><span class="n">_hmin</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">h_max</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">_hmin</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Minimum h_max value is smaller than minimum h_min value:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">h_max</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">_hmin</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check h_max is always at least h_min</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">integral</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">conditional</span><span class="p">(</span><span class="n">h_max</span> <span class="o">&lt;</span> <span class="n">h_min</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">integral</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Encountered regions where h_max &lt; h_min.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check minimal a_max value is close to unity or larger</span>
+        <span class="n">_a_max</span> <span class="o">=</span> <span class="n">a_max</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">_a_max</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">_a_max</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encountered a_max value smaller than unity: </span><span class="si">{</span><span class="n">_a_max</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
+        <span class="n">boundary_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dm_plex_metric_boundary_tag&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">boundary_tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span><span class="o">.</span><span class="n">node_set</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bc</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function_space</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">boundary_tag</span><span class="p">)</span>
+            <span class="n">node_set</span> <span class="o">=</span> <span class="n">bc</span><span class="o">.</span><span class="n">node_set</span>
+        <span class="n">op2</span><span class="o">.</span><span class="n">par_loop</span><span class="p">(</span>
+            <span class="n">get_metric_kernel</span><span class="p">(</span><span class="s2">&quot;postproc_metric&quot;</span><span class="p">,</span> <span class="n">dim</span><span class="p">),</span>
+            <span class="n">node_set</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">RW</span><span class="p">),</span>
+            <span class="n">h_min</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="n">h_max</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+            <span class="n">a_max</span><span class="o">.</span><span class="n">dat</span><span class="p">(</span><span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="RiemannianMetric.normalise">
 <a class="viewcode-back" href="../../animate.html#animate.metric.RiemannianMetric.normalise">[docs]</a>
@@ -746,10 +959,12 @@
         <span class="c1"># Get optimal element volume</span>
         <span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">K_opt</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">error_indicator</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">convergence_rate</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">K_opt_av</span> <span class="o">=</span> <span class="n">K_opt</span> <span class="o">/</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K_opt</span><span class="p">,</span> <span class="n">P0</span><span class="p">)</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">K_opt_av</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">K_opt</span> <span class="o">/</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K_opt</span><span class="p">,</span> <span class="n">P0</span><span class="p">))</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="n">K_ratio</span> <span class="o">=</span> <span class="n">target_complexity</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">K_opt_av</span> <span class="o">*</span> <span class="n">K_hat</span> <span class="o">/</span> <span class="n">K</span><span class="p">),</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">dim</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_any_inf</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K_ratio</span><span class="p">,</span> <span class="n">P0</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_any_inf</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">interpolate</span><span class="p">(</span><span class="n">K_ratio</span><span class="p">,</span> <span class="n">P0</span><span class="p">))):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;K_ratio contains non-finite values.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Interpolate from P1 to P0</span>

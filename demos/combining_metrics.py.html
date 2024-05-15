@@ -56,7 +56,7 @@ edge length in different directions through their principle axes. The
 intersection of two metrics produces a metric whose associated ellipsoid is
 the largest ellipsoid that can fit within the ellipsoids of the two metrics:</p>
 <figure class="align-center" style="width: 70%">
-<img alt="../_images/combining_ellipse_intersection.jpg" src="../_images/combining_ellipse_intersection.jpg" />
+<img alt="demos/combining_ellipse_intersection.jpg" src="demos/combining_ellipse_intersection.jpg" />
 </figure>
 <p>Below we first set up two metrics: Metric 1 asks for a medium resolution of
 <span class="math notranslate nohighlight">\(hm=0.025\)</span> in the left, and a coarse resolution of <span class="math notranslate nohighlight">\(hc=0.1\)</span> in
@@ -66,8 +66,9 @@ the right half of the domain. Metric 2 prescribes the coarse resolution for
 <span class="math notranslate nohighlight">\(y\)</span>-direction, for <span class="math notranslate nohighlight">\(0.3&lt;y&lt;0.7\)</span></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">animate</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
+
+<span class="kn">from</span> <span class="nn">animate</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 <span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -96,11 +97,11 @@ the right half of the domain. Metric 2 prescribes the coarse resolution for
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Mesh based on metric2&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;combining_two_metrics.jpg&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;combining_metrics-inputs.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/combining_two_metrics.jpg" src="../_images/combining_two_metrics.jpg" />
+<img alt="../_images/combining_metrics-inputs.jpg" src="../_images/combining_metrics-inputs.jpg" />
 </figure>
 <p>We can intersect multiple metric by using the
 <a class="reference internal" href="../animate.html#animate.metric.RiemannianMetric.intersect" title="animate.metric.RiemannianMetric.intersect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">intersect()</span></code></a> method of a
@@ -115,11 +116,11 @@ then intersect it with metric2:</p>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Mesh based on intersected metric&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;combining_intersection.jpg&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;combining_metrics-intersection.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/combining_intersection.jpg" src="../_images/combining_intersection.jpg" />
+<img alt="../_images/combining_metrics-intersection.jpg" src="../_images/combining_metrics-intersection.jpg" />
 </figure>
 <p>As we can observe, in every region the resolution respects the minimum
 resolution in all directions asked for by both metrics. For example, in the
@@ -136,14 +137,17 @@ required by metric1.</p>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Mesh based on averaged metric&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;combining_averaging.jpg&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;combining_metrics-averaging.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/combining_averaging.jpg" src="../_images/combining_averaging.jpg" />
+<img alt="../_images/combining_metrics-averaging.jpg" src="../_images/combining_metrics-averaging.jpg" />
 </figure>
 <p>the resolution in, e.g., the region <span class="math notranslate nohighlight">\(x&lt;0.5, y&lt;0.3\)</span> is now based on an
 average of <span class="math notranslate nohighlight">\(hm=0.02\)</span> and <span class="math notranslate nohighlight">\(hc=0.1\)</span>, i.e. an edge length of 0.06.</p>
+<p>The <a class="reference external" href="./ping_pong.py.html">next demo</a> will consider a different topic: transferring
+fields between meshes.</p>
+<p>This demo can also be accessed as a <a class="reference external" href="combining_metrics.py">Python script</a>.</p>
 </section>
 
 

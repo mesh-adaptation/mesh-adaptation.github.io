@@ -42,16 +42,16 @@ Laplace equation of the form</p>
 \[-\Delta_{\boldsymbol{\xi}}\mathbf{v} = \boldsymbol{0},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is the so-called <em>mesh velocity</em> that we solve for. Note that
 the derivatives in the Laplace equation are in terms of the <em>computational coordinates</em>
-<span class="math notranslate nohighlight">\(\boldsymbol{\xi}}\)</span>, rather than the physical coordinates <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
+<span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span>, rather than the physical coordinates <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
 <p>With the mesh velocity, we update the physical coordinates according to</p>
 <div class="math notranslate nohighlight">
-\[\mathbf{x} := \mathbf{x} + \mathbf{v} * \Delta t,\]</div>
+\[\mathbf{x} := \mathbf{x} + \mathbf{v} \Delta t,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta t\)</span> is the timestep.</p>
 <p>To motivate why we might want to take this sort of approach, consider momentarily the
-1D case, where we have velocities <span class="math notranslate nohighlight">\(\{v_i\}_{i=1}^n at each of a sequence of
-:math:`n\in\mathbb{N}\)</span> points with uniform separation <span class="math notranslate nohighlight">\(h\)</span>. If we want to smooth
-out the local variation in the velocities in the vicinity of <span class="math notranslate nohighlight">\(v_i, we might
-consider averaging out :math:`(v_{i-1}-v_i)/h\)</span> and <span class="math notranslate nohighlight">\((v_{i+1}-v_i)/h\)</span>. Doing so
+1D case, where we have velocities <span class="math notranslate nohighlight">\(\{v_i\}_{i=1}^n\)</span> at each of a sequence of
+<span class="math notranslate nohighlight">\(n\in\mathbb{N}\)</span> points with uniform separation <span class="math notranslate nohighlight">\(h\)</span>. If we want to smooth
+out the local variation in the velocities in the vicinity of <span class="math notranslate nohighlight">\(v_i\)</span>, we might
+consider averaging out <span class="math notranslate nohighlight">\((v_{i-1}-v_i)/h\)</span> and <span class="math notranslate nohighlight">\((v_{i+1}-v_i)/h\)</span>. Doing so
 gives</p>
 <div class="math notranslate nohighlight">
 \[\frac1h(\frac{v_{i-1}-v_i}{h} + \frac{v_{i+1}-v_i}{h}) = 0,\]</div>
@@ -60,16 +60,14 @@ gives</p>
 \[\frac1{h^2}(-v_{i-1} + 2v_i - v_{i+1})) = 0,\]</div>
 <p>the left-hand side of which you might recognise as a finite difference approximation
 of the second derivative, i.e., the Laplace operator.</p>
-<p>We begin by importing from the namespaces of Firedrake and Movement.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="o">*</span>
-</pre></div>
-</div>
 <p>Let’s start with a uniform mesh of the unit square. It has four boundary segments,
 which are tagged with the integers 1, 2, 3, and 4. Note that segment 4 corresponds to
 the top boundary.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
+
+<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>

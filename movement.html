@@ -90,96 +90,107 @@ the current time</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover">
 <span class="sig-name descname"><span class="pre">MongeAmpereMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relaxation'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover" title="Link to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Movement of a <cite>mesh</cite> is determined by a <cite>monitor_function</cite>
+<dd><p>Movement of a <cite>mesh</cite> is determined by a <cite>monitor_function</cite>
 <span class="math notranslate nohighlight">\(m\)</span> and the Monge-Ampère type equation</p>
-</div></blockquote>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}m(x)\det(I + H(\phi)) = \theta,\\for a scalar potential :math:`\phi`, where :math:`I` is the
-identity matrix, :math:`\theta` is a normalisation coefficient
-and :math:`H(\phi)` denotes the Hessian of :math:`\phi` with
-respect to the coordinates :math:`\xi` of the computational mesh.\\The physical mesh coordinates :math:`x` are updated according to\end{aligned}\end{align} \]</div>
+\[m(x)\det(I + H(\phi)) = \theta,\]</div>
+<p>for a scalar potential <span class="math notranslate nohighlight">\(\phi\)</span>, where <span class="math notranslate nohighlight">\(I\)</span> is the
+identity matrix, <span class="math notranslate nohighlight">\(\theta\)</span> is a normalisation coefficient
+and <span class="math notranslate nohighlight">\(H(\phi)\)</span> denotes the Hessian of <span class="math notranslate nohighlight">\(\phi\)</span> with
+respect to the coordinates <span class="math notranslate nohighlight">\(\xi\)</span> of the computational mesh.</p>
+<p>The physical mesh coordinates <span class="math notranslate nohighlight">\(x\)</span> are updated according to</p>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}x = \xi + \nabla\phi.\\:arg mesh: the physical mesh
-:arg monitor_function: a Python function which takes a mesh as input
-:kwarg method: choose from 'relaxation' and 'quasi_newton'
-:kwarg phi_init: initial guess for the scalar potential
-:kwarg sigma_init: initial guess for the Hessian
-:return: converged scalar potential and Hessian\end{aligned}\end{align} \]</div>
+\[x = \xi + \nabla\phi.\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
+<li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – choose from ‘relaxation’ and ‘quasi_newton’</p></li>
+<li><p><strong>phi_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the scalar potential</p></li>
+<li><p><strong>sigma_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the Monge-Ampere Mover object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="movement.monge_ampere.MongeAmpereMover_Relaxation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation</span></code></a> or
+<a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton" title="movement.monge_ampere.MongeAmpereMover_QuasiNewton"><code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_QuasiNewton</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_QuasiNewton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_QuasiNewton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_QuasiNewton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_QuasiNewton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Base</span></code></p>
-<p>The elliptic Monge-Ampere equation is solved using a quasi-Newton
-method (see McRae et al. 2018 for details).</p>
-<section id="references">
-<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
-<p>A. T. T. McRae, C. J. Cotter, C. J. Budd, Optimal-transport-based
-mesh adaptivity on the plane and sphere using finite elements, SIAM
-Journal on Scientific Computing 40 (2) (2018) 1121–1148.
-doi:10.1137/16M1109515.</p>
+<p>The elliptic Monge-Ampere equation is solved using a quasi-Newton method (see
+<span id="id1">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span> for details).</p>
 <dl class="field-list simple">
-<dt class="field-odd">arg mesh<span class="colon">:</span></dt>
-<dd class="field-odd"><p>the physical mesh</p>
-</dd>
-<dt class="field-even">arg monitor_function<span class="colon">:</span></dt>
-<dd class="field-even"><p>a Python function which takes a mesh as input</p>
-</dd>
-<dt class="field-odd">kwarg maxiter<span class="colon">:</span></dt>
-<dd class="field-odd"><p>maximum number of iterations for the relaxation</p>
-</dd>
-<dt class="field-even">kwarg rtol<span class="colon">:</span></dt>
-<dd class="field-even"><p>relative tolerance for the residual</p>
-</dd>
-<dt class="field-odd">kwarg dtol<span class="colon">:</span></dt>
-<dd class="field-odd"><p>divergence tolerance for the residual</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
+<li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
+<li><p><strong>phi_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the scalar potential</p></li>
+<li><p><strong>sigma_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
+<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum number of iterations for the Quasi-Newton solver</p></li>
+<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – relative tolerance for the residual</p></li>
+<li><p><strong>dtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – divergence tolerance for the residual</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equidistributor</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor" title="Link to this definition">¶</a></dt>
 <dd><p>Setup the equidistributor for the quasi-newton method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the equidistributor</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearVariationalSolver</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton.move">
 <span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_QuasiNewton.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton.move" title="Link to this definition">¶</a></dt>
 <dd><p>Run the quasi-Newton method to convergence and update the mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the iteration count</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_Relaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_Relaxation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_Relaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_Relaxation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Base</span></code></p>
-<blockquote>
-<div><p>The elliptic Monge-Ampere equation is solved in a parabolised
-form using a pseudo-time relaxation,</p>
-</div></blockquote>
+<p>The elliptic Monge-Ampere equation is solved in a parabolised form using a
+pseudo-time relaxation,</p>
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}-\frac\partial{\partial\tau}\Delta\phi = m(x)\det(I + H(\phi)) - \theta,\\where :math:`\tau` is the pseudo-time variable. Forward Euler is
-used for the pseudo-time integration (see McRae et al. 2018 for
-details).\\References
-==========
-A. T. T. McRae, C. J. Cotter, C. J. Budd, Optimal-transport-based
-mesh adaptivity on the plane and sphere using finite elements, SIAM
-Journal on Scientific Computing 40 (2) (2018) 1121–1148.
-doi:10.1137/16M1109515.\end{aligned}\end{align} \]</div>
+\[-\frac\partial{\partial\tau}\Delta\phi = m(x)\det(I + H(\phi)) - \theta,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\tau\)</span> is the pseudo-time variable. Forward Euler is used for the
+pseudo-time integration (see <span id="id2">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span> for details).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mesh</strong> – the physical mesh</p></li>
-<li><p><strong>monitor_function</strong> – a Python function which takes a mesh as input</p></li>
-<li><p><strong>phi_init</strong> – initial guess for the scalar potential</p></li>
-<li><p><strong>sigma_init</strong> – initial guess for the Hessian</p></li>
-<li><p><strong>pseudo_timestep</strong> – pseudo-timestep to use for the relaxation</p></li>
-<li><p><strong>maxiter</strong> – maximum number of iterations for the relaxation</p></li>
-<li><p><strong>rtol</strong> – relative tolerance for the residual</p></li>
-<li><p><strong>dtol</strong> – divergence tolerance for the residual</p></li>
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
+<li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
+<li><p><strong>phi_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the scalar potential</p></li>
+<li><p><strong>sigma_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
+<li><p><strong>pseudo_timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pseudo-timestep to use for the relaxation</p></li>
+<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum number of iterations for the relaxation</p></li>
+<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – relative tolerance for the residual</p></li>
+<li><p><strong>dtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – divergence tolerance for the residual</p></li>
 </ul>
 </dd>
 </dl>
@@ -187,41 +198,44 @@ doi:10.1137/16M1109515.\end{aligned}\end{align} \]</div>
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equidistributor</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor" title="Link to this definition">¶</a></dt>
 <dd><p>Setup the equidistributor for the relaxation method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the equidistributor</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearVariationalSolver</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.move">
 <span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_Relaxation.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.move" title="Link to this definition">¶</a></dt>
 <dd><p>Run the relaxation method to convergence and update the mesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the iteration count</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pseudotimestepper</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper" title="Link to this definition">¶</a></dt>
 <dd><p>Setup the pseudo-timestepper for the relaxation method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the pseudo-timestepper</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearVariationalSolver</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="movement.monge_ampere.monge_ampere">
-<span class="sig-name descname"><span class="pre">monge_ampere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relaxation'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#monge_ampere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.monge_ampere" title="Link to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Movement of a <cite>mesh</cite> is determined by a <cite>monitor_function</cite>
-<span class="math notranslate nohighlight">\(m\)</span> and the Monge-Ampère type equation</p>
-</div></blockquote>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}m(x)\det(I + H(\phi)) = \theta,\\for a scalar potential :math:`\phi`, where :math:`I` is the
-identity matrix, :math:`\theta` is a normalisation coefficient
-and :math:`H(\phi)` denotes the Hessian of :math:`\phi` with
-respect to the coordinates :math:`\xi` of the computational mesh.\\The physical mesh coordinates :math:`x` are updated according to\end{aligned}\end{align} \]</div>
-<div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}x = \xi + \nabla\phi.\\:arg mesh: the physical mesh
-:arg monitor_function: a Python function which takes a mesh as input
-:kwarg method: choose from 'relaxation' and 'quasi_newton'
-:kwarg phi_init: initial guess for the scalar potential
-:kwarg sigma_init: initial guess for the Hessian
-:return: converged scalar potential and Hessian\end{aligned}\end{align} \]</div>
 </dd></dl>
 
 </section>
@@ -417,7 +431,6 @@ was created.</p>
 <li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation.pseudotimestepper</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#movement.monge_ampere.monge_ampere"><code class="docutils literal notranslate"><span class="pre">monge_ampere()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-movement.mover">movement.mover module</a><ul>

@@ -5,8 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>movement.monge_ampere &#8212; Animate, Movement and Goalie 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css?v=601dbdee" />
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -34,60 +33,74 @@
           <div class="body" role="main">
             
   <h1>Source code for movement.monge_ampere</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">firedrake</span>
+<span></span><span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 <span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">no_annotations</span>
-<span class="kn">import</span> <span class="nn">ufl</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">import</span> <span class="nn">movement.solver_parameters</span> <span class="k">as</span> <span class="nn">solver_parameters</span>
 <span class="kn">from</span> <span class="nn">movement.mover</span> <span class="kn">import</span> <span class="n">PrimeMover</span>
-
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;MongeAmpereMover_Relaxation&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MongeAmpereMover_QuasiNewton&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MongeAmpereMover&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;monge_ampere&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">tangential</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return component of v perpendicular to n (assumed normalized)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">v</span> <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
 
 
 <div class="viewcode-block" id="MongeAmpereMover">
 <a class="viewcode-back" href="../../movement.html#movement.monge_ampere.MongeAmpereMover">[docs]</a>
 <span class="k">def</span> <span class="nf">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;relaxation&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Movement of a `mesh` is determined by a `monitor_function`</span>
-<span class="sd">        :math:`m` and the Monge-Ampère type equation</span>
+<span class="sd">    Movement of a `mesh` is determined by a `monitor_function`</span>
+<span class="sd">    :math:`m` and the Monge-Ampère type equation</span>
 
-<span class="sd">    ..  math::</span>
-<span class="sd">            m(x)\det(I + H(\phi)) = \theta,</span>
+<span class="sd">    .. math::</span>
+<span class="sd">        m(x)\det(I + H(\phi)) = \theta,</span>
 
-<span class="sd">        for a scalar potential :math:`\phi`, where :math:`I` is the</span>
-<span class="sd">        identity matrix, :math:`\theta` is a normalisation coefficient</span>
-<span class="sd">        and :math:`H(\phi)` denotes the Hessian of :math:`\phi` with</span>
-<span class="sd">        respect to the coordinates :math:`\xi` of the computational mesh.</span>
+<span class="sd">    for a scalar potential :math:`\phi`, where :math:`I` is the</span>
+<span class="sd">    identity matrix, :math:`\theta` is a normalisation coefficient</span>
+<span class="sd">    and :math:`H(\phi)` denotes the Hessian of :math:`\phi` with</span>
+<span class="sd">    respect to the coordinates :math:`\xi` of the computational mesh.</span>
 
-<span class="sd">        The physical mesh coordinates :math:`x` are updated according to</span>
+<span class="sd">    The physical mesh coordinates :math:`x` are updated according to</span>
 
-<span class="sd">    ..  math::</span>
-<span class="sd">            x = \xi + \nabla\phi.</span>
+<span class="sd">    .. math::</span>
+<span class="sd">        x = \xi + \nabla\phi.</span>
 
-<span class="sd">        :arg mesh: the physical mesh</span>
-<span class="sd">        :arg monitor_function: a Python function which takes a mesh as input</span>
-<span class="sd">        :kwarg method: choose from &#39;relaxation&#39; and &#39;quasi_newton&#39;</span>
-<span class="sd">        :kwarg phi_init: initial guess for the scalar potential</span>
-<span class="sd">        :kwarg sigma_init: initial guess for the Hessian</span>
-<span class="sd">        :return: converged scalar potential and Hessian</span>
+<span class="sd">    :arg mesh: the physical mesh</span>
+<span class="sd">    :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
+<span class="sd">    :arg monitor_function: a Python function which takes a mesh as input</span>
+<span class="sd">    :type monitor_function: :class:`~.Callable`</span>
+<span class="sd">    :kwarg method: choose from &#39;relaxation&#39; and &#39;quasi_newton&#39;</span>
+<span class="sd">    :type method: :class:`str`</span>
+<span class="sd">    :kwarg phi_init: initial guess for the scalar potential</span>
+<span class="sd">    :type phi_init: :class:`firedrake.function.Function`</span>
+<span class="sd">    :kwarg sigma_init: initial guess for the Hessian</span>
+<span class="sd">    :type sigma_init: :class:`firedrake.function.Function`</span>
+<span class="sd">    :return: the Monge-Ampere Mover object</span>
+<span class="sd">    :rtype: :class:`MongeAmpereMover_Relaxation` or</span>
+<span class="sd">        :class:`MongeAmpereMover_QuasiNewton`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;relaxation&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">MongeAmpereMover_Relaxation</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;quasi_newton&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">MongeAmpereMover_QuasiNewton</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> not recognised.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39; not recognised.&quot;</span><span class="p">)</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">MongeAmpereMover_Base</span><span class="p">(</span><span class="n">PrimeMover</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MongeAmpereMover_Base</span><span class="p">(</span><span class="n">PrimeMover</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for mesh movers based on the solution</span>
 <span class="sd">    of Monge-Ampere type equations.</span>
@@ -96,19 +109,26 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :arg mesh: the physical mesh</span>
+<span class="sd">        :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
 <span class="sd">        :arg monitor_function: a Python function which takes a mesh as input</span>
+<span class="sd">        :type monitor_function: :class:`~.Callable`</span>
 <span class="sd">        :kwarg phi_init: initial guess for the scalar potential</span>
+<span class="sd">        :type phi_init: :class:`firedrake.function.Function`</span>
 <span class="sd">        :kwarg sigma_init: initial guess for the Hessian</span>
+<span class="sd">        :type sigma_init: :class:`firedrake.function.Function`</span>
 <span class="sd">        :kwarg maxiter: maximum number of iterations for the relaxation</span>
+<span class="sd">        :type maxiter: :class:`int`</span>
 <span class="sd">        :kwarg rtol: relative tolerance for the residual</span>
+<span class="sd">        :type rtol: :class:`float`</span>
 <span class="sd">        :kwarg dtol: divergence tolerance for the residual</span>
+<span class="sd">        :type dtol: :class:`float`</span>
 <span class="sd">        :kwarg fix_boundary_nodes: should all boundary nodes remain fixed?</span>
+<span class="sd">        :type fix_boundary_nodes: :class:`bool`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">monitor_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please supply a monitor function&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please supply a monitor function.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Collect parameters before calling super</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pseudo_dt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pseudo_timestep&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;maxiter&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rtol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rtol&quot;</span><span class="p">,</span> <span class="mf">1.0e-08</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dtol&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
@@ -122,41 +142,42 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Create objects used during the mesh movement</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_functions</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Monitor function&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Mesh volume&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">CellVolume</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">original_volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">L_P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_create_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Monitor function&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Mesh volume&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grad_phi</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="p">)</span>
 
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereBase.apply_initial_guess&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">apply_initial_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sigma_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">apply_initial_guess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi_init</span><span class="p">,</span> <span class="n">sigma_init</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialise the approximations to the scalar potential</span>
-<span class="sd">        and its hessian with an initial guess.</span>
+<span class="sd">        Initialise the approximations to the scalar potential and its Hessian with an</span>
+<span class="sd">        initial guess.</span>
 
-<span class="sd">        By default, both are initialised to zero, which corresponds</span>
-<span class="sd">        to the case where the computational and physical meshes</span>
-<span class="sd">        coincide.</span>
+<span class="sd">        By default, both are initialised to zero, which corresponds to the case where</span>
+<span class="sd">        the computational and physical meshes coincide.</span>
 
-<span class="sd">        :kwarg phi_init: initial guess for the scalar potential</span>
-<span class="sd">        :kwarg sigma_init: initial guess for the Hessian</span>
+<span class="sd">        :arg phi_init: initial guess for the scalar potential</span>
+<span class="sd">        :type phi_init: :class:`firedrake.function.Function`</span>
+<span class="sd">        :arg sigma_init: initial guess for the Hessian</span>
+<span class="sd">        :type sigma_init: :class:`firedrake.function.Function`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">phi_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sigma_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi_old&quot;</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sigma_old&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">phi_init</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sigma_init</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">phi_init</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sigma_init</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">phi_init</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">sigma_init</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">phi_init</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">sigma_init</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">phi_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sigma_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need to initialise both phi *and* sigma&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Need to initialise both phi *and* sigma.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
@@ -164,7 +185,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the following diagnostics:</span>
 <span class="sd">          1) the ratio of the smallest and largest element volumes;</span>
-<span class="sd">          2) equidistribution of elemental volumes;</span>
+<span class="sd">          2) coefficient of variation (σ/μ) of element volumes;</span>
 <span class="sd">          3) relative L2 norm residual.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span>
@@ -173,40 +194,42 @@
         <span class="n">w</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">-</span> <span class="n">mean</span>
         <span class="n">w</span> <span class="o">*=</span> <span class="n">w</span>
         <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">w</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-        <span class="n">equi</span> <span class="o">=</span> <span class="n">std</span> <span class="o">/</span> <span class="n">mean</span>
+        <span class="n">cv</span> <span class="o">=</span> <span class="n">std</span> <span class="o">/</span> <span class="n">mean</span>
         <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_residual_l2_form&quot;</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_norm_l2_form&quot;</span><span class="p">)</span>
         <span class="n">residual_l2</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_residual_l2_form</span><span class="p">)</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">norm</span>
         <span class="n">norm_l2</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_norm_l2_form</span><span class="p">)</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">norm</span>
         <span class="n">residual_l2_rel</span> <span class="o">=</span> <span class="n">residual_l2</span> <span class="o">/</span> <span class="n">norm_l2</span>
-        <span class="k">return</span> <span class="n">minmax</span><span class="p">,</span> <span class="n">residual_l2_rel</span><span class="p">,</span> <span class="n">equi</span>
+        <span class="k">return</span> <span class="n">minmax</span><span class="p">,</span> <span class="n">residual_l2_rel</span><span class="p">,</span> <span class="n">cv</span>
 
-    <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereBase.update_coordinates&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update the coordinate :class:`Function` using</span>
-<span class="sd">        the recovered gradient.</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_update_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the physical coordinates :math:`\mathbf{x}` using the recovered gradient:</span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \mathbf{x} = \boldsymbol{\xi} + \nabla_{\boldsymbol{\xi}}\phi.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">grad_phi</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">grad_phi</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_phi</span><span class="p">)</span>  <span class="c1"># x = ξ + grad(φ)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_phi</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereBase.create_l2_projector&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">l2_projector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a linear solver for obtaining the gradient</span>
-<span class="sd">        of the potential using an L2 projection.</span>
+<span class="sd">        Create a linear solver for obtaining the gradient of the potential using an</span>
+<span class="sd">        :math:`L^2` projection.</span>
 
 <span class="sd">        Boundary conditions are imposed as a post-processing step.</span>
+
+<span class="sd">        :return: the linear solver</span>
+<span class="sd">        :rtype: :class:`~.LinearVariationalSolver`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_l2_projector&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l2_projector</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi_old&quot;</span><span class="p">)</span>
         <span class="n">u_cts</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">)</span>
         <span class="n">v_cts</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">)</span>
 
@@ -217,56 +240,48 @@
         <span class="c1"># Enforce no movement normal to boundary</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetNormal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
         <span class="n">bcs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">:</span>
+            <span class="c1"># TODO: Write tests for the boundary conditions block below (#79)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_boundary_nodes</span><span class="p">:</span>
-                <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tag</span><span class="p">))</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Check for axis-aligned boundaries</span>
-            <span class="n">_n</span> <span class="o">=</span> <span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)]</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">_n</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid normal vector </span><span class="si">{</span><span class="n">_n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO</span>
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">_n</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">):</span>
-                    <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
-                    <span class="k">continue</span>
-                <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">_n</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">):</span>
-                    <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
-                    <span class="k">continue</span>
+            <span class="n">_n</span> <span class="o">=</span> <span class="p">[</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">tag</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)]</span>
+            <span class="n">iszero</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">ni</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">ni</span> <span class="ow">in</span> <span class="n">_n</span><span class="p">]</span>
+            <span class="n">nzero</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">iszero</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">nzero</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span>
+            <span class="k">if</span> <span class="n">nzero</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">iszero</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tag</span><span class="p">))</span>
+                <span class="k">continue</span>
 
             <span class="c1"># Enforce no mesh movement normal to boundaries</span>
             <span class="n">a_bc</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v_cts</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u_cts</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
             <span class="n">L_bc</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v_cts</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
-            <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">EquationBC</span><span class="p">(</span><span class="n">a_bc</span> <span class="o">==</span> <span class="n">L_bc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">EquationBC</span><span class="p">(</span><span class="n">a_bc</span> <span class="o">==</span> <span class="n">L_bc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span><span class="p">,</span> <span class="n">tag</span><span class="p">))</span>
 
             <span class="c1"># Allow tangential movement, but only up until the end of boundary segments</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">perp</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-            <span class="n">a_bc</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v_cts</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u_cts</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
-            <span class="n">L_bc</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v_cts</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="p">),</span> <span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+            <span class="n">a_bc</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tangential</span><span class="p">(</span><span class="n">v_cts</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">tangential</span><span class="p">(</span><span class="n">u_cts</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+            <span class="n">L_bc</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tangential</span><span class="p">(</span><span class="n">v_cts</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">tangential</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="p">),</span> <span class="n">n</span><span class="p">))</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+            <span class="p">)</span>
             <span class="n">edges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span><span class="o">.</span><span class="n">unique_markers</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">bbc</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Periodic case</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
-
                 <span class="n">warn</span><span class="p">(</span>
                     <span class="s2">&quot;Have you checked that all straight line segments are uniquely tagged?&quot;</span>
                 <span class="p">)</span>
                 <span class="n">corners</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">edges</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">edges</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="n">i</span><span class="p">])]</span>
                 <span class="n">bbc</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">corners</span><span class="p">)</span>
-            <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">EquationBC</span><span class="p">(</span><span class="n">a_bc</span> <span class="o">==</span> <span class="n">L_bc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bbc</span><span class="p">))</span>
+            <span class="n">bcs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">EquationBC</span><span class="p">(</span><span class="n">a_bc</span> <span class="o">==</span> <span class="n">L_bc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bbc</span><span class="p">))</span>
 
         <span class="c1"># Create solver</span>
         <span class="n">problem</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">LinearVariationalProblem</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_phi</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bcs</span><span class="p">)</span>
-        <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;cg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bjacobi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sub_pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ilu&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_l2_projector</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">LinearVariationalSolver</span><span class="p">(</span>
-            <span class="n">problem</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">sp</span>
+            <span class="n">problem</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">solver_parameters</span><span class="o">.</span><span class="n">cg_ilu</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l2_projector</span>
 
@@ -275,47 +290,44 @@
 <a class="viewcode-back" href="../../movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation">[docs]</a>
 <span class="k">class</span> <span class="nc">MongeAmpereMover_Relaxation</span><span class="p">(</span><span class="n">MongeAmpereMover_Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The elliptic Monge-Ampere equation is solved in a parabolised</span>
-<span class="sd">        form using a pseudo-time relaxation,</span>
+<span class="sd">    The elliptic Monge-Ampere equation is solved in a parabolised form using a</span>
+<span class="sd">    pseudo-time relaxation,</span>
 
-<span class="sd">    ..  math::</span>
-<span class="sd">            -\frac\partial{\partial\tau}\Delta\phi = m(x)\det(I + H(\phi)) - \theta,</span>
+<span class="sd">    .. math::</span>
+<span class="sd">        -\frac\partial{\partial\tau}\Delta\phi = m(x)\det(I + H(\phi)) - \theta,</span>
 
-<span class="sd">        where :math:`\tau` is the pseudo-time variable. Forward Euler is</span>
-<span class="sd">        used for the pseudo-time integration (see McRae et al. 2018 for</span>
-<span class="sd">        details).</span>
-
-<span class="sd">        References</span>
-<span class="sd">        ==========</span>
-<span class="sd">        A. T. T. McRae, C. J. Cotter, C. J. Budd, Optimal-transport-based</span>
-<span class="sd">        mesh adaptivity on the plane and sphere using finite elements, SIAM</span>
-<span class="sd">        Journal on Scientific Computing 40 (2) (2018) 1121–1148.</span>
-<span class="sd">        doi:10.1137/16M1109515.</span>
+<span class="sd">    where :math:`\tau` is the pseudo-time variable. Forward Euler is used for the</span>
+<span class="sd">    pseudo-time integration (see :cite:`MCB:18` for details).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereMover.__init__&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="n">phi_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sigma_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :arg mesh: the physical mesh</span>
+<span class="sd">        :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
 <span class="sd">        :arg monitor_function: a Python function which takes a mesh as input</span>
+<span class="sd">        :type monitor_function: :class:`~.Callable`</span>
 <span class="sd">        :kwarg phi_init: initial guess for the scalar potential</span>
+<span class="sd">        :type phi_init: :class:`firedrake.function.Function`</span>
 <span class="sd">        :kwarg sigma_init: initial guess for the Hessian</span>
+<span class="sd">        :type sigma_init: :class:`firedrake.function.Function`</span>
 <span class="sd">        :kwarg pseudo_timestep: pseudo-timestep to use for the relaxation</span>
+<span class="sd">        :type pseudo_timestep: :class:`float`</span>
 <span class="sd">        :kwarg maxiter: maximum number of iterations for the relaxation</span>
+<span class="sd">        :type maxiter: :class:`int`</span>
 <span class="sd">        :kwarg rtol: relative tolerance for the residual</span>
+<span class="sd">        :type rtol: :class:`float`</span>
 <span class="sd">        :kwarg dtol: divergence tolerance for the residual</span>
+<span class="sd">        :type dtol: :class:`float`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pseudo_dt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pseudo_timestep&quot;</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">))</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="o">=</span><span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c1"># Create functions to hold solution data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
-
         <span class="c1"># Initialise phi and sigma</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">apply_initial_guess</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">phi_init</span> <span class="ow">or</span> <span class="n">sigma_init</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">apply_initial_guess</span><span class="p">(</span><span class="n">phi_init</span><span class="p">,</span> <span class="n">sigma_init</span><span class="p">)</span>
 
         <span class="c1"># Setup residuals</span>
         <span class="n">I</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
@@ -325,16 +337,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_residual_l2_form</span> <span class="o">=</span> <span class="n">psi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">residual</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_norm_l2_form</span> <span class="o">=</span> <span class="n">psi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
 
+    <span class="k">def</span> <span class="nf">_create_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_functions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
+
     <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereMover.create_pseudotimestepper&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">pseudotimestepper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the pseudo-timestepper for the relaxation method.</span>
+
+<span class="sd">        :return: the pseudo-timestepper</span>
+<span class="sd">        :rtype: :class:`~.LinearVariationalSolver`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_pseudotimestepper&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudotimestepper</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi_old&quot;</span><span class="p">)</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
         <span class="n">psi</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">psi</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
@@ -343,68 +363,53 @@
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudo_dt</span> <span class="o">*</span> <span class="n">psi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">residual</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
         <span class="p">)</span>
         <span class="n">problem</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">LinearVariationalProblem</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
-        <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;cg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;gamg&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
         <span class="n">nullspace</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorSpaceBasis</span><span class="p">(</span><span class="n">constant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pseudotimestepper</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">LinearVariationalSolver</span><span class="p">(</span>
             <span class="n">problem</span><span class="p">,</span>
-            <span class="n">solver_parameters</span><span class="o">=</span><span class="n">sp</span><span class="p">,</span>
+            <span class="n">solver_parameters</span><span class="o">=</span><span class="n">solver_parameters</span><span class="o">.</span><span class="n">cg_gamg</span><span class="p">,</span>
             <span class="n">nullspace</span><span class="o">=</span><span class="n">nullspace</span><span class="p">,</span>
             <span class="n">transpose_nullspace</span><span class="o">=</span><span class="n">nullspace</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudotimestepper</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereMover.create_equidistributor&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">equidistributor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the equidistributor for the relaxation method.</span>
+
+<span class="sd">        :return: the equidistributor</span>
+<span class="sd">        :rtype: :class:`~.LinearVariationalSolver`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_equidistributor&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equidistributor</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetNormal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
         <span class="n">tau</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
         <span class="n">L</span> <span class="o">=</span> <span class="p">(</span>
             <span class="o">-</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">tau</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
-            <span class="o">+</span> <span class="p">(</span><span class="n">tau</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+            <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tangential</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span> <span class="n">n</span><span class="p">),</span> <span class="n">tau</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
         <span class="p">)</span>
         <span class="n">problem</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">LinearVariationalProblem</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
-        <span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;cg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bjacobi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sub_pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ilu&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_equidistributor</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">LinearVariationalSolver</span><span class="p">(</span>
-            <span class="n">problem</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">sp</span>
+            <span class="n">problem</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="n">solver_parameters</span><span class="o">.</span><span class="n">cg_ilu</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equidistributor</span>
 
 <div class="viewcode-block" id="MongeAmpereMover_Relaxation.move">
 <a class="viewcode-back" href="../../movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation.move">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereMover.move&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the relaxation method to convergence and update the mesh.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phi_old&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sigma_old&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span><span class="p">):</span>
-            <span class="c1"># L2 project</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">l2_projector</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 
-            <span class="c1"># Update mesh coordinates</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="sd">        :return: the iteration count</span>
+<span class="sd">        :rtype: :class:`int`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">l2_projector</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
 
             <span class="c1"># Update monitor function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">))</span>
@@ -416,23 +421,26 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta_form</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_volume</span><span class="p">)</span>
 
             <span class="c1"># Check convergence criteria</span>
-            <span class="n">minmax</span><span class="p">,</span> <span class="n">residual</span><span class="p">,</span> <span class="n">equi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagnostics</span>
+            <span class="n">minmax</span><span class="p">,</span> <span class="n">residual</span><span class="p">,</span> <span class="n">cv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagnostics</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">initial_norm</span> <span class="o">=</span> <span class="n">residual</span>
             <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;   Min/Max </span><span class="si">{</span><span class="n">minmax</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;   Residual </span><span class="si">{</span><span class="n">residual</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;   Equidistribution </span><span class="si">{</span><span class="n">equi</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;   Variation (σ/μ) </span><span class="si">{</span><span class="n">cv</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
+            <span class="n">plural</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
             <span class="k">if</span> <span class="n">residual</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rtol</span><span class="p">:</span>
-                <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iterations.&quot;</span><span class="p">)</span>
+                <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
                 <span class="k">break</span>
             <span class="k">if</span> <span class="n">residual</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtol</span> <span class="o">*</span> <span class="n">initial_norm</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Diverged after </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iterations.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Diverged after </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iterations.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
 
             <span class="c1"># Apply pseudotimestepper and equidistributor</span>
@@ -440,7 +448,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">equidistributor</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">i</span></div>
 </div>
 
@@ -450,37 +458,35 @@
 <a class="viewcode-back" href="../../movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton">[docs]</a>
 <span class="k">class</span> <span class="nc">MongeAmpereMover_QuasiNewton</span><span class="p">(</span><span class="n">MongeAmpereMover_Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The elliptic Monge-Ampere equation is solved using a quasi-Newton</span>
-<span class="sd">    method (see McRae et al. 2018 for details).</span>
-
-<span class="sd">    References</span>
-<span class="sd">    ==========</span>
-<span class="sd">    A. T. T. McRae, C. J. Cotter, C. J. Budd, Optimal-transport-based</span>
-<span class="sd">    mesh adaptivity on the plane and sphere using finite elements, SIAM</span>
-<span class="sd">    Journal on Scientific Computing 40 (2) (2018) 1121–1148.</span>
-<span class="sd">    doi:10.1137/16M1109515.</span>
+<span class="sd">    The elliptic Monge-Ampere equation is solved using a quasi-Newton method (see</span>
+<span class="sd">    :cite:`MCB:18` for details).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereMover.__init__&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="n">phi_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sigma_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :arg mesh: the physical mesh</span>
+<span class="sd">        :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
 <span class="sd">        :arg monitor_function: a Python function which takes a mesh as input</span>
-<span class="sd">        :kwarg maxiter: maximum number of iterations for the relaxation</span>
+<span class="sd">        :type monitor_function: :class:`~.Callable`</span>
+<span class="sd">        :kwarg phi_init: initial guess for the scalar potential</span>
+<span class="sd">        :type phi_init: :class:`firedrake.function.Function`</span>
+<span class="sd">        :kwarg sigma_init: initial guess for the Hessian</span>
+<span class="sd">        :type sigma_init: :class:`firedrake.function.Function`</span>
+<span class="sd">        :kwarg maxiter: maximum number of iterations for the Quasi-Newton solver</span>
+<span class="sd">        :type maxiter: :class:`int`</span>
 <span class="sd">        :kwarg rtol: relative tolerance for the residual</span>
+<span class="sd">        :type rtol: :class:`float`</span>
 <span class="sd">        :kwarg dtol: divergence tolerance for the residual</span>
+<span class="sd">        :type dtol: :class:`float`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="o">=</span><span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="c1"># Create functions to hold solution data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">P1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">phisigma</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phisigma</span><span class="o">.</span><span class="n">subfunctions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">phisigma_old</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phisigma_old</span><span class="o">.</span><span class="n">subfunctions</span>
-
         <span class="c1"># Initialise phi and sigma</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">apply_initial_guess</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">phi_init</span> <span class="ow">or</span> <span class="n">sigma_init</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">apply_initial_guess</span><span class="p">(</span><span class="n">phi_init</span><span class="p">,</span> <span class="n">sigma_init</span><span class="p">)</span>
 
         <span class="c1"># Setup residuals</span>
         <span class="n">I</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
@@ -490,17 +496,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_residual_l2_form</span> <span class="o">=</span> <span class="n">psi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">residual</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_norm_l2_form</span> <span class="o">=</span> <span class="n">psi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
 
+    <span class="k">def</span> <span class="nf">_create_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_functions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">P1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phisigma</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phisigma</span><span class="o">.</span><span class="n">subfunctions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phisigma_old</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phisigma_old</span><span class="o">.</span><span class="n">subfunctions</span>
+
     <span class="nd">@property</span>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereMover.create_equidistributor&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">equidistributor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the equidistributor for the quasi-newton method.</span>
+
+<span class="sd">        :return: the equidistributor</span>
+<span class="sd">        :rtype: :class:`~.NonlinearVariationalSolver`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_equidistributor&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equidistributor</span>
-        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phisigma&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">FacetNormal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
         <span class="n">I</span> <span class="o">=</span> <span class="n">ufl</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
         <span class="n">phi</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phisigma</span><span class="p">)</span>
@@ -508,7 +522,7 @@
         <span class="n">F</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ufl</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
             <span class="o">+</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">tau</span><span class="p">),</span> <span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
-            <span class="o">-</span> <span class="p">(</span><span class="n">tau</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">phi</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">tau</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">phi</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+            <span class="o">-</span> <span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">tangential</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">phi</span><span class="p">),</span> <span class="n">n</span><span class="p">),</span> <span class="n">tau</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
             <span class="o">-</span> <span class="n">psi</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="o">*</span> <span class="n">ufl</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">I</span> <span class="o">+</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
         <span class="p">)</span>
         <span class="n">phi</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TrialFunctions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
@@ -518,11 +532,10 @@
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Callback for updating the monitor function.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;phisigma_old&quot;</span><span class="p">)</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">phisigma_old</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">vec</span> <span class="k">as</span> <span class="n">v</span><span class="p">:</span>
                 <span class="n">cursol</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">l2_projector</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
@@ -567,16 +580,16 @@
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">cursol</span> <span class="o">=</span> <span class="n">snes</span><span class="o">.</span><span class="n">getSolution</span><span class="p">()</span>
             <span class="n">update_monitor</span><span class="p">(</span><span class="n">cursol</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
             <span class="n">firedrake</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L_P0</span><span class="p">,</span> <span class="n">tensor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_volume</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">)</span>
-            <span class="n">minmax</span><span class="p">,</span> <span class="n">residual</span><span class="p">,</span> <span class="n">equi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagnostics</span>
+            <span class="n">minmax</span><span class="p">,</span> <span class="n">residual</span><span class="p">,</span> <span class="n">cv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagnostics</span>
             <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">4d</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;   Min/Max </span><span class="si">{</span><span class="n">minmax</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;   Residual </span><span class="si">{</span><span class="n">residual</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;   Equidistribution </span><span class="si">{</span><span class="n">equi</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;   Variation (σ/μ) </span><span class="si">{</span><span class="n">cv</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">snes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equidistributor</span><span class="o">.</span><span class="n">snes</span>
@@ -585,59 +598,28 @@
 
 <div class="viewcode-block" id="MongeAmpereMover_QuasiNewton.move">
 <a class="viewcode-back" href="../../movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton.move">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;MongeAmpereMover.move&quot;</span><span class="p">)</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the quasi-Newton method to convergence and update the mesh.</span>
+
+<span class="sd">        :return: the iteration count</span>
+<span class="sd">        :rtype: :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">equidistributor</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
             <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snes</span><span class="o">.</span><span class="n">getIterationNumber</span><span class="p">()</span>
-            <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> iterations.&quot;</span><span class="p">)</span>
+            <span class="n">plural</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snes</span><span class="o">.</span><span class="n">getIterationNumber</span><span class="p">()</span>
-            <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> iterations.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">plural</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">i</span></div>
 </div>
-
-
-
-<div class="viewcode-block" id="monge_ampere">
-<a class="viewcode-back" href="../../movement.html#movement.monge_ampere.monge_ampere">[docs]</a>
-<span class="k">def</span> <span class="nf">monge_ampere</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;relaxation&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Movement of a `mesh` is determined by a `monitor_function`</span>
-<span class="sd">        :math:`m` and the Monge-Ampère type equation</span>
-
-<span class="sd">    ..  math::</span>
-<span class="sd">            m(x)\det(I + H(\phi)) = \theta,</span>
-
-<span class="sd">        for a scalar potential :math:`\phi`, where :math:`I` is the</span>
-<span class="sd">        identity matrix, :math:`\theta` is a normalisation coefficient</span>
-<span class="sd">        and :math:`H(\phi)` denotes the Hessian of :math:`\phi` with</span>
-<span class="sd">        respect to the coordinates :math:`\xi` of the computational mesh.</span>
-
-<span class="sd">        The physical mesh coordinates :math:`x` are updated according to</span>
-
-<span class="sd">    ..  math::</span>
-<span class="sd">            x = \xi + \nabla\phi.</span>
-
-<span class="sd">        :arg mesh: the physical mesh</span>
-<span class="sd">        :arg monitor_function: a Python function which takes a mesh as input</span>
-<span class="sd">        :kwarg method: choose from &#39;relaxation&#39; and &#39;quasi_newton&#39;</span>
-<span class="sd">        :kwarg phi_init: initial guess for the scalar potential</span>
-<span class="sd">        :kwarg sigma_init: initial guess for the Hessian</span>
-<span class="sd">        :return: converged scalar potential and Hessian</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;relaxation&quot;</span><span class="p">:</span>
-        <span class="n">mover</span> <span class="o">=</span> <span class="n">MongeAmpereMover_Relaxation</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;quasi_newton&quot;</span><span class="p">:</span>
-        <span class="n">mover</span> <span class="o">=</span> <span class="n">MongeAmpereMover_QuasiNewton</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Monge-Ampere solver </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> not recognised.&quot;</span><span class="p">)</span>
-    <span class="n">mover</span><span class="o">.</span><span class="n">adapt</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">mover</span><span class="o">.</span><span class="n">phi</span><span class="p">,</span> <span class="n">mover</span><span class="o">.</span><span class="n">sigma</span></div>
 
 </pre></div>
 

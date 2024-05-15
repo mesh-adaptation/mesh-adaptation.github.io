@@ -9,8 +9,9 @@
 
 
 from firedrake import *
-from animate import *
 from firedrake.pyplot import triplot
+
+from animate import *
 
 mesh = UnitSquareMesh(10, 10)
 P1_ten = TensorFunctionSpace(mesh, "CG", 1)
@@ -52,9 +53,9 @@ fig, axes = plt.subplots()
 triplot(new_mesh, axes=axes)
 axes.set_aspect("equal")
 fig.show()
-fig.savefig("mesh1.jpg")
+fig.savefig("simple_metric-mesh1.jpg")
 
-# .. figure:: mesh1.jpg
+# .. figure:: simple_metric-mesh1.jpg
 #    :figwidth: 90%
 #    :align: center
 #
@@ -70,9 +71,9 @@ fig, axes = plt.subplots()
 triplot(new_mesh, axes=axes)
 axes.set_aspect("equal")
 fig.show()
-fig.savefig("mesh2.jpg")
+fig.savefig("simple_metric-mesh2.jpg")
 
-# .. figure:: mesh2.jpg
+# .. figure:: simple_metric-mesh2.jpg
 #    :figwidth: 90%
 #    :align: center
 #
@@ -95,9 +96,9 @@ triplot(new_mesh, axes=axes[1])
 axes[1].set_aspect("equal")
 axes[1].set_title("Adapted mesh")
 fig.show()
-fig.savefig("mesh3.jpg")
+fig.savefig("simple_metric-mesh3.jpg")
 
-# .. figure:: mesh3.jpg
+# .. figure:: simple_metric-mesh3.jpg
 #    :figwidth: 90%
 #    :align: center
 #
@@ -126,9 +127,10 @@ triplot(new_mesh, axes=axes[1])
 axes[1].set_aspect("equal")
 axes[1].set_title("Adapted mesh")
 fig.show()
-fig.savefig("mesh4.jpg")
+fig.savefig("simple_metric-mesh4.jpg")
 
-# .. figure:: mesh4.jpg
+# .. figure:: simple_metric-mesh4.jpg
 #    :figwidth: 90%
 #    :align: center
 #
+# This demo can also be accessed as a `Python script <simple_metric.py>`__.

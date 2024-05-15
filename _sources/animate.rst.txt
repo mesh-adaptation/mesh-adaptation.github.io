@@ -12,6 +12,14 @@ animate.adapt module
    :undoc-members:
    :show-inheritance:
 
+animate.checkpointing module
+----------------------------
+
+.. automodule:: animate.checkpointing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 animate.interpolation module
 ----------------------------
 
@@ -48,6 +56,14 @@ animate.recovery module
 -----------------------
 
 .. automodule:: animate.recovery
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+animate.utility module
+----------------------
+
+.. automodule:: animate.utility
    :members:
    :undoc-members:
    :show-inheritance:

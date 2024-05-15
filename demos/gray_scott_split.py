@@ -9,6 +9,7 @@
 # equations differ in both the diffusion and reaction terms. ::
 
 from firedrake import *
+
 from goalie_adjoint import *
 
 # This time, we have two fields instead of one, as well as two function spaces. ::
@@ -174,7 +175,7 @@ if not test:
         fwd_outfile = VTKFile(f"gray_scott_split/{field}_forward.pvd")
         adj_outfile = VTKFile(f"gray_scott_split/{field}_adjoint.pvd")
         fwd_outfile.write(ic[field])
-        for i, mesh in enumerate(mesh_seq):
+        for i in range(num_subintervals):
             for sol in sols["forward"][i]:
                 fwd_outfile.write(sol)
             for sol in sols["adjoint"][i]:

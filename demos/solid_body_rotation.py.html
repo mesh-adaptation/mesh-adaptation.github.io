@@ -42,9 +42,8 @@ Let us now consider a simple <cite>linear</cite> advection equation,</p>
 \[\frac{\partial c}{\partial t} + \mathbf{u}\cdot\nabla c = 0,\]</div>
 <p>which is solved for a tracer concentration <span class="math notranslate nohighlight">\(c\)</span>. The
 velocity field <span class="math notranslate nohighlight">\(\mathbf{u}\)</span> drives the transport.
-A new piece of information in this demo is the approach to
-strongly imposing Dirichlet boundary conditions in Goalie.
-In particular, we impose</p>
+Furthermore, we strongly impose zero Dirichlet boundary
+conditions:</p>
 <div class="math notranslate nohighlight">
 \[c|_{\partial\Omega}=0,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Omega\)</span> is the spatial domain of interest.</p>
@@ -60,18 +59,23 @@ The cone is more difficult to advect than the bell because
 of its discontinuous gradient at its peak and the slotted
 cylinder is yet more difficult to advect because of its
 curve of discontinuities. The test case was introduced in
-<span id="id1">[<a class="reference internal" href="#id3" title="Randall J. LeVeque. High-Resolution Conservative Algorithms for Advection in Incompressible Flow. SIAM Journal on Numerical Analysis, 33(2):627–665, 1996. doi:10.1137/0733033.">LeV96</a>]</span>.</p>
+<span id="id1">[<a class="reference internal" href="#id4" title="Randall J. LeVeque. High-Resolution Conservative Algorithms for Advection in Incompressible Flow. SIAM Journal on Numerical Analysis, 33(2):627–665, 1996. doi:10.1137/0733033.">LeV96</a>]</span>.</p>
 <p>As usual, we import from Firedrake and Goalie, with
 adjoint mode activated.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+
 <span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
-<p>For simplicity, we use a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space for each
-field. The domain of interest is again the unit square, in
-this case shifted to have its centre at the origin.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>
+<p>For simplicity, we use a <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space for the
+concentration field. The domain of interest is again the
+unit square, in this case shifted to have its centre at
+the origin.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>
 
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
@@ -80,9 +84,6 @@ this case shifted to have its centre at the origin.</p>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The reason for passing an additional keyword argument for the
-field name will become clear in the next demo. We continue
-this pattern throughout.</p>
 <p>Next, let’s define the initial condition, to get a
 better idea of the problem at hand.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">bell_initial_condition</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -108,13 +109,13 @@ better idea of the problem at hand.</p>
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">bell</span> <span class="o">=</span> <span class="n">bell_initial_condition</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
     <span class="n">cone</span> <span class="o">=</span> <span class="n">cone_initial_condition</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
     <span class="n">slot_cyl</span> <span class="o">=</span> <span class="n">slot_cyl_initial_condition</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">assemble</span><span class="p">(</span><span class="n">interpolate</span><span class="p">(</span><span class="n">bell</span> <span class="o">+</span> <span class="n">cone</span> <span class="o">+</span> <span class="n">slot_cyl</span><span class="p">,</span> <span class="n">fs</span><span class="p">))}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">assemble</span><span class="p">(</span><span class="n">interpolate</span><span class="p">(</span><span class="n">bell</span> <span class="o">+</span> <span class="n">cone</span> <span class="o">+</span> <span class="n">slot_cyl</span><span class="p">,</span> <span class="n">fs</span><span class="p">))}</span>
 </pre></div>
 </div>
 <p>Now let’s set up the time interval of interest. The <cite>“GOALIE_REGRESSION_TEST”</cite> flag
@@ -123,7 +124,6 @@ Goalie’s continuous integration suite.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 <span class="n">end_time</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">300</span>
-<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 <span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInterval</span><span class="p">(</span>
     <span class="n">end_time</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">,</span>
@@ -135,9 +135,8 @@ Goalie’s continuous integration suite.</p>
 <p>For the purposes of plotting, we set up a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> with
 only the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_function_spaces()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code>
 methods implemented.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">tricontourf</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">tricontourf</span>
 
 <span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">MeshSeq</span><span class="p">(</span>
     <span class="n">time_partition</span><span class="p">,</span>
@@ -166,9 +165,9 @@ one half. Since we have a linear PDE, we write the variational
 problem in terms of a left-hand side and right-hand side and
 output both of them.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
-        <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
-        <span class="n">V</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
+        <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
         <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
         <span class="c1"># Define velocity field</span>
@@ -184,40 +183,30 @@ output both of them.</p>
         <span class="n">phi</span> <span class="o">=</span> <span class="n">TestFunction</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">psi</span> <span class="o">*</span> <span class="n">phi</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">+</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">*</span> <span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">grad</span><span class="p">(</span><span class="n">psi</span><span class="p">))</span> <span class="o">*</span> <span class="n">phi</span> <span class="o">*</span> <span class="n">dx</span>
         <span class="n">L</span> <span class="o">=</span> <span class="n">c_</span> <span class="o">*</span> <span class="n">phi</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">-</span> <span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">dot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">grad</span><span class="p">(</span><span class="n">c_</span><span class="p">))</span> <span class="o">*</span> <span class="n">phi</span> <span class="o">*</span> <span class="n">dx</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">L</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">L</span><span class="p">)}</span>
 
     <span class="k">return</span> <span class="n">form</span>
 </pre></div>
 </div>
-<p>To implement the boundary conditions, we simply create a list of
-<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> objects for each field. Here, the list only
-has one entry.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_bcs</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">bcs</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">DirichletBC</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;on_boundary&quot;</span><span class="p">)]</span>
-
-    <span class="k">return</span> <span class="n">bcs</span>
-</pre></div>
-</div>
-<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">get_form()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">get_bcs()</span></code> functions are then used by
-<code class="xref py py-func docutils literal notranslate"><span class="pre">get_solver()</span></code>.</p>
+<p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">get_form()</span></code> function is then used by <code class="xref py py-func docutils literal notranslate"><span class="pre">get_solver()</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
-        <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
+        <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
 
         <span class="c1"># Initialise &#39;lagged&#39; solution</span>
-        <span class="n">c_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">field</span> <span class="o">+</span> <span class="s2">&quot;_old&quot;</span><span class="p">)</span>
-        <span class="n">c_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+        <span class="n">c_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c_old&quot;</span><span class="p">)</span>
+        <span class="n">c_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
 
         <span class="c1"># Setup variational problem</span>
-        <span class="n">a</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c_</span><span class="p">)},</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">)[</span><span class="n">field</span><span class="p">]</span>
-        <span class="n">bcs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">bcs</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c_</span><span class="p">)})[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Zero Dirichlet condition on the boundary</span>
+        <span class="n">bcs</span> <span class="o">=</span> <span class="n">DirichletBC</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;on_boundary&quot;</span><span class="p">)</span>
 
         <span class="c1"># Setup the solver object</span>
         <span class="n">lvp</span> <span class="o">=</span> <span class="n">LinearVariationalProblem</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bcs</span><span class="p">)</span>
-        <span class="n">lvs</span> <span class="o">=</span> <span class="n">LinearVariationalSolver</span><span class="p">(</span><span class="n">lvp</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">lvs</span> <span class="o">=</span> <span class="n">LinearVariationalSolver</span><span class="p">(</span><span class="n">lvp</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
 
         <span class="c1"># Time integrate from t_start to t_end</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
@@ -228,7 +217,7 @@ has one entry.</p>
             <span class="n">lvs</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
             <span class="n">c_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 </pre></div>
@@ -241,9 +230,9 @@ efficient.</p>
 <p>Finally, we need to set up the QoI, taken here to be the
 integral over a disc where the slotted cylinder is expected
 to be positioned at the end time.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">sols</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">sols</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">qoi</span><span class="p">():</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">r0</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.15</span>
         <span class="n">ball</span> <span class="o">=</span> <span class="n">conditional</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="n">r0</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
@@ -252,15 +241,13 @@ to be positioned at the end time.</p>
     <span class="k">return</span> <span class="n">qoi</span>
 </pre></div>
 </div>
-<p>We are now ready to create an <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code>. This
-time, make sure to pass the <code class="docutils literal notranslate"><span class="pre">get_bcs</span></code> option, too.</p>
+<p>We are now ready to create an <code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointMeshSeq</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>
     <span class="n">time_partition</span><span class="p">,</span>
     <span class="n">mesh</span><span class="p">,</span>
     <span class="n">get_function_spaces</span><span class="o">=</span><span class="n">get_function_spaces</span><span class="p">,</span>
     <span class="n">get_initial_condition</span><span class="o">=</span><span class="n">get_initial_condition</span><span class="p">,</span>
     <span class="n">get_form</span><span class="o">=</span><span class="n">get_form</span><span class="p">,</span>
-    <span class="n">get_bcs</span><span class="o">=</span><span class="n">get_bcs</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="o">=</span><span class="n">get_solver</span><span class="p">,</span>
     <span class="n">get_qoi</span><span class="o">=</span><span class="n">get_qoi</span><span class="p">,</span>
     <span class="n">qoi_type</span><span class="o">=</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span>
@@ -276,22 +263,21 @@ part of Goalie’s continuous integration testing and can be ignored.</p>
     <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">sols</span> <span class="ow">in</span> <span class="n">solutions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">fwd_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;solid_body_rotation/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_forward.pvd&quot;</span><span class="p">)</span>
         <span class="n">adj_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;solid_body_rotation/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_adjoint.pvd&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">)):</span>
             <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
                 <span class="n">fwd_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
                 <span class="n">adj_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In the <a class="reference external" href="./solid_body_rotation_split.py.html">next demo</a>,
-we consider solving the same problem, but splitting the solution
-field into multiple components.</p>
+<p>In the <a class="reference external" href="./gray_scott.py.html">next demo</a>, we increase the complexity by considering
+two concentration fields in an advection-diffusion-reaction problem.</p>
 <p>This tutorial can be dowloaded as a
 <a class="reference external" href="solid_body_rotation.py">Python script</a>.</p>
 <p class="rubric">References</p>
 <div class="docutils container" id="id2">
 <div role="list" class="citation-list">
-<div class="citation" id="id3" role="doc-biblioentry">
+<div class="citation" id="id4" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">LeV96</a><span class="fn-bracket">]</span></span>
 <p>Randall J. LeVeque. High-Resolution Conservative Algorithms for Advection in Incompressible Flow. <em>SIAM Journal on Numerical Analysis</em>, 33(2):627–665, 1996. <a class="reference external" href="https://doi.org/10.1137/0733033">doi:10.1137/0733033</a>.</p>
 </div>

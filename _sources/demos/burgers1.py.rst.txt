@@ -11,6 +11,7 @@ so that we have access to the :class:`AdjointMeshSeq` class.
 ::
 
   from firedrake import *
+
   from goalie_adjoint import *
 
 For ease, the field list and functions for obtaining the

@@ -61,7 +61,6 @@ time partition, or a single mesh to use for all subintervals</p></li>
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_initial_condition" title="goalie.mesh_seq.MeshSeq.get_initial_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code></a></p></li>
 <li><p><strong>get_form</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_form" title="goalie.mesh_seq.MeshSeq.get_form"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_form()</span></code></a></p></li>
 <li><p><strong>get_solver</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_solver" title="goalie.mesh_seq.MeshSeq.get_solver"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code></a></p></li>
-<li><p><strong>get_bcs</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_bcs" title="goalie.mesh_seq.MeshSeq.get_bcs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_bcs()</span></code></a></p></li>
 <li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 <li><p><strong>get_qoi</strong> – a function as described in <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq.get_qoi" title="goalie.adjoint.AdjointMeshSeq.get_qoi"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_qoi()</span></code></a></p></li>
 </ul>
@@ -84,7 +83,7 @@ difference in QoI value being smaller than the specified tolerance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.adjoint.AdjointMeshSeq.get_checkpoints">
-<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_final_subinterval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/adjoint.html#AdjointMeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.adjoint.AdjointMeshSeq.get_checkpoints" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_final_subinterval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/adjoint.html#AdjointMeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.adjoint.AdjointMeshSeq.get_checkpoints" title="Link to this definition">¶</a></dt>
 <dd><p>Solve forward on the sequence of meshes, extracting checkpoints corresponding
 to the starting fields on each subinterval.</p>
 <p>The QoI is also evaluated.</p>
@@ -178,7 +177,7 @@ corresponding initial conditions applied on the first subinterval</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.adjoint.AdjointMeshSeq.solve_adjoint">
-<span class="sig-name descname"><span class="pre">solve_adjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_adj_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_checkpoint_qoi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/adjoint.html#AdjointMeshSeq.solve_adjoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.adjoint.AdjointMeshSeq.solve_adjoint" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve_adjoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_adj_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_checkpoint_qoi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/adjoint.html#AdjointMeshSeq.solve_adjoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.adjoint.AdjointMeshSeq.solve_adjoint" title="Link to this definition">¶</a></dt>
 <dd><p>Solve an adjoint problem on a sequence of subintervals.</p>
 <p>As well as the quantity of interest value, solution fields are computed - see
 <a class="reference internal" href="#goalie.function_data.AdjointSolutionData" title="goalie.function_data.AdjointSolutionData"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointSolutionData</span></code></a> for more information.</p>
@@ -366,7 +365,6 @@ time partition, or a single mesh to use for all subintervals</p></li>
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_initial_condition" title="goalie.mesh_seq.MeshSeq.get_initial_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code></a></p></li>
 <li><p><strong>get_form</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_form" title="goalie.mesh_seq.MeshSeq.get_form"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_form()</span></code></a></p></li>
 <li><p><strong>get_solver</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_solver" title="goalie.mesh_seq.MeshSeq.get_solver"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code></a></p></li>
-<li><p><strong>get_bcs</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_bcs" title="goalie.mesh_seq.MeshSeq.get_bcs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_bcs()</span></code></a></p></li>
 <li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 <li><p><strong>get_qoi</strong> – a function as described in <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq.get_qoi" title="goalie.adjoint.AdjointMeshSeq.get_qoi"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_qoi()</span></code></a></p></li>
 </ul>
@@ -407,7 +405,7 @@ over the mesh sequence.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration">
-<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn=&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn=&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
 <dd><p>Apply goal-oriented mesh adaptation using a fixed point iteration loop approach.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -474,7 +472,7 @@ polynomial order by one globally.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors">
-<span class="sig-name descname"><span class="pre">indicate_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn=&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.indicate_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">indicate_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn=&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.indicate_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.indicate_errors" title="Link to this definition">¶</a></dt>
 <dd><p>Compute goal-oriented error indicators for each subinterval based on solving the
 adjoint problem in a globally enriched space.</p>
 <dl class="field-list simple">
@@ -518,55 +516,6 @@ space(s) as arguments to the error indicator
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-</section>
-<section id="module-goalie.interpolation">
-<span id="goalie-interpolation-module"></span><h2>goalie.interpolation module<a class="headerlink" href="#module-goalie.interpolation" title="Link to this heading">¶</a></h2>
-<p>Driver functions for mesh-to-mesh data transfer.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.interpolation.interpolate">
-<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/interpolation.html#interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.interpolation.interpolate" title="Link to this definition">¶</a></dt>
-<dd><p>A wrapper for <a class="reference internal" href="#goalie.interpolation.transfer" title="goalie.interpolation.transfer"><code class="xref py py-func docutils literal notranslate"><span class="pre">transfer()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">transfer_method=&quot;interpolate&quot;</span></code>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.interpolation.project">
-<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/interpolation.html#project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.interpolation.project" title="Link to this definition">¶</a></dt>
-<dd><p>A wrapper for <a class="reference internal" href="#goalie.interpolation.transfer" title="goalie.interpolation.transfer"><code class="xref py py-func docutils literal notranslate"><span class="pre">transfer()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">transfer_method=&quot;interpolate&quot;</span></code>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.interpolation.transfer">
-<span class="sig-name descname"><span class="pre">transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transfer_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'project'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/interpolation.html#transfer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.interpolation.transfer" title="Link to this definition">¶</a></dt>
-<dd><p>Overload functions <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.__future__.interpolate()</span></code> and
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.projection.project" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.projection.project()</span></code></a> to account for the case of two mixed
-function spaces defined on different meshes and for the adjoint interpolation
-operator when applied to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>s.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>source</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function to be transferred</p></li>
-<li><p><strong>target_space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a>,
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function space which we seek to transfer onto, or the
-function or cofunction to use as the target</p></li>
-<li><p><strong>transfer_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the method to use for the transfer. Options are
-“interpolate” (default) and “project”</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the transferred function</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a></p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Extra keyword arguments are passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.__future__.interpolate()</span></code> or</dt><dd><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.projection.project" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.projection.project()</span></code></a>.</p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
@@ -672,19 +621,15 @@ time partition, or a single mesh to use for all subintervals</p></li>
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_initial_condition" title="goalie.mesh_seq.MeshSeq.get_initial_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code></a></p></li>
 <li><p><strong>get_form</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_form" title="goalie.mesh_seq.MeshSeq.get_form"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_form()</span></code></a></p></li>
 <li><p><strong>get_solver</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_solver" title="goalie.mesh_seq.MeshSeq.get_solver"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code></a></p></li>
-<li><p><strong>get_bcs</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_bcs" title="goalie.mesh_seq.MeshSeq.get_bcs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_bcs()</span></code></a></p></li>
 <li><p><strong>transfer_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the method to use for transferring fields between
-meshes. Options are “interpolate” (default) and “project”</p></li>
+meshes. Options are “project” (default) and “interpolate”. See
+<a class="reference internal" href="animate.html#animate.interpolation.transfer" title="animate.interpolation.transfer"><code class="xref py py-func docutils literal notranslate"><span class="pre">animate.interpolation.transfer()</span></code></a> for details</p></li>
+<li><p><strong>transfer_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+take various types) – kwargs to pass to the chosen transfer method</p></li>
 <li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.bcs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bcs</span></span><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.bcs" title="Link to this definition">¶</a></dt>
-<dd><p>See <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_bcs" title="goalie.mesh_seq.MeshSeq.get_bcs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_bcs()</span></code></a>.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.check_element_count_convergence">
 <span class="sig-name descname"><span class="pre">check_element_count_convergence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.check_element_count_convergence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.check_element_count_convergence" title="Link to this definition">¶</a></dt>
@@ -742,7 +687,7 @@ corresponding subinterval</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.fixed_point_iteration">
-<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
 <dd><p>Apply mesh adaptation using a fixed point iteration loop approach.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -792,28 +737,8 @@ corresponding function spaces</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.get_bcs">
-<span class="sig-name descname"><span class="pre">get_bcs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.get_bcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.get_bcs" title="Link to this definition">¶</a></dt>
-<dd><p>Get the function mapping a subinterval index to a set of Dirichlet boundary
-conditions.</p>
-<p>Signature for the function to be returned:
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">:arg</span> <span class="pre">index:</span> <span class="pre">the</span> <span class="pre">subinterval</span> <span class="pre">index</span>
-<span class="pre">:type</span> <span class="pre">index:</span> <span class="pre">:class:`int`</span>
-<span class="pre">:return:</span> <span class="pre">boundary</span> <span class="pre">conditions</span>
-<span class="pre">:rtype:</span> <span class="pre">:class:`~.DirichletBC`</span> <span class="pre">or</span> <span class="pre">:class:`list`</span> <span class="pre">thereof</span>
-<span class="pre">:rtype:</span> <span class="pre">see</span> <span class="pre">docstring</span> <span class="pre">above</span>
-<span class="pre">`</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>the function for obtaining the boundary conditions</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.get_checkpoints">
-<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_final_subinterval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.get_checkpoints" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_final_subinterval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.get_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.get_checkpoints" title="Link to this definition">¶</a></dt>
 <dd><p>Solve forward on the sequence of meshes, extracting checkpoints corresponding
 to the starting fields on each subinterval.</p>
 <dl class="field-list simple">
@@ -1028,7 +953,7 @@ all subintervals</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.solve_forward">
-<span class="sig-name descname"><span class="pre">solve_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.solve_forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.solve_forward" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.solve_forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.solve_forward" title="Link to this definition">¶</a></dt>
 <dd><p>Solve a forward problem on a sequence of subintervals.</p>
 <p>A dictionary of solution fields is computed - see <a class="reference internal" href="#goalie.function_data.ForwardSolutionData" title="goalie.function_data.ForwardSolutionData"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardSolutionData</span></code></a>
 for more details.</p>
@@ -1144,7 +1069,7 @@ enforced</p></li>
 <span id="goalie-options-module"></span><h2>goalie.options module<a class="headerlink" href="#module-goalie.options" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="goalie.options.AdaptParameters">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdaptParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#AdaptParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.AdaptParameters" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AdaptParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#AdaptParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.AdaptParameters" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a></p>
 <p>A class for holding parameters associated with adaptive mesh fixed point iteration
 loops.</p>
@@ -1158,7 +1083,7 @@ various types) – parameters to set</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="goalie.options.GoalOrientedMetricParameters">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedMetricParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#GoalOrientedMetricParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.GoalOrientedMetricParameters" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedMetricParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#GoalOrientedMetricParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.GoalOrientedMetricParameters" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#goalie.options.GoalOrientedParameters" title="goalie.options.GoalOrientedParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedParameters</span></code></a>, <a class="reference internal" href="#goalie.options.MetricParameters" title="goalie.options.MetricParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricParameters</span></code></a></p>
 <p>A class for holding parameters associated with
 metric-based, goal-oriented adaptive mesh fixed
@@ -1173,7 +1098,7 @@ various types) – parameters to set</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="goalie.options.GoalOrientedParameters">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#GoalOrientedParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.GoalOrientedParameters" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#GoalOrientedParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.GoalOrientedParameters" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a></p>
 <p>A class for holding parameters associated with
 goal-oriented adaptive mesh fixed point iteration
@@ -1188,7 +1113,7 @@ various types) – parameters to set</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="goalie.options.MetricParameters">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MetricParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#MetricParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.MetricParameters" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MetricParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#MetricParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.MetricParameters" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a></p>
 <p>A class for holding parameters associated with
 metric-based adaptive mesh fixed point iteration loops.</p>
@@ -1431,104 +1356,6 @@ derivatives or not?</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="goalie.utility.Mesh">
-<span class="sig-name descname"><span class="pre">Mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.Mesh" title="Link to this definition">¶</a></dt>
-<dd><p>Overload <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.Mesh" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.mesh.Mesh()</span></code></a> to endow the output mesh with useful quantities.</p>
-<dl class="simple">
-<dt>The following quantities are computed by default:</dt><dd><ul class="simple">
-<li><p>cell size;</p></li>
-<li><p>facet area.</p></li>
-</ul>
-</dd>
-</dl>
-<p>The argument and keyword arguments are passed to Firedrake’s
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.Mesh" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.mesh.Mesh()</span></code></a> constructor, modified so that the argument could also be
-a mesh.</p>
-<p>Arguments and keyword arguments are the same as for <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.Mesh" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.mesh.Mesh()</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>the constructed mesh</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="goalie.utility.VTKFile">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VTKFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#VTKFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.VTKFile" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://www.firedrakeproject.org/firedrake.output.html#firedrake.output.vtk_output.VTKFile" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VTKFile</span></code></a></p>
-<p>Overload <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.output.VTKFile</span></code> so that it uses <code class="docutils literal notranslate"><span class="pre">adaptive</span></code> mode by
-default.</p>
-<p>Whilst this means that the mesh topology is recomputed at every export, it removes
-any need for the user to reset it manually.</p>
-<p>Create an object for outputting data for visualisation.</p>
-<p>This produces output in VTU format, suitable for visualisation
-with Paraview or other VTK-capable visualisation packages.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> – The name of the output file (must end in
-<code class="docutils literal notranslate"><span class="pre">.pvd</span></code>).</p></li>
-<li><p><strong>project_output</strong> – Should the output be projected to
-a computed output space?  Default is to use interpolation.</p></li>
-<li><p><strong>comm</strong> – The MPI communicator to use.</p></li>
-<li><p><strong>mode</strong> – “w” to overwrite any existing file, “a” to append to an existing file.</p></li>
-<li><p><strong>target_degree</strong> – override the degree of the output space.</p></li>
-<li><p><strong>target_continuity</strong> – override the continuity of the output space;
-A UFL <code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.sobolevspace.SobolevSpace</span></code> object: <cite>H1</cite> for a
-continuous output and <cite>L2</cite> for a discontinuous output.</p></li>
-<li><p><strong>adaptive</strong> – allow different meshes at different exports if <cite>True</cite>.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Visualisation is only possible for Lagrange fields (either
-continuous or discontinuous).  All other fields are first
-either projected or interpolated to Lagrange elements
-before storing for visualisation purposes.</p>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.utility.assemble_mass_matrix">
-<span class="sig-name descname"><span class="pre">assemble_mass_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#assemble_mass_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.assemble_mass_matrix" title="Link to this definition">¶</a></dt>
-<dd><p>Assemble a mass matrix associated with some finite element space and norm.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a>) – function space to build the mass matrix with</p></li>
-<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type norm to build the mass matrix with</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the corresponding mass matrix</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>petsc4py.PETSc.Mat</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.utility.cofunction2function">
-<span class="sig-name descname"><span class="pre">cofunction2function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cofunc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#cofunction2function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.cofunction2function" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cofunc</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – a cofunction</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a function with the same underyling data</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="goalie.utility.create_directory">
 <span class="sig-name descname"><span class="pre">create_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#create_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.create_directory" title="Link to this definition">¶</a></dt>
 <dd><p>Create a directory on disk.</p>
@@ -1565,95 +1392,6 @@ contributions to an error estimator to individual elements</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the effectivity index</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.utility.errornorm">
-<span class="sig-name descname"><span class="pre">errornorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#errornorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.errornorm" title="Link to this definition">¶</a></dt>
-<dd><p>Overload <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.norms.errornorm" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.norms.errornorm()</span></code></a> to allow for <span class="math notranslate nohighlight">\(\ell^p\)</span> norms.</p>
-<p>Currently supported <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> options:
-* <code class="docutils literal notranslate"><span class="pre">'l1'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'l2'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'linf'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'L2'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'Linf'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'H1'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'Hdiv'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'Hcurl'</span></code>
-* or any <code class="docutils literal notranslate"><span class="pre">'Lp'</span></code> with <span class="math notranslate nohighlight">\(p &gt;= 1\)</span>.</p>
-<p>Note that this version is case sensitive, i.e. <code class="docutils literal notranslate"><span class="pre">'l2'</span></code> and <code class="docutils literal notranslate"><span class="pre">'L2'</span></code> will give
-different results in general.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>u</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the ‘true’ value</p></li>
-<li><p><strong>uh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the approximation of the ‘truth’</p></li>
-<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
-<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the error norm value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
-</dd>
-</dl>
-<p>Any other keyword arguments are passed to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.norms.errornorm" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.norms.errornorm()</span></code></a>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.utility.function2cofunction">
-<span class="sig-name descname"><span class="pre">function2cofunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#function2cofunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.function2cofunction" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – a function</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a cofunction with the same underlying data</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="goalie.utility.norm">
-<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.norm" title="Link to this definition">¶</a></dt>
-<dd><p>Overload <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.norms.norm" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.norms.norm()</span></code></a> to allow for <span class="math notranslate nohighlight">\(\ell^p\)</span> norms.</p>
-<p>Currently supported <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> options:
-* <code class="docutils literal notranslate"><span class="pre">'l1'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'l2'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'linf'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'L2'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'Linf'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'H1'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'Hdiv'</span></code>
-* <code class="docutils literal notranslate"><span class="pre">'Hcurl'</span></code>
-* or any <code class="docutils literal notranslate"><span class="pre">'Lp'</span></code> with <span class="math notranslate nohighlight">\(p &gt;= 1\)</span>.</p>
-<p>Note that this version is case sensitive, i.e. <code class="docutils literal notranslate"><span class="pre">'l2'</span></code> and <code class="docutils literal notranslate"><span class="pre">'L2'</span></code> will give
-different results in general.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>v</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
-<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function to take the norm of</p></li>
-<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
-<li><p><strong>condition</strong> – a UFL condition for specifying a subdomain to compute the norm
-over</p></li>
-<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the norm value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
@@ -1715,12 +1453,6 @@ over</p></li>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-goalie.interpolation">goalie.interpolation module</a><ul>
-<li><a class="reference internal" href="#goalie.interpolation.interpolate"><code class="docutils literal notranslate"><span class="pre">interpolate()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.interpolation.project"><code class="docutils literal notranslate"><span class="pre">project()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.interpolation.transfer"><code class="docutils literal notranslate"><span class="pre">transfer()</span></code></a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#module-goalie.log">goalie.log module</a><ul>
 <li><a class="reference internal" href="#goalie.log.critical"><code class="docutils literal notranslate"><span class="pre">critical()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.log.debug"><code class="docutils literal notranslate"><span class="pre">debug()</span></code></a></li>
@@ -1738,7 +1470,6 @@ over</p></li>
 </li>
 <li><a class="reference internal" href="#module-goalie.mesh_seq">goalie.mesh_seq module</a><ul>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq"><code class="docutils literal notranslate"><span class="pre">MeshSeq</span></code></a><ul>
-<li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.bcs"><code class="docutils literal notranslate"><span class="pre">MeshSeq.bcs</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.check_element_count_convergence"><code class="docutils literal notranslate"><span class="pre">MeshSeq.check_element_count_convergence()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.count_elements"><code class="docutils literal notranslate"><span class="pre">MeshSeq.count_elements()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.count_vertices"><code class="docutils literal notranslate"><span class="pre">MeshSeq.count_vertices()</span></code></a></li>
@@ -1746,7 +1477,6 @@ over</p></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.fixed_point_iteration"><code class="docutils literal notranslate"><span class="pre">MeshSeq.fixed_point_iteration()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.form"><code class="docutils literal notranslate"><span class="pre">MeshSeq.form</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.function_spaces"><code class="docutils literal notranslate"><span class="pre">MeshSeq.function_spaces</span></code></a></li>
-<li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_bcs"><code class="docutils literal notranslate"><span class="pre">MeshSeq.get_bcs()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_checkpoints"><code class="docutils literal notranslate"><span class="pre">MeshSeq.get_checkpoints()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_form"><code class="docutils literal notranslate"><span class="pre">MeshSeq.get_form()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_function_spaces"><code class="docutils literal notranslate"><span class="pre">MeshSeq.get_function_spaces()</span></code></a></li>
@@ -1808,15 +1538,8 @@ over</p></li>
 </li>
 <li><a class="reference internal" href="#module-goalie.utility">goalie.utility module</a><ul>
 <li><a class="reference internal" href="#goalie.utility.AttrDict"><code class="docutils literal notranslate"><span class="pre">AttrDict</span></code></a></li>
-<li><a class="reference internal" href="#goalie.utility.Mesh"><code class="docutils literal notranslate"><span class="pre">Mesh()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.utility.VTKFile"><code class="docutils literal notranslate"><span class="pre">VTKFile</span></code></a></li>
-<li><a class="reference internal" href="#goalie.utility.assemble_mass_matrix"><code class="docutils literal notranslate"><span class="pre">assemble_mass_matrix()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.utility.cofunction2function"><code class="docutils literal notranslate"><span class="pre">cofunction2function()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.utility.create_directory"><code class="docutils literal notranslate"><span class="pre">create_directory()</span></code></a></li>
 <li><a class="reference internal" href="#goalie.utility.effectivity_index"><code class="docutils literal notranslate"><span class="pre">effectivity_index()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.utility.errornorm"><code class="docutils literal notranslate"><span class="pre">errornorm()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.utility.function2cofunction"><code class="docutils literal notranslate"><span class="pre">function2cofunction()</span></code></a></li>
-<li><a class="reference internal" href="#goalie.utility.norm"><code class="docutils literal notranslate"><span class="pre">norm()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-goalie">Module contents</a></li>

@@ -41,8 +41,9 @@ with additional functionality. For metric-based mesh adaptivity the metric
 is usually assumed to be vertex-based, so we need to define the metric in
 a Continuous Galerkin (CG) P1 tensor function space</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">animate</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
+
+<span class="kn">from</span> <span class="nn">animate</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">P1_ten</span> <span class="o">=</span> <span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -84,11 +85,11 @@ a mesh with edges of length <span class="math notranslate nohighlight">\(h=0.1\)
 <span class="n">triplot</span><span class="p">(</span><span class="n">new_mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh1.jpg&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;simple_metric-mesh1.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/mesh1.jpg" src="../_images/mesh1.jpg" />
+<img alt="../_images/simple_metric-mesh1.jpg" src="../_images/simple_metric-mesh1.jpg" />
 </figure>
 <p>To create a anisotropic mesh with edge lengths <span class="math notranslate nohighlight">\(h_x=0.1\)</span> in the x-direction, and
 <span class="math notranslate nohighlight">\(h_y=0.25\)</span> we simply create a diagonal Riemannian metric with, respectively, the values
@@ -101,11 +102,11 @@ a mesh with edges of length <span class="math notranslate nohighlight">\(h=0.1\)
 <span class="n">triplot</span><span class="p">(</span><span class="n">new_mesh</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh2.jpg&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;simple_metric-mesh2.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/mesh2.jpg" src="../_images/mesh2.jpg" />
+<img alt="../_images/simple_metric-mesh2.jpg" src="../_images/simple_metric-mesh2.jpg" />
 </figure>
 <p>An example of a non-uniform mesh, in which we ask for higher resolution inside a circle of
 radius <span class="math notranslate nohighlight">\(r\)</span> is given below:</p>
@@ -125,11 +126,11 @@ radius <span class="math notranslate nohighlight">\(r\)</span> is given below:</
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Adapted mesh&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh3.jpg&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;simple_metric-mesh3.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/mesh3.jpg" src="../_images/mesh3.jpg" />
+<img alt="../_images/simple_metric-mesh3.jpg" src="../_images/simple_metric-mesh3.jpg" />
 </figure>
 <p>As we can observe in the figure on the right, the circular region of high
 resolution is not very accurately approximated. This is a consequence of the
@@ -155,12 +156,13 @@ this initial mesh</p>
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Adapted mesh&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;mesh4.jpg&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;simple_metric-mesh4.jpg&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" style="width: 90%">
-<img alt="../_images/mesh4.jpg" src="../_images/mesh4.jpg" />
+<img alt="../_images/simple_metric-mesh4.jpg" src="../_images/simple_metric-mesh4.jpg" />
 </figure>
+<p>This demo can also be accessed as a <a class="reference external" href="simple_metric.py">Python script</a>.</p>
 </section>
 
 

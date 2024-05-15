@@ -36,22 +36,23 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Sequences of meshes corresponding to a :class:`~.TimePartition`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">firedrake</span>
-<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
-<span class="kn">from</span> <span class="nn">firedrake.adjoint_utils.solving</span> <span class="kn">import</span> <span class="n">get_solve_blocks</span>
-<span class="kn">from</span> <span class="nn">firedrake.adjoint</span> <span class="kn">import</span> <span class="n">pyadjoint</span>
-<span class="kn">from</span> <span class="nn">.interpolation</span> <span class="kn">import</span> <span class="n">project</span>
-<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">pyrint</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">DEBUG</span>
-<span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">AdaptParameters</span>
-<span class="kn">from</span> <span class="nn">animate.quality</span> <span class="kn">import</span> <span class="n">QualityMeasure</span>
-<span class="kn">from</span> <span class="nn">.time_partition</span> <span class="kn">import</span> <span class="n">TimePartition</span>
-<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span><span class="p">,</span> <span class="n">Mesh</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
-<span class="kn">import</span> <span class="nn">matplotlib</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">animate.interpolation</span> <span class="kn">import</span> <span class="n">transfer</span>
+<span class="kn">from</span> <span class="nn">animate.quality</span> <span class="kn">import</span> <span class="n">QualityMeasure</span>
+<span class="kn">from</span> <span class="nn">animate.utility</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">firedrake.adjoint</span> <span class="kn">import</span> <span class="n">pyadjoint</span>
+<span class="kn">from</span> <span class="nn">firedrake.adjoint_utils.solving</span> <span class="kn">import</span> <span class="n">get_solve_blocks</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+<span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
+
+<span class="kn">from</span> <span class="nn">.function_data</span> <span class="kn">import</span> <span class="n">ForwardSolutionData</span>
+<span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">DEBUG</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">pyrint</span><span class="p">,</span> <span class="n">warning</span>
+<span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">AdaptParameters</span>
+<span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MeshSeq&quot;</span><span class="p">]</span>
 
@@ -60,37 +61,33 @@
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq">[docs]</a>
 <span class="k">class</span> <span class="nc">MeshSeq</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A sequence of meshes for solving a PDE associated</span>
-<span class="sd">    with a particular :class:`~.TimePartition` of the</span>
-<span class="sd">    temporal domain.</span>
+<span class="sd">    A sequence of meshes for solving a PDE associated with a particular</span>
+<span class="sd">    :class:`~.TimePartition` of the temporal domain.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">(</span><span class="s2">&quot;goalie.MeshSeq.__init__&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">:</span> <span class="n">TimePartition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_partition</span><span class="p">,</span> <span class="n">initial_meshes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :arg time_partition: the :class:`~.TimePartition` which</span>
-<span class="sd">            partitions the temporal domain</span>
-<span class="sd">        :arg initial_meshes: list of meshes corresponding to</span>
-<span class="sd">            the subintervals of the :class:`~.TimePartition`,</span>
-<span class="sd">            or a single mesh to use for all subintervals</span>
-<span class="sd">        :kwarg get_function_spaces: a function, whose only</span>
-<span class="sd">            argument is a :class:`~.MeshSeq`, which constructs</span>
-<span class="sd">            prognostic</span>
-<span class="sd">            :class:`firedrake.functionspaceimpl.FunctionSpace`\s</span>
-<span class="sd">            for each subinterval</span>
-<span class="sd">        :kwarg get_initial_condition: a function, whose only</span>
-<span class="sd">            argument is a :class:`~.MeshSeq`, which specifies</span>
-<span class="sd">            initial conditions on the first mesh</span>
-<span class="sd">        :kwarg get_form: a function, whose only argument is a</span>
-<span class="sd">            :class:`~.MeshSeq`, which returns a function that</span>
-<span class="sd">            generates the PDE weak form</span>
-<span class="sd">        :kwarg get_solver: a function, whose only argument is</span>
-<span class="sd">            a :class:`~.MeshSeq`, which returns a function</span>
-<span class="sd">            that integrates initial data over a subinterval</span>
-<span class="sd">        :kwarg get_bcs: a function, whose only argument is a</span>
-<span class="sd">            :class:`~.MeshSeq`, which returns a function that</span>
-<span class="sd">            determines any Dirichlet boundary conditions</span>
-<span class="sd">        :kwarg parameters: :class:`~.AdaptParameters` instance</span>
+<span class="sd">        :arg time_partition: a partition of the temporal domain</span>
+<span class="sd">        :type time_partition: :class:`~.TimePartition`</span>
+<span class="sd">        :arg initial_meshes: a list of meshes corresponding to the subinterval of the</span>
+<span class="sd">            time partition, or a single mesh to use for all subintervals</span>
+<span class="sd">        :type initial_meshes: :class:`list` or :class:`~.MeshGeometry`</span>
+<span class="sd">        :kwarg get_function_spaces: a function as described in</span>
+<span class="sd">            :meth:`~.MeshSeq.get_function_spaces`</span>
+<span class="sd">        :kwarg get_initial_condition: a function as described in</span>
+<span class="sd">            :meth:`~.MeshSeq.get_initial_condition`</span>
+<span class="sd">        :kwarg get_form: a function as described in :meth:`~.MeshSeq.get_form`</span>
+<span class="sd">        :kwarg get_solver: a function as described in :meth:`~.MeshSeq.get_solver`</span>
+<span class="sd">        :kwarg transfer_method: the method to use for transferring fields between</span>
+<span class="sd">            meshes. Options are &quot;project&quot; (default) and &quot;interpolate&quot;. See</span>
+<span class="sd">            :func:`animate.interpolation.transfer` for details</span>
+<span class="sd">        :type transfer_method: :class:`str`</span>
+<span class="sd">        :kwarg transfer_kwargs: kwargs to pass to the chosen transfer method</span>
+<span class="sd">        :type transfer_kwargs: :class:`dict` with :class:`str` keys and values which may</span>
+<span class="sd">            take various types</span>
+<span class="sd">        :kwarg parameters: parameters to apply to the mesh adaptation process</span>
+<span class="sd">        :type parameters: :class:`~.AdaptParameters`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">time_partition</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">fields</span>
@@ -106,7 +103,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_initial_condition&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_form&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_solver&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_bcs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transfer_method&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transfer_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">steady</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
@@ -116,11 +114,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">AdaptParameters</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sections</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outputs_consistent</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">mesh</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">([</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">])&quot;</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -130,54 +130,106 @@
 
 <div class="viewcode-block" id="MeshSeq.debug">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.debug">[docs]</a>
-    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print a ``debug`` message.</span>
+
+<span class="sd">        :arg msg: the message to print</span>
+<span class="sd">        :type msg: :class:`str`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MeshSeq.warning">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.warning">[docs]</a>
-    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print a ``warning`` message.</span>
+
+<span class="sd">        :arg msg: the message to print</span>
+<span class="sd">        :type msg: :class:`str`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MeshSeq.info">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.info">[docs]</a>
-    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print an ``info`` level message.</span>
+
+<span class="sd">        :arg msg: the message to print</span>
+<span class="sd">        :type msg: :class:`str`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">MeshGeometry</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg subinterval: a subinterval index</span>
+<span class="sd">        :type subinterval: :class:`int`</span>
+<span class="sd">        :returns: the corresponding mesh</span>
+<span class="sd">        :rtype: :class:`firedrake.MeshGeometry`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">subinterval</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mesh</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">MeshGeometry</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">MeshGeometry</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg subinterval: a subinterval index</span>
+<span class="sd">        :type subinterval: :class:`int`</span>
+<span class="sd">        :arg mesh: the mesh to use for that subinterval</span>
+<span class="sd">        :type subinterval: :class:`firedrake.MeshGeometry`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">subinterval</span><span class="p">]</span> <span class="o">=</span> <span class="n">mesh</span>
 
 <div class="viewcode-block" id="MeshSeq.count_elements">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.count_elements">[docs]</a>
-    <span class="k">def</span> <span class="nf">count_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">num_cells</span><span class="p">()</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>  <span class="c1"># TODO: make parallel safe</span></div>
+    <span class="k">def</span> <span class="nf">count_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Count the number of elements in each mesh in the sequence.</span>
+
+<span class="sd">        :returns: list of element counts</span>
+<span class="sd">        :rtype: :class:`list` of :class:`int`\s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">comm</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">cell_set</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="MeshSeq.count_vertices">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.count_vertices">[docs]</a>
-    <span class="k">def</span> <span class="nf">count_vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>  <span class="c1"># TODO: make parallel safe</span></div>
+    <span class="k">def</span> <span class="nf">count_vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Count the number of vertices in each mesh in the sequence.</span>
 
+<span class="sd">        :returns: list of vertex counts</span>
+<span class="sd">        :rtype: :class:`list` of :class:`int`\s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comm</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">comm</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">node_set</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_reset_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reset the lists of element and vertex counts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertex_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_vertices</span><span class="p">()]</span>
 
 <div class="viewcode-block" id="MeshSeq.set_meshes">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.set_meshes">[docs]</a>
     <span class="k">def</span> <span class="nf">set_meshes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meshes</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Update the meshes associated with the :class:`MeshSeq`, as well as the</span>
-<span class="sd">        associated attributes.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set all meshes in the sequence and deduce various properties.</span>
 
-<span class="sd">        :arg meshes: mesh or list of meshes to use in the sequence</span>
+<span class="sd">        :arg meshes: list of meshes to use in the sequence, or a single mesh to use for</span>
+<span class="sd">            all subintervals</span>
+<span class="sd">        :type meshes: :class:`list` of :class:`firedrake.MeshGeometry`\s or</span>
+<span class="sd">            :class:`firedrake.MeshGeometry`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO #122: Refactor to use the set method</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">meshes</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="n">meshes</span><span class="p">)</span> <span class="k">for</span> <span class="n">subinterval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span> <span class="o">=</span> <span class="n">meshes</span>
@@ -185,34 +237,35 @@
         <span class="k">if</span> <span class="n">dim</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">!=</span> <span class="n">dim</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Meshes must all have the same topological dimension.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vertex_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_vertices</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_counts</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">meshes</span><span class="p">):</span>
-                <span class="n">nc</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">num_cells</span><span class="p">()</span>
-                <span class="n">nv</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span>
+                <span class="n">nc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">nv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">qm</span> <span class="o">=</span> <span class="n">QualityMeasure</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
                 <span class="n">ar</span> <span class="o">=</span> <span class="n">qm</span><span class="p">(</span><span class="s2">&quot;aspect_ratio&quot;</span><span class="p">)</span>
                 <span class="n">mar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">nc</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> cells, </span><span class="si">{</span><span class="n">nv</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> vertices,   max aspect ratio </span><span class="si">{</span><span class="n">mar</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">nc</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> cells, </span><span class="si">{</span><span class="n">nv</span><span class="si">:</span><span class="s2">7d</span><span class="si">}</span><span class="s2"> vertices,  max aspect ratio </span><span class="si">{</span><span class="n">mar</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
             <span class="n">debug</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MeshSeq.plot">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.plot">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">_axes</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot the meshes comprising a 2D :class:`~.MeshSeq`.</span>
 
-<span class="sd">        :kwarg fig: matplotlib figure</span>
-<span class="sd">        :kwarg axes: matplotlib axes</span>
-<span class="sd">        :kwargs: parameters to pass to :func:`firedrake.plot.triplot`</span>
-<span class="sd">            function</span>
-<span class="sd">        :return: matplotlib figure and axes for the plots</span>
+<span class="sd">        :kwarg fig: matplotlib figure to use</span>
+<span class="sd">        :type fig: :class:`matplotlib.figure.Figure`</span>
+<span class="sd">        :kwarg axes: matplotlib axes to use</span>
+<span class="sd">        :type axes: :class:`matplotlib.axes._axes.Axes`</span>
+<span class="sd">        :returns: matplotlib figure and axes for the plots</span>
+<span class="sd">        :rtype1: :class:`matplotlib.figure.Figure`</span>
+<span class="sd">        :rtype2: :class:`matplotlib.axes._axes.Axes`</span>
+
+<span class="sd">        All keyword arguments are passed to :func:`firedrake.pyplot.triplot`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">subplots</span>
 
@@ -220,8 +273,6 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MeshSeq plotting only supported in 2D&quot;</span><span class="p">)</span>
 
         <span class="c1"># Process kwargs</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fig&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">axes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;axes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">interior_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;k&quot;</span><span class="p">}</span>
         <span class="n">interior_kw</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;interior_kw&quot;</span><span class="p">,</span> <span class="p">{}))</span>
         <span class="n">boundary_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;k&quot;</span><span class="p">}</span>
@@ -241,7 +292,7 @@
                 <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="n">axis</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axis</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MeshSeq[</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
-                <span class="n">firedrake</span><span class="o">.</span><span class="n">triplot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">triplot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -253,7 +304,17 @@
 
 <div class="viewcode-block" id="MeshSeq.get_function_spaces">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_function_spaces">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">MeshGeometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct the function spaces corresponding to each field, for a given mesh.</span>
+
+<span class="sd">        :arg mesh: the mesh to base the function spaces on</span>
+<span class="sd">        :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
+<span class="sd">        :returns: a dictionary whose keys are field names and whose values are the</span>
+<span class="sd">            corresponding function spaces</span>
+<span class="sd">        :rtype: :class:`dict` with :class:`str` keys and</span>
+<span class="sd">            :class:`firedrake.functionspaceimpl.FunctionSpace` values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&#39;get_function_spaces&#39; needs implementing.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span></div>
@@ -261,7 +322,15 @@
 
 <div class="viewcode-block" id="MeshSeq.get_initial_condition">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_initial_condition">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the initial conditions applied on the first mesh in the sequence.</span>
+
+<span class="sd">        :returns: the dictionary, whose keys are field names and whose values are the</span>
+<span class="sd">            corresponding initial conditions applied</span>
+<span class="sd">        :rtype: :class:`dict` with :class:`str` keys and</span>
+<span class="sd">            :class:`firedrake.function.Function` values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -272,7 +341,25 @@
 
 <div class="viewcode-block" id="MeshSeq.get_form">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_form">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the function mapping a subinterval index and a solution dictionary to a</span>
+<span class="sd">        dictionary containing parts of the PDE weak form corresponding to each solution</span>
+<span class="sd">        component.</span>
+
+<span class="sd">        Signature for the function to be returned:</span>
+<span class="sd">        ```</span>
+<span class="sd">        :arg index: the subinterval index</span>
+<span class="sd">        :type index: :class:`int`</span>
+<span class="sd">        :arg solutions: map from fields to tuples of current and previous solutions</span>
+<span class="sd">        :type solutions: :class:`dict` with :class:`str` keys and :class:`tuple` values</span>
+<span class="sd">        :return: map from fields to the corresponding forms</span>
+<span class="sd">        :rtype: :class:`dict` with :class:`str` keys and :class:`ufl.form.Form` values</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        :returns: the function for obtaining the form</span>
+<span class="sd">        :rtype: see docstring above</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&#39;get_form&#39; needs implementing.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
@@ -280,21 +367,91 @@
 
 <div class="viewcode-block" id="MeshSeq.get_solver">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_solver">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the function mapping a subinterval index and an initial condition dictionary</span>
+<span class="sd">        to a dictionary of solutions for the corresponding solver step.</span>
+
+<span class="sd">        Signature for the function to be returned:</span>
+<span class="sd">        ```</span>
+<span class="sd">        :arg index: the subinterval index</span>
+<span class="sd">        :type index: :class:`int`</span>
+<span class="sd">        :arg ic: map from fields to the corresponding initial condition components</span>
+<span class="sd">        :type ic: :class:`dict` with :class:`str` keys and</span>
+<span class="sd">            :class:`firedrake.function.Function` values</span>
+<span class="sd">        :return: map from fields to the corresponding solutions</span>
+<span class="sd">        :rtype: :class:`dict` with :class:`str` keys and</span>
+<span class="sd">            :class:`firedrake.function.Function` values</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        :returns: the function for obtaining the solver</span>
+<span class="sd">        :rtype: see docstring above</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&#39;get_solver&#39; needs implementing.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MeshSeq.get_bcs">
-<a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_bcs">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfer a field between meshes using the specified transfer method.</span>
 
+<span class="sd">        :arg source: the function to be transferred</span>
+<span class="sd">        :type source: :class:`firedrake.function.Function` or</span>
+<span class="sd">            :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">        :arg target_space: the function space which we seek to transfer onto, or the</span>
+<span class="sd">            function or cofunction to use as the target</span>
+<span class="sd">        :type target_space: :class:`firedrake.functionspaceimpl.FunctionSpace`,</span>
+<span class="sd">            :class:`firedrake.function.Function`</span>
+<span class="sd">            or :class:`firedrake.cofunction.Cofunction`</span>
+<span class="sd">        :returns: the transferred function</span>
+<span class="sd">        :rtype: :class:`firedrake.function.Function` or</span>
+<span class="sd">            :class:`firedrake.cofunction.Cofunction`</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_function_spaces_consistent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="sd">        Extra keyword arguments are passed to :func:`goalie.interpolation.transfer`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Update kwargs with those specified by the user</span>
+        <span class="n">transfer_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">transfer_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transfer_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transfer</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_method</span><span class="p">,</span> <span class="o">**</span><span class="n">transfer_kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_outputs_consistent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assert that function spaces, initial conditions, and forms are given in a</span>
+<span class="sd">        dictionary format with :attr:`MeshSeq.fields` as keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;get_function_spaces&quot;</span><span class="p">,</span> <span class="s2">&quot;get_initial_condition&quot;</span><span class="p">,</span> <span class="s2">&quot;get_form&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">method_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get_function_spaces&quot;</span><span class="p">:</span>
+                <span class="n">method_map</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get_initial_condition&quot;</span><span class="p">:</span>
+                <span class="n">method_map</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get_form&quot;</span><span class="p">:</span>
+                <span class="n">solution_map</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+                    <span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">solution_map</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+                <span class="n">method_map</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">()(</span><span class="mi">0</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method_map</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> should return a dict&quot;</span>
+            <span class="n">mesh_seq_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
+            <span class="n">method_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">method_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">mesh_seq_fields</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">method_fields</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;missing fields </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">method_fields</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">mesh_seq_fields</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;unexpected fields </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_function_spaces_consistent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine whether the mesh sequence&#39;s function spaces are consistent with its</span>
+<span class="sd">        meshes.</span>
+
+<span class="sd">        :returns: ``True`` if the meshes and function spaces are consistent, otherwise</span>
+<span class="sd">            ``False``</span>
+<span class="sd">        :rtype: `:class:`bool`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">consistent</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">consistent</span> <span class="o">&amp;=</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">[</span><span class="n">field</span><span class="p">])</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
@@ -307,62 +464,78 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">consistent</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_spaces_consistent</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">_update_function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the function space dictionary associated with the mesh sequence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_spaces_consistent</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="n">field</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))]</span>
+                    <span class="n">field</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">)[</span><span class="n">field</span><span class="p">]</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_function_spaces_consistent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_function_spaces_consistent</span><span class="p">()</span>
         <span class="p">),</span> <span class="s2">&quot;Meshes and function spaces are inconsistent&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the function spaces associated with the mesh sequence.</span>
+
+<span class="sd">        :returns: a dictionary whose keys are field names and whose values are the</span>
+<span class="sd">            corresponding function spaces</span>
+<span class="sd">        :rtype: :class:`~.AttrDict` with :class:`str` keys and</span>
+<span class="sd">            :class:`firedrake.functionspaceimpl.FunctionSpace` values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_function_spaces</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AttrDict</span><span class="p">:</span>
-        <span class="n">ic</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">())</span>
-        <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span>
-            <span class="n">ic</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="nb">dict</span>
-        <span class="p">),</span> <span class="s2">&quot;`get_initial_condition` should return a dict&quot;</span>
-        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span>
-            <span class="nb">set</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="p">),</span> <span class="s2">&quot;missing fields in initial condition&quot;</span>
-        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span>
-            <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
-        <span class="p">),</span> <span class="s2">&quot;more initial conditions than fields&quot;</span>
-        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">initial_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the initial conditions associated with the first subinterval.</span>
+
+<span class="sd">        :returns: a dictionary whose keys are field names and whose values are the</span>
+<span class="sd">            corresponding initial conditions applied on the first subinterval</span>
+<span class="sd">        :rtype: :class:`~.AttrDict` with :class:`str` keys and</span>
+<span class="sd">            :class:`firedrake.function.Function` values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">AttrDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">())</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        See :meth:`~.MeshSeq.get_form`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        See :meth:`~.MeshSeq.get_solver`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solver</span><span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bcs</span><span class="p">()</span>
 
 <div class="viewcode-block" id="MeshSeq.get_checkpoints">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_checkpoints">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">run_final_subinterval</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_final_subinterval</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve forward on the sequence of meshes, extracting checkpoints corresponding</span>
 <span class="sd">        to the starting fields on each subinterval.</span>
 
-<span class="sd">        :kwarg solver_kwargs: additional keyword arguments which will be passed to the</span>
-<span class="sd">            solver</span>
-<span class="sd">        :kwarg run_final_subinterval: toggle whether to solve the PDE on the final</span>
+<span class="sd">        :kwarg solver_kwargs: parameters for the forward solver</span>
+<span class="sd">        :type solver_kwargs: :class:`dict` with :class:`str` keys and values which may</span>
+<span class="sd">            take various types</span>
+<span class="sd">        :kwarg run_final_subinterval: if ``True``, the solver is run on the final</span>
 <span class="sd">            subinterval</span>
+<span class="sd">        :type run_final_subinterval: :class:`bool`</span>
+<span class="sd">        :returns: checkpoints for each subinterval</span>
+<span class="sd">        :rtype: :class:`list` of :class:`firedrake.function.Function`\s</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># The first checkpoint is the initial condition</span>
@@ -375,14 +548,14 @@
         <span class="c1"># Otherwise, solve each subsequent subinterval, in each case making use of the</span>
         <span class="c1"># previous checkpoint</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span> <span class="k">if</span> <span class="n">run_final_subinterval</span> <span class="k">else</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sols</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">solutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutions</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Solver should return a dictionary, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">sols</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Solver should return a dictionary, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">solutions</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
                 <span class="p">)</span>
 
             <span class="c1"># Check that the output of the solver is as expected</span>
-            <span class="n">fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sols</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">solutions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
                 <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fields are missing from the solver: </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
@@ -390,12 +563,12 @@
                 <span class="n">diff</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">))</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected solver outputs: </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
-            <span class="c1"># Transfer between meshes using conservative projection</span>
+            <span class="c1"># Transfer between meshes</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">checkpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">AttrDict</span><span class="p">(</span>
                         <span class="p">{</span>
-                            <span class="n">field</span><span class="p">:</span> <span class="n">project</span><span class="p">(</span><span class="n">sols</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                            <span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
                             <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                         <span class="p">}</span>
                     <span class="p">)</span>
@@ -407,13 +580,17 @@
 <div class="viewcode-block" id="MeshSeq.get_solve_blocks">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_solve_blocks">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">get_solve_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_solve_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all blocks of the tape corresponding to solve steps for prognostic solution</span>
 <span class="sd">        field on a given subinterval.</span>
 
 <span class="sd">        :arg field: name of the prognostic solution field</span>
+<span class="sd">        :type field: :class:`str`</span>
 <span class="sd">        :arg subinterval: subinterval index</span>
+<span class="sd">        :type subinterval: :class:`int`</span>
+<span class="sd">        :returns: list of solve blocks</span>
+<span class="sd">        :rtype: :class:`list` of :class:`pyadjoint.block.Block`\s</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">tape</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_working_tape</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">tape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -458,7 +635,7 @@
                 <span class="p">)</span>
 
         <span class="c1"># Check that the number of timesteps does not exceed the number of solve blocks</span>
-        <span class="n">num_timesteps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">[</span><span class="n">subinterval</span><span class="p">]</span><span class="o">.</span><span class="n">num_timesteps</span>
+        <span class="n">num_timesteps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">[</span><span class="n">subinterval</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">num_timesteps</span> <span class="o">&gt;</span> <span class="n">N</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Number of timesteps exceeds number of solve blocks for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
@@ -478,13 +655,19 @@
 
     <span class="k">def</span> <span class="nf">_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">solve_block</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        For a given solve block and solution field, get the block&#39;s outputs which</span>
-<span class="sd">        corresponds to the solution from the current timestep.</span>
+<span class="sd">        For a given solve block and solution field, get the block&#39;s outputs corresponding</span>
+<span class="sd">        to the solution from the current timestep.</span>
 
 <span class="sd">        :arg field: field of interest</span>
+<span class="sd">        :type field: :class:`str`</span>
 <span class="sd">        :arg subinterval: subinterval index</span>
-<span class="sd">        :arg solve_block: taped :class:`firedrake.adjoint.blocks.GenericSolveBlock`</span>
+<span class="sd">        :type subinterval: :class:`int`</span>
+<span class="sd">        :arg solve_block: taped solve block</span>
+<span class="sd">        :type solve_block: :class:`firedrake.adjoint.blocks.GenericSolveBlock`</span>
+<span class="sd">        :returns: the output</span>
+<span class="sd">        :rtype: :class:`firedrake.function.Function`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO #93: Inconsistent return value - can be None</span>
         <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">subinterval</span><span class="p">]</span>
 
         <span class="c1"># Loop through the solve block&#39;s outputs</span>
@@ -525,9 +708,15 @@
 <span class="sd">        corresponds to the solution from the previous timestep.</span>
 
 <span class="sd">        :arg field: field of interest</span>
+<span class="sd">        :type field: :class:`str`</span>
 <span class="sd">        :arg subinterval: subinterval index</span>
-<span class="sd">        :arg solve_block: taped :class:`firedrake.adjoint.blocks.GenericSolveBlock`</span>
+<span class="sd">        :type subinterval: :class:`int`</span>
+<span class="sd">        :arg solve_block: taped solve block</span>
+<span class="sd">        :type solve_block: :class:`firedrake.adjoint.blocks.GenericSolveBlock`</span>
+<span class="sd">        :returns: the dependency</span>
+<span class="sd">        :rtype: :class:`firedrake.function.Function`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO #93: Inconsistent return value - can be None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;steady&quot;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">subinterval</span><span class="p">]</span>
@@ -565,30 +754,16 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;forward_old&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solutions</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="n">field</span><span class="p">:</span> <span class="n">AttrDict</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="n">label</span><span class="p">:</span> <span class="p">[</span>
-                            <span class="p">[</span>
-                                <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                            <span class="p">]</span>
-                            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
-                        <span class="p">]</span>
-                        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the :class:`~.FunctionData` instance for holding solution data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solutions</span> <span class="o">=</span> <span class="n">ForwardSolutionData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Arrays holding exported solution fields and their lagged counterparts.</span>
+<span class="sd">        :returns: the solution data object</span>
+<span class="sd">        :rtype: :class:`~.FunctionData`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_solutions&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
@@ -597,29 +772,26 @@
 <div class="viewcode-block" id="MeshSeq.solve_forward">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.solve_forward">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">solve_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{})</span> <span class="o">-&gt;</span> <span class="n">AttrDict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">solve_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve a forward problem on a sequence of subintervals.</span>
 
-<span class="sd">        A dictionary of solution fields is computed, the contents of which give values</span>
-<span class="sd">        at all exported timesteps, indexed first by the field label and then by type.</span>
-<span class="sd">        The contents of these nested dictionaries are nested lists which are indexed</span>
-<span class="sd">        first by subinterval and then by export. For a given exported timestep, the</span>
-<span class="sd">        solution types are:</span>
+<span class="sd">        A dictionary of solution fields is computed - see :class:`~.ForwardSolutionData`</span>
+<span class="sd">        for more details.</span>
 
-<span class="sd">        * ``&#39;forward&#39;``: the forward solution after taking the timestep;</span>
-<span class="sd">        * ``&#39;forward_old&#39;``: the forward solution before taking the timestep.</span>
-
-<span class="sd">        :kwarg solver_kwargs: a dictionary providing parameters to the solver. Any</span>
-<span class="sd">            keyword arguments for the QoI should be included as a subdict with label</span>
-<span class="sd">            &#39;qoi_kwargs&#39;</span>
-
-<span class="sd">        :return solution: an :class:`~.AttrDict` containing solution fields and their</span>
-<span class="sd">            lagged versions. This can also be accessed as :meth:`solutions`.</span>
+<span class="sd">        :kwarg solver_kwargs: parameters for the forward solver</span>
+<span class="sd">        :type solver_kwargs: :class:`dict` whose keys are :class:`str`\s and whose values</span>
+<span class="sd">            may take various types</span>
+<span class="sd">        :returns: the solution data of the forward solves</span>
+<span class="sd">        :rtype: :class:`~.ForwardSolutionData`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
         <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span>
+
+        <span class="c1"># Reinitialise the solution data object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
 
         <span class="c1"># Start annotating</span>
         <span class="k">if</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">annotate_tape</span><span class="p">():</span>
@@ -663,23 +835,23 @@
                     <span class="p">)</span>
 
                 <span class="c1"># Update solution data based on block dependencies and outputs</span>
-                <span class="n">sols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_exports</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">]):</span>
+                <span class="n">solutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s2">&quot;field&quot;</span><span class="p">)[</span><span class="n">field</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="o">-</span><span class="n">stride</span><span class="p">])):</span>
                     <span class="c1"># Current solution is determined from outputs</span>
                     <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">sols</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
+                        <span class="n">solutions</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
 
                     <span class="c1"># Lagged solution comes from dependencies</span>
                     <span class="n">dep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dependency</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">dep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">sols</span><span class="o">.</span><span class="n">forward_old</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="ow">and</span> <span class="n">dep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">solutions</span><span class="o">.</span><span class="n">forward_old</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
 
             <span class="c1"># Transfer the checkpoint between subintervals</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_subintervals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="n">field</span><span class="p">:</span> <span class="n">project</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                        <span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
                         <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
@@ -693,12 +865,13 @@
 <div class="viewcode-block" id="MeshSeq.check_element_count_convergence">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.check_element_count_convergence">[docs]</a>
     <span class="k">def</span> <span class="nf">check_element_count_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check for convergence of the fixed point iteration due to the relative</span>
 <span class="sd">        difference in element count being smaller than the specified tolerance.</span>
 
-<span class="sd">        :return: Boolean array with ``True`` in the appropriate entry if convergence is</span>
-<span class="sd">            detected on a subinterval.</span>
+<span class="sd">        :return: an array, whose entries are ``True`` if convergence is detected on the</span>
+<span class="sd">            corresponding subinterval</span>
+<span class="sd">        :rtype: :class:`list` of :class:`bool`\s</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">drop_out_converged</span><span class="p">:</span>
             <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span>
@@ -739,37 +912,45 @@
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.fixed_point_iteration">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">fixed_point_iteration</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">adaptor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">adaptor</span><span class="p">,</span> <span class="n">update_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adaptor_kwargs</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Apply goal-oriented mesh adaptation using a fixed point iteration loop.</span>
+<span class="sd">        Apply mesh adaptation using a fixed point iteration loop approach.</span>
 
-<span class="sd">        :arg adaptor: function for adapting the mesh sequence. Its arguments are the</span>
-<span class="sd">            :class:`~.MeshSeq` instance and the dictionary of solution</span>
-<span class="sd">            :class:`firedrake.function.Function`\s. It should return ``True`` if the</span>
+<span class="sd">        :arg adaptor: function for adapting the mesh sequence. Its arguments are the mesh</span>
+<span class="sd">            sequence and the solution data object. It should return ``True`` if the</span>
 <span class="sd">            convergence criteria checks are to be skipped for this iteration. Otherwise,</span>
 <span class="sd">            it should return ``False``.</span>
 <span class="sd">        :kwarg update_params: function for updating :attr:`~.MeshSeq.params` at each</span>
 <span class="sd">            iteration. Its arguments are the parameter class and the fixed point</span>
 <span class="sd">            iteration</span>
-<span class="sd">        :kwarg solver_kwargs: a dictionary providing parameters to the solver</span>
+<span class="sd">        :kwarg solver_kwargs: parameters to pass to the solver</span>
+<span class="sd">        :type solver_kwargs: :class:`dict` with :class:`str` keys and values which may</span>
+<span class="sd">            take various types</span>
+<span class="sd">        :kwarg adaptor_kwargs: parameters to pass to the adaptor</span>
+<span class="sd">        :type adaptor_kwargs: :class:`dict` with :class:`str` keys and values which may</span>
+<span class="sd">            take various types</span>
+<span class="sd">        :returns: solution data object</span>
+<span class="sd">        :rtype: :class:`~.ForwardSolutionData`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">update_params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;update_params&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">element_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_elements</span><span class="p">()]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vertex_counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count_vertices</span><span class="p">()]</span>
+        <span class="c1"># TODO #124: adaptor no longer needs solution data to be passed explicitly</span>
+        <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">adaptor_kwargs</span> <span class="o">=</span> <span class="n">adaptor_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_counts</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">for</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp_iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">maxiter</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fp_iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">maxiter</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fp_iteration</span> <span class="o">=</span> <span class="n">fp_iteration</span>
             <span class="k">if</span> <span class="n">update_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">update_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp_iteration</span><span class="p">)</span>
 
             <span class="c1"># Solve the forward problem over all meshes</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">solve_forward</span><span class="p">(</span><span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
             <span class="c1"># Adapt meshes, logging element and vertex counts</span>
-            <span class="n">continue_unconditionally</span> <span class="o">=</span> <span class="n">adaptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">)</span>
+            <span class="n">continue_unconditionally</span> <span class="o">=</span> <span class="n">adaptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">,</span> <span class="o">**</span><span class="n">adaptor_kwargs</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">drop_out_converged</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">continue_unconditionally</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">converged</span><span class="p">)</span>

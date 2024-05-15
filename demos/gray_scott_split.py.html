@@ -41,6 +41,7 @@ This considers an additional level of complexity compared with the
 <a class="reference external" href="./solid_body_rotation_split.py.html">split solid body rotation demo</a> because the
 equations differ in both the diffusion and reaction terms.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+
 <span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
@@ -198,7 +199,7 @@ demo, so that the outputs can be straightforwardly compared.</p>
         <span class="n">fwd_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gray_scott_split/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_forward.pvd&quot;</span><span class="p">)</span>
         <span class="n">adj_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gray_scott_split/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_adjoint.pvd&quot;</span><span class="p">)</span>
         <span class="n">fwd_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
                 <span class="n">fwd_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>

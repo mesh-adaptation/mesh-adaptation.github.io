@@ -68,6 +68,7 @@ straightforward to verify that this ODE has analytical solution</p>
 schemes and compare the results.</p>
 <p>First, import from the namespaces of Firedrake and Goalie.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
+
 <span class="kn">from</span> <span class="nn">goalie</span> <span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
@@ -175,25 +176,28 @@ plus the functions defined above.</p>
     <span class="n">get_form</span><span class="o">=</span><span class="n">get_form_forward_euler</span><span class="p">,</span>
     <span class="n">get_solver</span><span class="o">=</span><span class="n">get_solver</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="c1"># We can solve the ODE using the :meth:`~.MeshSeq.solve_forward` method and extract the</span>
-<span class="c1"># solution trajectory as follows. The method returns a nested dictionary of solutions,</span>
-<span class="c1"># with the first key specifying the field name and the second key specifying the type of</span>
-<span class="c1"># solution field. For the purposes of this demo, we have field ``&quot;u&quot;``, which is a</span>
-<span class="c1"># forward solution. The resulting solution trajectory is a list. ::</span>
-<span class="n">solutions</span> <span class="o">=</span> <span class="n">point_seq</span><span class="o">.</span><span class="n">solve_forward</span><span class="p">()[</span><span class="s2">&quot;u&quot;</span><span class="p">][</span><span class="s2">&quot;forward&quot;</span><span class="p">]</span>
-
-<span class="c1"># Note that the solution trajectory does not include the initial value, so we prepend it.</span>
-<span class="c1"># We also convert the solution :class:`~.Function`\s to :class:`~.float`\s, for plotting</span>
-<span class="c1"># purposes. Whilst there is only one subinterval in this example, we show how to loop</span>
-<span class="c1"># over subintervals, as this is instructive for the general case. ::</span>
-<span class="n">forward_euler_trajectory</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can solve the ODE using the <a class="reference internal" href="../goalie.html#goalie.mesh_seq.MeshSeq.solve_forward" title="goalie.mesh_seq.MeshSeq.solve_forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">solve_forward()</span></code></a> method and extract the
+solution trajectory as follows. The method returns a nested dictionary of solutions,
+with the first key specifying the field name and the second key specifying the type of
+solution field. For the purposes of this demo, we have field <code class="docutils literal notranslate"><span class="pre">&quot;u&quot;</span></code>, which is a
+forward solution. The resulting solution trajectory is a list.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solutions</span> <span class="o">=</span> <span class="n">point_seq</span><span class="o">.</span><span class="n">solve_forward</span><span class="p">()[</span><span class="s2">&quot;u&quot;</span><span class="p">][</span><span class="s2">&quot;forward&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Note that the solution trajectory does not include the initial value, so we prepend it.
+We also convert the solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s to <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>s, for plotting
+purposes. Whilst there is only one subinterval in this example, we show how to loop
+over subintervals, as this is instructive for the general case.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">forward_euler_trajectory</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">forward_euler_trajectory</span> <span class="o">+=</span> <span class="p">[</span>
     <span class="nb">float</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span> <span class="k">for</span> <span class="n">subinterval</span> <span class="ow">in</span> <span class="n">solutions</span> <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">subinterval</span>
 <span class="p">]</span>
-
-<span class="c1"># Plot the trajectory and compare it against the analytical solution. ::</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Plot the trajectory and compare it against the analytical solution.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="s2">&quot;--x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Analytical solution&quot;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">forward_euler_trajectory</span><span class="p">,</span> <span class="s2">&quot;--+&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Forward Euler&quot;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Time, $t$&quot;</span><span class="p">)</span>
@@ -327,6 +331,8 @@ Backward Euler: 3.051757812
 Crank-Nicolson: 2.727412827
 </pre></div>
 </div>
+<p>In the <a class="reference external" href="./burgers.py.html">next demo</a>, we move on to solve a <em>partial</em> differential
+equation (PDE) using a <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>.</p>
 <p>This demo can also be accessed as a <a class="reference external" href="ode.py">Python script</a>.</p>
 </section>
 

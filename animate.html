@@ -42,15 +42,16 @@
 <span id="animate-adapt-module"></span><h2>animate.adapt module<a class="headerlink" href="#module-animate.adapt" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="animate.adapt.MetricBasedAdaptor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MetricBasedAdaptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#MetricBasedAdaptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.MetricBasedAdaptor" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MetricBasedAdaptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#MetricBasedAdaptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.MetricBasedAdaptor" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptorBase</span></code></p>
 <p>Class for driving metric-based mesh adaptation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mesh</strong> – <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a> to be adapted</p></li>
-<li><p><strong>metric</strong> – <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a> to use for the adaptation</p></li>
-<li><p><strong>name</strong> – name for the adapted mesh</p></li>
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – mesh to be adapted</p></li>
+<li><p><strong>metric</strong> (<a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">animate.metric.RiemannianMetric</span></code></a>) – metric to use for the adaptation</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name for the adapted mesh</p></li>
+<li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Intracom</span></code>) – MPI communicator to use for the adapted mesh</p></li>
 </ul>
 </dd>
 </dl>
@@ -60,7 +61,10 @@
 <dd><p>Adapt the mesh with respect to the provided metric.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a new <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a>.</p>
+<dd class="field-odd"><p>the adapted mesh</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -71,11 +75,14 @@
 <dd><p>Interpolate a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> into the corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
 defined on the adapted mesh.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Param<span class="colon">:</span></dt>
-<dd class="field-odd"><p>the scalar <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> on the initial mesh</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>f</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – a Function on the initial mesh</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>its interpolation onto the adapted mesh</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -83,14 +90,17 @@ defined on the adapted mesh.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="animate.adapt.MetricBasedAdaptor.project">
 <span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#MetricBasedAdaptor.project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.MetricBasedAdaptor.project" title="Link to this definition">¶</a></dt>
-<dd><p>Project a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> into the corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionSpace</span></code>
-defined on the adapted mesh using supermeshing.</p>
+<dd><p>Project a Function into the corresponding FunctionSpace defined on the adapted
+mesh using conservative projection.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Param<span class="colon">:</span></dt>
-<dd class="field-odd"><p>the scalar <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> on the initial mesh</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>f</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – a Function on the initial mesh</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>its projection onto the adapted mesh</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -99,19 +109,78 @@ defined on the adapted mesh using supermeshing.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="animate.adapt.adapt">
-<span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.adapt" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serialise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_checkpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/adapt.html#adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.adapt.adapt" title="Link to this definition">¶</a></dt>
 <dd><p>Adapt a mesh with respect to a metric and some adaptor parameters.</p>
 <p>If multiple metrics are provided, then they are intersected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mesh</strong> – <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a> to be adapted.</p></li>
-<li><p><strong>metrics</strong> – list of <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s</p></li>
-<li><p><strong>name</strong> – name for the adapted mesh</p></li>
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – mesh to be adapted.</p></li>
+<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s) – metrics to guide the mesh adaptation</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name for the adapted mesh</p></li>
+<li><p><strong>serialise</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, adaptation is done in serial using
+<code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.checkpointing.CheckpointFile`s.</span> <span class="pre">Defaults</span> <span class="pre">to</span> <span class="pre">``True`</span></code> if
+the mesh is 2D, and to <code class="docutils literal notranslate"><span class="pre">False</span></code> if the mesh is 3D or if the code is already
+run in serial. This is because parallel adaptation is only supported in 3D.</p></li>
+<li><p><strong>remove_checkpoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, checkpoint files are deleted after use</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a new <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a>.</p>
+<dd class="field-even"><p>the adapted mesh</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-animate.checkpointing">
+<span id="animate-checkpointing-module"></span><h2>animate.checkpointing module<a class="headerlink" href="#module-animate.checkpointing" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.checkpointing.get_checkpoint_dir">
+<span class="sig-name descname"><span class="pre">get_checkpoint_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/checkpointing.html#get_checkpoint_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.checkpointing.get_checkpoint_dir" title="Link to this definition">¶</a></dt>
+<dd><p>Make a temporary directory for checkpointing and return its path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.checkpointing.load_checkpoint">
+<span class="sig-name descname"><span class="pre">load_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mesh_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/checkpointing.html#load_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.checkpointing.load_checkpoint" title="Link to this definition">¶</a></dt>
+<dd><p>Load a metric from a <code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointFile</span></code>.</p>
+<p>Note that the checkpoint will have to be stored within Animate’s <code class="docutils literal notranslate"><span class="pre">.checkpoints</span></code>
+subdirectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the path to the checkpoint file</p></li>
+<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which the mesh is saved in the checkpoint file</p></li>
+<li><p><strong>metric_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which the metric is saved in the checkpoint file</p></li>
+<li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Intracom</span></code>) – MPI communicator for handling the checkpoint file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the metric loaded from the checkpoint</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">animate.metric.RiemannianMetric</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.checkpointing.save_checkpoint">
+<span class="sig-name descname"><span class="pre">save_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_name=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm=&lt;mpi4py.MPI.Intracomm</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/checkpointing.html#save_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.checkpointing.save_checkpoint" title="Link to this definition">¶</a></dt>
+<dd><p>Write the metric and underlying mesh to a <code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointFile</span></code>.</p>
+<p>Note that the checkpoint will be stored within Animate’s <code class="docutils literal notranslate"><span class="pre">.checkpoints</span></code>
+subdirectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the path of the checkpoint file</p></li>
+<li><p><strong>metric</strong> (<a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">animate.metric.RiemannianMetric</span></code></a>) – the metric to save to the checkpoint</p></li>
+<li><p><strong>metric_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which to save the metric in the checkpoint file</p></li>
+<li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Intracom</span></code>) – MPI communicator for handling the checkpoint file</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -132,6 +201,98 @@ volume average over neighbouring cells at each vertex. See <span id="id1">[]</sp
 <li><p><strong>target_space</strong> – the <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space to interpolate into</p></li>
 <li><p><strong>boundary</strong> – interpolate over boundary facets or cells?</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.interpolation.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/interpolation.html#interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.interpolation.interpolate" title="Link to this definition">¶</a></dt>
+<dd><p>Overload function <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.__future__.interpolate()</span></code> to account for the case
+of two mixed function spaces defined on different meshes and for the adjoint
+interpolation operator when applied to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>s.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function to be transferred</p></li>
+<li><p><strong>target_space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a>,
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function space which we seek to transfer onto, or the
+function or cofunction to use as the target</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the transferred function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a></p>
+</dd>
+</dl>
+<p>Extra keyword arguments are passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.__future__.interpolate()</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.interpolation.project">
+<span class="sig-name descname"><span class="pre">project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/interpolation.html#project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.interpolation.project" title="Link to this definition">¶</a></dt>
+<dd><p>Overload function <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.projection.project" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.projection.project()</span></code></a> to account for the case of
+two mixed function spaces defined on different meshes and for the adjoint
+projection operator when applied to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>s.</p>
+<p>For details on the approach for achieving boundedness through mass lumping and
+post-processing, see <span id="id2">[<a class="reference internal" href="demos/ping_pong.py.html#id3" title="Patrick E Farrell, Matthew D Piggott, Christopher C Pain, Gerard J Gorman, and Cian R Wilson. Conservative interpolation between unstructured meshes via supermesh construction. Computer methods in applied mechanics and engineering, 198(33-36):2632–2642, 2009.">FPP+09</a>]</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function to be transferred</p></li>
+<li><p><strong>target_space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a>,
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function space which we seek to transfer onto, or the
+function or cofunction to use as the target</p></li>
+<li><p><strong>bounded</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – apply mass lumping to the mass matrix to ensure boundedness</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the transferred function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a></p>
+</dd>
+</dl>
+<p>Extra keyword arguments are passed to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.projection.project" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.projection.project()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.interpolation.transfer">
+<span class="sig-name descname"><span class="pre">transfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_space</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transfer_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'project'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/interpolation.html#transfer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.interpolation.transfer" title="Link to this definition">¶</a></dt>
+<dd><p>Overload functions <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.__future__.interpolate()</span></code> and
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.projection.project" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.projection.project()</span></code></a> to account for the case of two mixed
+function spaces defined on different meshes and for the adjoint interpolation
+operator when applied to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>s.</p>
+<p>Note that the “interpolate” option works straightforwardly with MPI parallelism,
+whereas the “project” option can be difficult to set up to make use of this.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function to be transferred</p></li>
+<li><p><strong>target_space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a>,
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function space which we seek to transfer onto, or the
+function or cofunction to use as the target</p></li>
+<li><p><strong>transfer_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the method to use for the transfer. Options are
+“interpolate” (default) and “project”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the transferred function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Extra keyword arguments are passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.__future__.interpolate()</span></code> or</dt><dd><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.projection.project" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.projection.project()</span></code></a>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -264,9 +425,9 @@ of the (inherently discrete) mesh vertex count.</p>
 <dt class="sig sig-object py" id="animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric">
 <span class="sig-name descname"><span class="pre">compute_anisotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_anisotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_anisotropic_dwr_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute an anisotropic metric from some error indicator, given a Hessian field.</p>
-<p>The formulation used is based on that presented in <span id="id2">[]</span>. Note that
+<p>The formulation used is based on that presented in <span id="id3">[]</span>. Note that
 normalisation is implicit in the metric construction and involves the
-<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id3">[]</span>.</p>
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id4">[]</span>.</p>
 <p>If a Hessian is not provided then an isotropic formulation is used.</p>
 <p>Whilst an element-based formulation is used to derive the metric, the result is
 projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
@@ -337,9 +498,9 @@ inherited from the metric itself.</p>
 <span class="sig-name descname"><span class="pre">compute_isotropic_dwr_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_eigenvalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_isotropic_dwr_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_isotropic_dwr_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute an isotropic metric from some error indicator using an element-based
 formulation.</p>
-<p>The formulation is based on that presented in <span id="id4">[]</span>. Note that
+<p>The formulation is based on that presented in <span id="id5">[]</span>. Note that
 normalisation is implicit in the metric construction and involves the
-<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id5">[]</span>.</p>
+<cite>convergence_rate</cite> parameter, named <span class="math notranslate nohighlight">\(alpha\)</span> in <span id="id6">[]</span>.</p>
 <p>Whilst an element-based formulation is used to derive the metric, the result is
 projected into <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space, by default.</p>
 <dl class="field-list simple">
@@ -375,7 +536,7 @@ projections of the error indicator in modulus.</p>
 <span class="sig-name descname"><span class="pre">compute_weighted_hessian_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_indicators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hessians</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Clement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.compute_weighted_hessian_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.compute_weighted_hessian_metric" title="Link to this definition">¶</a></dt>
 <dd><p>Compute a vertex-wise anisotropic metric from a list of error indicators, given
 a list of corresponding Hessian fields.</p>
-<p>The formulation used is based on that presented in <span id="id6">[]</span>. It is
+<p>The formulation used is based on that presented in <span id="id7">[]</span>. It is
 assumed that the error indicators have been constructed in the appropriate way.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -504,7 +665,7 @@ eigenvector at each point in the domain.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="animate.metric.RiemannianMetric.set_parameters">
-<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.set_parameters" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.set_parameters" title="Link to this definition">¶</a></dt>
 <dd><p>Set metric parameter values internally. All options have the prefix
 <cite>dm_plex_metric_</cite> and are listed below (with prefix dropped for brevity). Note
 that any parameter which supports <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> values must be in a
@@ -616,7 +777,7 @@ may take various types) – parameters as above</p>
 <span class="sig-name descname"><span class="pre">determine_metric_complexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H_interior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_boundary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#determine_metric_complexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.determine_metric_complexity" title="Link to this definition">¶</a></dt>
 <dd><p>Solve an algebraic problem to obtain coefficients for the interior and boundary
 metrics to obtain a given metric complexity.</p>
-<p>See <span id="id7">[]</span> for details. Note that we use a slightly different formulation
+<p>See <span id="id8">[]</span> for details. Note that we use a slightly different formulation
 here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -735,6 +896,145 @@ for the Hessian recovery, too.</p>
 </dd></dl>
 
 </section>
+<section id="module-animate.utility">
+<span id="animate-utility-module"></span><h2>animate.utility module<a class="headerlink" href="#module-animate.utility" title="Link to this heading">¶</a></h2>
+<p>Utility functions and classes for metric-based mesh adaptation.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.utility.Mesh">
+<span class="sig-name descname"><span class="pre">Mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/utility.html#Mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.utility.Mesh" title="Link to this definition">¶</a></dt>
+<dd><p>Overload <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.Mesh" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.mesh.Mesh()</span></code></a> to endow the output mesh with useful quantities.</p>
+<dl class="simple">
+<dt>The following quantities are computed by default:</dt><dd><ul class="simple">
+<li><p>cell size;</p></li>
+<li><p>facet area.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The argument and keyword arguments are passed to Firedrake’s
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.Mesh" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.mesh.Mesh()</span></code></a> constructor, modified so that the argument could also be
+a mesh.</p>
+<p>Arguments and keyword arguments are the same as for <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.Mesh" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.mesh.Mesh()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the constructed mesh</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="animate.utility.VTKFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VTKFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/utility.html#VTKFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.utility.VTKFile" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://www.firedrakeproject.org/firedrake.output.html#firedrake.output.vtk_output.VTKFile" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VTKFile</span></code></a></p>
+<p>Overload <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.output.VTKFile</span></code> so that it uses <code class="docutils literal notranslate"><span class="pre">adaptive</span></code> mode by
+default.</p>
+<p>Whilst this means that the mesh topology is recomputed at every export, it removes
+any need for the user to reset it manually.</p>
+<p>Create an object for outputting data for visualisation.</p>
+<p>This produces output in VTU format, suitable for visualisation
+with Paraview or other VTK-capable visualisation packages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – The name of the output file (must end in
+<code class="docutils literal notranslate"><span class="pre">.pvd</span></code>).</p></li>
+<li><p><strong>project_output</strong> – Should the output be projected to
+a computed output space?  Default is to use interpolation.</p></li>
+<li><p><strong>comm</strong> – The MPI communicator to use.</p></li>
+<li><p><strong>mode</strong> – “w” to overwrite any existing file, “a” to append to an existing file.</p></li>
+<li><p><strong>target_degree</strong> – override the degree of the output space.</p></li>
+<li><p><strong>target_continuity</strong> – override the continuity of the output space;
+A UFL <code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.sobolevspace.SobolevSpace</span></code> object: <cite>H1</cite> for a
+continuous output and <cite>L2</cite> for a discontinuous output.</p></li>
+<li><p><strong>adaptive</strong> – allow different meshes at different exports if <cite>True</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Visualisation is only possible for Lagrange fields (either
+continuous or discontinuous).  All other fields are first
+either projected or interpolated to Lagrange elements
+before storing for visualisation purposes.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.utility.errornorm">
+<span class="sig-name descname"><span class="pre">errornorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/utility.html#errornorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.utility.errornorm" title="Link to this definition">¶</a></dt>
+<dd><p>Overload <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.norms.errornorm" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.norms.errornorm()</span></code></a> to allow for <span class="math notranslate nohighlight">\(\ell^p\)</span> norms.</p>
+<p>Currently supported <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> options:
+* <code class="docutils literal notranslate"><span class="pre">'l1'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'l2'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'linf'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'L2'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'Linf'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'H1'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'Hdiv'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'Hcurl'</span></code>
+* or any <code class="docutils literal notranslate"><span class="pre">'Lp'</span></code> with <span class="math notranslate nohighlight">\(p &gt;= 1\)</span>.</p>
+<p>Note that this version is case sensitive, i.e. <code class="docutils literal notranslate"><span class="pre">'l2'</span></code> and <code class="docutils literal notranslate"><span class="pre">'L2'</span></code> will give
+different results in general.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the ‘true’ value</p></li>
+<li><p><strong>uh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the approximation of the ‘truth’</p></li>
+<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
+<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the error norm value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+<p>Any other keyword arguments are passed to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.norms.errornorm" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.norms.errornorm()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="animate.utility.norm">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/utility.html#norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.utility.norm" title="Link to this definition">¶</a></dt>
+<dd><p>Overload <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.norms.norm" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.norms.norm()</span></code></a> to allow for <span class="math notranslate nohighlight">\(\ell^p\)</span> norms.</p>
+<p>Currently supported <code class="docutils literal notranslate"><span class="pre">norm_type</span></code> options:
+* <code class="docutils literal notranslate"><span class="pre">'l1'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'l2'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'linf'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'L2'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'Linf'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'H1'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'Hdiv'</span></code>
+* <code class="docutils literal notranslate"><span class="pre">'Hcurl'</span></code>
+* or any <code class="docutils literal notranslate"><span class="pre">'Lp'</span></code> with <span class="math notranslate nohighlight">\(p &gt;= 1\)</span>.</p>
+<p>Note that this version is case sensitive, i.e. <code class="docutils literal notranslate"><span class="pre">'l2'</span></code> and <code class="docutils literal notranslate"><span class="pre">'L2'</span></code> will give
+different results in general.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function to take the norm of</p></li>
+<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
+<li><p><strong>condition</strong> – a UFL condition for specifying a subdomain to compute the norm
+over</p></li>
+<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the norm value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-animate">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-animate" title="Link to this heading">¶</a></h2>
 </section>
@@ -762,8 +1062,17 @@ for the Hessian recovery, too.</p>
 <li><a class="reference internal" href="#animate.adapt.adapt"><code class="docutils literal notranslate"><span class="pre">adapt()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-animate.checkpointing">animate.checkpointing module</a><ul>
+<li><a class="reference internal" href="#animate.checkpointing.get_checkpoint_dir"><code class="docutils literal notranslate"><span class="pre">get_checkpoint_dir()</span></code></a></li>
+<li><a class="reference internal" href="#animate.checkpointing.load_checkpoint"><code class="docutils literal notranslate"><span class="pre">load_checkpoint()</span></code></a></li>
+<li><a class="reference internal" href="#animate.checkpointing.save_checkpoint"><code class="docutils literal notranslate"><span class="pre">save_checkpoint()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-animate.interpolation">animate.interpolation module</a><ul>
 <li><a class="reference internal" href="#animate.interpolation.clement_interpolant"><code class="docutils literal notranslate"><span class="pre">clement_interpolant()</span></code></a></li>
+<li><a class="reference internal" href="#animate.interpolation.interpolate"><code class="docutils literal notranslate"><span class="pre">interpolate()</span></code></a></li>
+<li><a class="reference internal" href="#animate.interpolation.project"><code class="docutils literal notranslate"><span class="pre">project()</span></code></a></li>
+<li><a class="reference internal" href="#animate.interpolation.transfer"><code class="docutils literal notranslate"><span class="pre">transfer()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-animate.math">animate.math module</a><ul>
@@ -805,6 +1114,13 @@ for the Hessian recovery, too.</p>
 <li><a class="reference internal" href="#animate.recovery.recover_boundary_hessian"><code class="docutils literal notranslate"><span class="pre">recover_boundary_hessian()</span></code></a></li>
 <li><a class="reference internal" href="#animate.recovery.recover_gradient_l2"><code class="docutils literal notranslate"><span class="pre">recover_gradient_l2()</span></code></a></li>
 <li><a class="reference internal" href="#animate.recovery.recover_hessian_clement"><code class="docutils literal notranslate"><span class="pre">recover_hessian_clement()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-animate.utility">animate.utility module</a><ul>
+<li><a class="reference internal" href="#animate.utility.Mesh"><code class="docutils literal notranslate"><span class="pre">Mesh()</span></code></a></li>
+<li><a class="reference internal" href="#animate.utility.VTKFile"><code class="docutils literal notranslate"><span class="pre">VTKFile</span></code></a></li>
+<li><a class="reference internal" href="#animate.utility.errornorm"><code class="docutils literal notranslate"><span class="pre">errornorm()</span></code></a></li>
+<li><a class="reference internal" href="#animate.utility.norm"><code class="docutils literal notranslate"><span class="pre">norm()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-animate">Module contents</a></li>
