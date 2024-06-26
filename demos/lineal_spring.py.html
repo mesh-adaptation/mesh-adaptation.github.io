@@ -139,8 +139,9 @@ boundary velocity. As such, we should not expect the boundary movement to be the
 <figure class="align-center" style="width: 60%">
 <img alt="../_images/lineal_spring-boundary_displacement.jpg" src="../_images/lineal_spring-boundary_displacement.jpg" />
 </figure>
-<p>To apply this boundary displacement, we need to create a <code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover</span></code>
-instance and define a function for updating the boundary conditions.</p>
+<p>To apply this boundary displacement, we need to create a
+<a class="reference internal" href="../movement.html#movement.spring.SpringMover" title="movement.spring.SpringMover"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover</span></code></a> instance and define a function for updating the
+boundary conditions.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mover</span> <span class="o">=</span> <span class="n">SpringMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;lineal&quot;</span><span class="p">)</span>
 <span class="n">top</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">mover</span><span class="o">.</span><span class="n">coord_space</span><span class="p">)</span>
 <span class="n">moving_boundary</span> <span class="o">=</span> <span class="n">DirichletBC</span><span class="p">(</span><span class="n">mover</span><span class="o">.</span><span class="n">coord_space</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
@@ -197,6 +198,9 @@ close to its original state after one period. Let’s check this in the
 <span class="k">assert</span> <span class="n">linf_error</span> <span class="o">&lt;</span> <span class="mf">0.002</span>
 </pre></div>
 </div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">l_infinity error: 0.001 m</span>
+</pre></div>
+</div>
 <p>Note that the mesh doesn’t return to its original state quite as neatly with the lineal
 spring method as it does with the Laplacian smoothing method. However, the result is
 still very good (as can be seen from the plots above).</p>
@@ -204,8 +208,13 @@ still very good (as can be seen from the plots above).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">K</span> <span class="o">=</span> <span class="n">mover</span><span class="o">.</span><span class="n">assemble_stiffness_matrix</span><span class="p">(</span><span class="n">boundary_conditions</span><span class="o">=</span><span class="n">boundary_conditions</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stiffness matrix shape: </span><span class="si">{</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of mesh vertices: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Stiffness matrix shape: (242, 242)</span>
+<span class="go">Number of mesh vertices: 121</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">spy</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;lineal_spring-sparsity.jpg&quot;</span><span class="p">)</span>
 </pre></div>

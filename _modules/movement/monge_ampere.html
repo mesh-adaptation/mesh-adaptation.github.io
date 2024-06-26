@@ -37,6 +37,7 @@
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">firedrake.exceptions</span> <span class="k">as</span> <span class="nn">fexc</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ufl</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
@@ -133,7 +134,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rtol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rtol&quot;</span><span class="p">,</span> <span class="mf">1.0e-08</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;dtol&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fix_boundary_nodes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fix_boundary_nodes&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="o">=</span><span class="n">monitor_function</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="o">=</span><span class="n">monitor_function</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># Create function spaces</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -272,7 +273,8 @@
                 <span class="n">bbc</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Periodic case</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;Have you checked that all straight line segments are uniquely tagged?&quot;</span>
+                    <span class="s2">&quot;Have you checked that all straight line segments are uniquely&quot;</span>
+                    <span class="s2">&quot; tagged?&quot;</span>
                 <span class="p">)</span>
                 <span class="n">corners</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">edges</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">edges</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="n">i</span><span class="p">])]</span>
                 <span class="n">bbc</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">DirichletBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">corners</span><span class="p">)</span>
@@ -401,12 +403,13 @@
 <a class="viewcode-back" href="../../movement.html#movement.monge_ampere.MongeAmpereMover_Relaxation.move">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the relaxation method to convergence and update the mesh.</span>
 
 <span class="sd">        :return: the iteration count</span>
 <span class="sd">        :rtype: :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Take iterations of the relaxed system until reaching convergence</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">l2_projector</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
@@ -430,24 +433,21 @@
                 <span class="sa">f</span><span class="s2">&quot;   Residual </span><span class="si">{</span><span class="n">residual</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;   Variation (σ/μ) </span><span class="si">{</span><span class="n">cv</span><span class="si">:</span><span class="s2">10.4e</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
-            <span class="n">plural</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
             <span class="k">if</span> <span class="n">residual</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">rtol</span><span class="p">:</span>
-                <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_convergence_message</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">break</span>
             <span class="k">if</span> <span class="n">residual</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtol</span> <span class="o">*</span> <span class="n">initial_norm</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Diverged after </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_divergence_error</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxiter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_convergence_error</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Apply pseudotimestepper and equidistributor</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pseudotimestepper</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">equidistributor</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phi_old</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sigma_old</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+
+        <span class="c1"># Update mesh coordinates accordingly</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">i</span></div>
 </div>
@@ -600,25 +600,23 @@
 <a class="viewcode-back" href="../../movement.html#movement.monge_ampere.MongeAmpereMover_QuasiNewton.move">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the quasi-Newton method to convergence and update the mesh.</span>
 
 <span class="sd">        :return: the iteration count</span>
 <span class="sd">        :rtype: :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Solve equidistribution problem, handling convergence errors according to</span>
+        <span class="c1"># desired behaviour</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">equidistributor</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
-            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snes</span><span class="o">.</span><span class="n">getIterationNumber</span><span class="p">()</span>
-            <span class="n">plural</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">:</span>
-            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">snes</span><span class="o">.</span><span class="n">getIterationNumber</span><span class="p">()</span>
-            <span class="n">plural</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">raise</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to converge in </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_convergence_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snes</span><span class="o">.</span><span class="n">getIterationNumber</span><span class="p">())</span>
+        <span class="k">except</span> <span class="n">fexc</span><span class="o">.</span><span class="n">ConvergenceError</span> <span class="k">as</span> <span class="n">conv_err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_convergence_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">snes</span><span class="o">.</span><span class="n">getIterationNumber</span><span class="p">(),</span> <span class="n">exception</span><span class="o">=</span><span class="n">conv_err</span><span class="p">)</span>
+
+        <span class="c1"># Update mesh coordinates accordingly</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_coordinates</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">i</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">snes</span><span class="o">.</span><span class="n">getIterationNumber</span><span class="p">()</span></div>
 </div>
 
 </pre></div>

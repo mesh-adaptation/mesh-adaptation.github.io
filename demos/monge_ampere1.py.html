@@ -49,30 +49,32 @@ physical domains:</p>
 <p>In practice we are really searching for a discrete mapping between the computational
 and physical meshes.</p>
 <p>Let <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> denote the coordinate fields in
-the computational and physical domains. Skipping some of the details that can be
-found in <span id="id1">[<a class="reference internal" href="monge_ampere_3d.py.html#id8" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>, of the possible mappings we choose one that takes the form</p>
+the computational and physical domains, respectively. Skipping some of the details
+that can be found in <span id="id1">[<a class="reference internal" href="monge_ampere_3d.py.html#id8" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>, of the possible mappings we choose one that
+takes the form</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{x} = \boldsymbol{\xi}+\nabla_{\boldsymbol{\xi}}\phi,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\phi\)</span> is a convex potential function. Further, we choose the potential
-such that is the solution of the Monge-Ampère type equation,</p>
+such that it is the solution of the Monge-Ampère type equation,</p>
 <div class="math notranslate nohighlight">
 \[m(\mathbf{x}) \det(\underline{\mathbf{I}}+\nabla_{\boldsymbol{\xi}}\nabla_{\boldsymbol{\xi}}\phi) = \theta,\]</div>
 <p>where <span class="math notranslate nohighlight">\(m(\mathbf{x})\)</span> is a so-called <em>monitor function</em> and <span class="math notranslate nohighlight">\(\theta\)</span> is a
 strictly positive normalisation function. The monitor function is of key importance
 because it specifies the desired <em>density</em> of the adapted mesh across the domain,
-i.e., where resolution is focused. (Note that density is the reciprocal of area in 2D
-or of volume in 3D.)</p>
+i.e., where resolution is focused. Note that density is the reciprocal of area in 2D
+or of volume in 3D.</p>
 <p>We begin the example by importing from the namespaces of Firedrake and Movement.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># To start with a simple example, consider a uniform mesh of the unit square. Feel free</span>
-<span class="c1"># to ignore the `&quot;MOVEMENT_REGRESSION_TEST&quot;`, as it is only used when this demo is run</span>
-<span class="c1"># in the test suite (to reduce its runtime). ::</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MOVEMENT_REGRESSION_TEST&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To start with a simple example, consider a uniform mesh of the unit square. Feel free
+to ignore the <cite>“MOVEMENT_REGRESSION_TEST”</cite>, as it is only used when this demo is run
+in the test suite (to reduce its runtime).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MOVEMENT_REGRESSION_TEST&quot;</span><span class="p">)</span>
 <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mi">20</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitSquareMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 </pre></div>
@@ -110,7 +112,7 @@ the radius of the ring.</p>
 </pre></div>
 </div>
 <p>With an initial mesh and a monitor function, we are able to construct a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover</span></code> instance and adapt the mesh. By default, the Monge-Ampère
+<a class="reference internal" href="../movement.html#movement.monge_ampere.MongeAmpereMover" title="movement.monge_ampere.MongeAmpereMover"><code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover</span></code></a> instance and adapt the mesh. By default, the Monge-Ampère
 equation is solved to a relative tolerance of <span class="math notranslate nohighlight">\(10^{-8}\)</span>. However, for the
 purposes of continuous integration testing, a tolerance of <span class="math notranslate nohighlight">\(10^{-3}\)</span> is used
 instead to further reduce the runtime.</p>
@@ -149,7 +151,7 @@ of the demo and set up a <a class="reference internal" href="../movement.html#mo
 the initial mesh. Use it to check for tangling after the mesh movement has been
 applied.</p>
 <p>In the <a class="reference external" href="./monge_ampere_3d.py.html">next demo</a>, we will demonstrate
-that the Monge Ampère method can also be applied in three dimensions.</p>
+that the Monge-Ampère method can also be applied in three dimensions.</p>
 <p>This tutorial can be dowloaded as a <a class="reference external" href="monge_ampere1.py">Python script</a>.</p>
 <p class="rubric">References</p>
 <div class="docutils container" id="id2">

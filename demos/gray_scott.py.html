@@ -47,7 +47,7 @@ diffusivities and react with one another nonlinearly.</p>
 </pre></div>
 </div>
 <p>The problem is defined on a doubly periodic mesh of squares.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">PeriodicSquareMesh</span><span class="p">(</span><span class="mi">65</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="n">quadrilateral</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -78,8 +78,8 @@ approximation for both components.</p>
 <p>Since we are using a mixed formulation, the forms for each component equation are
 summed together.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
-        <span class="n">ab</span><span class="p">,</span> <span class="n">ab_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">ab</span><span class="p">,</span> <span class="n">ab_</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ab</span><span class="p">)</span>
         <span class="n">a_</span><span class="p">,</span> <span class="n">b_</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ab_</span><span class="p">)</span>
         <span class="n">psi_a</span><span class="p">,</span> <span class="n">psi_b</span> <span class="o">=</span> <span class="n">TestFunctions</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">])</span>
@@ -109,38 +109,34 @@ summed together.</p>
 <p>For the solver, we just use the default configuration of Firedrake’s
 <code class="xref py py-class docutils literal notranslate"><span class="pre">NonlinearVariationalSolver</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ics</span><span class="p">):</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">ab</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ab&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Initialise &#39;lagged&#39; solution</span>
-        <span class="n">ab_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ab_old&quot;</span><span class="p">)</span>
-        <span class="n">ab_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ics</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">ab</span><span class="p">,</span> <span class="n">ab_</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
 
         <span class="c1"># Setup solver objects</span>
-        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;ab&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">ab</span><span class="p">,</span> <span class="n">ab_</span><span class="p">)})[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
         <span class="n">nlvp</span> <span class="o">=</span> <span class="n">NonlinearVariationalProblem</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">ab</span><span class="p">)</span>
         <span class="n">nlvs</span> <span class="o">=</span> <span class="n">NonlinearVariationalSolver</span><span class="p">(</span><span class="n">nlvp</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;ab&quot;</span><span class="p">)</span>
 
         <span class="c1"># Time integrate from t_start to t_end</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
-        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
+        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t_start</span>
         <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">t_end</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dt</span><span class="p">:</span>
             <span class="n">nlvs</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+            <span class="k">yield</span>
+
             <span class="n">ab_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ab</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ab&quot;</span><span class="p">:</span> <span class="n">ab</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 </pre></div>
 </div>
 <p>The term <span class="math notranslate nohighlight">\(a * b ^ 2\)</span> appears in both equations. By solving the adjoint for the
 QoI <span class="math notranslate nohighlight">\(\int a(x,T) * b(x,T) * dx\)</span> we consider sensitivities to this term.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">sols</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">qoi</span><span class="p">():</span>
-        <span class="n">ab</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">]</span>
+        <span class="n">ab</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;ab&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ab</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dx</span>
 
@@ -149,8 +145,7 @@ QoI <span class="math notranslate nohighlight">\(\int a(x,T) * b(x,T) * dx\)</sp
 </div>
 <p>This problem is multi-scale in time and requires spinning up by gradually increasing
 the timestep. This is straightforwardly done in Goalie using <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="n">end_time</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mf">2000.0</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">end_time</span> <span class="o">=</span> <span class="mf">2000.0</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">end_time</span><span class="p">]</span>
 <span class="n">num_subintervals</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">dt_per_export</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
@@ -158,7 +153,7 @@ the timestep. This is straightforwardly done in Goalie using <code class="xref p
     <span class="n">end_time</span><span class="p">,</span>
     <span class="n">num_subintervals</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">,</span>
-    <span class="n">fields</span><span class="p">,</span>
+    <span class="n">field_names</span><span class="p">,</span>
     <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="n">dt_per_export</span><span class="p">,</span>
     <span class="n">subintervals</span><span class="o">=</span><span class="p">[</span>
         <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),</span>
@@ -185,19 +180,18 @@ the timestep. This is straightforwardly done in Goalie using <code class="xref p
 </pre></div>
 </div>
 <p>Finally, plot the outputs to be viewed in Paraview.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="p">:</span>
-    <span class="n">ic</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">sols</span> <span class="ow">in</span> <span class="n">solutions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">fwd_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gray_scott/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_forward.pvd&quot;</span><span class="p">)</span>
-        <span class="n">adj_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gray_scott/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_adjoint.pvd&quot;</span><span class="p">)</span>
-        <span class="n">fwd_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">ic</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">fwd_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">sol</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">adj_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">sol</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
-        <span class="n">adj_end</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="n">field</span><span class="p">])</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">adj_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">adj_end</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ic</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">sols</span> <span class="ow">in</span> <span class="n">solutions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">fwd_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gray_scott/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_forward.pvd&quot;</span><span class="p">)</span>
+    <span class="n">adj_outfile</span> <span class="o">=</span> <span class="n">VTKFile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gray_scott/</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_adjoint.pvd&quot;</span><span class="p">)</span>
+    <span class="n">fwd_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">ic</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;forward&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">fwd_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">sol</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sol</span> <span class="ow">in</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;adjoint&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+            <span class="n">adj_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">sol</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
+    <span class="n">adj_end</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="n">field</span><span class="p">])</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">adj_outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="o">*</span><span class="n">adj_end</span><span class="o">.</span><span class="n">subfunctions</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In the <a class="reference external" href="./gray_scott_split.py.html">next demo</a>, we consider solving the same

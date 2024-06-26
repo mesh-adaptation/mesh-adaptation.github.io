@@ -372,15 +372,14 @@
     <span class="c1"># Process target space</span>
     <span class="n">Vt</span> <span class="o">=</span> <span class="n">target_space</span>
     <span class="k">if</span> <span class="n">Vt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">Vt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">Vt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">Vt</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">Vt</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">,</span>
+        <span class="p">}[</span><span class="n">rank</span><span class="p">](</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="n">FiredrakeDualSpace</span><span class="p">):</span>
         <span class="n">Vt</span> <span class="o">=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">dual</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="n">FiredrakeDualSpace</span><span class="p">):</span>
+    <span class="k">else</span><span class="p">:</span>
         <span class="n">is_cofunction</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">Vt_e</span> <span class="o">=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">Vt_e</span><span class="o">.</span><span class="n">family</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Lagrange&quot;</span> <span class="ow">and</span> <span class="n">Vt_e</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
@@ -392,14 +391,11 @@
     <span class="n">P1</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Determine target domain</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">tdomain</span> <span class="o">=</span> <span class="s2">&quot;{[i]: 0 &lt;= i &lt; t.dofs}&quot;</span>
-    <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">tdomain</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">[i, j]: 0 &lt;= i &lt; t.dofs and 0 &lt;= j &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">tdomain</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">[i, j, k]: 0 &lt;= i &lt; t.dofs and 0 &lt;= j &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> and 0 &lt;= k &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+    <span class="n">tdomain</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;{[i]: 0 &lt;= i &lt; t.dofs}&quot;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">[i, j]: 0 &lt;= i &lt; t.dofs and 0 &lt;= j &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">[i, j, k]: 0 &lt;= i &lt; t.dofs and 0 &lt;= j &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> and 0 &lt;= k &lt; </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}[</span><span class="n">rank</span><span class="p">]</span>
 
     <span class="c1"># Compute the patch volume at each vertex</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">boundary</span><span class="p">:</span>
@@ -414,12 +410,11 @@
         <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">((</span><span class="n">domain</span><span class="p">,</span> <span class="n">instructions</span><span class="p">),</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
 
         <span class="c1"># Take weighted average</span>
-        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i] = t[i] + v[0] * s[0]&quot;</span>
-        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i, j] = t[i, j] + v[0] * s[0, j]&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">instructions</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] = t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] + v[0] * s[0, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k]&quot;</span>
+        <span class="n">instructions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;t[i] = t[i] + v[0] * s[0]&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;t[i, j] = t[i, j] + v[0] * s[0, j]&quot;</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] = t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] + v[0] * s[0, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k]&quot;</span><span class="p">,</span>
+        <span class="p">}[</span><span class="n">rank</span><span class="p">]</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
             <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
@@ -454,12 +449,11 @@
         <span class="n">firedrake</span><span class="o">.</span><span class="n">par_loop</span><span class="p">((</span><span class="n">domain</span><span class="p">,</span> <span class="n">instructions</span><span class="p">),</span> <span class="n">dX</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
 
         <span class="c1"># Take weighted average</span>
-        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i] = t[i] + v[0] * b[i] * s[0]&quot;</span>
-        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">instructions</span> <span class="o">=</span> <span class="s2">&quot;t[i, j] = t[i, j] + v[0] * b[i] * s[0, j]&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">instructions</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] = t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] + v[0] * b[i] * s[0, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k]&quot;</span>
+        <span class="n">instructions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;t[i] = t[i] + v[0] * b[i] * s[0]&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;t[i, j] = t[i, j] + v[0] * b[i] * s[0, j]&quot;</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] = t[i, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k] + v[0] * b[i] * s[0, </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> * j + k]&quot;</span><span class="p">,</span>
+        <span class="p">}[</span><span class="n">rank</span><span class="p">]</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>
             <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">bnd_volume</span><span class="p">,</span> <span class="n">op2</span><span class="o">.</span><span class="n">READ</span><span class="p">),</span>

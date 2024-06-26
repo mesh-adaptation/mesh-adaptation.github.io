@@ -45,7 +45,6 @@
 <span class="kn">from</span> <span class="nn">animate.quality</span> <span class="kn">import</span> <span class="n">QualityMeasure</span>
 <span class="kn">from</span> <span class="nn">animate.utility</span> <span class="kn">import</span> <span class="n">Mesh</span>
 <span class="kn">from</span> <span class="nn">firedrake.adjoint</span> <span class="kn">import</span> <span class="n">pyadjoint</span>
-<span class="kn">from</span> <span class="nn">firedrake.adjoint_utils.solving</span> <span class="kn">import</span> <span class="n">get_solve_blocks</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 <span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
 
@@ -90,11 +89,8 @@
 <span class="sd">        :type parameters: :class:`~.AdaptParameters`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span> <span class="o">=</span> <span class="n">time_partition</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">fields</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">field</span><span class="p">:</span> <span class="n">field_type</span>
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">field_types</span><span class="p">)</span>
-        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">field_names</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">field_types</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">subintervals</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="n">time_partition</span><span class="o">.</span><span class="n">num_subintervals</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_meshes</span><span class="p">(</span><span class="n">initial_meshes</span><span class="p">)</span>
@@ -420,28 +416,37 @@
 <span class="sd">        Assert that function spaces, initial conditions, and forms are given in a</span>
 <span class="sd">        dictionary format with :attr:`MeshSeq.fields` as keys.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;get_function_spaces&quot;</span><span class="p">,</span> <span class="s2">&quot;get_initial_condition&quot;</span><span class="p">,</span> <span class="s2">&quot;get_form&quot;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;function_spaces&quot;</span><span class="p">,</span> <span class="s2">&quot;initial_condition&quot;</span><span class="p">,</span> <span class="s2">&quot;form&quot;</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">method_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get_function_spaces&quot;</span><span class="p">:</span>
+            <span class="n">method_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;get_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;function_spaces&quot;</span><span class="p">:</span>
                 <span class="n">method_map</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get_initial_condition&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;initial_condition&quot;</span><span class="p">:</span>
                 <span class="n">method_map</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;get_form&quot;</span><span class="p">:</span>
-                <span class="n">solution_map</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">u</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
-                    <span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-                    <span class="n">solution_map</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
-                <span class="n">method_map</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">()(</span><span class="mi">0</span><span class="p">,</span> <span class="n">solution_map</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method_map</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> should return a dict&quot;</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;form&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_reinitialise_fields</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">())</span>
+                <span class="n">method_map</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">()(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_reinitialise_fields</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_initial_condition</span><span class="p">())</span>
+                <span class="n">solver_gen</span> <span class="o">=</span> <span class="n">method_map</span><span class="p">()(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">solver_gen</span><span class="p">,</span> <span class="s2">&quot;__next__&quot;</span><span class="p">),</span> <span class="s2">&quot;solver should yield&quot;</span>
+                <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">DEBUG</span><span class="p">:</span>
+                    <span class="nb">next</span><span class="p">(</span><span class="n">solver_gen</span><span class="p">)</span>
+                    <span class="n">f</span><span class="p">,</span> <span class="n">f_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">))]</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">array</span><span class="p">(),</span> <span class="n">f_</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">array</span><span class="p">()):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="s2">&quot;Current and lagged solutions are equal. Does the&quot;</span>
+                            <span class="s2">&quot; solver yield before updating lagged solutions?&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method_map</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;get_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> should return a dict&quot;</span>
             <span class="n">mesh_seq_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
             <span class="n">method_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">method_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">mesh_seq_fields</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">method_fields</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;missing fields </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;missing fields </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> in get_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">method_fields</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">mesh_seq_fields</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;unexpected fields </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;unexpected fields </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> in get_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">_function_spaces_consistent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -518,241 +523,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solver</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MeshSeq.get_checkpoints">
-<a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_checkpoints">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_final_subinterval</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Solve forward on the sequence of meshes, extracting checkpoints corresponding</span>
-<span class="sd">        to the starting fields on each subinterval.</span>
-
-<span class="sd">        :kwarg solver_kwargs: parameters for the forward solver</span>
-<span class="sd">        :type solver_kwargs: :class:`dict` with :class:`str` keys and values which may</span>
-<span class="sd">            take various types</span>
-<span class="sd">        :kwarg run_final_subinterval: if ``True``, the solver is run on the final</span>
-<span class="sd">            subinterval</span>
-<span class="sd">        :type run_final_subinterval: :class:`bool`</span>
-<span class="sd">        :returns: checkpoints for each subinterval</span>
-<span class="sd">        :rtype: :class:`list` of :class:`firedrake.function.Function`\s</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-        <span class="c1"># The first checkpoint is the initial condition</span>
-        <span class="n">checkpoints</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span><span class="p">]</span>
-
-        <span class="c1"># If there is only one subinterval then we are done</span>
-        <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">run_final_subinterval</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">checkpoints</span>
-
-        <span class="c1"># Otherwise, solve each subsequent subinterval, in each case making use of the</span>
-        <span class="c1"># previous checkpoint</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span> <span class="k">if</span> <span class="n">run_final_subinterval</span> <span class="k">else</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">solutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutions</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Solver should return a dictionary, not &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">solutions</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
-                <span class="p">)</span>
-
-            <span class="c1"># Check that the output of the solver is as expected</span>
-            <span class="n">fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">solutions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
-                <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fields are missing from the solver: </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)):</span>
-                <span class="n">diff</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">))</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected solver outputs: </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Transfer between meshes</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">checkpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">AttrDict</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer</span><span class="p">(</span><span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-                            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">checkpoints</span></div>
-
-
-<div class="viewcode-block" id="MeshSeq.get_solve_blocks">
-<a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_solve_blocks">[docs]</a>
-    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">get_solve_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get all blocks of the tape corresponding to solve steps for prognostic solution</span>
-<span class="sd">        field on a given subinterval.</span>
-
-<span class="sd">        :arg field: name of the prognostic solution field</span>
-<span class="sd">        :type field: :class:`str`</span>
-<span class="sd">        :arg subinterval: subinterval index</span>
-<span class="sd">        :type subinterval: :class:`int`</span>
-<span class="sd">        :returns: list of solve blocks</span>
-<span class="sd">        :rtype: :class:`list` of :class:`pyadjoint.block.Block`\s</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tape</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_working_tape</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">tape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tape does not exist!&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">[]</span>
-
-        <span class="n">blocks</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">get_blocks</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tape has no blocks!&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">blocks</span>
-
-        <span class="c1"># Restrict to solve blocks</span>
-        <span class="n">solve_blocks</span> <span class="o">=</span> <span class="n">get_solve_blocks</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Tape has no solve blocks!&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">solve_blocks</span>
-
-        <span class="c1"># Select solve blocks whose tags correspond to the field name</span>
-        <span class="n">solve_blocks</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">block</span>
-            <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">block</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No solve blocks associated with field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
-                <span class="s2">&quot; Has ad_block_tag been used correctly?&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">solve_blocks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s2"> solve blocks.&quot;</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Check FunctionSpaces are consistent across solve blocks</span>
-        <span class="n">element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">subinterval</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">solve_blocks</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">element</span> <span class="o">!=</span> <span class="n">block</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Solve block list for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; contains mismatching elements:&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">element</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">block</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
-
-        <span class="c1"># Check that the number of timesteps does not exceed the number of solve blocks</span>
-        <span class="n">num_timesteps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">[</span><span class="n">subinterval</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">num_timesteps</span> <span class="o">&gt;</span> <span class="n">N</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Number of timesteps exceeds number of solve blocks for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">num_timesteps</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Check the number of timesteps is divisible by the number of solve blocks</span>
-        <span class="n">ratio</span> <span class="o">=</span> <span class="n">num_timesteps</span> <span class="o">/</span> <span class="n">N</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">ratio</span><span class="p">),</span> <span class="n">ratio</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Number of timesteps is not divisible by number of solve blocks for&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">num_timesteps</span><span class="si">}</span><span class="s2"> vs.&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">solve_blocks</span></div>
-
-
-    <span class="k">def</span> <span class="nf">_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">solve_block</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        For a given solve block and solution field, get the block&#39;s outputs corresponding</span>
-<span class="sd">        to the solution from the current timestep.</span>
-
-<span class="sd">        :arg field: field of interest</span>
-<span class="sd">        :type field: :class:`str`</span>
-<span class="sd">        :arg subinterval: subinterval index</span>
-<span class="sd">        :type subinterval: :class:`int`</span>
-<span class="sd">        :arg solve_block: taped solve block</span>
-<span class="sd">        :type solve_block: :class:`firedrake.adjoint.blocks.GenericSolveBlock`</span>
-<span class="sd">        :returns: the output</span>
-<span class="sd">        :rtype: :class:`firedrake.function.Function`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO #93: Inconsistent return value - can be None</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">subinterval</span><span class="p">]</span>
-
-        <span class="c1"># Loop through the solve block&#39;s outputs</span>
-        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">solve_block</span><span class="o">.</span><span class="n">_outputs</span><span class="p">:</span>
-            <span class="c1"># Look for Functions with matching function spaces</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">!=</span> <span class="n">fs</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Look for Functions whose name matches that of the field</span>
-            <span class="c1"># NOTE: Here we assume that the user has set this correctly in their</span>
-            <span class="c1">#       get_solver method</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">out</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="n">field</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Add to the list of candidates</span>
-            <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-
-        <span class="c1"># Check for existence and uniqueness</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot determine a unique output index for the solution associated&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; with field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; out of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="si">}</span><span class="s2"> candidates.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Solve block for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has no&quot;</span>
-                <span class="s2">&quot; outputs.&quot;</span>
-            <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">subinterval</span><span class="p">,</span> <span class="n">solve_block</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        For a given solve block and solution field, get the block&#39;s dependency which</span>
-<span class="sd">        corresponds to the solution from the previous timestep.</span>
-
-<span class="sd">        :arg field: field of interest</span>
-<span class="sd">        :type field: :class:`str`</span>
-<span class="sd">        :arg subinterval: subinterval index</span>
-<span class="sd">        :type subinterval: :class:`int`</span>
-<span class="sd">        :arg solve_block: taped solve block</span>
-<span class="sd">        :type solve_block: :class:`firedrake.adjoint.blocks.GenericSolveBlock`</span>
-<span class="sd">        :returns: the dependency</span>
-<span class="sd">        :rtype: :class:`firedrake.function.Function`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO #93: Inconsistent return value - can be None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;steady&quot;</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="n">subinterval</span><span class="p">]</span>
-
-        <span class="c1"># Loop through the solve block&#39;s dependencies</span>
-        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">solve_block</span><span class="o">.</span><span class="n">_dependencies</span><span class="p">:</span>
-            <span class="c1"># Look for Functions with matching function spaces</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span> <span class="o">!=</span> <span class="n">fs</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Look for Functions whose name is the lagged version of the field&#39;s</span>
-            <span class="c1"># NOTE: Here we assume that the user has set this correctly in their</span>
-            <span class="c1">#       get_solver method</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">dep</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_old&quot;</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Add to the list of candidates</span>
-            <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span>
-
-        <span class="c1"># Check for existence and uniqueness</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                <span class="s2">&quot;Cannot determine a unique dependency index for the lagged solution&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; associated with field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; out of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span><span class="si">}</span><span class="s2"> candidates.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Solve block for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; on subinterval </span><span class="si">{</span><span class="n">subinterval</span><span class="si">}</span><span class="s2"> has no&quot;</span>
-                <span class="s2">&quot; dependencies.&quot;</span>
-            <span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_create_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the :class:`~.FunctionData` instance for holding solution data.</span>
@@ -768,6 +538,133 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_solutions&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solutions</span>
+
+    <span class="k">def</span> <span class="nf">_reinitialise_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reinitialise fields and assign initial conditions on the given subinterval.</span>
+
+<span class="sd">        :arg initial_conditions: the initial conditions to assign to lagged solutions</span>
+<span class="sd">        :type initial_conditions: :class:`dict` with :class:`str` keys and</span>
+<span class="sd">            :class:`firedrake.function.Function` values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">ic</span> <span class="ow">in</span> <span class="n">initial_conditions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">fs</span> <span class="o">=</span> <span class="n">ic</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;steady&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">field</span><span class="p">),</span>
+                    <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">_old&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">),</span>
+                <span class="p">)</span>
+
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_solve_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_solutions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solve a forward problem on a sequence of subintervals. Yields the final solution</span>
+<span class="sd">        on each subinterval.</span>
+
+<span class="sd">        :kwarg update_solutions: if ``True``, updates the solution data</span>
+<span class="sd">        :type update_solutions: :class:`bool`</span>
+<span class="sd">        :kwarg solver_kwargs: parameters for the forward solver</span>
+<span class="sd">        :type solver_kwargs: :class:`dict` whose keys are :class:`str`\s and whose values</span>
+<span class="sd">            may take various types</span>
+<span class="sd">        :yields: the solution data of the forward solves</span>
+<span class="sd">        :ytype: :class:`~.ForwardSolutionData`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
+
+        <span class="k">if</span> <span class="n">update_solutions</span><span class="p">:</span>
+            <span class="c1"># Reinitialise the solution data object</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
+            <span class="n">solutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s2">&quot;field&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Stop annotating</span>
+        <span class="k">if</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">annotate_tape</span><span class="p">():</span>
+            <span class="n">tape</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_working_tape</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">tape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
+            <span class="n">pyadjoint</span><span class="o">.</span><span class="n">pause_annotation</span><span class="p">()</span>
+
+        <span class="c1"># Loop over the subintervals</span>
+        <span class="n">checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">):</span>
+            <span class="n">solver_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
+
+            <span class="c1"># Reinitialise fields and assign initial conditions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reinitialise_fields</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">update_solutions</span><span class="p">:</span>
+                <span class="c1"># Solve sequentially between each export time</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                        <span class="nb">next</span><span class="p">(</span><span class="n">solver_gen</span><span class="p">)</span>
+                    <span class="c1"># Update the solution data</span>
+                    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">sol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span><span class="p">:</span>
+                            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+                            <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sol</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">forward_old</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sol</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span>
+                            <span class="n">solutions</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">sol</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Solve over the entire subinterval in one go</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">num_timesteps_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="nb">next</span><span class="p">(</span><span class="n">solver_gen</span><span class="p">)</span>
+
+            <span class="c1"># Transfer the checkpoint to the next subintervals</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_subintervals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;steady&quot;</span>
+                            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+            <span class="k">yield</span> <span class="n">checkpoint</span>
+
+<div class="viewcode-block" id="MeshSeq.get_checkpoints">
+<a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.get_checkpoints">[docs]</a>
+    <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_final_subinterval</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get checkpoints corresponding to the starting fields on each subinterval.</span>
+
+<span class="sd">        :kwarg run_final_subinterval: if ``True``, the solver is run on the final</span>
+<span class="sd">            subinterval</span>
+<span class="sd">        :type run_final_subinterval: :class:`bool`</span>
+<span class="sd">        :kwarg solver_kwargs: parameters for the forward solver</span>
+<span class="sd">        :type solver_kwargs: :class:`dict` with :class:`str` keys and values which may</span>
+<span class="sd">            take various types</span>
+<span class="sd">        :returns: checkpoints for each subinterval</span>
+<span class="sd">        :rtype: :class:`list` of :class:`firedrake.function.Function`\s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># The first checkpoint is the initial condition</span>
+        <span class="n">checkpoints</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span><span class="p">]</span>
+
+        <span class="c1"># If there is only one subinterval then we are done</span>
+        <span class="k">if</span> <span class="n">N</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">run_final_subinterval</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">checkpoints</span>
+
+        <span class="c1"># Otherwise, solve each subsequent subinterval and append the checkpoint</span>
+        <span class="n">solver_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_forward</span><span class="p">(</span>
+            <span class="n">update_solutions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span> <span class="k">if</span> <span class="n">run_final_subinterval</span> <span class="k">else</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">checkpoints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">solver_gen</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">checkpoints</span></div>
+
 
 <div class="viewcode-block" id="MeshSeq.solve_forward">
 <a class="viewcode-back" href="../../goalie.html#goalie.mesh_seq.MeshSeq.solve_forward">[docs]</a>
@@ -786,78 +683,9 @@
 <span class="sd">        :rtype: :class:`~.ForwardSolutionData`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span>
-        <span class="n">solver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span>
-
-        <span class="c1"># Reinitialise the solution data object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_create_solutions</span><span class="p">()</span>
-
-        <span class="c1"># Start annotating</span>
-        <span class="k">if</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">annotate_tape</span><span class="p">():</span>
-            <span class="n">tape</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_working_tape</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">tape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">pyadjoint</span><span class="o">.</span><span class="n">continue_annotation</span><span class="p">()</span>
-
-        <span class="c1"># Loop over the subintervals</span>
-        <span class="n">checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_condition</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">):</span>
-            <span class="n">stride</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">num_exports</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
-            <span class="c1"># Annotate tape on current subinterval</span>
-            <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">solver</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
-
-            <span class="c1"># Loop over prognostic variables</span>
-            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="c1"># Get solve blocks</span>
-                <span class="n">solve_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_solve_blocks</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-                <span class="n">num_solve_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">num_solve_blocks</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Looks like no solves were written to tape!&quot;</span>
-                        <span class="s2">&quot; Does the solution depend on the initial condition?&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">if</span> <span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span> <span class="o">!=</span> <span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">():</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Solve block list for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; contains mismatching&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; finite elements: (</span><span class="si">{</span><span class="n">fs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="si">}</span><span class="s2"> vs. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">solve_blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">function_space</span><span class="o">.</span><span class="n">ufl_element</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="p">)</span>
-
-                <span class="c1"># Extract solution data</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="n">num_exports</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;More solve blocks than expected&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="n">stride</span><span class="p">])</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">num_exports</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="p">)</span>
-
-                <span class="c1"># Update solution data based on block dependencies and outputs</span>
-                <span class="n">solutions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s2">&quot;field&quot;</span><span class="p">)[</span><span class="n">field</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">solve_blocks</span><span class="p">[::</span><span class="o">-</span><span class="n">stride</span><span class="p">])):</span>
-                    <span class="c1"># Current solution is determined from outputs</span>
-                    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">solutions</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
-
-                    <span class="c1"># Lagged solution comes from dependencies</span>
-                    <span class="n">dep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dependency</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="ow">and</span> <span class="n">dep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">solutions</span><span class="o">.</span><span class="n">forward_old</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dep</span><span class="o">.</span><span class="n">saved_output</span><span class="p">)</span>
-
-            <span class="c1"># Transfer the checkpoint between subintervals</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_subintervals</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transfer</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="n">fs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-                        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">fs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-
-            <span class="c1"># Clear the tape to reduce the memory footprint</span>
-            <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_working_tape</span><span class="p">()</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
+        <span class="n">solver_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_forward</span><span class="p">(</span><span class="n">update_solutions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">solver_gen</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span></div>
 

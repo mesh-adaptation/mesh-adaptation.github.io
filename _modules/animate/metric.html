@@ -364,7 +364,7 @@
         <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;ZZ&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Zienkiewicz-Zhu recovery not yet implemented.&quot;</span>
-            <span class="p">)</span>  <span class="c1"># TODO</span>
+            <span class="p">)</span>  <span class="c1"># TODO (#130)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recovery method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39; not recognised.&quot;</span><span class="p">)</span></div>
 
@@ -1118,6 +1118,7 @@
 
 
 <span class="c1"># TODO: Use the intersection functionality in PETSc</span>
+<span class="c1">#       See https://gitlab.com/petsc/petsc/-/issues/1452</span>
 <div class="viewcode-block" id="intersect_on_boundary">
 <a class="viewcode-back" href="../../animate.html#animate.metric.intersect_on_boundary">[docs]</a>
 <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>

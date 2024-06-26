@@ -50,7 +50,7 @@ exposition of goal-oriented mesh adaptation in these demos.</p>
 
 <span class="kn">from</span> <span class="nn">goalie_adjoint</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+<span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
@@ -64,8 +64,8 @@ exposition of goal-oriented mesh adaptation in these demos.</p>
 
 
 <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
-        <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">CellSize</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">source</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
@@ -96,28 +96,23 @@ exposition of goal-oriented mesh adaptation in these demos.</p>
 
 
 <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-
-        <span class="c1"># Ensure dependence on the initial condition</span>
-        <span class="n">c_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c_old&quot;</span><span class="p">)</span>
-        <span class="n">c_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">c_</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
         <span class="c1"># Setup variational problem</span>
-        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c_</span><span class="p">)})[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">bc</span> <span class="o">=</span> <span class="n">DirichletBC</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bc</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
+        <span class="k">yield</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 
 
-<span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">qoi</span><span class="p">():</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">xr</span><span class="p">,</span> <span class="n">yr</span><span class="p">,</span> <span class="n">rr</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">0.5</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">conditional</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">xr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">yr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="n">rr</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -134,12 +129,12 @@ iterations.</p>
     <span class="p">{</span>
         <span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
         <span class="s2">&quot;qoi_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
-        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">RectangleMesh</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+<span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span>
 <span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">GoalOrientedMeshSeq</span><span class="p">(</span>
     <span class="n">time_partition</span><span class="p">,</span>
     <span class="n">mesh</span><span class="p">,</span>

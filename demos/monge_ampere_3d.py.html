@@ -48,7 +48,7 @@ from <span id="id1">[<a class="reference internal" href="#id9" title="Michael A 
     <span class="k">return</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="mi">50</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="n">atan2</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sin</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>We will now try to use mesh movement to optimize the mesh such that it can
+<p>We will now try to use mesh movement to optimise the mesh such that it can
 most accurately represent this function with limited resolution.
 A good indicator for where resolution is required
 is to look at the curvature of the function which can be expressed
@@ -57,12 +57,13 @@ that targets high resolution in places of high curvature then looks like</p>
 <div class="math notranslate nohighlight">
 \[m = 1 + \alpha \frac{H(u_h):H(u_h)}{\max_{{\bf x}\in\Omega} H(u_h):H(u_h)}\]</div>
 <p>where <span class="math notranslate nohighlight">\(:\)</span> indicates the inner product, i.e. <span class="math notranslate nohighlight">\(\sqrt{H:H}\)</span> is the Frobenius norm
-of <span class="math notranslate nohighlight">\(H\)</span>. We have normalized such that the minimum of the monitor function is one (where
+of <span class="math notranslate nohighlight">\(H\)</span>. We have normalised such that the minimum of the monitor function is one (where
 the error is zero), and its maximum is <span class="math notranslate nohighlight">\(1 + \alpha\)</span> (where the curvature is maximal). This
-means we can select the ratio between the largest and smallest cell volume  in the
+means that we can select the ratio between the largest and smallest cell volume in the
 moved mesh as <span class="math notranslate nohighlight">\(1+\alpha\)</span>.</p>
 <p>As in the <a class="reference external" href="./monge_ampere1.py.html">previous Monge-Ampère demo</a>, we use the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover</span></code> to perform the mesh movement based on this monitor. We need
+<a class="reference internal" href="../movement.html#movement.monge_ampere.MongeAmpereMover" title="movement.monge_ampere.MongeAmpereMover"><code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover</span></code></a> to perform the mesh movement based on
+this monitor. We need
 to provide the monitor as a callback function that takes the mesh as its
 input. During the iterations of the mesh movement process the monitor will then
 be re-evaluated in the (iteratively)
@@ -118,8 +119,8 @@ image:</p>
 <img alt="../_images/monge_ampere_3d-paraview.jpg" src="../_images/monge_ampere_3d-paraview.jpg" />
 </figure>
 <p>In the <a class="reference external" href="./monge_ampere_helmholtz.py.html">next demo</a>, we will demonstrate
-how to optimize the mesh for the discretisation of a PDE with the aim to
-minimize its discretisation error.</p>
+how to optimise the mesh for the discretisation of a PDE with the aim to
+minimise its discretisation error.</p>
 <p>This tutorial can be dowloaded as a <a class="reference external" href="monge_ampere_3d.py">Python script</a>.</p>
 <p class="rubric">References</p>
 <div class="docutils container" id="id3">

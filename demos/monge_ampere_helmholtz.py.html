@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Using mesh movement to optimize the mesh for PDE solution &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>Using mesh movement to optimise the mesh for PDE solution &#8212; Animate, Movement and Goalie 0.1 documentation</title>
     <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
@@ -24,7 +24,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Using mesh movement to optimize the mesh for PDE solution</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Using mesh movement to optimise the mesh for PDE solution</a></li> 
       </ul>
     </div>  
 
@@ -33,10 +33,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="using-mesh-movement-to-optimize-the-mesh-for-pde-solution">
-<h1>Using mesh movement to optimize the mesh for PDE solution<a class="headerlink" href="#using-mesh-movement-to-optimize-the-mesh-for-pde-solution" title="Link to this heading">¶</a></h1>
-<p>In this demo will demonstrate how we might use mesh movement to obtain a mesh
-that is optimized for solving a particular PDE. The general idea is that we
+  <section id="using-mesh-movement-to-optimise-the-mesh-for-pde-solution">
+<h1>Using mesh movement to optimise the mesh for PDE solution<a class="headerlink" href="#using-mesh-movement-to-optimise-the-mesh-for-pde-solution" title="Link to this heading">¶</a></h1>
+<p>In this demo we will demonstrate how we might use mesh movement to obtain a mesh
+that is optimised for solving a particular PDE. The general idea is that we
 want to reduce numerical error by increasing resolution where the local error
 is (expected to be) high and decrease it elsewhere.</p>
 <p>As an example we will look at the discretisation of the Helmholtz equation</p>
@@ -50,11 +50,11 @@ solution <span class="math notranslate nohighlight">\(u\)</span> and rhs <span c
 \[ \begin{align}\begin{aligned}u(x, y) &amp;= \exp\left(-\frac{(x-x_0)^2 + (y-y_0)^2}{w^2}\right)\\f(x, y) &amp;= -\nabla^2 u(x, y) + u(x, y)
     = \left[ -\frac{4(x-x_0)^2 + 4(y-y_0)^2}{w^4}
             + \frac{4}{w^2} + 1 \right]
-      \exp\left(-\frac{(x-x_0)^2 +  (y-y_0)^2}{w^2}\right)\end{aligned}\end{align} \]</div>
+      \exp\left(-\frac{(x-x_0)^2 +  (y-y_0)^2}{w^2}\right),\end{aligned}\end{align} \]</div>
 <p>where <span class="math notranslate nohighlight">\((x_0, y_0)\)</span> is the centre of the Gaussian with width <span class="math notranslate nohighlight">\(w\)</span>.
 Note that here we <em>first</em> choose the solution <span class="math notranslate nohighlight">\(u\)</span> after which we can
 compute what rhs <span class="math notranslate nohighlight">\(f\)</span> should be, by substitution in the PDE, in order
-for <span class="math notranslate nohighlight">\(u\)</span> to be the analytical solution. This so called Method of
+for <span class="math notranslate nohighlight">\(u\)</span> to be the analytical solution. This so-called Method of
 Manufactured Solutions approach is an easy way to construct PDE
 configurations for which we know the analytical solution, e.g. for testing
 purposes.</p>
@@ -120,7 +120,7 @@ we instead apply Dirichlet boundary conditions based on the chosen analytical so
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>L2-norm error on initial mesh: 0.010233816824277465
 </pre></div>
 </div>
-<p>We will now try to use mesh movement to optimize the mesh to reduce
+<p>We will now try to use mesh movement to optimise the mesh to reduce
 this numerical error. We use the same monitor function as
 in the <a class="reference external" href="./monge_ampere_3d.py.html">previous Monge-Ampère demo</a>
 based on the norm of the Hessian of the solution.
@@ -183,7 +183,7 @@ coefficient of variation of the cell areas:</p>
 Converged in 17 iterations.
 </pre></div>
 </div>
-<p>Plotting the resulting mesh</p>
+<p>Plotting the resulting mesh:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake.pyplot</span> <span class="kn">import</span> <span class="n">triplot</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -207,7 +207,7 @@ if we solve the PDE on this mesh:</p>
 </div>
 <p>Of course, in many practical problems we do not actually have access
 to the exact solution. We can then use the Hessian of the numerical
-solution in the monitor function. Calculating the Hessian we have to
+solution in the monitor function. When calculating the Hessian we have to
 be a bit careful however: since our numerical FEM solution <span class="math notranslate nohighlight">\(u_h\)</span>
 is a piecewise linear function, its first gradient results in a
 piecewise <em>constant</em> function, a vector-valued constant
@@ -289,7 +289,7 @@ slower for large problems.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Using mesh movement to optimize the mesh for PDE solution</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Using mesh movement to optimise the mesh for PDE solution</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

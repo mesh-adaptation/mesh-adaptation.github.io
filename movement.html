@@ -243,9 +243,21 @@ pseudo-time integration (see <span id="id2">[<a class="reference internal" href=
 <span id="movement-mover-module"></span><h2>movement.mover module<a class="headerlink" href="#module-movement.mover" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.mover.PrimeMover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrimeMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrimeMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_convergence_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Base class for all mesh movers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
+<li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
+<li><p><strong>raise_convergence_errors</strong> – convergence error handling behaviour: if <cite>True</cite>
+then <code class="xref py py-class docutils literal notranslate"><span class="pre">ConvergenceError</span></code>s are raised, else warnings are raised and
+the program is allowed to continue</p></li>
+<li><p><strong>raise_convergence_errors</strong> – <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.mover.PrimeMover.adapt">
 <span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.adapt" title="Link to this definition">¶</a></dt>
@@ -291,10 +303,8 @@ for a given <cite>index</cite>.</p>
 <dt class="sig sig-object py" id="movement.spring.SpringMover">
 <span class="sig-name descname"><span class="pre">SpringMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lineal'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover" title="Link to this definition">¶</a></dt>
 <dd><p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
-beams and solving an associated discrete linear elasticity problem.</p>
-<p>See Farhat, Degand, Koobus and Lesoinne, “Torsional springs for two-dimensional
-dynamic unstructured fluid meshes” (1998), Computer methods in applied mechanics and
-engineering, 163:231-245.</p>
+beams and solving an associated discrete linear elasticity problem. (See
+<span id="id3">[]</span> for details.)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -312,9 +322,7 @@ engineering, 163:231-245.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Base</span></code></p>
 <p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
 beams and solving an associated discrete linear elasticity problem.</p>
-<p>We consider the ‘lineal’ case, as described in Farhat, Degand, Koobus and Lesoinne,
-“Torsional springs for two-dimensional dynamic unstructured fluid meshes” (1998),
-Computer methods in applied mechanics and engineering, 163:231-245.</p>
+<p>We consider the ‘lineal’ case, as described in <span id="id4">[]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -331,8 +339,8 @@ Computer methods in applied mechanics and engineering, 163:231-245.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the current time</p></li>
-<li><p><strong>update_boundary_displacement</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> with a single argument of
-<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary
+<li><p><strong>update_boundary_displacement</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> with a single argument
+of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary
 conditions at the current time</p></li>
 <li><p><strong>boundary_conditions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> thereof) – Dirichlet boundary conditions to be enforced</p></li>
 </ul>
@@ -348,9 +356,7 @@ conditions at the current time</p></li>
 <dd><p>Bases: <a class="reference internal" href="#movement.spring.SpringMover_Lineal" title="movement.spring.SpringMover_Lineal"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Lineal</span></code></a></p>
 <p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
 beams and solving an associated discrete linear elasticity problem.</p>
-<p>We consider the ‘torsional’ case, as described in Farhat, Degand, Koobus and
-Lesoinne, “Torsional springs for two-dimensional dynamic unstructured fluid meshes”
-(1998), Computer methods in applied mechanics and engineering, 163:231-245.</p>
+<p>We consider the ‘torsional’ case, as described in <span id="id5">[]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

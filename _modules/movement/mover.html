@@ -33,23 +33,45 @@
           <div class="body" role="main">
             
   <h1>Source code for movement.mover</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">firedrake</span>
+<span></span><span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">import</span> <span class="nn">firedrake</span>
+<span class="kn">import</span> <span class="nn">firedrake.exceptions</span> <span class="k">as</span> <span class="nn">fexc</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">firedrake.cython.dmcommon</span> <span class="kn">import</span> <span class="n">create_section</span>
+<span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PrimeMover&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="PrimeMover">
 <a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover">[docs]</a>
-<span class="k">class</span> <span class="nc">PrimeMover</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">PrimeMover</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for all mesh movers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raise_convergence_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :arg mesh: the physical mesh</span>
+<span class="sd">        :type mesh: :class:`firedrake.mesh.MeshGeometry`</span>
+<span class="sd">        :arg monitor_function: a Python function which takes a mesh as input</span>
+<span class="sd">        :type monitor_function: :class:`~.Callable`</span>
+<span class="sd">        :kwarg raise_convergence_errors: convergence error handling behaviour: if `True`</span>
+<span class="sd">            then :class:`~.ConvergenceError`\s are raised, else warnings are raised and</span>
+<span class="sd">            the program is allowed to continue</span>
+<span class="sd">        :kwarg raise_convergence_errors: :class:`bool`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deepcopy</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">monitor_function</span> <span class="o">=</span> <span class="n">monitor_function</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">raise_convergence_errors</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">.move called with raise_convergence_errors=False.&quot;</span>
+                <span class="s2">&quot; Beware: this option can produce poor quality meshes!&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raise_convergence_errors</span> <span class="o">=</span> <span class="n">raise_convergence_errors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">geometric_dimension</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">topology_dm</span>
@@ -69,6 +91,66 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Computational coordinates&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Mesh velocity&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_convergence_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Report solver convergence.</span>
+
+<span class="sd">        :kwarg iterations: number of iterations before reaching convergence</span>
+<span class="sd">        :type iterations: :class:`int`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Solver converged&quot;</span>
+        <span class="k">if</span> <span class="n">iterations</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; in </span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">PETSc</span><span class="o">.</span><span class="n">Sys</span><span class="o">.</span><span class="n">Print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="n">fexc</span><span class="o">.</span><span class="n">ConvergenceError</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raise an error or warning as indicated by the :attr:`raise_convergence_error`</span>
+<span class="sd">        option.</span>
+
+<span class="sd">        :arg msg: message for the error/warning report</span>
+<span class="sd">        :type msg: :class:`str`</span>
+<span class="sd">        :kwarg exception: original exception that was triggered</span>
+<span class="sd">        :type exception: :class:`~.Exception` object</span>
+<span class="sd">        :kwarg error_type: error class to use</span>
+<span class="sd">        :type error_type: :class:`~.Exception` class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exc_type</span> <span class="o">=</span> <span class="n">error_type</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_convergence_errors</span> <span class="k">else</span> <span class="ne">Warning</span>
+        <span class="k">if</span> <span class="n">exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exc_type</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exception</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exc_type</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_convergence_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raise an error or warning for a solver fail as indicated by the</span>
+<span class="sd">        :attr:`raise_convergence_error` option.</span>
+
+<span class="sd">        :kwarg iterations: number of iterations before failure</span>
+<span class="sd">        :type iterations: :class:`int`</span>
+<span class="sd">        :kwarg exception: original exception that was triggered</span>
+<span class="sd">        :type exception: :class:`~.Exception`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Solver failed to converge&quot;</span>
+        <span class="k">if</span> <span class="n">iterations</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; in </span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="n">exception</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_divergence_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raise an error or warning for a solver divergence as indicated by the</span>
+<span class="sd">        :attr:`raise_convergence_error` option.</span>
+
+<span class="sd">        :kwarg iterations: number of iterations before failure</span>
+<span class="sd">        :type iterations: :class:`int`</span>
+<span class="sd">        :kwarg exception: original exception that was triggered</span>
+<span class="sd">        :type exception: :class:`~.Exception`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Solver diverged&quot;</span>
+        <span class="k">if</span> <span class="n">iterations</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; after </span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="n">exception</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_coordinate_section</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
@@ -142,8 +224,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Alias of `move`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
-
         <span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;`adapt` is deprecated (use `move` instead)&quot;</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>
@@ -152,6 +232,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">()</span></div>
 </div>
 
+
+
+<span class="k">def</span> <span class="nf">plural</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">iterations</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 </pre></div>
 
             <div class="clearer"></div>

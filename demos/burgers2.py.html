@@ -46,9 +46,9 @@ is used in each case to verify that the framework works.</p>
 <span class="n">set_log_level</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Redefine the <code class="docutils literal notranslate"><span class="pre">fields</span></code> variable from the previous demo, as well as all the getter
-functions.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
+<p>Redefine the <code class="docutils literal notranslate"><span class="pre">field_names</span></code> variable from the previous demo, as well as all the
+getter functions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
@@ -56,13 +56,12 @@ functions.</p>
 
 
 <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">solutions</span><span class="p">):</span>
-        <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
         <span class="c1"># Define constants</span>
         <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
 
         <span class="c1"># Setup variational problem</span>
@@ -78,27 +77,23 @@ functions.</p>
 
 
 <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
-        <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Initialise &#39;lagged&#39; solution</span>
-        <span class="n">u_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u_old&quot;</span><span class="p">)</span>
-        <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
         <span class="c1"># Define form</span>
-        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u_</span><span class="p">)})[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
         <span class="c1"># Time integrate from t_start to t_end</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
-        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
+        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t_start</span>
         <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">t_end</span> <span class="o">-</span> <span class="mf">1.0e-05</span><span class="p">:</span>
             <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;u&quot;</span><span class="p">)</span>
+            <span class="k">yield</span>
+
             <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="n">u</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 
@@ -109,9 +104,9 @@ functions.</p>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="n">assemble</span><span class="p">(</span><span class="n">interpolate</span><span class="p">(</span><span class="n">as_vector</span><span class="p">([</span><span class="n">sin</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">),</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">fs</span><span class="p">))}</span>
 
 
-<span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">solutions</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">end_time_qoi</span><span class="p">():</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">inner</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">ds</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">end_time_qoi</span>
@@ -132,7 +127,7 @@ is that the <code class="xref py py-class docutils literal notranslate"><span cl
     <span class="n">end_time</span><span class="p">,</span>
     <span class="n">num_subintervals</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">,</span>
-    <span class="n">fields</span><span class="p">,</span>
+    <span class="n">field_names</span><span class="p">,</span>
     <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">AdjointMeshSeq</span><span class="p">(</span>

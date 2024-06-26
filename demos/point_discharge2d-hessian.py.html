@@ -53,7 +53,7 @@ adaptation functionality from Firedrake, which can be found in <code class="docu
 <p>We again consider the “point discharge with diffusion” test case from the
 <a class="reference external" href="./point_discharge2d.py.html">previous demo</a>, approximating the tracer concentration
 <span class="math notranslate nohighlight">\(c\)</span> in <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
@@ -67,8 +67,8 @@ adaptation functionality from Firedrake, which can be found in <code class="docu
 
 
 <span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
-        <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">CellSize</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">source</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
@@ -99,21 +99,16 @@ adaptation functionality from Firedrake, which can be found in <code class="docu
 
 
 <span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-
-        <span class="c1"># Ensure dependence on the initial condition</span>
-        <span class="n">c_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c_old&quot;</span><span class="p">)</span>
-        <span class="n">c_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">c_</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
         <span class="c1"># Setup variational problem</span>
-        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c_</span><span class="p">)})[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">bc</span> <span class="o">=</span> <span class="n">DirichletBC</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bc</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
+        <span class="k">yield</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 </pre></div>
@@ -129,12 +124,12 @@ instead.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">MetricParameters</span><span class="p">(</span>
     <span class="p">{</span>
         <span class="s2">&quot;element_rtol&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
-        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GOALIE_REGRESSION_TEST&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">RectangleMesh</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+<span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span>
 <span class="n">mesh_seq</span> <span class="o">=</span> <span class="n">MeshSeq</span><span class="p">(</span>
     <span class="n">time_partition</span><span class="p">,</span>
     <span class="n">mesh</span><span class="p">,</span>

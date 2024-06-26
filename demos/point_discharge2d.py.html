@@ -60,7 +60,7 @@ representation <span class="math notranslate nohighlight">\(S\)</span>. The doma
 </pre></div>
 </div>
 <p>We solve the advection-diffusion problem in <span class="math notranslate nohighlight">\(\mathbb P1\)</span> space.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">get_function_spaces</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
@@ -90,8 +90,8 @@ Galerkin (SUPG)</cite> stabilisation by modifying the test function
 \[\tau = \min\left(\frac{h}{2\|\mathbf u\|},\frac{h\|\mathbf u\|}{6D}\right),\]</div>
 <p>where <span class="math notranslate nohighlight">\(h\)</span> measures cell size.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">sols</span><span class="p">):</span>
-        <span class="n">c</span><span class="p">,</span> <span class="n">c_</span> <span class="o">=</span> <span class="n">sols</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">CellSize</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">source</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
@@ -121,49 +121,38 @@ Galerkin (SUPG)</cite> stabilisation by modifying the test function
     <span class="k">return</span> <span class="n">form</span>
 </pre></div>
 </div>
-<p>Note that the lagged solution <code class="docutils literal notranslate"><span class="pre">c_</span></code> is not actually used in
-<code class="xref py py-func docutils literal notranslate"><span class="pre">form()</span></code>, since we have a steady-state problem.</p>
-<p>With these ingredients, we can now define the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code> method. Don’t forget
-to impose the correct names for the current and lagged solution fields, as well as
-applying the corresponding <cite>ad_block_tag</cite> to the solve call.</p>
+<p>Note that <code class="xref py py-attr docutils literal notranslate"><span class="pre">mesh_seq.fields</span></code> now returns a single
+<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code></a> object since the problem is steady, so there is
+no notion of a lagged solution, unlike in previous (time-dependent) demos.
+With these ingredients, we can now define the <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code> method. Don’t forget
+to apply the corresponding <cite>ad_block_tag</cite> to the solve call.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
         <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
 
-        <span class="c1"># Ensure dependence on the initial condition</span>
-        <span class="n">c_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c_old&quot;</span><span class="p">)</span>
-        <span class="n">c_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">c_</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
         <span class="c1"># Setup variational problem</span>
-        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c_</span><span class="p">)})[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
 
         <span class="c1"># Strongly enforce boundary conditions on the inflow, which is indexed by 1</span>
         <span class="n">bc</span> <span class="o">=</span> <span class="n">DirichletBC</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">bcs</span><span class="o">=</span><span class="n">bc</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
+        <span class="k">yield</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 </pre></div>
 </div>
-<p>The fact that we create a lagged solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>, assign it to
-some initial conditions and then use the value for a solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>
-that will immediately get over-written may seem odd. It works this way because
-Goalie is primarily geared up for time-dependent problems, where initialisation
-is important. Even for linear, steady-state problems, we need to maintain a
-programatic dependence on the initial condition so that it is possible to
-automatically differentiate the QoI with respect to this as an input.</p>
 <p>For steady-state problems, we do not need to specify <code class="xref py py-func docutils literal notranslate"><span class="pre">get_initial_condition()</span></code>
 if the equation is linear. If the equation is nonlinear then this would provide
 an initial guess. By default, all components are initialised to zero.</p>
 <p>As in the motivation for the manual, we consider a quantity of interest that
 integrates the tracer concentration over a circular “receiver” region. Since
 there is no time dependence, the QoI looks just like an <code class="docutils literal notranslate"><span class="pre">&quot;end_time&quot;</span></code> type QoI.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qoi</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">qoi</span><span class="p">():</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">sol</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">xr</span><span class="p">,</span> <span class="n">yr</span><span class="p">,</span> <span class="n">rr</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">,</span> <span class="mf">0.5</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">conditional</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">xr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">yr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="n">rr</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -175,7 +164,7 @@ there is no time dependence, the QoI looks just like an <code class="docutils li
 <p>Finally, we can set up the problem. Instead of using a <code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>,
 we use the subclass <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeInstant</span></code>, whose only input is the field list.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mesh</span> <span class="o">=</span> <span class="n">RectangleMesh</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+<span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimeInstant</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>When creating the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>, we need to set the <code class="docutils literal notranslate"><span class="pre">&quot;qoi_type&quot;</span></code> to

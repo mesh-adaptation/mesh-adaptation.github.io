@@ -57,7 +57,7 @@ gives</p>
 \[\frac1h(\frac{v_{i-1}-v_i}{h} + \frac{v_{i+1}-v_i}{h}) = 0,\]</div>
 <p>i.e.,</p>
 <div class="math notranslate nohighlight">
-\[\frac1{h^2}(-v_{i-1} + 2v_i - v_{i+1})) = 0,\]</div>
+\[\frac1{h^2}(-v_{i-1} + 2v_i - v_{i+1}) = 0,\]</div>
 <p>the left-hand side of which you might recognise as a finite difference approximation
 of the second derivative, i.e., the Laplace operator.</p>
 <p>Let’s start with a uniform mesh of the unit square. It has four boundary segments,
@@ -83,11 +83,11 @@ the top boundary.</p>
 <img alt="../_images/laplacian_smoothing-initial_mesh.jpg" src="../_images/laplacian_smoothing-initial_mesh.jpg" />
 </figure>
 <p>Suppose we wish to enforce a time-dependent velocity <span class="math notranslate nohighlight">\(\mathbf{v}_f\)</span>
-on the top boundary :math and see how the mesh responds. Consider the velocity</p>
+on the top boundary and see how the mesh responds. Consider the velocity</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{v}_f(x,y,t) = \left[0, A\:\sin\left(\frac{2\pi t}T\right)\:\sin(\pi x)\right]\]</div>
 <p>acting only in the vertical direction, where <span class="math notranslate nohighlight">\(A\)</span> is the amplitude and <span class="math notranslate nohighlight">\(T\)</span>
-is the time period. The displacement following a sinusoidal pattern along that
+is the time period. The displacement follows a sinusoidal pattern along that
 boundary. The boundary movement is also sinusoidal in time, such that it ramps up and
 then reverses, with the analytical solution being that the final mesh coincides with
 the initial mesh.</p>
@@ -122,8 +122,8 @@ the initial mesh.</p>
 </figure>
 <p>To enforce this boundary velocity, we need to create a <a class="reference internal" href="../movement.html#movement.laplacian_smoothing.LaplacianSmoother" title="movement.laplacian_smoothing.LaplacianSmoother"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaplacianSmoother</span></code></a>
 instance and define a function for updating the boundary conditions. Since we are
-going to enforce the velocity on the top boundary, we create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> to
-represent the boundary condition values and pass this to a <code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code>
+going to enforce the velocity on the top boundary, we create a <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code></a> to
+represent the boundary condition values and pass this to a <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.bcs.DirichletBC" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code></a>
 object. We then define a function which updates it as time progresses.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mover</span> <span class="o">=</span> <span class="n">LaplacianSmoother</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">timestep</span><span class="p">)</span>
 <span class="n">top</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">mover</span><span class="o">.</span><span class="n">coord_space</span><span class="p">)</span>
@@ -180,6 +180,9 @@ its original state after one period. Let’s check this in the <span class="math
 <span class="n">linf_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">coord_data</span> <span class="o">-</span> <span class="n">coord_data_init</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;l_infinity error: </span><span class="si">{</span><span class="n">linf_error</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m&quot;</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">linf_error</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">l_infinity error: 0.000 m</span>
 </pre></div>
 </div>
 <p>This tutorial can be downloaded as a <a class="reference external" href="laplacian_smoothing.py">Python script</a>.</p>

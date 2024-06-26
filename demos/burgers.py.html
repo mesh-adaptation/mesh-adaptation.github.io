@@ -55,8 +55,8 @@ side. See the Firedrake demo for details on the discretisation used.</p>
 </div>
 <p>In this problem, we have a single prognostic variable,
 <span class="math notranslate nohighlight">\(\mathbf u\)</span>. Its name is recorded in a list of
-fields.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
+field names.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>For each such field, we need to be able to specify how to
@@ -70,23 +70,25 @@ dictionary, indexed by the prognostic solution field names.</p>
 <p>In order to solve PDEs using the finite element method, we
 require a weak form. For this, Goalie requires a function
 that maps the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> index and a dictionary of
-solution data to the form. For each field, the dictionary
-should provide a tuple containing the solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s
-from the current timestep and the previous one. The form should be
+solution data to the form. The form should be
 returned inside its own dictionary, with an entry for each equation
 being solved for.</p>
-<p>Timestepping information associated with a given subinterval
+<p>The solution <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s are automatically built on the function spaces given
+by the <code class="xref py py-func docutils literal notranslate"><span class="pre">get_function_spaces()</span></code> function and are accessed via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">fields</span></code>
+attribute of the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>. This attribute provides a dictionary of tuples
+containing the current and lagged solutions for each field.
+Similarly, timestepping information associated with a given subinterval
 can be accessed via the <code class="xref py py-attr docutils literal notranslate"><span class="pre">TimePartition</span></code> attribute of
 the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>. For technical reasons, we need to create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>
 in the <cite>‘R’</cite> space (of real numbers) to hold constants.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_form</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">solutions</span><span class="p">):</span>
-        <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">solutions</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
+    <span class="k">def</span> <span class="nf">form</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="c1"># Get the current and lagged solutions</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
         <span class="c1"># Define constants</span>
         <span class="n">R</span> <span class="o">=</span> <span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">R</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)</span>
 
         <span class="c1"># Setup variational problem</span>
@@ -101,47 +103,44 @@ in the <cite>‘R’</cite> space (of real numbers) to hold constants.</p>
     <span class="k">return</span> <span class="n">form</span>
 </pre></div>
 </div>
-<p>We have a weak form. In order to solve the PDE, we need to choose
+<p>We have a weak form. The dictionary usage may seem cumbersome when applied to such a
+simple problem, but it comes in handy when solving adjoint problems associated with
+coupled systems of equations.</p>
+<p>In order to solve the PDE, we need to choose
 a time integration routine and solver parameters for the underlying
-linear and nonlinear systems. This is achieved using a function
-whose inputs are the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> index and a dictionary of
-initialisation data. For the <span class="math notranslate nohighlight">\(0^{th}\)</span> index, this will be
-provided by the initial conditions, otherwise it will be transferred
+linear and nonlinear systems. This is achieved below by using a function
+<code class="xref py py-func docutils literal notranslate"><span class="pre">solver()</span></code> whose input is the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code> index. As noted above, the solution
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code>s are automatically initialised and accessed via the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">fields</span></code> attribute of the <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code>. The lagged solution is assigned
+the initial condition for the current subinterval index. For the <span class="math notranslate nohighlight">\(0^{th}\)</span> index,
+this will be provided by the initial conditions, otherwise it will be transferred
 from the previous mesh in the sequence.</p>
-<p>Note that it is important that the PDE solve is labelled
-with an <code class="docutils literal notranslate"><span class="pre">ad_block_tag</span></code> which matches the corresponding
-prognostic variable name. It is also important that the
-lagged solution field be given a particular name: the field name,
-appended by <code class="docutils literal notranslate"><span class="pre">'_old'</span></code>.</p>
+<p>The function should return a generator that yields the solution at each timestep, so
+that Goalie can efficiently track the solution history. This is done by using the
+<cite>yield</cite> statement before progressing to the next timestep.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_solver</span><span class="p">(</span><span class="n">mesh_seq</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
-        <span class="n">function_space</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">u</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Initialise &#39;lagged&#39; solution</span>
-        <span class="n">u_</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;u_old&quot;</span><span class="p">)</span>
-        <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">solver</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+        <span class="c1"># Get the current and lagged solutions</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">u_</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
         <span class="c1"># Define form</span>
-        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u_</span><span class="p">)})[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">form</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span>
 
         <span class="c1"># Time integrate from t_start to t_end</span>
-        <span class="n">P</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
-        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">mesh_seq</span><span class="o">.</span><span class="n">time_partition</span>
+        <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">t_start</span>
         <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">t_end</span> <span class="o">-</span> <span class="mf">1.0e-05</span><span class="p">:</span>
-            <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">ad_block_tag</span><span class="o">=</span><span class="s2">&quot;u&quot;</span><span class="p">)</span>
+            <span class="n">solve</span><span class="p">(</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+            <span class="k">yield</span>
+
             <span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="n">u</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="n">solver</span>
 </pre></div>
 </div>
-<p>The dictionary usage may seem cumbersome when applied to such a
-simple problem, but it comes in handy when solving adjoint
-problems associated with coupled systems of equations.</p>
 <p>Goalie also requires a function for generating an initial
 condition from the function space defined on the
 <span class="math notranslate nohighlight">\(0^{th}\)</span> mesh.</p>
@@ -170,7 +169,7 @@ problem with two subintervals.</p>
     <span class="n">end_time</span><span class="p">,</span>
     <span class="n">num_subintervals</span><span class="p">,</span>
     <span class="n">dt</span><span class="p">,</span>
-    <span class="n">fields</span><span class="p">,</span>
+    <span class="n">field_names</span><span class="p">,</span>
     <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>

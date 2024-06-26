@@ -53,14 +53,14 @@ of both Firedrake and Goalie.</p>
 </div>
 <p>Consider the final subinterval from the previous demo.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">end_time</span> <span class="o">=</span> <span class="mf">1.0</span>
-<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;solution&quot;</span><span class="p">]</span>
+<span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;solution&quot;</span><span class="p">]</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.125</span><span class="p">,</span> <span class="mf">0.0625</span><span class="p">]</span>
 <span class="n">subintervals</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
 <span class="n">time_partition</span> <span class="o">=</span> <span class="n">TimePartition</span><span class="p">(</span>
     <span class="n">end_time</span><span class="p">,</span>
     <span class="nb">len</span><span class="p">(</span><span class="n">subintervals</span><span class="p">),</span>
     <span class="n">dt</span><span class="p">,</span>
-    <span class="n">fields</span><span class="p">,</span>
+    <span class="n">field_names</span><span class="p">,</span>
     <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
     <span class="n">subintervals</span><span class="o">=</span><span class="n">subintervals</span><span class="p">,</span>
 <span class="p">)</span>

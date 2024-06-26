@@ -61,7 +61,7 @@
         <span class="n">end_time</span><span class="p">,</span>
         <span class="n">num_subintervals</span><span class="p">,</span>
         <span class="n">timesteps</span><span class="p">,</span>
-        <span class="n">fields</span><span class="p">,</span>
+        <span class="n">field_names</span><span class="p">,</span>
         <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">start_time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">subintervals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -75,8 +75,8 @@
 <span class="sd">        :arg timesteps: a list timesteps to be used on each subinterval, or a single</span>
 <span class="sd">            timestep to use for all subintervals</span>
 <span class="sd">        :type timesteps: :class:`list` of :class:`float`\s or :class:`float`</span>
-<span class="sd">        :arg fields: the list of field names to consider</span>
-<span class="sd">        :type fields: :class:`list` of :class:`str`\s or :class:`str`</span>
+<span class="sd">        :arg field_names: the list of field names to consider</span>
+<span class="sd">        :type field_names: :class:`list` of :class:`str`\s or :class:`str`</span>
 <span class="sd">        :kwarg num_timesteps_per_export: a list of numbers of timesteps per export for</span>
 <span class="sd">            each subinterval, or a single number to use for all subintervals</span>
 <span class="sd">        :type num_timesteps_per_export: :class:`list` of :class`int`\s or :class:`int`</span>
@@ -91,9 +91,9 @@
 <span class="sd">        :type field_types: :class:`list` of :class:`str`\s or :class:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">debug</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">field_names</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_names</span> <span class="o">=</span> <span class="n">field_names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">num_subintervals</span><span class="p">))</span>
@@ -160,7 +160,8 @@
 
         <span class="c1"># Process field types</span>
         <span class="k">if</span> <span class="n">field_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">field_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;steady&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="k">else</span> <span class="s2">&quot;unsteady&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
+            <span class="n">num_fields</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="p">)</span>
+            <span class="n">field_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;steady&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="k">else</span> <span class="s2">&quot;unsteady&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_fields</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_types</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">field_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">field_types</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">=</span> <span class="n">field_types</span>
@@ -191,13 +192,13 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">timesteps</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">])</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">])</span>
+        <span class="n">field_names</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;TimePartition(&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;end_time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;num_subintervals=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_subintervals</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;timesteps=[</span><span class="si">{</span><span class="n">timesteps</span><span class="si">}</span><span class="s2">], &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;fields=[</span><span class="si">{</span><span class="n">fields</span><span class="si">}</span><span class="s2">])&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;field_names=[</span><span class="si">{</span><span class="n">field_names</span><span class="si">}</span><span class="s2">])&quot;</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -223,7 +224,7 @@
             <span class="n">end_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">sl</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
             <span class="n">num_subintervals</span><span class="o">=</span><span class="n">num_subintervals</span><span class="p">,</span>
             <span class="n">timesteps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span>
-            <span class="n">fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+            <span class="n">field_names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="p">,</span>
             <span class="n">num_timesteps_per_export</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_timesteps_per_export</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span>
             <span class="n">start_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subintervals</span><span class="p">[</span><span class="n">sl</span><span class="o">.</span><span class="n">start</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">field_types</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">,</span>
@@ -293,16 +294,16 @@
                 <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_field_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Number of fields does not match number of field types:&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot;Number of field names does not match number of field types:&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">field_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;unsteady&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected field type for field &#39;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&#39; to be either &#39;unsteady&#39;&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; or &#39;steady&#39;, but got &#39;</span><span class="si">{</span><span class="n">field_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected field type for field &#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&#39; to be either&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; &#39;unsteady&#39; or &#39;steady&#39;, but got &#39;</span><span class="si">{</span><span class="n">field_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
                 <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
@@ -314,7 +315,7 @@
             <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span>
             <span class="p">)</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">fields</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">field_names</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">field_types</span>
         <span class="p">)</span>
 
@@ -327,7 +328,7 @@
             <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">num_exports_per_subinterval</span>
             <span class="p">)</span>
-            <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">fields</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">field_names</span>
             <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_types</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">field_types</span>
         <span class="p">)</span></div>
 
@@ -348,15 +349,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">end_time</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">timestep</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">field_names</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;TimeInterval(&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;end_time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;timestep=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestep</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;fields=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;field_names=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -378,7 +379,7 @@
 <span class="sd">    Under the hood this means dividing :math:`[0,1)` into a single timestep.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;end_time&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both &#39;time&#39; and &#39;end_time&#39; are set.&quot;</span><span class="p">)</span>
@@ -386,13 +387,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="n">timestep</span> <span class="o">=</span> <span class="n">time</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">)&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;TimeInstant(&quot;</span> <span class="sa">f</span><span class="s2">&quot;time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="sa">f</span><span class="s2">&quot;fields=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;TimeInstant(&quot;</span> <span class="sa">f</span><span class="s2">&quot;time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="sa">f</span><span class="s2">&quot;field_names=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">field_names</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 
