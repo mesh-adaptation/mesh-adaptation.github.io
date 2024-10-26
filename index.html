@@ -5,15 +5,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Animate, Movement and Goalie &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>Animate, Movement, Goalie and UM2N &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -22,8 +22,8 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Animate, Movement and Goalie</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Animate, Movement, Goalie and UM2N</a></li> 
       </ul>
     </div>  
 
@@ -32,8 +32,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="welcome-to-the-documentation-for-animate-movement-and-goalie">
-<h1>Welcome to the documentation for Animate, Movement and Goalie!<a class="headerlink" href="#welcome-to-the-documentation-for-animate-movement-and-goalie" title="Link to this heading">¶</a></h1>
+  <section id="welcome-to-the-documentation-for-animate-movement-goalie-and-um2n">
+<h1>Welcome to the documentation for Animate, Movement, Goalie and UM2N!<a class="headerlink" href="#welcome-to-the-documentation-for-animate-movement-goalie-and-um2n" title="Link to this heading">¶</a></h1>
 <p><a class="reference external" href="animate/index.html">Animate</a> is a package which provides anisotropic mesh adaptation
 functionality for the Python-based finite element library
 <a class="reference external" href="http://www.firedrakeproject.org/">Firedrake</a>. Given an initial mesh, the
@@ -56,6 +56,8 @@ function. A key example of such an adaptor function is one which uses Animate
 and the metric-based approach. Goalie uses a ‘fixed-point iteration’ approach,
 meaning that the PDE (and its adjoint) is solved over the whole space-time domain
 whenever mesh adaptation is applied.</p>
+<p><a class="reference external" href="UM2N/index.html">UM2N</a> is an end-to-end machine-learning based implementation of
+mesh movement.</p>
 <p class="rubric">Mathematical background</p>
 <p>We refer to the
 <a class="reference external" href="https://firedrakeproject.org/documentation.html">Firedrake documentation</a>
@@ -65,13 +67,15 @@ contains some
 <a class="reference external" href="http://www.dolfin-adjoint.org/en/latest/documentation/maths/index.html">excellent documentation</a>
 on the mathematical background of adjoint problems. The metric-based mesh adaptation,
 mesh movement, and goal-oriented error estimation functionalities provided by
-<a class="reference external" href="animate/index.html">Animate</a>, <a class="reference external" href="movement/index.html">Movement</a> and
-<a class="reference external" href="goalie/index.html">Goalie</a> are described in the respective manuals.</p>
+<a class="reference external" href="animate/index.html">Animate</a>, <a class="reference external" href="movement/index.html">Movement</a>,
+<a class="reference external" href="goalie/index.html">Goalie</a> and <a class="reference external" href="UM2N/index.html">UM2N</a> are described in the
+respective manuals.</p>
 <p class="rubric">Source code</p>
-<p>The source codes for all three packages are hosted on GitHub:
+<p>The source codes for all four packages are hosted on GitHub:
 <a class="reference external" href="https://github.com/mesh-adaptation/animate/">Animate</a>,
 <a class="reference external" href="https://github.com/mesh-adaptation/movement/">Movement</a>,
-<a class="reference external" href="https://github.com/mesh-adaptation/goalie/">Goalie</a>.</p>
+<a class="reference external" href="https://github.com/mesh-adaptation/goalie/">Goalie</a>.
+<a class="reference external" href="https://github.com/mesh-adaptation/UM2N/">UM2N</a>.</p>
 </section>
 
 
@@ -79,7 +83,7 @@ mesh movement, and goal-oriented error estimation functionalities provided by
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -88,7 +92,7 @@ mesh movement, and goal-oriented error estimation functionalities provided by
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -96,13 +100,13 @@ mesh movement, and goal-oriented error estimation functionalities provided by
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -111,13 +115,13 @@ mesh movement, and goal-oriented error estimation functionalities provided by
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Animate, Movement and Goalie</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Animate, Movement, Goalie and UM2N</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

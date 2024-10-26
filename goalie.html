@@ -5,16 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>goalie package &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>goalie package &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -23,7 +23,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie package</a></li> 
       </ul>
     </div>  
@@ -53,7 +53,7 @@ sequence of meshes.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_partition</strong> (<a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a>) – a partition of the temporal domain</p></li>
-<li><p><strong>initial_meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code>) – a list of meshes corresponding to the subinterval of the
+<li><p><strong>initial_meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code>) – a list of meshes corresponding to the subinterval of the
 time partition, or a single mesh to use for all subintervals</p></li>
 <li><p><strong>get_function_spaces</strong> – a function as described in
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_function_spaces" title="goalie.mesh_seq.MeshSeq.get_function_spaces"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_function_spaces()</span></code></a></p></li>
@@ -61,7 +61,6 @@ time partition, or a single mesh to use for all subintervals</p></li>
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_initial_condition" title="goalie.mesh_seq.MeshSeq.get_initial_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code></a></p></li>
 <li><p><strong>get_form</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_form" title="goalie.mesh_seq.MeshSeq.get_form"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_form()</span></code></a></p></li>
 <li><p><strong>get_solver</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_solver" title="goalie.mesh_seq.MeshSeq.get_solver"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code></a></p></li>
-<li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 <li><p><strong>get_qoi</strong> – a function as described in <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq.get_qoi" title="goalie.adjoint.AdjointMeshSeq.get_qoi"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_qoi()</span></code></a></p></li>
 </ul>
 </dd>
@@ -76,7 +75,7 @@ difference in QoI value being smaller than the specified tolerance.</p>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if QoI convergence is detected, else <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -90,9 +89,9 @@ to the starting fields on each subinterval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – additional keyword arguments to be passed to the solver</p></li>
-<li><p><strong>run_final_subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the solver is run on the final
+<li><p><strong>run_final_subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the solver is run on the final
 subinterval</p></li>
 </ul>
 </dd>
@@ -100,7 +99,7 @@ subinterval</p></li>
 <dd class="field-even"><p>checkpoints for each subinterval</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>s</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -121,10 +120,10 @@ respectively. If the QoI has an argument then it is for the current time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>solution_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values and
+<li><p><strong>solution_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values and
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values) – a dictionary whose keys are the solution field names and whose
 values are the corresponding solutions</p></li>
-<li><p><strong>subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the subinterval index</p></li>
+<li><p><strong>subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the subinterval index</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -144,9 +143,9 @@ field on a given subinterval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name of the prognostic solution field</p></li>
-<li><p><strong>subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – subinterval index</p></li>
-<li><p><strong>has_adj_sol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, only blocks with <code class="docutils literal notranslate"><span class="pre">adj_sol</span></code> attributes will be
+<li><p><strong>field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name of the prognostic solution field</p></li>
+<li><p><strong>subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – subinterval index</p></li>
+<li><p><strong>has_adj_sol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, only blocks with <code class="docutils literal notranslate"><span class="pre">adj_sol</span></code> attributes will be
 considered</p></li>
 </ul>
 </dd>
@@ -154,7 +153,7 @@ considered</p></li>
 <dd class="field-even"><p>list of solve blocks</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyadjoint.block.Block</span></code>s</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyadjoint.block.Block</span></code>s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -169,7 +168,7 @@ considered</p></li>
 corresponding initial conditions applied on the first subinterval</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
+<dd class="field-even"><p><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values</p>
 </dd>
 </dl>
@@ -184,13 +183,13 @@ corresponding initial conditions applied on the first subinterval</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – parameters for the forward solver, as well as any
 parameters for the QoI, which should be included as a sub-dictionary with key
 ‘qoi_kwargs’</p></li>
-<li><p><strong>adj_solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which
+<li><p><strong>adj_solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which
 may take various types) – parameters for the adjoint solver</p></li>
-<li><p><strong>get_adj_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, adjoint actions are also returned at exported
+<li><p><strong>get_adj_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, adjoint actions are also returned at exported
 timesteps</p></li>
 <li><p><strong>test_checkpoint_qoi</strong> – solve over the final subinterval when checkpointing
 so that the QoI value can be checked across runs</p></li>
@@ -211,13 +210,13 @@ so that the QoI value can be checked across runs</p></li>
 <dd><p>Convert from cardinal to ordinal.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>num</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the cardinal number to convert</p>
+<dd class="field-odd"><p><strong>num</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the cardinal number to convert</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the corresponding ordinal number</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -255,8 +254,8 @@ nonlinear case (i.e., with the solution field in place of any
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>F</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ufl.form.Form</span></code>) – the form</p></li>
-<li><p><strong>adjoint_error</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values) – a dictionary whose keys are field names and whose values are the
+<li><p><strong>adjoint_error</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values) – a dictionary whose keys are field names and whose values are the
 approximations to the corresponding components of the adjoint error, or a single
 such component</p></li>
 <li><p><strong>test_space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.WithGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.WithGeometry</span></code></a>) – a dictionary whose keys are field names and whose values are the
@@ -357,7 +356,7 @@ in time</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_partition</strong> (<a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a>) – a partition of the temporal domain</p></li>
-<li><p><strong>initial_meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code>) – a list of meshes corresponding to the subinterval of the
+<li><p><strong>initial_meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code>) – a list of meshes corresponding to the subinterval of the
 time partition, or a single mesh to use for all subintervals</p></li>
 <li><p><strong>get_function_spaces</strong> – a function as described in
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_function_spaces" title="goalie.mesh_seq.MeshSeq.get_function_spaces"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_function_spaces()</span></code></a></p></li>
@@ -365,7 +364,6 @@ time partition, or a single mesh to use for all subintervals</p></li>
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_initial_condition" title="goalie.mesh_seq.MeshSeq.get_initial_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code></a></p></li>
 <li><p><strong>get_form</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_form" title="goalie.mesh_seq.MeshSeq.get_form"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_form()</span></code></a></p></li>
 <li><p><strong>get_solver</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_solver" title="goalie.mesh_seq.MeshSeq.get_solver"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code></a></p></li>
-<li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 <li><p><strong>get_qoi</strong> – a function as described in <a class="reference internal" href="#goalie.adjoint.AdjointMeshSeq.get_qoi" title="goalie.adjoint.AdjointMeshSeq.get_qoi"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_qoi()</span></code></a></p></li>
 </ul>
 </dd>
@@ -380,7 +378,7 @@ difference in error estimator value being smaller than the specified tolerance.<
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if estimator convergence is detected, else <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -392,20 +390,20 @@ difference in error estimator value being smaller than the specified tolerance.<
 over the mesh sequence.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>absolute_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the modulus is taken on each element</p>
+<dd class="field-odd"><p><strong>absolute_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the modulus is taken on each element</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the error estimator value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration">
-<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn=&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enrichment_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_fn=&lt;cyfunction</span> <span class="pre">get_dwr_indicator&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/go_mesh_seq.html#GoalOrientedMeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
 <dd><p>Apply goal-oriented mesh adaptation using a fixed point iteration loop approach.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -414,15 +412,16 @@ over the mesh sequence.</p>
 sequence and the solution and indicator data objects. It should return
 <code class="docutils literal notranslate"><span class="pre">True</span></code> if the convergence criteria checks are to be skipped for this
 iteration. Otherwise, it should return <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.GoalOrientedAdaptParameters" title="goalie.options.GoalOrientedAdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedAdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 <li><p><strong>update_params</strong> – function for updating <code class="xref py py-attr docutils literal notranslate"><span class="pre">params</span></code> at each
 iteration. Its arguments are the parameter class and the fixed point
 iteration</p></li>
-<li><p><strong>enrichment_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which
+<li><p><strong>enrichment_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which
 may take various types) – keyword arguments to pass to the global enrichment
 method</p></li>
-<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – parameters to pass to the solver</p></li>
-<li><p><strong>adaptor_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>adaptor_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – parameters to pass to the adaptor</p></li>
 <li><p><strong>indicator_fn</strong> – function which maps the form, adjoint error and enriched
 space(s) as arguments to the error indicator
@@ -457,8 +456,8 @@ polynomial order by one globally.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>enrichment_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the method for enriching the mesh sequence</p></li>
-<li><p><strong>num_enrichments</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the number of enrichments to apply</p></li>
+<li><p><strong>enrichment_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the method for enriching the mesh sequence</p></li>
+<li><p><strong>num_enrichments</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the number of enrichments to apply</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -478,11 +477,11 @@ adjoint problem in a globally enriched space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>enrichment_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which
+<li><p><strong>enrichment_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which
 may take various types) – keyword arguments to pass to the global enrichment
 method - see <a class="reference internal" href="#goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq" title="goalie.go_mesh_seq.GoalOrientedMeshSeq.get_enriched_mesh_seq"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_enriched_mesh_seq()</span></code></a> for the
 supported enrichment methods and options</p></li>
-<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – parameters for the forward solver, as well as any
 parameters for the QoI, which should be included as a sub-dictionary with key
 ‘qoi_kwargs’</p></li>
@@ -606,14 +605,14 @@ a true value, e.g.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MeshSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_meshes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A sequence of meshes for solving a PDE associated with a particular
 <a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a> of the temporal domain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_partition</strong> (<a class="reference internal" href="#goalie.time_partition.TimePartition" title="goalie.time_partition.TimePartition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code></a>) – a partition of the temporal domain</p></li>
-<li><p><strong>initial_meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code>) – a list of meshes corresponding to the subinterval of the
+<li><p><strong>initial_meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MeshGeometry</span></code>) – a list of meshes corresponding to the subinterval of the
 time partition, or a single mesh to use for all subintervals</p></li>
 <li><p><strong>get_function_spaces</strong> – a function as described in
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_function_spaces" title="goalie.mesh_seq.MeshSeq.get_function_spaces"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_function_spaces()</span></code></a></p></li>
@@ -621,12 +620,11 @@ time partition, or a single mesh to use for all subintervals</p></li>
 <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_initial_condition" title="goalie.mesh_seq.MeshSeq.get_initial_condition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_condition()</span></code></a></p></li>
 <li><p><strong>get_form</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_form" title="goalie.mesh_seq.MeshSeq.get_form"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_form()</span></code></a></p></li>
 <li><p><strong>get_solver</strong> – a function as described in <a class="reference internal" href="#goalie.mesh_seq.MeshSeq.get_solver" title="goalie.mesh_seq.MeshSeq.get_solver"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_solver()</span></code></a></p></li>
-<li><p><strong>transfer_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the method to use for transferring fields between
+<li><p><strong>transfer_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the method to use for transferring fields between
 meshes. Options are “project” (default) and “interpolate”. See
 <a class="reference internal" href="animate.html#animate.interpolation.transfer" title="animate.interpolation.transfer"><code class="xref py py-func docutils literal notranslate"><span class="pre">animate.interpolation.transfer()</span></code></a> for details</p></li>
-<li><p><strong>transfer_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>transfer_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – kwargs to pass to the chosen transfer method</p></li>
-<li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 </ul>
 </dd>
 </dl>
@@ -641,7 +639,7 @@ difference in element count being smaller than the specified tolerance.</p>
 corresponding subinterval</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>s</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -655,7 +653,7 @@ corresponding subinterval</p>
 <dd class="field-odd"><p>list of element counts</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -669,7 +667,7 @@ corresponding subinterval</p>
 <dd class="field-odd"><p>list of vertex counts</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -680,14 +678,14 @@ corresponding subinterval</p>
 <dd><p>Print a <code class="docutils literal notranslate"><span class="pre">debug</span></code> message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the message to print</p>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the message to print</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="goalie.mesh_seq.MeshSeq.fixed_point_iteration">
-<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fixed_point_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adaptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adaptor_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/mesh_seq.html#MeshSeq.fixed_point_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.mesh_seq.MeshSeq.fixed_point_iteration" title="Link to this definition">¶</a></dt>
 <dd><p>Apply mesh adaptation using a fixed point iteration loop approach.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -696,12 +694,13 @@ corresponding subinterval</p>
 sequence and the solution data object. It should return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the
 convergence criteria checks are to be skipped for this iteration. Otherwise,
 it should return <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>parameters</strong> (<a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a>) – parameters to apply to the mesh adaptation process</p></li>
 <li><p><strong>update_params</strong> – function for updating <code class="xref py py-attr docutils literal notranslate"><span class="pre">params</span></code> at each
 iteration. Its arguments are the parameter class and the fixed point
 iteration</p></li>
-<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – parameters to pass to the solver</p></li>
-<li><p><strong>adaptor_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>adaptor_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – parameters to pass to the adaptor</p></li>
 </ul>
 </dd>
@@ -730,7 +729,7 @@ take various types) – parameters to pass to the adaptor</p></li>
 corresponding function spaces</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
+<dd class="field-even"><p><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a> values</p>
 </dd>
 </dl>
@@ -743,9 +742,9 @@ corresponding function spaces</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>run_final_subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the solver is run on the final
+<li><p><strong>run_final_subinterval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the solver is run on the final
 subinterval</p></li>
-<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
+<li><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may
 take various types) – parameters for the forward solver</p></li>
 </ul>
 </dd>
@@ -753,7 +752,7 @@ take various types) – parameters for the forward solver</p></li>
 <dd class="field-even"><p>checkpoints for each subinterval</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>s</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -796,7 +795,7 @@ component.</p>
 corresponding function spaces</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a> values</p>
 </dd>
 </dl>
@@ -812,7 +811,7 @@ corresponding function spaces</p>
 corresponding initial conditions applied</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values</p>
 </dd>
 </dl>
@@ -826,9 +825,9 @@ to a dictionary of solutions for the corresponding solver step.</p>
 <p>Signature for the function to be returned:
 <a href="#id11"><span class="problematic" id="id12">``</span></a>`
 :arg index: the subinterval index
-:type index: <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>
+:type index: <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>
 :arg ic: map from fields to the corresponding initial condition components
-:type ic: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and</p>
+:type ic: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and</p>
 <blockquote>
 <div><p><a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values</p>
 </div></blockquote>
@@ -837,7 +836,7 @@ to a dictionary of solutions for the corresponding solver step.</p>
 <dd class="field-odd"><p>map from fields to the corresponding solutions</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values</p>
 </dd>
 </dl>
@@ -858,7 +857,7 @@ to a dictionary of solutions for the corresponding solver step.</p>
 <dd><p>Print an <code class="docutils literal notranslate"><span class="pre">info</span></code> level message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the message to print</p>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the message to print</p>
 </dd>
 </dl>
 </dd></dl>
@@ -873,7 +872,7 @@ to a dictionary of solutions for the corresponding solver step.</p>
 corresponding initial conditions applied on the first subinterval</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
+<dd class="field-even"><p><a class="reference internal" href="#goalie.utility.AttrDict" title="goalie.utility.AttrDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttrDict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> values</p>
 </dd>
 </dl>
@@ -909,7 +908,7 @@ corresponding initial conditions applied on the first subinterval</p>
 <dd><p>Set all meshes in the sequence and deduce various properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.MeshGeometry</span></code>s or
+<dd class="field-odd"><p><strong>meshes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.MeshGeometry</span></code>s or
 <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.MeshGeometry</span></code>) – list of meshes to use in the sequence, or a single mesh to use for
 all subintervals</p>
 </dd>
@@ -937,7 +936,7 @@ all subintervals</p>
 for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> whose keys are <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s and whose values
+<dd class="field-odd"><p><strong>solver_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> whose keys are <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s and whose values
 may take various types) – parameters for the forward solver</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -961,7 +960,7 @@ may take various types) – parameters for the forward solver</p>
 <dd><p>Print a <code class="docutils literal notranslate"><span class="pre">warning</span></code> message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the message to print</p>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the message to print</p>
 </dd>
 </dl>
 </dd></dl>
@@ -980,11 +979,11 @@ as maximum anisotropy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s) – the metrics</p></li>
-<li><p><strong>h_min</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – minimum tolerated element size</p></li>
-<li><p><strong>h_max</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum tolerated element size</p></li>
-<li><p><strong>a_max</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum tolerated element anisotropy</p></li>
-<li><p><strong>boundary_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – optional tag to enforce sizes on.</p></li>
+<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s) – the metrics</p></li>
+<li><p><strong>h_min</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – minimum tolerated element size</p></li>
+<li><p><strong>h_max</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum tolerated element size</p></li>
+<li><p><strong>a_max</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum tolerated element anisotropy</p></li>
+<li><p><strong>boundary_tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – optional tag to enforce sizes on.</p></li>
 </ul>
 </dd>
 </dl>
@@ -997,17 +996,17 @@ as maximum anisotropy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>base</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the base complexity to start from</p></li>
-<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the desired complexity</p></li>
-<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the current iteration</p></li>
-<li><p><strong>num_iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – how many iterations to ramp over?</p></li>
+<li><p><strong>base</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the base complexity to start from</p></li>
+<li><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the desired complexity</p></li>
+<li><p><strong>iteration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – the current iteration</p></li>
+<li><p><strong>num_iterations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – how many iterations to ramp over?</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the ramped target complexity</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1020,24 +1019,24 @@ as maximum anisotropy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s) – the metrics associated with each subinterval</p></li>
+<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s) – the metrics associated with each subinterval</p></li>
 <li><p><strong>time_partition</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">TimePartition</span></code>) – temporal discretisation for the problem at hand</p></li>
-<li><p><strong>metric_parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>s or a single <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
+<li><p><strong>metric_parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>s or a single <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
 to use for all subintervals) – dictionary containing the target <em>space-time</em> metric
 complexity under <cite>dm_plex_metric_target_complexity</cite> and the normalisation order
 under <cite>dm_plex_metric_p</cite>, or a list thereof</p></li>
-<li><p><strong>global_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pre-computed global normalisation factor</p></li>
-<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the normalisation to be performed over the boundary</p></li>
-<li><p><strong>restrict_sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, minimum and maximum metric magnitudes are
+<li><p><strong>global_factor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pre-computed global normalisation factor</p></li>
+<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the normalisation to be performed over the boundary</p></li>
+<li><p><strong>restrict_sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, minimum and maximum metric magnitudes are
 enforced</p></li>
-<li><p><strong>restrict_anisotropy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, maximum anisotropy is enforced</p></li>
+<li><p><strong>restrict_anisotropy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, maximum anisotropy is enforced</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the space-time normalised metrics</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1053,65 +1052,25 @@ enforced</p></li>
 loops.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may take
+<dd class="field-odd"><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may take
 various types) – parameters to set</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="goalie.options.GoalOrientedMetricParameters">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedMetricParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#GoalOrientedMetricParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.GoalOrientedMetricParameters" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#goalie.options.GoalOrientedParameters" title="goalie.options.GoalOrientedParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">GoalOrientedParameters</span></code></a>, <a class="reference internal" href="#goalie.options.MetricParameters" title="goalie.options.MetricParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricParameters</span></code></a></p>
-<p>A class for holding parameters associated with
-metric-based, goal-oriented adaptive mesh fixed
-point iteration loops.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may take
-various types) – parameters to set</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="goalie.options.GoalOrientedParameters">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#GoalOrientedParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.GoalOrientedParameters" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="goalie.options.GoalOrientedAdaptParameters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GoalOrientedAdaptParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#GoalOrientedAdaptParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.GoalOrientedAdaptParameters" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a></p>
 <p>A class for holding parameters associated with
 goal-oriented adaptive mesh fixed point iteration
 loops.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may take
+<dd class="field-odd"><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may take
 various types) – parameters to set</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="goalie.options.MetricParameters">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MetricParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#MetricParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.MetricParameters" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a></p>
-<p>A class for holding parameters associated with
-metric-based adaptive mesh fixed point iteration loops.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and values which may take
-various types) – parameters to set</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="goalie.options.MetricParameters.export">
-<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/options.html#MetricParameters.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.options.MetricParameters.export" title="Link to this definition">¶</a></dt>
-<dd><p>Set parameters appropriate to a given <code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>metric</strong> (<a class="reference internal" href="animate.html#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">animate.metric.RiemannianMetric</span></code></a>) – the metric to apply parameters to</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -1187,7 +1146,6 @@ returns a function that generates the ODE weak form</p></li>
 which returns a function that integrates initial data over a subinterval</p></li>
 <li><p><strong>get_bcs</strong> – a function, whose only argument is a <a class="reference internal" href="#goalie.mesh_seq.MeshSeq" title="goalie.mesh_seq.MeshSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshSeq</span></code></a>, which
 returns a function that determines any Dirichlet boundary conditions</p></li>
-<li><p><strong>parameters</strong> – <a class="reference internal" href="#goalie.options.AdaptParameters" title="goalie.options.AdaptParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a> instance</p></li>
 </ul>
 </dd>
 </dl>
@@ -1218,17 +1176,17 @@ associated attributes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>end_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – end time of the interval of interest</p></li>
-<li><p><strong>num_subintervals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – number of subintervals in the partition</p></li>
-<li><p><strong>timesteps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – a list timesteps to be used on each subinterval, or a single
+<li><p><strong>end_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – end time of the interval of interest</p></li>
+<li><p><strong>num_subintervals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – number of subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – a list timesteps to be used on each subinterval, or a single
 timestep to use for all subintervals</p></li>
-<li><p><strong>field_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the list of field names to consider</p></li>
-<li><p><strong>num_timesteps_per_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of :class`int`s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – a list of numbers of timesteps per export for
+<li><p><strong>field_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the list of field names to consider</p></li>
+<li><p><strong>num_timesteps_per_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of :class`int`s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – a list of numbers of timesteps per export for
 each subinterval, or a single number to use for all subintervals</p></li>
-<li><p><strong>start_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – start time of the interval of interest</p></li>
+<li><p><strong>start_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – start time of the interval of interest</p></li>
 <li><p><strong>subinterals</strong> – sequence of subintervals (which need not be of uniform
 length), or <code class="docutils literal notranslate"><span class="pre">None</span></code> to use uniform subintervals (the default)</p></li>
-<li><p><strong>field_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – a list of strings indicating whether each field is
+<li><p><strong>field_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – a list of strings indicating whether each field is
 ‘unsteady’ or ‘steady’, i.e., does the corresponding equation involve time
 derivatives or not?</p></li>
 </ul>
@@ -1244,17 +1202,17 @@ derivatives or not?</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>end_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – end time of the interval of interest</p></li>
-<li><p><strong>num_subintervals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – number of subintervals in the partition</p></li>
-<li><p><strong>timesteps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – a list timesteps to be used on each subinterval, or a single
+<li><p><strong>end_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – end time of the interval of interest</p></li>
+<li><p><strong>num_subintervals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – number of subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – a list timesteps to be used on each subinterval, or a single
 timestep to use for all subintervals</p></li>
-<li><p><strong>field_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the list of field names to consider</p></li>
-<li><p><strong>num_timesteps_per_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of :class`int`s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – a list of numbers of timesteps per export for
+<li><p><strong>field_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the list of field names to consider</p></li>
+<li><p><strong>num_timesteps_per_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of :class`int`s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – a list of numbers of timesteps per export for
 each subinterval, or a single number to use for all subintervals</p></li>
-<li><p><strong>start_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – start time of the interval of interest</p></li>
+<li><p><strong>start_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – start time of the interval of interest</p></li>
 <li><p><strong>subinterals</strong> – sequence of subintervals (which need not be of uniform
 length), or <code class="docutils literal notranslate"><span class="pre">None</span></code> to use uniform subintervals (the default)</p></li>
-<li><p><strong>field_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – a list of strings indicating whether each field is
+<li><p><strong>field_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – a list of strings indicating whether each field is
 ‘unsteady’ or ‘steady’, i.e., does the corresponding equation involve time
 derivatives or not?</p></li>
 </ul>
@@ -1268,7 +1226,7 @@ derivatives or not?</p></li>
 <dd class="field-odd"><p>the timestep used on the single interval</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1278,24 +1236,24 @@ derivatives or not?</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="goalie.time_partition.TimePartition">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TimePartition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_subintervals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_timesteps_per_export</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subintervals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/time_partition.html#TimePartition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.time_partition.TimePartition" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A partition of the time interval of interest into subintervals.</p>
 <p>The subintervals are assumed to be uniform in length. However, different timestep
 values may be used on each subinterval.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>end_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – end time of the interval of interest</p></li>
-<li><p><strong>num_subintervals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – number of subintervals in the partition</p></li>
-<li><p><strong>timesteps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – a list timesteps to be used on each subinterval, or a single
+<li><p><strong>end_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – end time of the interval of interest</p></li>
+<li><p><strong>num_subintervals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – number of subintervals in the partition</p></li>
+<li><p><strong>timesteps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – a list timesteps to be used on each subinterval, or a single
 timestep to use for all subintervals</p></li>
-<li><p><strong>field_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the list of field names to consider</p></li>
-<li><p><strong>num_timesteps_per_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of :class`int`s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – a list of numbers of timesteps per export for
+<li><p><strong>field_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the list of field names to consider</p></li>
+<li><p><strong>num_timesteps_per_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of :class`int`s or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – a list of numbers of timesteps per export for
 each subinterval, or a single number to use for all subintervals</p></li>
-<li><p><strong>start_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – start time of the interval of interest</p></li>
+<li><p><strong>start_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – start time of the interval of interest</p></li>
 <li><p><strong>subinterals</strong> – sequence of subintervals (which need not be of uniform
 length), or <code class="docutils literal notranslate"><span class="pre">None</span></code> to use uniform subintervals (the default)</p></li>
-<li><p><strong>field_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – a list of strings indicating whether each field is
+<li><p><strong>field_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>s or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – a list of strings indicating whether each field is
 ‘unsteady’ or ‘steady’, i.e., does the corresponding equation involve time
 derivatives or not?</p></li>
 </ul>
@@ -1316,7 +1274,7 @@ derivatives or not?</p></li>
 <dt class="sig sig-object py" id="goalie.time_partition.TimePartition.num_timesteps">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_timesteps</span></span><a class="headerlink" href="#goalie.time_partition.TimePartition.num_timesteps" title="Link to this definition">¶</a></dt>
 <dd><p>:returns the total number of timesteps
-:rtype: <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+:rtype: <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -1328,7 +1286,7 @@ derivatives or not?</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="goalie.utility.AttrDict">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AttrDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/goalie/utility.html#AttrDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#goalie.utility.AttrDict" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 <p>Dictionary that provides both <code class="docutils literal notranslate"><span class="pre">self[key]</span></code> and <code class="docutils literal notranslate"><span class="pre">self.key</span></code> access to members.</p>
 <p><strong>Disclaimer</strong>: Copied from <a class="reference external" href="http://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute-in-python">stackoverflow</a>.</p>
 </dd></dl>
@@ -1341,7 +1299,7 @@ derivatives or not?</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – path to the directory</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – path to the directory</p></li>
 <li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Intracomm</span></code>) – MPI communicator</p></li>
 </ul>
 </dd>
@@ -1349,7 +1307,7 @@ derivatives or not?</p></li>
 <dd class="field-even"><p>the path in absolute form</p>
 </dd>
 <dt class="field-odd">Rtype path<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1365,14 +1323,14 @@ analytical solutions.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>error_indicator</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – a <span class="math notranslate nohighlight">\(\mathbb P0\)</span> error indicator which localises
 contributions to an error estimator to individual elements</p></li>
-<li><p><strong>Je</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the error in the quantity of interest</p></li>
+<li><p><strong>Je</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the error in the quantity of interest</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the effectivity index</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1388,7 +1346,7 @@ contributions to an error estimator to individual elements</p></li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -1480,12 +1438,7 @@ contributions to an error estimator to individual elements</p></li>
 </li>
 <li><a class="reference internal" href="#module-goalie.options">goalie.options module</a><ul>
 <li><a class="reference internal" href="#goalie.options.AdaptParameters"><code class="docutils literal notranslate"><span class="pre">AdaptParameters</span></code></a></li>
-<li><a class="reference internal" href="#goalie.options.GoalOrientedMetricParameters"><code class="docutils literal notranslate"><span class="pre">GoalOrientedMetricParameters</span></code></a></li>
-<li><a class="reference internal" href="#goalie.options.GoalOrientedParameters"><code class="docutils literal notranslate"><span class="pre">GoalOrientedParameters</span></code></a></li>
-<li><a class="reference internal" href="#goalie.options.MetricParameters"><code class="docutils literal notranslate"><span class="pre">MetricParameters</span></code></a><ul>
-<li><a class="reference internal" href="#goalie.options.MetricParameters.export"><code class="docutils literal notranslate"><span class="pre">MetricParameters.export()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#goalie.options.GoalOrientedAdaptParameters"><code class="docutils literal notranslate"><span class="pre">GoalOrientedAdaptParameters</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-goalie.plot">goalie.plot module</a><ul>
@@ -1532,7 +1485,7 @@ contributions to an error estimator to individual elements</p></li>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -1540,13 +1493,13 @@ contributions to an error estimator to individual elements</p></li>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -1555,13 +1508,13 @@ contributions to an error estimator to individual elements</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie package</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

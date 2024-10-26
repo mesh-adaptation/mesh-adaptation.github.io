@@ -5,16 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Monge-Ampère mesh movement in three dimensions &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>Monge-Ampère mesh movement in three dimensions &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -23,7 +23,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Monge-Ampère mesh movement in three dimensions</a></li> 
       </ul>
     </div>  
@@ -37,7 +37,7 @@
 <h1>Monge-Ampère mesh movement in three dimensions<a class="headerlink" href="#monge-ampere-mesh-movement-in-three-dimensions" title="Link to this heading">¶</a></h1>
 <p>In this demo we demonstrate that the  Monge-Ampère mesh movement
 can also be applied to 3D meshes. We employ the <cite>sinatan3</cite> function
-from <span id="id1">[<a class="reference internal" href="#id9" title="Michael A Park, Aravind Balan, William K Anderson, Marshall C Galbraith, Philip Caplan, Hugh A Carson, Todd R Michal, Joshua A Krakos, Dmitry S Kamenetskiy, Adrien Loseille, and others. Verification of unstructured grid adaptation components. In AIAA Scitech 2019 Forum, 1723. 2019. doi:10.2514/6.2019-1723.">PBA+19</a>]</span> to introduce an interesting pattern.</p>
+from <span id="id1">[]</span> to introduce an interesting pattern.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">import</span> <span class="nn">movement</span>
@@ -98,13 +98,10 @@ that we will write to in every call when the monitor gets re-evaluated.</p>
 </pre></div>
 </div>
 <p>Let us try this on a fairly coarse unit cube mesh. Note that
-we use the <cite>“relaxation”</cite> method (see <span id="id2">[<a class="reference internal" href="#id8" title="A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):1121–1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>),
+we use the <cite>“relaxation”</cite> method (see <span id="id2">[]</span>),
 which gives faster convergence for this case.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-
-<span class="n">test</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MOVEMENT_REGRESSION_TEST&quot;</span><span class="p">)</span>
-<span class="n">rtol</span> <span class="o">=</span> <span class="mf">1.0e-03</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mf">1.0e-08</span>
-<span class="n">n</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">test</span> <span class="k">else</span> <span class="mi">20</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rtol</span> <span class="o">=</span> <span class="mf">1.0e-08</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="n">mesh</span> <span class="o">=</span> <span class="n">UnitCubeMesh</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 <span class="n">mover</span> <span class="o">=</span> <span class="n">movement</span><span class="o">.</span><span class="n">MongeAmpereMover</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">monitor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;relaxation&quot;</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">)</span>
 <span class="n">mover</span><span class="o">.</span><span class="n">move</span><span class="p">()</span>
@@ -123,26 +120,14 @@ how to optimise the mesh for the discretisation of a PDE with the aim to
 minimise its discretisation error.</p>
 <p>This tutorial can be dowloaded as a <a class="reference external" href="monge_ampere_3d.py">Python script</a>.</p>
 <p class="rubric">References</p>
-<div class="docutils container" id="id3">
-<div role="list" class="citation-list">
-<div class="citation" id="id8" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">MCB18</a><span class="fn-bracket">]</span></span>
-<p>A. T. T. McRae, C. J. Cotter, and J. Budd, C. Optimal-transport-based mesh adaptivity on the plane and sphere using finite elements. <em>SIAM Journal on Scientific Computing</em>, 40(2):1121–1148, 2018. <a class="reference external" href="https://doi.org/10.1137/16M1109515">doi:10.1137/16M1109515</a>.</p>
-</div>
-<div class="citation" id="id9" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">PBA+19</a><span class="fn-bracket">]</span></span>
-<p>Michael A Park, Aravind Balan, William K Anderson, Marshall C Galbraith, Philip Caplan, Hugh A Carson, Todd R Michal, Joshua A Krakos, Dmitry S Kamenetskiy, Adrien Loseille, and others. Verification of unstructured grid adaptation components. In <em>AIAA Scitech 2019 Forum</em>, 1723. 2019. <a class="reference external" href="https://doi.org/10.2514/6.2019-1723">doi:10.2514/6.2019-1723</a>.</p>
-</div>
-</div>
-</div>
-</section>
+<span class="target" id="id3"></span></section>
 
 
             <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -151,7 +136,7 @@ minimise its discretisation error.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -159,13 +144,13 @@ minimise its discretisation error.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -174,13 +159,13 @@ minimise its discretisation error.</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Monge-Ampère mesh movement in three dimensions</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

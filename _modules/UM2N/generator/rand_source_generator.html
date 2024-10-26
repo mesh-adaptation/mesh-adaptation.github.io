@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM2N.generator.rand_source_generator &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.generator.rand_source_generator</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for UM2N.generator.rand_source_generator</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Author: Chunyang Wang</span>
+<span class="c1"># GitHub Username: chunyang-w</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">firedrake</span> <span class="k">as</span> <span class="nn">fd</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RandSourceGenerator&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RandSourceGenerator">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.rand_source_generator.RandSourceGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">RandSourceGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for generating a random Helmholtz equation based on a</span>
+<span class="sd">    Gaussian distribution.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        simple_u (bool): Flag for using simpler form of u.</span>
+<span class="sd">        dist_params (dict): Parameters for Gaussian distribution.</span>
+<span class="sd">        u_exact: Analytical Helmholtz equation solution.</span>
+<span class="sd">        f: Simulated source function.</span>
+<span class="sd">        function_space: Function space for problem.</span>
+<span class="sd">        LHS: Left-hand side of Helmholtz equation.</span>
+<span class="sd">        RHS: Right-hand side of Helmholtz equation.</span>
+<span class="sd">        bc: Dirichlet boundary condition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">use_iso</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dist_params</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;max_dist&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;n_dist&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># if None, then random</span>
+            <span class="s2">&quot;x_start&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;x_end&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;y_start&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;y_end&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;z_max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;z_min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;w_min&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="s2">&quot;w_max&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+            <span class="s2">&quot;c_min&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+            <span class="s2">&quot;c_max&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s2">&quot;sigma_mean_scaler&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;sigma_sigma_scaler&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;sigma_eps&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize RandomHelmholtzGenerator.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            simple_u (bool): Use simpler form of u (isotripic dataset) if True.</span>
+<span class="sd">              Default False.</span>
+<span class="sd">            dist_params (dict): Parameters for Gaussian distribution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_iso</span> <span class="o">=</span> <span class="n">use_iso</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span> <span class="o">=</span> <span class="n">dist_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">σ_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_dist_params</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;sigma_eps&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_exact</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># analytical solution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># simulated source function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function_space</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LHS</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RHS</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bc</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># boundary conditions</span>
+
+<div class="viewcode-block" id="RandSourceGenerator.set_dist_params">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.rand_source_generator.RandSourceGenerator.set_dist_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_dist_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">20</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set parameters for Gaussian distribution from dist_params.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;n_dist&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_dist</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;max_dist&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;n_dist&quot;</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating </span><span class="si">{}</span><span class="s2"> Gaussian distributions&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dist</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dist</span><span class="p">):</span>
+            <span class="n">σ_mean</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;x_end&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;x_start&quot;</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;sigma_mean_scaler&quot;</span><span class="p">]</span>
+            <span class="n">σ_sigma</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;x_end&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;x_start&quot;</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;sigma_sigma_scaler&quot;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">round</span><span class="p">(</span>
+                    <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;c_min&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;c_max&quot;</span><span class="p">]</span>
+                    <span class="p">),</span>
+                    <span class="mi">3</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">round</span><span class="p">(</span>
+                    <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;c_min&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;c_max&quot;</span><span class="p">]</span>
+                    <span class="p">),</span>
+                    <span class="mi">3</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>  <span class="c1"># noqa</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">σ_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="n">σ_mean</span><span class="p">,</span> <span class="n">σ_sigma</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">eps</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">σ_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="n">σ_mean</span><span class="p">,</span> <span class="n">σ_sigma</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">eps</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">round</span><span class="p">(</span>
+                    <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;z_min&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;z_max&quot;</span><span class="p">]</span>
+                    <span class="p">),</span>
+                    <span class="mi">3</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">w_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">round</span><span class="p">(</span>
+                    <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;w_min&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_params</span><span class="p">[</span><span class="s2">&quot;w_max&quot;</span><span class="p">]</span>
+                    <span class="p">),</span>
+                    <span class="mi">3</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+        <span class="c1"># for i in range(self.n_dist):</span>
+        <span class="c1">#     σ_mean = random.gauss(</span>
+        <span class="c1">#         (self.dist_params[&quot;x_end&quot;] - self.dist_params[&quot;x_start&quot;]) / 24, 1</span>
+        <span class="c1">#     )</span>
+        <span class="c1">#     σ_sigma = random.gauss(</span>
+        <span class="c1">#         (self.dist_params[&quot;y_end&quot;] - self.dist_params[&quot;y_start&quot;]) / 48, 1</span>
+        <span class="c1">#     )</span>
+
+        <span class="c1">#     self.μ_dict[&quot;x&quot;].append(</span>
+        <span class="c1">#         round(</span>
+        <span class="c1">#             random.uniform(</span>
+        <span class="c1">#                 self.dist_params[&quot;c_min&quot;], self.dist_params[&quot;c_max&quot;]</span>
+        <span class="c1">#             ),</span>
+        <span class="c1">#             4,</span>
+        <span class="c1">#         )</span>
+        <span class="c1">#     )  # noqa</span>
+        <span class="c1">#     self.μ_dict[&quot;y&quot;].append(</span>
+        <span class="c1">#         round(</span>
+        <span class="c1">#             random.uniform(</span>
+        <span class="c1">#                 self.dist_params[&quot;c_min&quot;], self.dist_params[&quot;c_max&quot;]</span>
+        <span class="c1">#             ),</span>
+        <span class="c1">#             4,</span>
+        <span class="c1">#         )</span>
+        <span class="c1">#     )  # noqa</span>
+
+        <span class="c1">#     self.σ_dict[&quot;x&quot;].append(round(random.gauss(σ_mean, σ_sigma), 4))</span>
+        <span class="c1">#     self.σ_dict[&quot;y&quot;].append(round(random.gauss(σ_mean, σ_sigma), 4))</span>
+        <span class="c1">#     self.z_list.append(</span>
+        <span class="c1">#         round(</span>
+        <span class="c1">#             random.uniform(</span>
+        <span class="c1">#                 self.dist_params[&quot;z_min&quot;], self.dist_params[&quot;z_max&quot;]</span>
+        <span class="c1">#             ),</span>
+        <span class="c1">#             4,</span>
+        <span class="c1">#         )</span>
+        <span class="c1">#     )</span>
+        <span class="c1">#     self.w_list.append(</span>
+        <span class="c1">#         round(</span>
+        <span class="c1">#             random.uniform(</span>
+        <span class="c1">#                 self.dist_params[&quot;w_min&quot;], self.dist_params[&quot;w_max&quot;]</span>
+        <span class="c1">#             ),</span>
+        <span class="c1">#             4,</span>
+        <span class="c1">#         )</span>
+        <span class="c1">#     )</span>
+
+<div class="viewcode-block" id="RandSourceGenerator.get_dist_params">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.rand_source_generator.RandSourceGenerator.get_dist_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dist_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return dictionary containing distribution parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary of distribution parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;n_dist&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_dist</span><span class="p">,</span>
+            <span class="s2">&quot;σ_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">σ_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;σ_y&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">σ_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;μ_x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;μ_y&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_list</span><span class="p">,</span>
+            <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_list</span><span class="p">,</span>
+            <span class="s2">&quot;use_iso&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_iso</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">dist</span></div>
+
+
+<div class="viewcode-block" id="RandSourceGenerator.get_u_exact">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.rand_source_generator.RandSourceGenerator.get_u_exact">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_u_exact</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;V&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return analytical solution field.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            firedrake.Function: Analytical solution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_exact</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_iso</span><span class="p">:</span>  <span class="c1"># use simpler form of u</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dist</span><span class="p">):</span>
+                <span class="n">μ_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">μ_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u_exact</span> <span class="o">+=</span> <span class="n">fd</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">((((</span><span class="n">x</span> <span class="o">-</span> <span class="n">μ_x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">μ_y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="n">w</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># use more complex form of u</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dist</span><span class="p">):</span>
+                <span class="n">σ_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">σ_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">σ_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">σ_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">μ_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">μ_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">μ_dict</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">u_exact</span> <span class="o">+=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+                    <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">((((</span><span class="n">x</span> <span class="o">-</span> <span class="n">μ_x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">σ_x</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="p">(((</span><span class="n">y</span> <span class="o">-</span> <span class="n">μ_y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">σ_y</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_exact</span></div>
+</div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.generator.rand_source_generator</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    </div>
+  </body>
+</html>

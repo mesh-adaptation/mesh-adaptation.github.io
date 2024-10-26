@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM2N.helper.plotting &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.helper.plotting</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for UM2N.helper.plotting</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Author: Chunyang Wang</span>
+<span class="c1"># GitHub Username: acse-cw1722</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">matplotlib.collections</span> <span class="kn">import</span> <span class="n">PolyCollection</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;plot_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_tangle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_mesh&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_mesh_compare_benchmark&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_mesh&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_mesh_compare&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_multiple_mesh_compare&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_attentions_map&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_attentions_map_compare&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="plot_tangle">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_tangle">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_tangle</span><span class="p">(</span><span class="n">train_tangle_arr</span><span class="p">,</span> <span class="n">test_tangle_arr</span><span class="p">,</span> <span class="n">epoch_arr</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_arr</span><span class="p">,</span> <span class="n">train_tangle_arr</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_arr</span><span class="p">,</span> <span class="n">test_tangle_arr</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Epoch&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Avg Tangle &quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="plot_loss">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_loss">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_loss</span><span class="p">(</span><span class="n">train_loss_arr</span><span class="p">,</span> <span class="n">test_loss_arr</span><span class="p">,</span> <span class="n">epoch_arr</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="c1"># write loss to fig</span>
+    <span class="n">final_train_loss</span> <span class="o">=</span> <span class="n">train_loss_arr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">final_test_loss</span> <span class="o">=</span> <span class="n">test_loss_arr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.85</span><span class="p">,</span>
+        <span class="mf">0.15</span><span class="p">,</span>
+        <span class="s2">&quot;Final Train Loss: </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">final_train_loss</span><span class="p">),</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.85</span><span class="p">,</span>
+        <span class="mf">0.10</span><span class="p">,</span>
+        <span class="s2">&quot;Final Test Loss: </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">final_test_loss</span><span class="p">),</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_arr</span><span class="p">,</span> <span class="n">train_loss_arr</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epoch_arr</span><span class="p">,</span> <span class="n">test_loss_arr</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Epoch&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Loss&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="plot_mesh">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_mesh">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_mesh</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="p">[</span><span class="n">coord</span><span class="p">[</span><span class="n">face</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="n">poly_collection</span> <span class="o">=</span> <span class="n">PolyCollection</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">poly_collection</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">plot_hessian</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="n">hessian</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="p">[</span><span class="n">coord</span><span class="p">[</span><span class="n">face</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="n">hessian_val</span> <span class="o">=</span> <span class="p">[</span><span class="n">hessian</span><span class="p">[</span><span class="n">face</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">face</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">hessian_val</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">hessian_val</span><span class="p">))</span>
+    <span class="n">poly_collection</span> <span class="o">=</span> <span class="n">PolyCollection</span><span class="p">(</span>
+        <span class="n">vertices</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="n">hessian_val</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">poly_collection</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span>
+
+
+<span class="k">def</span> <span class="nf">plot_attention</span><span class="p">(</span><span class="n">attentions</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">attentions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span>
+
+
+<div class="viewcode-block" id="plot_mesh_compare">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_mesh_compare">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_mesh_compare</span><span class="p">(</span><span class="n">coord_out</span><span class="p">,</span> <span class="n">coord_target</span><span class="p">,</span> <span class="n">face</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_mesh</span><span class="p">(</span><span class="n">coord_out</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Output&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_mesh</span><span class="p">(</span><span class="n">coord_target</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Target&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="plot_mesh_compare_benchmark">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_mesh_compare_benchmark">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_mesh_compare_benchmark</span><span class="p">(</span>
+    <span class="n">coord_out</span><span class="p">,</span>
+    <span class="n">coord_target</span><span class="p">,</span>
+    <span class="n">face</span><span class="p">,</span>
+    <span class="n">deform_loss</span><span class="p">,</span>
+    <span class="n">pde_loss_model</span><span class="p">,</span>
+    <span class="n">pde_loss_reduction_model</span><span class="p">,</span>
+    <span class="n">pde_loss_MA</span><span class="p">,</span>
+    <span class="n">pde_loss_reduction_MA</span><span class="p">,</span>
+    <span class="n">tangle</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_mesh</span><span class="p">(</span><span class="n">coord_out</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+        <span class="sa">rf</span><span class="s2">&quot;Output | Deform Loss: </span><span class="si">{</span><span class="n">deform_loss</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> | PDE Loss (model): </span><span class="si">{</span><span class="n">pde_loss_model</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">pde_loss_reduction_model</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">$\%$) |Tangle: </span><span class="si">{</span><span class="n">tangle</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_mesh</span><span class="p">(</span><span class="n">coord_target</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+        <span class="sa">rf</span><span class="s2">&quot;Target | PDE Loss (MA): </span><span class="si">{</span><span class="n">pde_loss_MA</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">pde_loss_reduction_MA</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">$\%$)&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="plot_multiple_mesh_compare">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_multiple_mesh_compare">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_multiple_mesh_compare</span><span class="p">(</span>
+    <span class="n">out_mesh_collections</span><span class="p">,</span> <span class="n">out_loss_collections</span><span class="p">,</span> <span class="n">target_mesh</span><span class="p">,</span> <span class="n">target_face</span>
+<span class="p">):</span>
+    <span class="n">model_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">out_mesh_collections</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">num_models</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_names</span><span class="p">)</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_mesh_collections</span><span class="p">[</span><span class="n">model_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_models</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">num_models</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">num_samples</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">n_model</span><span class="p">,</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model_names</span><span class="p">):</span>
+        <span class="n">all_mesh</span> <span class="o">=</span> <span class="n">out_mesh_collections</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="n">all_loss</span> <span class="o">=</span> <span class="n">out_loss_collections</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">n_sample</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_mesh</span><span class="p">(</span>
+                <span class="n">all_mesh</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span> <span class="n">target_face</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> (loss: </span><span class="si">{</span><span class="n">all_loss</span><span class="p">[</span><span class="n">n_sample</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span>
+            <span class="p">)</span>
+    <span class="c1"># Plot the ground truth</span>
+    <span class="k">for</span> <span class="n">n_sample</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">num_models</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_mesh</span><span class="p">(</span>
+            <span class="n">target_mesh</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span> <span class="n">target_face</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">num_models</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">num_models</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Target&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<div class="viewcode-block" id="plot_attentions_map">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_attentions_map">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_attentions_map</span><span class="p">(</span><span class="n">out_atten_collections</span><span class="p">,</span> <span class="n">out_loss_collections</span><span class="p">):</span>
+    <span class="n">model_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">out_atten_collections</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">num_models</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_names</span><span class="p">)</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_atten_collections</span><span class="p">[</span><span class="n">model_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_models</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">num_models</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">num_samples</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">n_model</span><span class="p">,</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model_names</span><span class="p">):</span>
+        <span class="n">all_atten</span> <span class="o">=</span> <span class="n">out_atten_collections</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="n">all_loss</span> <span class="o">=</span> <span class="n">out_loss_collections</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">n_sample</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_attention</span><span class="p">(</span>
+                <span class="n">all_atten</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> (loss: </span><span class="si">{</span><span class="n">all_loss</span><span class="p">[</span><span class="n">n_sample</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span>
+            <span class="p">)</span>
+    <span class="c1"># # Plot the ground truth</span>
+    <span class="c1"># for n_sample in range(num_samples):</span>
+    <span class="c1">#     ax[n_sample, num_models], _ = plot_mesh(target_mesh[n_sample], target_face[n_sample], ax=ax[n_sample, num_models])</span>
+    <span class="c1">#     ax[n_sample, num_models].set_title(&quot;Target&quot;, fontsize=16)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">plot_attention_on_mesh</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">face</span><span class="p">,</span> <span class="n">atten_weights</span><span class="p">,</span> <span class="n">selected_node</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="c1"># vertices = [coord[face[:, i]] for i in range(face.shape[1])]</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="n">coord</span>
+    <span class="c1"># print(vertices)</span>
+    <span class="n">vertices_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">))]</span>
+    <span class="n">vertices_pos</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">vertices_index</span><span class="p">:</span>
+        <span class="n">vertices_pos</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+
+    <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+    <span class="c1"># Add nodes</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">vertices_index</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="c1"># Add edges with attention weights</span>
+    <span class="c1"># for i in range(1):</span>
+    <span class="n">node_color_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices_index</span><span class="p">))]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">selected_node</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices_index</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>  <span class="c1"># Assuming no self-loops</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">atten_weights</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+                    <span class="n">vertices_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vertices_index</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">weight</span><span class="o">=</span><span class="n">atten_weights</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">node_color_list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">atten_weights</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+                    <span class="n">vertices_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vertices_index</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">weight</span><span class="o">=</span><span class="n">atten_weights</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">node_color_list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">atten_weights</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;num nodes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices_index</span><span class="p">)</span><span class="si">}</span><span class="s2">, node color list: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">node_color_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Draw the graph</span>
+    <span class="c1"># pos = nx.spring_layout(G)  # You can try different layouts</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">G</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">v</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">]</span>
+
+    <span class="c1"># nx.draw(G, vertices_pos, ax=ax, with_labels=False, edge_color=weights, node_size=0.1, width=0.05, arrowsize=0.02, edge_cmap=mpl.colormaps[&#39;plasma&#39;])</span>
+
+    <span class="c1"># Draw the node of intetest</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+        <span class="n">G</span><span class="p">,</span>
+        <span class="n">vertices_pos</span><span class="p">,</span>
+        <span class="n">nodelist</span><span class="o">=</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="p">)[</span><span class="n">selected_node</span><span class="p">]],</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">arrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">with_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">node_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">node_size</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">arrowsize</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Draw the attention on other nodes</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+        <span class="n">G</span><span class="p">,</span>
+        <span class="n">vertices_pos</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">arrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">with_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">node_color</span><span class="o">=</span><span class="n">node_color_list</span><span class="p">,</span>
+        <span class="n">node_size</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">arrowsize</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="s2">&quot;plasma&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create colorbar for the edges</span>
+    <span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="s2">&quot;plasma&quot;</span><span class="p">],</span>
+        <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">weights</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">sm</span><span class="o">.</span><span class="n">set_array</span><span class="p">([])</span>
+
+    <span class="c1"># cax = plt.axes([0.95, 0.05, 0.05,0.9 ])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+        <span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Attention weights&quot;</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span>
+
+
+<div class="viewcode-block" id="plot_attentions_map_compare">
+<a class="viewcode-back" href="../../../UM2N.helper.html#UM2N.helper.plotting.plot_attentions_map_compare">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_attentions_map_compare</span><span class="p">(</span>
+    <span class="n">out_mesh_collections</span><span class="p">,</span>
+    <span class="n">out_loss_collections</span><span class="p">,</span>
+    <span class="n">out_atten_collections</span><span class="p">,</span>
+    <span class="n">target_hessian</span><span class="p">,</span>
+    <span class="n">target_mesh</span><span class="p">,</span>
+    <span class="n">target_face</span><span class="p">,</span>
+    <span class="n">selected_node</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">model_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">out_mesh_collections</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">num_models</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_names</span><span class="p">)</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_mesh_collections</span><span class="p">[</span><span class="n">model_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_models</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">num_models</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">num_samples</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">n_model</span><span class="p">,</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model_names</span><span class="p">):</span>
+        <span class="n">all_atten</span> <span class="o">=</span> <span class="n">out_atten_collections</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="n">all_mesh</span> <span class="o">=</span> <span class="n">out_mesh_collections</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="n">all_loss</span> <span class="o">=</span> <span class="n">out_loss_collections</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">n_sample</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_attention_on_mesh</span><span class="p">(</span>
+                <span class="n">all_mesh</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span>
+                <span class="n">target_face</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span>
+                <span class="n">atten_weights</span><span class="o">=</span><span class="n">all_atten</span><span class="p">[</span><span class="n">n_sample</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">selected_node</span><span class="o">=</span><span class="n">selected_node</span><span class="p">,</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">n_model</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> (loss: </span><span class="si">{</span><span class="n">all_loss</span><span class="p">[</span><span class="n">n_sample</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span>
+            <span class="p">)</span>
+    <span class="c1"># Plot the ground truth</span>
+    <span class="k">for</span> <span class="n">n_sample</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+        <span class="c1"># ax[n_sample, num_models], _ = plot_mesh(target_mesh[n_sample], target_face[n_sample], ax=ax[n_sample, num_models])</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">num_models</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">plot_attention_on_mesh</span><span class="p">(</span>
+            <span class="n">target_mesh</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span>
+            <span class="n">target_face</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span>
+            <span class="n">target_hessian</span><span class="p">[</span><span class="n">n_sample</span><span class="p">],</span>
+            <span class="n">selected_node</span><span class="o">=</span><span class="n">selected_node</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">num_models</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">n_sample</span><span class="p">,</span> <span class="n">num_models</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Target&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.helper.plotting</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    </div>
+  </body>
+</html>

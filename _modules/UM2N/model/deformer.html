@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM2N.model.deformer &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.model.deformer</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for UM2N.model.deformer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Author: Chunyang Wang</span>
+<span class="c1"># GitHub Username: acse-cw1722</span>
+<span class="c1"># Modified by Mingrui Zhang</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn</span> <span class="kn">import</span> <span class="n">GATv2Conv</span><span class="p">,</span> <span class="n">MessagePassing</span>
+
+<span class="n">cur_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur_dir</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RecurrentGATConv&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RecurrentGATConv">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.deformer.RecurrentGATConv">[docs]</a>
+<span class="k">class</span> <span class="nc">RecurrentGATConv</span><span class="p">(</span><span class="n">MessagePassing</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements a Recurrent Graph Attention Network (GAT) Convolution layer.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        to_hidden (GATv2Conv): Graph Attention layer.</span>
+<span class="sd">        to_coord (nn.Sequential): Output layer for coordinates.</span>
+<span class="sd">        activation (nn.SELU): Activation function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">coord_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">hidden_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">heads</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coord&quot;</span><span class="p">,</span>
+        <span class="n">concat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RecurrentGATConv</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">output_type</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;coord&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phi_grad&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;phi&quot;</span><span class="p">,</span>
+        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;output type </span><span class="si">{</span><span class="n">output_type</span><span class="si">}</span><span class="s2"> is invalid&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">=</span> <span class="n">output_type</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">==</span> <span class="s2">&quot;coord&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">==</span> <span class="s2">&quot;phi_grad&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">output_type</span> <span class="o">==</span> <span class="s2">&quot;phi&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output type </span><span class="si">{</span><span class="n">output_type</span><span class="si">}</span><span class="s2"> is invalid.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># GAT layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_hidden</span> <span class="o">=</span> <span class="n">GATv2Conv</span><span class="p">(</span>
+            <span class="n">in_channels</span><span class="o">=</span><span class="n">coord_size</span> <span class="o">+</span> <span class="n">hidden_size</span><span class="p">,</span>
+            <span class="n">out_channels</span><span class="o">=</span><span class="n">hidden_size</span><span class="p">,</span>
+            <span class="n">heads</span><span class="o">=</span><span class="n">heads</span><span class="p">,</span>
+            <span class="n">concat</span><span class="o">=</span><span class="n">concat</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># output layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_output</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dim</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># activation function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">SELU</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RecurrentGATConv.forward">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.deformer.RecurrentGATConv.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">hidden_state</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">,</span> <span class="n">coord_ori</span><span class="p">,</span> <span class="n">bd_mask</span><span class="p">,</span> <span class="n">poly_mesh</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bd_mask</span> <span class="o">=</span> <span class="n">bd_mask</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">bool</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poly_mesh</span> <span class="o">=</span> <span class="n">poly_mesh</span>
+
+        <span class="c1"># Recurrent GAT</span>
+        <span class="c1"># print(coord.shape, hidden_state.shape)</span>
+        <span class="n">extra_sample_ratio</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">hidden_state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># print(coord.shape, hidden_state.shape)</span>
+
+        <span class="n">in_feat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">coord</span><span class="p">,</span> <span class="n">hidden_state</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">extra_sample_ratio</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># in_feat = torch.cat((coord, hidden_state), dim=1)</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_hidden</span><span class="p">(</span><span class="n">in_feat</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">)</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_output</span><span class="p">(</span><span class="n">hidden</span><span class="p">)</span>
+        <span class="n">phix</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">phiy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">==</span> <span class="s2">&quot;coord&quot;</span><span class="p">:</span>
+            <span class="n">output_coord</span> <span class="o">=</span> <span class="n">output</span>
+            <span class="c1"># find boundary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_boundary</span><span class="p">(</span><span class="n">coord_ori</span><span class="p">)</span>
+            <span class="c1"># fix boundary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fix_boundary</span><span class="p">(</span><span class="n">output_coord</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">==</span> <span class="s2">&quot;phi_grad&quot;</span><span class="p">:</span>
+            <span class="n">output_coord</span> <span class="o">=</span> <span class="n">output</span> <span class="o">+</span> <span class="n">coord_ori</span>
+            <span class="c1"># find boundary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_boundary</span><span class="p">(</span><span class="n">coord_ori</span><span class="p">)</span>
+            <span class="c1"># fix boundary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fix_boundary</span><span class="p">(</span><span class="n">output_coord</span><span class="p">)</span>
+            <span class="n">phix</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">phiy</span> <span class="o">=</span> <span class="n">output</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">==</span> <span class="s2">&quot;phi&quot;</span><span class="p">:</span>
+            <span class="c1"># Compute the residual to the equation</span>
+            <span class="n">grad_seed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">phi_grad</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
+                <span class="n">output</span><span class="p">,</span>
+                <span class="n">coord_ori</span><span class="p">,</span>
+                <span class="n">grad_outputs</span><span class="o">=</span><span class="n">grad_seed</span><span class="p">,</span>
+                <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">create_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">allow_unused</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># print(f&quot;[phi grad] {phi_grad.shape}, [coord_ori] {coord_ori.shape}&quot;)</span>
+            <span class="n">phix</span> <span class="o">=</span> <span class="n">phi_grad</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">phiy</span> <span class="o">=</span> <span class="n">phi_grad</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># New coord</span>
+            <span class="n">coord_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">coord_ori</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">phix</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">coord_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">coord_ori</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">phiy</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">output_coord</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">coord_x</span><span class="p">,</span> <span class="n">coord_y</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="c1"># find boundary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">find_boundary</span><span class="p">(</span><span class="n">coord_ori</span><span class="p">)</span>
+            <span class="c1"># fix boundary</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fix_boundary</span><span class="p">(</span><span class="n">output_coord</span><span class="p">)</span>
+            <span class="c1"># print(&#39;[phi] output coord shape &#39;, output_coord.shape)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">output_coord</span><span class="p">,</span> <span class="n">output</span><span class="p">),</span> <span class="n">hidden</span><span class="p">,</span> <span class="p">(</span><span class="n">phix</span><span class="p">,</span> <span class="n">phiy</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RecurrentGATConv.find_boundary">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.deformer.RecurrentGATConv.find_boundary">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_node_idx</span> <span class="o">=</span> <span class="n">in_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">down_node_idx</span> <span class="o">=</span> <span class="n">in_data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left_node_idx</span> <span class="o">=</span> <span class="n">in_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_node_idx</span> <span class="o">=</span> <span class="n">in_data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">poly_mesh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bd_pos_x</span> <span class="o">=</span> <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bd_mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bd_pos_y</span> <span class="o">=</span> <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bd_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="RecurrentGATConv.fix_boundary">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.deformer.RecurrentGATConv.fix_boundary">[docs]</a>
+    <span class="k">def</span> <span class="nf">fix_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_data</span><span class="p">):</span>
+        <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">upper_node_idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">down_node_idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">left_node_idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">right_node_idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">poly_mesh</span><span class="p">:</span>
+            <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bd_mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bd_pos_x</span>
+            <span class="n">in_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bd_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bd_pos_y</span></div>
+</div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.model.deformer</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    </div>
+  </body>
+</html>

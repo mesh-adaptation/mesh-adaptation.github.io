@@ -5,16 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement package &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>movement package &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -23,7 +23,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">movement package</a></li> 
       </ul>
     </div>  
@@ -61,22 +61,23 @@ the physical coordinates at the beginning of the simulation.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
-<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.laplacian_smoothing.LaplacianSmoother.move">
-<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_boundary_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian_smoothing.html#LaplacianSmoother.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian_smoothing.LaplacianSmoother.move" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_boundary_velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/laplacian_smoothing.html#LaplacianSmoother.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.laplacian_smoothing.LaplacianSmoother.move" title="Link to this definition">¶</a></dt>
 <dd><p>Assemble and solve the Laplacian system and update the coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the current time</p></li>
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the current time</p></li>
 <li><p><strong>update_boundary_velocity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> with a single argument of
-<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary conditions at
-the current time</p></li>
-<li><p><strong>boundary_conditions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> thereof) – Dirichlet boundary conditions to be enforced</p></li>
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary conditions
+at the current time</p></li>
+<li><p><strong>boundary_conditions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> thereof) – Dirichlet boundary conditions to be enforced</p></li>
+<li><p><strong>solver_parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – solver parameters for solving the Laplace equation</p></li>
 </ul>
 </dd>
 </dl>
@@ -85,34 +86,54 @@ the current time</p></li>
 </dd></dl>
 
 </section>
+<section id="module-movement.math">
+<span id="movement-math-module"></span><h2>movement.math module<a class="headerlink" href="#module-movement.math" title="Link to this heading">¶</a></h2>
+</section>
 <section id="module-movement.monge_ampere">
 <span id="movement-monge-ampere-module"></span><h2>movement.monge_ampere module<a class="headerlink" href="#module-movement.monge_ampere" title="Link to this heading">¶</a></h2>
+<p>Mesh movement based on solutions of equations of Monge-Ampère type.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover">
 <span class="sig-name descname"><span class="pre">MongeAmpereMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relaxation'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover" title="Link to this definition">¶</a></dt>
-<dd><p>Movement of a <cite>mesh</cite> is determined by a <cite>monitor_function</cite>
-<span class="math notranslate nohighlight">\(m\)</span> and the Monge-Ampère type equation</p>
+<dd><p>Factory function for generating Monge-Ampère mesh movers.</p>
+<p>Movement of a <em>mesh</em> is determined by a <em>monitor_function</em> <span class="math notranslate nohighlight">\(m\)</span> and an equation
+of Monge-Ampère type,</p>
 <div class="math notranslate nohighlight">
-\[m(x)\det(I + H(\phi)) = \theta,\]</div>
-<p>for a scalar potential <span class="math notranslate nohighlight">\(\phi\)</span>, where <span class="math notranslate nohighlight">\(I\)</span> is the
-identity matrix, <span class="math notranslate nohighlight">\(\theta\)</span> is a normalisation coefficient
-and <span class="math notranslate nohighlight">\(H(\phi)\)</span> denotes the Hessian of <span class="math notranslate nohighlight">\(\phi\)</span> with
-respect to the coordinates <span class="math notranslate nohighlight">\(\xi\)</span> of the computational mesh.</p>
-<p>The physical mesh coordinates <span class="math notranslate nohighlight">\(x\)</span> are updated according to</p>
+\[m(\mathbf{x})\det(\mathbf{I} + \mathbf{H}(\phi)) = \theta,\]</div>
+<p>for a convex scalar potential <span class="math notranslate nohighlight">\(\phi=\phi(\boldsymbol{\xi})\)</span>, which is a
+function of the coordinates of the <em>computational</em> mesh. Here <span class="math notranslate nohighlight">\(m=m(\mathbf{x})\)</span>
+is a function of the coordinates of the <em>physical</em> mesh, <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> is the
+identity matrix, <span class="math notranslate nohighlight">\(\theta\)</span> is a normalisation coefficient  and
+<span class="math notranslate nohighlight">\(\mathbf{H}(\phi)\)</span> denotes the Hessian of <span class="math notranslate nohighlight">\(\phi\)</span> with respect to
+<span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span>.</p>
+<p>Different implementations solve the Monge-Ampère equation in different ways. If the
+<cite>method</cite> argument is set to <cite>“relaxation”</cite> then it is solved in parabolised form in
+<a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="movement.monge_ampere.MongeAmpereMover_Relaxation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation</span></code></a>. If the argument is set to <cite>“quasi_newton”</cite>
+then it is solved in its elliptic form using a quasi-Newton method in
+<a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton" title="movement.monge_ampere.MongeAmpereMover_QuasiNewton"><code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_QuasiNewton</span></code></a>. Descriptions of both methods may be found in
+<span id="id1">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span>.</p>
+<p>The physical mesh coordinates <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> are updated according to</p>
 <div class="math notranslate nohighlight">
-\[x = \xi + \nabla\phi.\]</div>
+\[\mathbf{x} = \boldsymbol{\xi} + \nabla_{\boldsymbol{\xi}}\phi.\]</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
 <li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
-<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – choose from ‘relaxation’ and ‘quasi_newton’</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – choose from ‘relaxation’ and ‘quasi_newton’</p></li>
 <li><p><strong>phi_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the scalar potential</p></li>
-<li><p><strong>sigma_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
+<li><p><strong>H_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
+<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum number of iterations for the solver</p></li>
+<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – relative tolerance for the residual</p></li>
+<li><p><strong>dtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – divergence tolerance for the residual</p></li>
+<li><p><strong>pseudo_timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pseudo-timestep (only relevant to relaxation method)</p></li>
+<li><p><strong>fixed_boundary_segments</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – labels corresponding to boundary segments to be fixed
+with a zero Dirichlet condition. The ‘on_boundary’ label indicates the whole
+domain boundary</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the Monge-Ampere Mover object</p>
+<dd class="field-even"><p>the Monge-Ampère Mover object</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="movement.monge_ampere.MongeAmpereMover_Relaxation"><code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Relaxation</span></code></a> or
@@ -123,20 +144,31 @@ respect to the coordinates <span class="math notranslate nohighlight">\(\xi\)</s
 
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_QuasiNewton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_QuasiNewton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_QuasiNewton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_QuasiNewton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Base</span></code></p>
-<p>The elliptic Monge-Ampere equation is solved using a quasi-Newton method (see
-<span id="id1">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span> for details).</p>
+<p>The standard, elliptic form of the Monge-Ampère equation used for mesh movement is:</p>
+<div class="math notranslate nohighlight">
+\[m(\mathbf{x})\det(\mathbf{I} + \mathbf{H}(\phi)) = \theta,\]</div>
+<p>for a convex scalar potential <span class="math notranslate nohighlight">\(\phi=\phi(\boldsymbol{\xi})\)</span>, which is a
+function of the coordinates of the <em>computational</em> mesh. Here <span class="math notranslate nohighlight">\(m=m(\mathbf{x})\)</span>
+is a user-provided monitor function, which is a function of the coordinates of the
+<em>physical</em> mesh. <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> is the identity matrix, <span class="math notranslate nohighlight">\(\theta\)</span> is a
+normalisation coefficient  and <span class="math notranslate nohighlight">\(\mathbf{H}(\phi)\)</span> denotes the Hessian of
+<span class="math notranslate nohighlight">\(\phi\)</span> with respect to <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span>.</p>
+<p>In this mesh mover, the elliptic Monge-Ampère equation is solved using a quasi-Newton
+method (see <span id="id2">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span> for details).</p>
+<p>This approach typically takes fewer than ten iterations to converge, but each
+iteration is relatively expensive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
 <li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
 <li><p><strong>phi_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the scalar potential</p></li>
-<li><p><strong>sigma_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
-<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum number of iterations for the Quasi-Newton solver</p></li>
-<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – relative tolerance for the residual</p></li>
-<li><p><strong>dtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – divergence tolerance for the residual</p></li>
+<li><p><strong>H_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
+<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum number of iterations for the Quasi-Newton solver</p></li>
+<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – relative tolerance for the residual</p></li>
+<li><p><strong>dtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – divergence tolerance for the residual</p></li>
 </ul>
 </dd>
 </dl>
@@ -144,6 +176,20 @@ respect to the coordinates <span class="math notranslate nohighlight">\(\xi\)</s
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equidistributor</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton.equidistributor" title="Link to this definition">¶</a></dt>
 <dd><p>Setup the equidistributor for the quasi-newton method.</p>
+<p>The equidistributor solves</p>
+<div class="math notranslate nohighlight">
+\[\int_{\Omega} \boldsymbol{\tau} \cdot \mathbf{H} \, \mathrm{d}x
++ \int_{\Omega} (\nabla \cdot \boldsymbol{\tau}) \cdot (\nabla \phi) \,
+\mathrm{d}x
+- \int_{\partial \Omega} (((\nabla \phi) \cdot \widehat{\mathbf{n}}) \cdot
+  \boldsymbol{\tau}) \cdot \widehat{\mathbf{n}} \, \mathrm{d}s
+- \int_{\Omega} \psi (m \det(\mathbf{I} + \mathbf{H}) - \theta) \,
+  \mathrm{d}x = 0,
+  \quad \forall \boldsymbol{\tau} \in \mathbb{P}1^{d \times d},
+  \quad \forall \psi \in \mathbb{P}1,\]</div>
+<p>for the potential <span class="math notranslate nohighlight">\(\phi\)</span> and its Hessian <span class="math notranslate nohighlight">\(\mathbf{H}\)</span>, where
+<span class="math notranslate nohighlight">\(d\)</span> is the spatial dimension and <span class="math notranslate nohighlight">\(\widehat{\mathbf{n}}\)</span> is a normal
+vector to the boundary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the equidistributor</p>
@@ -163,7 +209,7 @@ respect to the coordinates <span class="math notranslate nohighlight">\(\xi\)</s
 <dd class="field-odd"><p>the iteration count</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -172,25 +218,40 @@ respect to the coordinates <span class="math notranslate nohighlight">\(\xi\)</s
 
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_Relaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_Relaxation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MongeAmpereMover_Relaxation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/monge_ampere.html#MongeAmpereMover_Relaxation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MongeAmpereMover_Base</span></code></p>
-<p>The elliptic Monge-Ampere equation is solved in a parabolised form using a
-pseudo-time relaxation,</p>
+<p>The standard, elliptic form of the Monge-Ampère equation used for mesh movement is:</p>
 <div class="math notranslate nohighlight">
-\[-\frac\partial{\partial\tau}\Delta\phi = m(x)\det(I + H(\phi)) - \theta,\]</div>
+\[m(\mathbf{x})\det(\mathbf{I} + \mathbf{H}(\phi)) = \theta,\]</div>
+<p>for a convex scalar potential <span class="math notranslate nohighlight">\(\phi=\phi(\boldsymbol{\xi})\)</span>, which is a
+function of the coordinates of the <em>computational</em> mesh. Here <span class="math notranslate nohighlight">\(m=m(\mathbf{x})\)</span>
+is a user-provided monitor function, which is a function of the coordinates of the
+<em>physical</em> mesh. <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> is the identity matrix, <span class="math notranslate nohighlight">\(\theta\)</span> is a
+normalisation coefficient  and <span class="math notranslate nohighlight">\(\mathbf{H}(\phi)\)</span> denotes the Hessian of
+<span class="math notranslate nohighlight">\(\phi\)</span> with respect to <span class="math notranslate nohighlight">\(\boldsymbol{\xi}\)</span>.</p>
+<p>In this mesh mover, the Monge-Ampère equation is instead solved in a parabolised form
+using a pseudo-time relaxation,</p>
+<div class="math notranslate nohighlight">
+\[-\frac\partial{\partial\tau}\Delta\phi
+= m(\mathbf{x})\det(\mathbf{I} + \mathbf{H}(\phi)) - \theta,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\tau\)</span> is the pseudo-time variable. Forward Euler is used for the
-pseudo-time integration (see <span id="id2">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span> for details).</p>
+pseudo-time integration (see <span id="id3">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span> for details).</p>
+<p>This approach typically takes tens or hundreds of iterations to converge, but each
+iteration is relatively cheap.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
 <li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
 <li><p><strong>phi_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the scalar potential</p></li>
-<li><p><strong>sigma_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
-<li><p><strong>pseudo_timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pseudo-timestep to use for the relaxation</p></li>
-<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum number of iterations for the relaxation</p></li>
-<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – relative tolerance for the residual</p></li>
-<li><p><strong>dtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – divergence tolerance for the residual</p></li>
+<li><p><strong>H_init</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a>) – initial guess for the Hessian</p></li>
+<li><p><strong>pseudo_timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – pseudo-timestep to use for the relaxation</p></li>
+<li><p><strong>maxiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – maximum number of iterations for the relaxation</p></li>
+<li><p><strong>rtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – relative tolerance for the residual</p></li>
+<li><p><strong>dtol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – divergence tolerance for the residual</p></li>
+<li><p><strong>fixed_boundary_segments</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – labels corresponding to boundary segments to be
+fixed with a zero Dirichlet condition. The ‘on_boundary’ label indicates
+the whole domain boundary</p></li>
 </ul>
 </dd>
 </dl>
@@ -198,6 +259,15 @@ pseudo-time integration (see <span id="id2">[<a class="reference internal" href=
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equidistributor</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.equidistributor" title="Link to this definition">¶</a></dt>
 <dd><p>Setup the equidistributor for the relaxation method.</p>
+<p>The equidistributor solves the following equation:</p>
+<div class="math notranslate nohighlight">
+\[\int_{\Omega} \tau : \mathbf{H} \, \mathrm{d}x
+= -\int_{\Omega} (\nabla \cdot \tau) \cdot (\nabla \phi) \, \mathrm{d}x
++ \int_{\partial \Omega} ((\nabla \phi \cdot \widehat{\mathbf{n}}) \cdot
+\tau) \cdot \widehat{\mathbf{n}} \, \mathrm{d}s,
+\quad \forall \tau \in \mathbb{P}1^{d \times d}\]</div>
+<p>for the Hessian <span class="math notranslate nohighlight">\(\mathbf{H}\)</span>, where <span class="math notranslate nohighlight">\(d\)</span> is the spatial dimension and
+<span class="math notranslate nohighlight">\(\widehat{\mathbf{n}}\)</span> is a normal vector to the boundary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the equidistributor</p>
@@ -217,7 +287,7 @@ pseudo-time integration (see <span id="id2">[<a class="reference internal" href=
 <dd class="field-odd"><p>the iteration count</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -226,6 +296,9 @@ pseudo-time integration (see <span id="id2">[<a class="reference internal" href=
 <dt class="sig sig-object py" id="movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pseudotimestepper</span></span><a class="headerlink" href="#movement.monge_ampere.MongeAmpereMover_Relaxation.pseudotimestepper" title="Link to this definition">¶</a></dt>
 <dd><p>Setup the pseudo-timestepper for the relaxation method.</p>
+<p>Forward Euler is used for the pseudo-time integration (see <span id="id4">[<a class="reference internal" href="goalie/3-goal-oriented-mesh-adaptation.html#id3" title="Andrew TT McRae, Colin J Cotter, and Chris J Budd. Optimal-transport–based mesh adaptivity on the plane and sphere using finite elements. SIAM Journal on Scientific Computing, 40(2):A1121–A1148, 2018. doi:10.1137/16M1109515.">MCB18</a>]</span> for
+details). The pseudo-timestep may be set through the <cite>pseudo_timestep</cite> keyword
+argument to the constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the pseudo-timestepper</p>
@@ -243,52 +316,66 @@ pseudo-time integration (see <span id="id2">[<a class="reference internal" href=
 <span id="movement-mover-module"></span><h2>movement.mover module<a class="headerlink" href="#module-movement.mover" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.mover.PrimeMover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrimeMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_convergence_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PrimeMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_convergence_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tangling_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quadrature_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base class for all mesh movers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh</p></li>
 <li><p><strong>monitor_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>) – a Python function which takes a mesh as input</p></li>
-<li><p><strong>raise_convergence_errors</strong> – convergence error handling behaviour: if <cite>True</cite>
+<li><p><strong>raise_convergence_errors</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – convergence error handling behaviour: if <cite>True</cite>
 then <code class="xref py py-class docutils literal notranslate"><span class="pre">ConvergenceError</span></code>s are raised, else warnings are raised and
 the program is allowed to continue</p></li>
-<li><p><strong>raise_convergence_errors</strong> – <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p></li>
+<li><p><strong>tangling_check</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – check whether the mesh has tangled elements (by default
+on in the 2D case and off otherwise)</p></li>
+<li><p><strong>quadrature_degree</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – quadrature degree to be passed to Firedrakes measures</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.mover.PrimeMover.adapt">
-<span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.adapt" title="Link to this definition">¶</a></dt>
-<dd><p>Alias of <cite>move</cite>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.mover.PrimeMover.coordinate">
-<span class="sig-name descname"><span class="pre">coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.coordinate" title="Link to this definition">¶</a></dt>
-<dd><p>Get the mesh coordinate associated with
-a given <cite>index</cite>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.mover.PrimeMover.coordinate_offset">
-<span class="sig-name descname"><span class="pre">coordinate_offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.coordinate_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.coordinate_offset" title="Link to this definition">¶</a></dt>
-<dd><p>Get the DMPlex coordinate section offset
-for a given <cite>index</cite>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.mover.PrimeMover.edge_vector_offset">
-<span class="sig-name descname"><span class="pre">edge_vector_offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.edge_vector_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.edge_vector_offset" title="Link to this definition">¶</a></dt>
-<dd><p>Get the DMPlex edge vector section offset
-for a given <cite>index</cite>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.coefficient_of_variation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coefficient_of_variation</span></span><a class="headerlink" href="#movement.mover.PrimeMover.coefficient_of_variation" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the coefficient of variation (σ/μ) of element volumes.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.mover.PrimeMover.move">
-<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.move" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.move" title="Link to this definition">¶</a></dt>
 <dd><p>Move the mesh according to the method of choice.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.to_computational_coordinates">
+<span class="sig-name descname"><span class="pre">to_computational_coordinates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.to_computational_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.to_computational_coordinates" title="Link to this definition">¶</a></dt>
+<dd><p>Switch coordinates to correspond to the computational mesh
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mathcal{H}_C</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.to_physical_coordinates">
+<span class="sig-name descname"><span class="pre">to_physical_coordinates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/mover.html#PrimeMover.to_physical_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.mover.PrimeMover.to_physical_coordinates" title="Link to this definition">¶</a></dt>
+<dd><p>Switch coordinates to correspond to the physical mesh <code class="xref py py-class docutils literal notranslate"><span class="pre">mathcal{H}_P</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.mover.PrimeMover.volume_ratio">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume_ratio</span></span><a class="headerlink" href="#movement.mover.PrimeMover.volume_ratio" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the ratio of the largest and smallest element volumes.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -304,13 +391,13 @@ for a given <cite>index</cite>.</p>
 <span class="sig-name descname"><span class="pre">SpringMover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lineal'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/spring.html#SpringMover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.spring.SpringMover" title="Link to this definition">¶</a></dt>
 <dd><p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
 beams and solving an associated discrete linear elasticity problem. (See
-<span id="id3">[]</span> for details.)</p>
+<span id="id5">[]</span> for details.)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
-<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
-<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – flavour of spring-based method to use</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – flavour of spring-based method to use</p></li>
 </ul>
 </dd>
 </dl>
@@ -322,12 +409,12 @@ beams and solving an associated discrete linear elasticity problem. (See
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Base</span></code></p>
 <p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
 beams and solving an associated discrete linear elasticity problem.</p>
-<p>We consider the ‘lineal’ case, as described in <span id="id4">[]</span>.</p>
+<p>We consider the ‘lineal’ case, as described in <span id="id6">[]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
-<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
 </ul>
 </dd>
 </dl>
@@ -338,11 +425,11 @@ beams and solving an associated discrete linear elasticity problem.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the current time</p></li>
+<li><p><strong>time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the current time</p></li>
 <li><p><strong>update_boundary_displacement</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code> with a single argument
-of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary
+of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> type) – function that updates the boundary
 conditions at the current time</p></li>
-<li><p><strong>boundary_conditions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> thereof) – Dirichlet boundary conditions to be enforced</p></li>
+<li><p><strong>boundary_conditions</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DirichletBC</span></code> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> thereof) – Dirichlet boundary conditions to be enforced</p></li>
 </ul>
 </dd>
 </dl>
@@ -356,12 +443,12 @@ conditions at the current time</p></li>
 <dd><p>Bases: <a class="reference internal" href="#movement.spring.SpringMover_Lineal" title="movement.spring.SpringMover_Lineal"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpringMover_Lineal</span></code></a></p>
 <p>Movement of a <code class="docutils literal notranslate"><span class="pre">mesh</span></code> is determined by reinterpreting it as a structure of stiff
 beams and solving an associated discrete linear elasticity problem.</p>
-<p>We consider the ‘torsional’ case, as described in <span id="id5">[]</span>.</p>
+<p>We consider the ‘torsional’ case, as described in <span id="id7">[]</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the physical mesh to be moved</p></li>
-<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
+<li><p><strong>timestep</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – the timestep length used</p></li>
 </ul>
 </dd>
 </dl>
@@ -373,14 +460,14 @@ beams and solving an associated discrete linear elasticity problem.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.tangling.MeshTanglingChecker">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MeshTanglingChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/movement/tangling.html#MeshTanglingChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.tangling.MeshTanglingChecker" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A class for tracking whether a mesh has tangled, i.e. whether any of its elements
 have become inverted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – the mesh to track if tangled</p></li>
-<li><p><strong>raise_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, an error is raised if any element is tangled,
+<li><p><strong>raise_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, an error is raised if any element is tangled,
 otherwise a warning is raised</p></li>
 </ul>
 </dd>
@@ -410,7 +497,7 @@ was created.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -424,6 +511,7 @@ was created.</p>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-movement.math">movement.math module</a></li>
 <li><a class="reference internal" href="#module-movement.monge_ampere">movement.monge_ampere module</a><ul>
 <li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover()</span></code></a></li>
 <li><a class="reference internal" href="#movement.monge_ampere.MongeAmpereMover_QuasiNewton"><code class="docutils literal notranslate"><span class="pre">MongeAmpereMover_QuasiNewton</span></code></a><ul>
@@ -441,11 +529,11 @@ was created.</p>
 </li>
 <li><a class="reference internal" href="#module-movement.mover">movement.mover module</a><ul>
 <li><a class="reference internal" href="#movement.mover.PrimeMover"><code class="docutils literal notranslate"><span class="pre">PrimeMover</span></code></a><ul>
-<li><a class="reference internal" href="#movement.mover.PrimeMover.adapt"><code class="docutils literal notranslate"><span class="pre">PrimeMover.adapt()</span></code></a></li>
-<li><a class="reference internal" href="#movement.mover.PrimeMover.coordinate"><code class="docutils literal notranslate"><span class="pre">PrimeMover.coordinate()</span></code></a></li>
-<li><a class="reference internal" href="#movement.mover.PrimeMover.coordinate_offset"><code class="docutils literal notranslate"><span class="pre">PrimeMover.coordinate_offset()</span></code></a></li>
-<li><a class="reference internal" href="#movement.mover.PrimeMover.edge_vector_offset"><code class="docutils literal notranslate"><span class="pre">PrimeMover.edge_vector_offset()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.coefficient_of_variation"><code class="docutils literal notranslate"><span class="pre">PrimeMover.coefficient_of_variation</span></code></a></li>
 <li><a class="reference internal" href="#movement.mover.PrimeMover.move"><code class="docutils literal notranslate"><span class="pre">PrimeMover.move()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.to_computational_coordinates"><code class="docutils literal notranslate"><span class="pre">PrimeMover.to_computational_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.to_physical_coordinates"><code class="docutils literal notranslate"><span class="pre">PrimeMover.to_physical_coordinates()</span></code></a></li>
+<li><a class="reference internal" href="#movement.mover.PrimeMover.volume_ratio"><code class="docutils literal notranslate"><span class="pre">PrimeMover.volume_ratio</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -481,7 +569,7 @@ was created.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -489,13 +577,13 @@ was created.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -504,13 +592,13 @@ was created.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">movement package</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

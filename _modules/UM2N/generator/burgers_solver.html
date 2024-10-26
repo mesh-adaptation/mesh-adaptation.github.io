@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM2N.generator.burgers_solver &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.generator.burgers_solver</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for UM2N.generator.burgers_solver</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Author: Chunyang Wang</span>
+<span class="c1"># GitHub Username: chunyang-w</span>
+
+<span class="kn">import</span> <span class="nn">random</span>  <span class="c1"># noqa</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">firedrake</span> <span class="k">as</span> <span class="nn">fd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>  <span class="c1"># noqa</span>
+<span class="kn">import</span> <span class="nn">movement</span> <span class="k">as</span> <span class="nn">mv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1"># noqa</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BurgersSolver&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="BurgersSolver">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.burgers_solver.BurgersSolver">[docs]</a>
+<span class="k">class</span> <span class="nc">BurgersSolver</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Solves the Burgers equation</span>
+<span class="sd">    Input:</span>
+<span class="sd">    - mesh: The mesh on which to solve the equation.</span>
+<span class="sd">    - dist_params: The parameters of the Gaussian distribution.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># def __init__(self, mesh, rand_generator, **kwargs):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">mesh_fine</span><span class="p">,</span> <span class="n">mesh_new</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise the solver.</span>
+<span class="sd">        kwargs:</span>
+<span class="sd">        - nu: The viscosity of the fluid.</span>
+<span class="sd">        - dt: The time interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Mesh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span> <span class="o">=</span> <span class="n">mesh_fine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_new</span> <span class="o">=</span> <span class="n">mesh_new</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">array</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_coord_fine</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">array</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># noqa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">array</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adapt_coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">array</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># noqa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_adapt_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_og_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_error_iter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># X and Y coordinates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">SpatialCoordinate</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_fine</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">SpatialCoordinate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span><span class="p">)</span>
+        <span class="c1"># Function spaces</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P1</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P2</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P2_vec</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P2_ten</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">P1_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span><span class="p">)</span>
+
+        <span class="c1"># Test functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">trial_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_fine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_fine</span><span class="p">)</span>
+
+        <span class="c1"># buffer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_fine_buffer</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coarse_adapt</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_vec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coarse_2_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coarse_2_fine_original</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span><span class="p">)</span>
+
+        <span class="c1"># simulation params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;nu&quot;</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gauss_list</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;gauss_list&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_len</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_len</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtc</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_init</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_init_fine</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_of_gauss</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gauss_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">counter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_of_gauss</span><span class="p">):</span>
+            <span class="n">c_x</span><span class="p">,</span> <span class="n">c_y</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gauss_list</span><span class="p">[</span><span class="n">counter</span><span class="p">][</span><span class="s2">&quot;cx&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gauss_list</span><span class="p">[</span><span class="n">counter</span><span class="p">][</span><span class="s2">&quot;cy&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gauss_list</span><span class="p">[</span><span class="n">counter</span><span class="p">][</span><span class="s2">&quot;w&quot;</span><span class="p">],</span>
+            <span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_init</span> <span class="o">+=</span> <span class="n">fd</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">c_x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">c_y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">w</span><span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_init_fine</span> <span class="o">+=</span> <span class="n">fd</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+                <span class="o">-</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x_fine</span> <span class="o">-</span> <span class="n">c_x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_fine</span> <span class="o">-</span> <span class="n">c_y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">w</span>
+            <span class="p">)</span>  <span class="c1"># noqa</span>
+
+        <span class="c1"># solution vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_og</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec</span><span class="p">)</span>  <span class="c1"># u_{0}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec</span><span class="p">)</span>  <span class="c1"># u_{n+1}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec</span><span class="p">)</span>  <span class="c1"># u_{n}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">fd</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">,</span> <span class="n">fd</span><span class="o">.</span><span class="n">nabla_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec</span><span class="p">)</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">fd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">),</span> <span class="n">fd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec</span><span class="p">))</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span><span class="p">)</span>  <span class="c1"># u_{0}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_fine_</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span><span class="p">)</span>  <span class="c1"># u_{n+1}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">F_fine</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_fine_</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec_fine</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span>
+                <span class="n">fd</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">,</span> <span class="n">fd</span><span class="o">.</span><span class="n">nabla_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">)),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec_fine</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">nu</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">fd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">),</span> <span class="n">fd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_p2_vec_fine</span><span class="p">))</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span><span class="p">)</span>
+
+        <span class="c1"># initial vals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">u_init</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">as_vector</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">u_init_fine</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_og</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+
+        <span class="n">ic_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_velocity_fine</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P2_vec_fine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic_fine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_fine_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic_fine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_fine_buffer</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ic_fine</span><span class="p">)</span>
+
+        <span class="c1"># solver params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sp</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;mat_type&quot;</span><span class="p">:</span> <span class="s2">&quot;aij&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ksp_type&quot;</span><span class="p">:</span> <span class="s2">&quot;preonly&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;lu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pc_factor_mat_solver_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mumps&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Solve for hessian</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FacetNormal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_norm</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l2_projection</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">τ</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">TrialFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">),</span> <span class="n">fd</span><span class="o">.</span><span class="n">TestFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P1_ten</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">τ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="p">)</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1</span> <span class="o">=</span> <span class="o">-</span><span class="n">fd</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">fd</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">τ</span><span class="p">),</span> <span class="n">fd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span>
+            <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L1</span> <span class="o">+=</span> <span class="n">fd</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">fd</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">τ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">))</span> <span class="o">*</span> <span class="n">fd</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prob</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">LinearVariationalProblem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2_projection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hessian_prob</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">LinearVariationalSolver</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prob</span><span class="p">,</span> <span class="n">solver_parameters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sp</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="BurgersSolver.project_u_">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.burgers_solver.BurgersSolver.project_u_">[docs]</a>
+    <span class="k">def</span> <span class="nf">project_u_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine_buffer</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BurgersSolver.monitor_function">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.burgers_solver.BurgersSolver.monitor_function">[docs]</a>
+    <span class="k">def</span> <span class="nf">monitor_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_u_</span><span class="p">()</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+        <span class="c1"># print(&quot;in monitor u sum: &quot;, np.sum(self.u.dat.data[:]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coarse_adapt</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hessian_prob</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_norm</span><span class="o">.</span><span class="n">project</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">l2_projection</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2_projection</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2_projection</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2_projection</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_norm</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_norm</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">monitor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_norm</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">adapt_coord</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">array</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># noqa</span>
+
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">monitor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BurgersSolver.solve_problem">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.burgers_solver.BurgersSolver.solve_problem">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solves the Burgers equation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_error_iter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># for i in range(1):</span>
+        <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error_adapt_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error_og_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">mesh_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_new</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;step: </span><span class="si">{}</span><span class="s2">, t: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+            <span class="c1"># solve on fine mesh</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F_fine</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            <span class="n">adapter</span> <span class="o">=</span> <span class="n">mv</span><span class="o">.</span><span class="n">MongeAmpereMover</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span>
+                <span class="n">monitor_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor_function</span><span class="p">,</span>
+                <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">()</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+            <span class="n">dur_ms</span> <span class="o">=</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
+
+            <span class="n">mesh_new</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapt_coord</span>
+
+            <span class="c1"># calculate solution on original mesh</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_coord</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_u_</span><span class="p">()</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">function_space</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">uh_0</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+            <span class="n">uh_0</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># calculate solution on adapted mesh</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapt_coord</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">project_u_</span><span class="p">()</span>
+            <span class="n">fd</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">function_space_new</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh_new</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">function_space_vec_new</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="n">mesh_new</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">uh_new</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space_vec_new</span><span class="p">)</span>
+            <span class="n">uh_new</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">uh_new_0</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space_new</span><span class="p">)</span>
+            <span class="n">uh_new_0</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">uh_new</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">error_og</span><span class="p">,</span> <span class="n">error_adapt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_error</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error_og: </span><span class="si">{}</span><span class="s2">, error_adapt: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error_og</span><span class="p">,</span> <span class="n">error_adapt</span><span class="p">))</span>
+
+            <span class="c1"># put coords back to original position (for u sampling)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_coord</span>
+
+            <span class="n">function_space_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">uh_fine_0</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space_fine</span><span class="p">)</span>
+            <span class="n">uh_fine_0</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">func_vec_space</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">VectorFunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">uh_grad</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">fd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">uh_0</span><span class="p">),</span> <span class="n">func_vec_space</span><span class="p">)</span>
+            <span class="n">hessian_norm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_norm</span>
+            <span class="n">hessian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2_projection</span>
+            <span class="n">phi</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">phi</span>
+            <span class="n">phi_grad</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">grad_phi</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">sigma</span>
+            <span class="n">I</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Identity</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="n">jacobian</span> <span class="o">=</span> <span class="n">I</span> <span class="o">+</span> <span class="n">sigma</span>
+            <span class="n">jacobian_det</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;jacobian_det&quot;</span><span class="p">)</span>
+            <span class="n">jacobian_det</span><span class="o">.</span><span class="n">project</span><span class="p">(</span>
+                <span class="n">jacobian</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">jacobian</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">jacobian</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">jacobian</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jacob_det</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">project</span><span class="p">(</span>
+                <span class="n">jacobian_det</span><span class="p">,</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jacob</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">project</span><span class="p">(</span>
+                <span class="n">jacobian</span><span class="p">,</span> <span class="n">fd</span><span class="o">.</span><span class="n">TensorFunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">callback</span><span class="p">(</span>
+                <span class="n">uh</span><span class="o">=</span><span class="n">uh_0</span><span class="p">,</span>
+                <span class="n">uh_grad</span><span class="o">=</span><span class="n">uh_grad</span><span class="p">,</span>
+                <span class="n">hessian_norm</span><span class="o">=</span><span class="n">hessian_norm</span><span class="p">,</span>
+                <span class="n">hessian</span><span class="o">=</span><span class="n">hessian</span><span class="p">,</span>
+                <span class="n">phi</span><span class="o">=</span><span class="n">phi</span><span class="p">,</span>
+                <span class="n">grad_phi</span><span class="o">=</span><span class="n">phi_grad</span><span class="p">,</span>
+                <span class="n">jacobian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jacob</span><span class="p">,</span>
+                <span class="n">jacobian_det</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jacob_det</span><span class="p">,</span>
+                <span class="n">nu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">,</span>
+                <span class="n">gauss_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gauss_list</span><span class="p">,</span>
+                <span class="n">mesh_new</span><span class="o">=</span><span class="n">mesh_new</span><span class="p">,</span>
+                <span class="n">mesh_og</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span>
+                <span class="n">uh_new</span><span class="o">=</span><span class="n">uh_new_0</span><span class="p">,</span>
+                <span class="n">uh_fine</span><span class="o">=</span><span class="n">uh_fine_0</span><span class="p">,</span>
+                <span class="n">function_space</span><span class="o">=</span><span class="n">function_space</span><span class="p">,</span>
+                <span class="n">function_space_fine</span><span class="o">=</span><span class="n">function_space_fine</span><span class="p">,</span>
+                <span class="n">error_adapt_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">error_adapt_list</span><span class="p">,</span>
+                <span class="n">error_og_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">error_og_list</span><span class="p">,</span>
+                <span class="n">dur</span><span class="o">=</span><span class="n">dur_ms</span><span class="p">,</span>
+                <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+                <span class="n">idx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># step forward in time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_fine_</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">)</span>
+            <span class="c1"># self.u_fine_buffer.project(self.u)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_fine_buffer</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">)</span>
+            <span class="c1"># self.u_.assign(self.u)</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="BurgersSolver.get_error">
+<a class="viewcode-back" href="../../../UM2N.generator.html#UM2N.generator.burgers_solver.BurgersSolver.get_error">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># print(&quot;get_error: u_ sum is: &quot;, np.sum(self.u_.dat.data[:]))</span>
+        <span class="n">function_space_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_fine</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># solve on fine mesh</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F_fine</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">)</span>
+        <span class="n">u_fine_0</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space_fine</span><span class="p">)</span>
+        <span class="n">u_f</span> <span class="o">=</span> <span class="n">u_fine_0</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_fine</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># print(&#39;u_f sum: &#39;, np.sum(u_f.dat.data[:]))</span>
+
+        <span class="c1"># solve on coarse mesh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_coord</span>
+        <span class="n">function_space</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_u_</span><span class="p">()</span>
+        <span class="c1"># print(&quot;og u_ sum: &quot;, np.sum(self.u_.dat.data[:]))</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">u_0_fine</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space_fine</span><span class="p">)</span>
+        <span class="n">u_0_coarse</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">u_0_coarse</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">u_0_fine</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">u_0_coarse</span><span class="p">)</span>
+        <span class="c1"># print(&#39;u_0_fine sum 1: &#39;, np.sum(u_0_fine.dat.data[:]))</span>
+        <span class="n">error_og</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">errornorm</span><span class="p">(</span><span class="n">u_0_fine</span><span class="p">,</span> <span class="n">u_f</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">)</span>
+
+        <span class="c1"># solve on coarse adapt mesh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapt_coord</span>
+        <span class="n">function_space</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_u_</span><span class="p">()</span>
+        <span class="c1"># print(&quot;adapt u_ sum: &quot;, np.sum(self.u_.dat.data[:]))</span>
+        <span class="n">fd</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">F</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)</span>
+        <span class="n">u_adapt_fine_0</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space_fine</span><span class="p">)</span>
+        <span class="n">u_adapt_coarse_0</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="n">function_space</span><span class="p">)</span>
+        <span class="n">u_adapt_coarse_0</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">u_adapt_fine_0</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">u_adapt_coarse_0</span><span class="p">)</span>
+        <span class="c1"># print(&#39;u sum 2: &#39;, np.sum(u_adapt_fine_0.dat.data[:]))</span>
+        <span class="n">error_adapt</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">errornorm</span><span class="p">(</span><span class="n">u_adapt_fine_0</span><span class="p">,</span> <span class="n">u_f</span><span class="p">,</span> <span class="n">norm_type</span><span class="o">=</span><span class="s2">&quot;L2&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_coord</span>
+
+        <span class="k">return</span> <span class="n">error_og</span><span class="p">,</span> <span class="n">error_adapt</span></div>
+</div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.generator.burgers_solver</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    </div>
+  </body>
+</html>

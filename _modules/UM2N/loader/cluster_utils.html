@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM2N.loader.cluster_utils &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.loader.cluster_utils</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for UM2N.loader.cluster_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.utils</span> <span class="kn">import</span> <span class="n">index_to_mask</span><span class="p">,</span> <span class="n">mask_to_index</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;sampler&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_neighbors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calc_dist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_new_edges&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="c1"># vectorize version</span>
+<div class="viewcode-block" id="get_neighbors">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.cluster_utils.get_neighbors">[docs]</a>
+<span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="n">source_mask</span><span class="p">,</span> <span class="n">edge_idx</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the neighbors of the source nodes</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data: the data object</span>
+<span class="sd">        source_mask: a mask of the source nodes</span>
+<span class="sd">        edge_idx: the edge index</span>
+<span class="sd">    return:</span>
+<span class="sd">        nei_mask: a mask of the neighbors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">node_num</span> <span class="o">=</span> <span class="n">source_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">source_edges</span> <span class="o">=</span> <span class="n">source_mask</span><span class="p">[</span><span class="n">edge_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="n">target_nodes</span> <span class="o">=</span> <span class="n">edge_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">source_edges</span><span class="p">]</span>
+
+    <span class="n">nei_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">node_num</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="n">nei_mask</span><span class="o">.</span><span class="n">scatter_</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">target_nodes</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">nei_mask</span></div>
+
+
+
+<div class="viewcode-block" id="calc_dist">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.cluster_utils.calc_dist">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_dist</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">,</span> <span class="n">neighbors_mask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the distance between the node and its neighbors</span>
+<span class="sd">    Args:</span>
+<span class="sd">        coords: the coordinates of the nodes</span>
+<span class="sd">        node_idx: the index of the node</span>
+<span class="sd">        neighbors_mask: a mask of the neighbors</span>
+<span class="sd">    return:</span>
+<span class="sd">        dist: the distance between the node and its neighbors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">node_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">node_idx</span><span class="p">]</span>
+    <span class="n">nei_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">neighbors_mask</span><span class="p">]</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">vector_norm</span><span class="p">(</span><span class="n">nei_coords</span> <span class="o">-</span> <span class="n">node_coords</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dist</span></div>
+
+
+
+<span class="c1"># def sampler(num_nodes, coords, edge_idx, node_idx, r=0.25, N=100):</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     For a single node, sample N neighbours within radius r.</span>
+<span class="c1">#     return the indices of the neighbours</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     cluster = torch.zeros(</span>
+<span class="c1">#         num_nodes, dtype=torch.bool)</span>
+<span class="c1">#     source_nodes_mask = index_to_mask(</span>
+<span class="c1">#         torch.tensor([node_idx]), num_nodes)</span>
+<span class="c1">#     while True:</span>
+<span class="c1">#         neighbors_mask = get_neighbors(</span>
+<span class="c1">#             index_to_mask(source_nodes_mask, num_nodes),</span>
+<span class="c1">#             edge_idx)</span>
+<span class="c1">#         neighbors_mask = neighbors_mask &amp; ~cluster</span>
+<span class="c1">#         neighbors_idx = mask_to_index(neighbors_mask)</span>
+<span class="c1">#         neighbors_dist = calc_dist(</span>
+<span class="c1">#             coords, node_idx, neighbors_mask</span>
+<span class="c1">#         )</span>
+
+<span class="c1">#         neighbors_in_range = neighbors_idx[</span>
+<span class="c1">#             neighbors_dist &lt; r]</span>
+<span class="c1">#         if (neighbors_in_range.shape[0] == 0):</span>
+<span class="c1">#             break</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             source_nodes_mask = index_to_mask(</span>
+<span class="c1">#                 neighbors_in_range, num_nodes)</span>
+<span class="c1">#             cluster = cluster | source_nodes_mask</span>
+<span class="c1">#     cluster[node_idx] = False</span>
+<span class="c1">#     return cluster</span>
+
+
+<div class="viewcode-block" id="sampler">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.cluster_utils.sampler">[docs]</a>
+<span class="k">def</span> <span class="nf">sampler</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">edge_idx</span><span class="p">,</span> <span class="n">node_idx</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a single node, sample N neighbours within radius r.</span>
+<span class="sd">    return the indices of the neighbours</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">vector_norm</span><span class="p">(</span><span class="n">coords</span> <span class="o">-</span> <span class="n">coords</span><span class="p">[</span><span class="n">node_idx</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">r</span></div>
+
+
+
+<div class="viewcode-block" id="get_new_edges">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.cluster_utils.get_new_edges">[docs]</a>
+<span class="k">def</span> <span class="nf">get_new_edges</span><span class="p">(</span>
+    <span class="n">num_nodes</span><span class="p">,</span>
+    <span class="n">coords</span><span class="p">,</span>
+    <span class="n">edge_idx</span><span class="p">,</span>
+    <span class="n">r</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+    <span class="n">M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dist_weight</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">add_nei</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the new edges for the graph.</span>
+<span class="sd">    A useful knowledge for setting r and M:</span>
+<span class="sd">    when on 15x15 dataset, r=0.35, M=25.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data: the data object</span>
+<span class="sd">        r: the radius of the cluster</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mini</span> <span class="o">=</span> <span class="mi">9999</span>
+    <span class="n">new_edges</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">edge_idx</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">cluster_idx</span> <span class="o">=</span> <span class="n">mask_to_index</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># check if sampling is valid</span>
+            <span class="n">num_nei</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_idx</span><span class="p">)</span>
+            <span class="n">mini</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">mini</span><span class="p">,</span> <span class="n">num_nei</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">num_nei</span> <span class="o">&lt;</span> <span class="n">M</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The number of neighbors </span><span class="si">{</span><span class="n">num_nei</span><span class="si">}</span><span class="s2"> is less than M (</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dist_weight</span><span class="p">:</span>
+                <span class="c1"># so the sampling</span>
+                <span class="n">filter_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">num_nei</span><span class="p">)[:</span><span class="n">M</span><span class="p">]</span>
+                <span class="n">cluster_idx</span> <span class="o">=</span> <span class="n">cluster_idx</span><span class="p">[</span><span class="n">filter_idx</span><span class="p">]</span>
+                <span class="c1"># print(&quot;after sampling, &quot;, len(cluster_idx))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;use dist_weight&quot;</span><span class="p">)</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">calc_dist</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+                <span class="n">probs</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">dist</span>
+                <span class="n">probs</span> <span class="o">=</span> <span class="n">probs</span> <span class="o">/</span> <span class="n">probs</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>  <span class="c1"># normalize</span>
+                <span class="n">filter_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">replacement</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">cluster_idx</span> <span class="o">=</span> <span class="n">cluster_idx</span><span class="p">[</span><span class="n">filter_idx</span><span class="p">]</span>
+        <span class="n">source_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">cluster_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span>
+        <span class="n">new_edge</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">source_idx</span><span class="p">,</span> <span class="n">cluster_idx</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">new_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_edge</span><span class="p">)</span>
+        <span class="c1"># break</span>
+    <span class="n">new_edges</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">new_edges</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">add_nei</span><span class="p">:</span>
+        <span class="n">nei_edges</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">edge_idx</span><span class="p">,</span> <span class="n">new_edges</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nei_edges</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">new_edges</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">get_neighbors_v0</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">source_mask</span><span class="p">,</span> <span class="n">edge_idx</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the neighbors of the source nodes</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data: the data object, a sampler draws form the MeshDataset</span>
+<span class="sd">        source_mask: a mask of the source nodes</span>
+<span class="sd">        edge_idx: the edge index</span>
+<span class="sd">    return:</span>
+<span class="sd">        nei_mask: a mask of the neighbors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">node_num</span> <span class="o">=</span> <span class="n">source_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">source_idxs</span> <span class="o">=</span> <span class="n">mask_to_index</span><span class="p">(</span><span class="n">source_mask</span><span class="p">)</span>
+    <span class="n">nei_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">source_idxs</span><span class="p">:</span>
+        <span class="n">nei_nodes</span> <span class="o">=</span> <span class="n">edge_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">edge_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="n">nei_mask_i</span> <span class="o">=</span> <span class="n">index_to_mask</span><span class="p">(</span><span class="n">nei_nodes</span><span class="p">,</span> <span class="n">node_num</span><span class="p">)</span>
+        <span class="n">nei_mask</span> <span class="o">=</span> <span class="n">nei_mask</span> <span class="o">|</span> <span class="n">nei_mask_i</span>
+
+    <span class="c1"># substract the source nodes</span>
+    <span class="n">nei_mask</span> <span class="o">=</span> <span class="n">nei_mask</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">source_mask</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">mask_to_index</span><span class="p">(</span><span class="n">nei_mask</span><span class="p">))</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.loader.cluster_utils</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    </div>
+  </body>
+</html>

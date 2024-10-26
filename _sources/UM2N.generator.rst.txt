@@ -1,0 +1,93 @@
+UM2N.generator package
+======================
+
+Submodules
+----------
+
+UM2N.generator.burgers\_solver module
+-------------------------------------
+
+.. automodule:: UM2N.generator.burgers_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.equation\_generator module
+-----------------------------------------
+
+.. automodule:: UM2N.generator.equation_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.equation\_solver module
+--------------------------------------
+
+.. automodule:: UM2N.generator.equation_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.mesh\_generator module
+-------------------------------------
+
+.. automodule:: UM2N.generator.mesh_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.polymesh module
+------------------------------
+
+.. automodule:: UM2N.generator.polymesh
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.rand\_source\_generator module
+---------------------------------------------
+
+.. automodule:: UM2N.generator.rand_source_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.squaremesh module
+--------------------------------
+
+.. automodule:: UM2N.generator.squaremesh
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.swirl\_demo module
+---------------------------------
+
+.. automodule:: UM2N.generator.swirl_demo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.swirl\_solver module
+-----------------------------------
+
+.. automodule:: UM2N.generator.swirl_solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.generator.swirl\_solver\_step module
+-----------------------------------------
+
+.. automodule:: UM2N.generator.swirl_solver_step
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: UM2N.generator
+   :members:
+   :undoc-members:
+   :show-inheritance:

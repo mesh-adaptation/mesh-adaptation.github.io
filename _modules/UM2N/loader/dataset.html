@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM2N.loader.dataset &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.loader.dataset</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for UM2N.loader.dataset</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Author: Chunyang Wang</span>
+<span class="c1"># GitHub Username: acse-cw1722</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span>
+
+<span class="n">cur_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur_dir</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">cluster_utils</span> <span class="kn">import</span> <span class="n">get_new_edges</span>  <span class="c1"># noqa</span>
+
+<span class="c1"># from torch_geometric.loader import DataLoader as geoDataLoader</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MeshDataset&quot;</span><span class="p">,</span> <span class="s2">&quot;MeshLoader&quot;</span><span class="p">,</span> <span class="s2">&quot;MeshData&quot;</span><span class="p">,</span> <span class="s2">&quot;normalise&quot;</span><span class="p">,</span> <span class="s2">&quot;AggreateDataset&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="AggreateDataset">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.AggreateDataset">[docs]</a>
+<span class="k">class</span> <span class="nc">AggreateDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aggregate multiple datasets into a single dataset.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        datasets (list): List of datasets.</span>
+<span class="sd">        datasets_len (list): Length of each dataset in `datasets`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span> <span class="o">=</span> <span class="n">datasets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datasets_len</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the total number of samples in all datasets.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets_len</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch an individual data point from the aggregated dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idx (int): The index of the sample to fetch.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: The sample fetched from one of the aggregated datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataset_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets_len</span><span class="p">[</span><span class="n">dataset_idx</span><span class="p">]:</span>
+            <span class="n">idx</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets_len</span><span class="p">[</span><span class="n">dataset_idx</span><span class="p">]</span>
+            <span class="n">dataset_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span><span class="p">[</span><span class="n">dataset_idx</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="MeshDataset">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.MeshDataset">[docs]</a>
+<span class="k">class</span> <span class="nc">MeshDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataset for mesh-based data.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        x_feature (list): List of feature names for node features.</span>
+<span class="sd">        mesh_feature (list): List of feature names for mesh features.</span>
+<span class="sd">        conv_feature (list): List of feature names for convolution features.</span>
+<span class="sd">        file_names (list): List of filenames containing mesh data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">file_dir</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">target_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">x_feature</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;coord&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bd_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bd_left_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bd_right_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bd_down_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bd_up_mask&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">mesh_feature</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;coord&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;u&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">conv_feature</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;conv_uh&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">conv_feature_fix</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;conv_uh_fix&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">load_analytical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">load_jacobian</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_run_time_cluster</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">r</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+        <span class="n">M</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">dist_weight</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">add_nei</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># x feature contains the coordiate related features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_feature</span> <span class="o">=</span> <span class="n">x_feature</span>
+        <span class="c1"># mesh feature is used to construct the edge realted features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_feature</span> <span class="o">=</span> <span class="n">mesh_feature</span>
+        <span class="c1"># conv_feat, which is passed to a cnn list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_feature</span> <span class="o">=</span> <span class="n">conv_feature</span>
+        <span class="c1"># conv_feat_fix, which is passed to a cnn list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_feature_fix</span> <span class="o">=</span> <span class="n">conv_feature_fix</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_dir</span> <span class="o">=</span> <span class="n">file_dir</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_dir</span><span class="p">,</span> <span class="s2">&quot;data_*.npy&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_names</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_names</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_transform</span> <span class="o">=</span> <span class="n">target_transform</span>
+        <span class="c1"># if True, load the params used to generate the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_analytical</span> <span class="o">=</span> <span class="n">load_analytical</span>
+        <span class="c1"># if True, load the jacobian and jacobian det</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_jacobian</span> <span class="o">=</span> <span class="n">load_jacobian</span>
+        <span class="c1"># if True, use the cluster to sample the neighbors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_cluster</span> <span class="o">=</span> <span class="n">use_cluster</span>
+        <span class="c1"># if True, use the run time cluster to sample the neighbors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_run_time_cluster</span> <span class="o">=</span> <span class="n">use_run_time_cluster</span>
+        <span class="c1"># params for run time cluster</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="n">M</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_weight</span> <span class="o">=</span> <span class="n">dist_weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_nei</span> <span class="o">=</span> <span class="n">add_nei</span>
+        <span class="c1"># load phi of the MA solution</span>
+
+<div class="viewcode-block" id="MeshDataset.get_x_feature">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.MeshDataset.get_x_feature">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_x_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts and concatenates the x_features for each node from the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict): The data dictionary loaded from a .npy file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tensor: The concatenated x_features for each node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_feature</span><span class="p">:</span>
+            <span class="n">feat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">feat</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">x_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">x_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="MeshDataset.get_mesh_feature">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.MeshDataset.get_mesh_feature">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_mesh_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts and concatenates the mesh_features from the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict): The data dictionary loaded from a .npy file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tensor: The concatenated mesh_features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mesh_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_feature</span><span class="p">:</span>
+            <span class="n">feat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">feat</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">mesh_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">mesh_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">mesh</span></div>
+
+
+<div class="viewcode-block" id="MeshDataset.get_conv_feature">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.MeshDataset.get_conv_feature">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conv_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts and concatenates the conv_features from the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict): The data dictionary loaded from a .npy file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tensor: The concatenated conv_features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conv_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_feature</span><span class="p">:</span>
+            <span class="n">feat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">conv_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">conv_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">conv</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">conv</span></div>
+
+
+<div class="viewcode-block" id="MeshDataset.get_conv_feature_fix">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.MeshDataset.get_conv_feature_fix">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_conv_feature_fix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts and concatenates the conv_features from the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict): The data dictionary loaded from a .npy file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tensor: The concatenated conv_features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conv_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_feature_fix</span><span class="p">:</span>
+            <span class="n">feat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">conv_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">conv_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">conv</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">conv</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">conv</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_names</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads and returns a mesh data sample and its target from a .npy file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idx (int): The index of the .npy file to load.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MeshData: A MeshData object containing the sample and target.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">num_nodes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+        <span class="c1"># advance version</span>
+        <span class="n">train_data</span> <span class="o">=</span> <span class="n">MeshData</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_x_feature</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>  <span class="c1"># noqa: x here is the coordinate related features</span>
+            <span class="n">bd_mask</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bd_mask&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">int</span><span class="p">(),</span>
+            <span class="n">conv_feat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conv_feature</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="c1"># conv_feat_fix=self.get_conv_feature_fix(data),</span>
+            <span class="n">conv_feat_fix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_conv_feature</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="n">mesh_feat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mesh_feature</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="n">edge_index</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;edge_index_bi&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">int64</span>
+            <span class="p">),</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">(),</span>
+            <span class="n">face</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;face_idxs&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;face_idxs&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>  <span class="c1"># noqa: E501</span>
+            <span class="n">phi</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;phi&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>  <span class="c1"># noqa: E501</span>
+            <span class="n">grad_phi</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;grad_phi&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;grad_phi&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>  <span class="c1"># noqa: E501</span>
+            <span class="n">f</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>  <span class="c1"># noqa</span>
+            <span class="n">monitor_val</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;monitor_val&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;monitor_val&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>  <span class="c1"># noqa: E501</span>
+            <span class="n">node_num</span><span class="o">=</span><span class="n">num_nodes</span><span class="p">,</span>
+            <span class="n">poly_mesh</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;poly_mesh&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;poly_mesh&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">False</span>
+            <span class="p">),</span>  <span class="c1"># noqa: E501</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_analytical</span><span class="p">:</span>
+            <span class="n">train_data</span><span class="o">.</span><span class="n">dist_params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;σ_x&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;σ_x&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;σ_y&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;σ_y&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;μ_x&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;μ_x&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;μ_y&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;μ_y&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;simple_u&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_iso&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;n_dist&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_dist&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_jacobian</span><span class="p">:</span>
+            <span class="n">train_data</span><span class="o">.</span><span class="n">jacobian</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jacobian&quot;</span><span class="p">))</span>
+            <span class="n">train_data</span><span class="o">.</span><span class="n">jacobian_det</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jacobian_det&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">:</span>
+            <span class="n">train_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_cluster</span><span class="p">:</span>
+            <span class="n">train_data</span><span class="o">.</span><span class="n">edge_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cluster_edges&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>  <span class="c1"># noqa</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_time_cluster</span><span class="p">:</span>
+            <span class="n">train_data</span><span class="o">.</span><span class="n">edge_index</span> <span class="o">=</span> <span class="n">get_new_edges</span><span class="p">(</span>
+                <span class="n">num_nodes</span><span class="p">,</span>
+                <span class="n">train_data</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">train_data</span><span class="o">.</span><span class="n">edge_index</span><span class="p">,</span>
+                <span class="n">r</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span>
+                <span class="n">M</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span>
+                <span class="n">dist_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_weight</span><span class="p">,</span>
+                <span class="n">add_nei</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">add_nei</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">train_data</span></div>
+
+
+
+<div class="viewcode-block" id="MeshData">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.MeshData">[docs]</a>
+<span class="k">class</span> <span class="nc">MeshData</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom PyTorch Data object designed to handle mesh data features.P</span>
+
+<span class="sd">    This class is intended to be used as the base class of data samples</span>
+<span class="sd">    returned by the MeshDataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__cat_dim__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># conv_feat is feeded into cnn, so another dim is needed</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;conv_feat&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;conv_feat_fix&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;node_num&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__cat_dim__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MeshLoader">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.MeshLoader">[docs]</a>
+<span class="k">def</span> <span class="nf">MeshLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">collate_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="n">collate_fn</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="normalise">
+<a class="viewcode-back" href="../../../UM2N.loader.html#UM2N.loader.dataset.normalise">[docs]</a>
+<span class="k">def</span> <span class="nf">normalise</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalizes the mesh and convolution features of a given MeshData object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (MeshData): The MeshData object containing features to normalize.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MeshData: The MeshData object with normalized features.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># normalise mesh feature (only last dims, first 2 dim is coordinate)</span>
+    <span class="c1"># Compute minimum and maximum values along the second axis</span>
+    <span class="n">mesh_val_feat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mesh_feat</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span>  <span class="c1"># value feature (no coord)</span>
+
+    <span class="n">min_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mesh_val_feat</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">max_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mesh_val_feat</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">max_abs_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">min_val</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">max_val</span><span class="p">))</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">mesh_feat</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mesh_feat</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="n">max_abs_val</span>
+
+    <span class="c1"># normalise conv feature</span>
+    <span class="c1"># that is, uh and hessian norm</span>
+    <span class="n">conv_feat_shape</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">conv_feat</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">conv_feat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">conv_feat</span>
+    <span class="n">conv_feat</span> <span class="o">=</span> <span class="n">conv_feat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">conv_feat_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">min_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">conv_feat</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">max_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">conv_feat</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">max_abs_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">min_val</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">max_val</span><span class="p">))</span>
+    <span class="n">max_abs_val</span> <span class="o">=</span> <span class="n">max_abs_val</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">conv_feat</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">conv_feat</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">max_abs_val</span><span class="p">[:,</span> <span class="p">:]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">conv_feat</span> <span class="o">=</span> <span class="n">conv_feat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">conv_feat_shape</span><span class="p">)</span>
+
+    <span class="c1"># normalise conv_fix feature</span>
+    <span class="n">conv_feat_fix_shape</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">conv_feat_fix</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">conv_feat_fix</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">conv_feat_fix</span>
+    <span class="n">conv_feat_fix</span> <span class="o">=</span> <span class="n">conv_feat_fix</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">conv_feat_fix_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">min_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">conv_feat_fix</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">max_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">conv_feat_fix</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">max_abs_val</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">min_val</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">max_val</span><span class="p">))</span>
+    <span class="n">max_abs_val</span> <span class="o">=</span> <span class="n">max_abs_val</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">conv_feat_fix</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">conv_feat_fix</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">max_abs_val</span><span class="p">[:,</span> <span class="p">:]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">conv_feat_fix</span> <span class="o">=</span> <span class="n">conv_feat_fix</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">conv_feat_fix_shape</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.loader.dataset</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    </div>
+  </body>
+</html>

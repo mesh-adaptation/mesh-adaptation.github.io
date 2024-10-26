@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM2N.model.extractor &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.model.extractor</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for UM2N.model.extractor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Author: Chunyang Wang</span>
+<span class="c1"># GitHub Username: acse-cw1722</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.nn</span> <span class="kn">import</span> <span class="n">MessagePassing</span>
+<span class="kn">from</span> <span class="nn">transformer_model</span> <span class="kn">import</span> <span class="n">TransformerModel</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LocalFeatExtractor&quot;</span><span class="p">,</span> <span class="s2">&quot;GlobalFeatExtractor&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="LocalFeatExtractor">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.extractor.LocalFeatExtractor">[docs]</a>
+<span class="k">class</span> <span class="nc">LocalFeatExtractor</span><span class="p">(</span><span class="n">MessagePassing</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom PyTorch geometric layer that performs feature extraction</span>
+<span class="sd">    on local graph structure.</span>
+
+<span class="sd">    The class extends the torch_geometric.nn.MessagePassing class</span>
+<span class="sd">    and employs additive aggregation as the message-passing scheme.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        lin_1 (torch.nn.Linear): First linear layer.</span>
+<span class="sd">        lin_2 (torch.nn.Linear): Second linear layer.</span>
+<span class="sd">        lin_3 (torch.nn.Linear): Third linear layer.</span>
+<span class="sd">        activate (torch.nn.SELU): Activation function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_feat</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            num_feat (int): Number of input features per node.</span>
+<span class="sd">            out (int): Number of output features per node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">aggr</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">)</span>
+        <span class="c1"># 1*distance + 2*feat + 2*coord</span>
+        <span class="n">num_in_feat</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">num_feat</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lin_1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_in_feat</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lin_2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+        <span class="c1"># minus 3 because dist, corrd is added back</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lin_3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">out</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activate</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">SELU</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LocalFeatExtractor.forward">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.extractor.LocalFeatExtractor.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward pass.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input (Tensor): Node features.</span>
+<span class="sd">            edge_index (Tensor): Edge indices.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tensor: Updated node features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">local_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="nb">input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">local_feat</span></div>
+
+
+<div class="viewcode-block" id="LocalFeatExtractor.message">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.extractor.LocalFeatExtractor.message">[docs]</a>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_i</span><span class="p">,</span> <span class="n">x_j</span><span class="p">):</span>
+        <span class="n">coord_idx</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">x_i_coord</span> <span class="o">=</span> <span class="n">x_i</span><span class="p">[:,</span> <span class="p">:</span><span class="n">coord_idx</span><span class="p">]</span>
+        <span class="n">x_j_coord</span> <span class="o">=</span> <span class="n">x_j</span><span class="p">[:,</span> <span class="p">:</span><span class="n">coord_idx</span><span class="p">]</span>
+        <span class="n">x_i_feat</span> <span class="o">=</span> <span class="n">x_i</span><span class="p">[:,</span> <span class="n">coord_idx</span><span class="p">:]</span>
+        <span class="n">x_j_feat</span> <span class="o">=</span> <span class="n">x_j</span><span class="p">[:,</span> <span class="n">coord_idx</span><span class="p">:]</span>
+        <span class="n">x_coord_diff</span> <span class="o">=</span> <span class="n">x_j_coord</span> <span class="o">-</span> <span class="n">x_i_coord</span>
+        <span class="n">x_coord_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x_coord_diff</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x_coord_diff</span><span class="p">,</span> <span class="n">x_coord_dist</span><span class="p">,</span> <span class="n">x_i_feat</span><span class="p">,</span> <span class="n">x_j_feat</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>  <span class="c1"># [num_node, feat_dim]</span>
+        <span class="c1"># print(&quot;x_i x_j &quot;, x_i.shape, x_j.shape, &quot;x_edge_feat &quot;, x_edge_feat.shape)</span>
+
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lin_1</span><span class="p">(</span><span class="n">x_edge_feat</span><span class="p">)</span>
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">x_edge_feat</span><span class="p">)</span>
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lin_2</span><span class="p">(</span><span class="n">x_edge_feat</span><span class="p">)</span>
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">x_edge_feat</span><span class="p">)</span>
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lin_3</span><span class="p">(</span><span class="n">x_edge_feat</span><span class="p">)</span>
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">x_edge_feat</span><span class="p">)</span>
+
+        <span class="n">x_edge_feat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x_edge_feat</span><span class="p">,</span> <span class="n">x_coord_dist</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">x_edge_feat</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GlobalFeatExtractor">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.extractor.GlobalFeatExtractor">[docs]</a>
+<span class="k">class</span> <span class="nc">GlobalFeatExtractor</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom PyTorch layer for global feature extraction.</span>
+
+<span class="sd">    The class employs multiple convolutional layers and dropout layers.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        conv1, conv2, conv3, conv4 (torch.nn.Conv2d): Convolutional layers.</span>
+<span class="sd">        dropout (torch.nn.Dropout): Dropout layer.</span>
+<span class="sd">        final_pool (torch.nn.AdaptiveAvgPool2d): Final pooling layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_c</span><span class="p">,</span> <span class="n">out_c</span><span class="p">,</span> <span class="n">drop_p</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">use_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            in_c (int): Number of input channels.</span>
+<span class="sd">            out_c (int): Number of output channels.</span>
+<span class="sd">            drop_p (float, optional): Dropout probability.</span>
+<span class="sd">            use_drop: (bool, optional): Use dropout layer or not,</span>
+<span class="sd">                When it is set to `False`, this building block is exactly</span>
+<span class="sd">                the block used in the original M2N model with out any</span>
+<span class="sd">                change. Then set to `True`, it is used for MRN model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_c</span> <span class="o">=</span> <span class="n">in_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_c</span> <span class="o">=</span> <span class="n">out_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_c</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv4</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">out_c</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_drop</span> <span class="o">=</span> <span class="n">use_drop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">drop_p</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_drop</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">final_pool</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">AdaptiveAvgPool2d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GlobalFeatExtractor.forward">
+<a class="viewcode-back" href="../../../UM2N.model.html#UM2N.model.extractor.GlobalFeatExtractor.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward pass.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Tensor): Input data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tensor: Extracted global features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">selu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_drop</span> <span class="k">else</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">selu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_drop</span> <span class="k">else</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">selu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_drop</span> <span class="k">else</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># print(f&quot;before selu {x.shape}&quot;)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">selu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_drop</span> <span class="k">else</span> <span class="n">x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_pool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># print(f&quot;after final pool {x.shape}&quot;)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_c</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">TransformerEncoder</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mesh Refinement Network (MRN) implementing transformer as feature</span>
+<span class="sd">        extrator and recurrent graph-based deformations.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        num_loop (int): Number of loops for the recurrent layer.</span>
+<span class="sd">        gfe_out_c (int): Output channels for global feature extractor.</span>
+<span class="sd">        lfe_out_c (int): Output channels for local feature extractor.</span>
+<span class="sd">        hidden_size (int): Size of the hidden layer.</span>
+<span class="sd">        gfe (GlobalFeatExtractor): Global feature extractor.</span>
+<span class="sd">        lfe (LocalFeatExtractor): Local feature extractor.</span>
+<span class="sd">        lin (nn.Linear): Linear layer for feature transformation.</span>
+<span class="sd">        deformer (RecurrentGATConv): GAT-based deformer block.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_transformer_in</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">num_transformer_out</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">num_transformer_embed_dim</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+        <span class="n">num_transformer_heads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">num_transformer_layers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">transformer_training_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">transformer_key_padding_training_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">transformer_attention_training_mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">transformer_training_mask_ratio_lower_bound</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">transformer_training_mask_ratio_upper_bound</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="n">deform_in_c</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+        <span class="n">deform_out_type</span><span class="o">=</span><span class="s2">&quot;coord&quot;</span><span class="p">,</span>
+        <span class="n">num_loop</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize MRN.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gfe_in_c (int): Input channels for the global feature extractor.</span>
+<span class="sd">            lfe_in_c (int): Input channels for the local feature extractor.</span>
+<span class="sd">            deform_in_c (int): Input channels for the deformer block.</span>
+<span class="sd">            num_loop (int): Number of loops for the recurrent layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="c1"># self.num_loop = num_loop</span>
+        <span class="c1"># self.hidden_size = 512  # set here</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_in_trainig</span> <span class="o">=</span> <span class="n">transformer_training_mask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_padding_mask_in_training</span> <span class="o">=</span> <span class="n">transformer_key_padding_training_mask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_mask_in_training</span> <span class="o">=</span> <span class="n">transformer_attention_training_mask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_ratio_ub</span> <span class="o">=</span> <span class="n">transformer_training_mask_ratio_upper_bound</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_ratio_lb</span> <span class="o">=</span> <span class="n">transformer_training_mask_ratio_lower_bound</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mask_ratio_ub</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_ratio_lb</span>
+        <span class="p">),</span> <span class="s2">&quot;Training mask ratio upper bound smaller than lower bound.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_transformer_in</span> <span class="o">=</span> <span class="n">num_transformer_in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_transformer_out</span> <span class="o">=</span> <span class="n">num_transformer_out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_transformer_embed_dim</span> <span class="o">=</span> <span class="n">num_transformer_embed_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span> <span class="o">=</span> <span class="n">num_transformer_heads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="n">num_transformer_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer_encoder</span> <span class="o">=</span> <span class="n">TransformerModel</span><span class="p">(</span>
+            <span class="n">input_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_transformer_in</span><span class="p">,</span>
+            <span class="n">embed_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_transformer_embed_dim</span><span class="p">,</span>
+            <span class="n">output_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_transformer_out</span><span class="p">,</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">,</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># self.all_feat_c = (deform_in_c - 2) + self.num_transformer_out</span>
+        <span class="c1"># use a linear layer to transform the input feature to hidden</span>
+        <span class="c1"># state size</span>
+        <span class="c1"># self.lin = nn.Linear(self.all_feat_c, self.hidden_size)</span>
+
+    <span class="k">def</span> <span class="nf">_transformer_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">input_q</span><span class="p">,</span> <span class="n">input_kv</span><span class="p">,</span> <span class="n">get_attens</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward pass for MRN.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Data): Input data object containing mesh and feature info.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            coord (Tensor): Deformed coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># mesh_feat: [num_nodes * batch_size, 4]</span>
+        <span class="c1"># mesh_feat [coord_x, coord_y, u, hessian_norm]</span>
+        <span class="n">transformer_input_q</span> <span class="o">=</span> <span class="n">input_q</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">input_q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">transformer_input_kv</span> <span class="o">=</span> <span class="n">input_kv</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">input_kv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">node_num</span> <span class="o">=</span> <span class="n">transformer_input_q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># print(&quot;transformer input shape &quot;, transformer_input_q.shape, transformer_input_kv.shape)</span>
+
+        <span class="n">key_padding_mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">attention_mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">train</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_in_trainig</span><span class="p">:</span>
+            <span class="n">mask_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_ratio_ub</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_ratio_lb</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span>
+                <span class="mi">1</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_ratio_lb</span>
+            <span class="n">masked_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">node_num</span> <span class="o">*</span> <span class="n">mask_ratio</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">node_num</span><span class="p">)[:</span><span class="n">masked_num</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_padding_mask_in_training</span><span class="p">:</span>
+                <span class="c1"># Key padding mask</span>
+                <span class="n">key_padding_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">node_num</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">key_padding_mask</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># print(key_padding_mask.shape, key_padding_mask)</span>
+            <span class="c1"># print(&quot;Now is training&quot;)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention_mask_in_training</span><span class="p">:</span>
+                <span class="c1"># Attention mask</span>
+                <span class="n">attention_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">,</span> <span class="n">node_num</span><span class="p">,</span> <span class="n">node_num</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">attention_mask</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_encoder</span><span class="p">(</span>
+            <span class="n">transformer_input_q</span><span class="p">,</span>
+            <span class="n">transformer_input_kv</span><span class="p">,</span>
+            <span class="n">transformer_input_kv</span><span class="p">,</span>
+            <span class="n">key_padding_mask</span><span class="o">=</span><span class="n">key_padding_mask</span><span class="p">,</span>
+            <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># features = features.view(-1, self.num_transformer_out)</span>
+        <span class="c1"># features = torch.cat([boundary, features], dim=1)</span>
+        <span class="c1"># print(f&quot;transformer raw features: {features.shape}&quot;)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">selu</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">get_attens</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">features</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># TODO: adapt q k v</span>
+            <span class="n">atten_scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_encoder</span><span class="o">.</span><span class="n">get_attention_scores</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">transformer_input_q</span><span class="p">,</span> <span class="n">key_padding_mask</span><span class="o">=</span><span class="n">key_padding_mask</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">atten_scores</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># batch_size = data.conv_feat.shape[0]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">feat_dim</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># input_q, input_kv, boundary</span>
+        <span class="n">input_q</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">feat_dim</span><span class="p">)</span>
+        <span class="n">input_kv</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">feat_dim</span><span class="p">)</span>
+
+        <span class="c1"># [coord_ori_x, coord_ori_y, u, hessian_norm]</span>
+        <span class="c1"># intput_features = torch.cat([coord_ori, data.mesh_feat[:, 2:4]], dim=-1)</span>
+        <span class="c1"># print(f&quot;input q shape: {input_q.shape} input kv shape: {input_kv.shape}&quot;)</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transformer_forward</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">input_q</span><span class="p">,</span> <span class="n">input_kv</span><span class="p">)</span>
+        <span class="c1"># print(f&quot;global feat before reshape: {hidden.shape}&quot;)</span>
+
+        <span class="n">feat_dim</span> <span class="o">=</span> <span class="n">hidden</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">hidden</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">feat_dim</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">UM2N.model.extractor</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    </div>
+  </body>
+</html>

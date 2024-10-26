@@ -12,6 +12,14 @@ movement.laplacian\_smoothing module
    :undoc-members:
    :show-inheritance:
 
+movement.math module
+--------------------
+
+.. automodule:: movement.math
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 movement.monge\_ampere module
 -----------------------------
 

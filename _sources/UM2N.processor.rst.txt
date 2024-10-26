@@ -1,0 +1,21 @@
+UM2N.processor package
+======================
+
+Submodules
+----------
+
+UM2N.processor.processor module
+-------------------------------
+
+.. automodule:: UM2N.processor.processor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: UM2N.processor
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -4,15 +4,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>goalie.go_mesh_seq &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>goalie.go_mesh_seq &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -21,7 +21,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.go_mesh_seq</a></li> 
       </ul>
@@ -49,6 +49,7 @@
 <span class="kn">from</span> <span class="nn">.error_estimation</span> <span class="kn">import</span> <span class="n">get_dwr_indicator</span>
 <span class="kn">from</span> <span class="nn">.function_data</span> <span class="kn">import</span> <span class="n">IndicatorData</span>
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">pyrint</span>
+<span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">GoalOrientedAdaptParameters</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GoalOrientedMeshSeq&quot;</span><span class="p">]</span>
 
@@ -109,7 +110,6 @@
             <span class="n">get_solver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_solver</span><span class="p">,</span>
             <span class="n">get_qoi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_qoi</span><span class="p">,</span>
             <span class="n">qoi_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span><span class="p">,</span>
-            <span class="n">parameters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">enriched_mesh_seq</span><span class="o">.</span><span class="n">_update_function_spaces</span><span class="p">()</span>
 
@@ -197,15 +197,20 @@
         <span class="c1"># Reinitialise the error indicator data object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_indicators</span><span class="p">()</span>
 
-        <span class="c1"># Solve the forward and adjoint problems on the MeshSeq and its enriched version</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
-        <span class="n">enriched_mesh_seq</span><span class="o">.</span><span class="n">solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
+        <span class="c1"># Initialise adjoint solver generators on the MeshSeq and its enriched version</span>
+        <span class="n">adj_sol_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
+        <span class="n">adj_sol_gen_enriched</span> <span class="o">=</span> <span class="n">enriched_mesh_seq</span><span class="o">.</span><span class="n">_solve_adjoint</span><span class="p">(</span><span class="o">**</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
         <span class="n">FWD</span><span class="p">,</span> <span class="n">ADJ</span> <span class="o">=</span> <span class="s2">&quot;forward&quot;</span><span class="p">,</span> <span class="s2">&quot;adjoint&quot;</span>
         <span class="n">FWD_OLD</span> <span class="o">=</span> <span class="s2">&quot;forward&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="k">else</span> <span class="s2">&quot;forward_old&quot;</span>
         <span class="n">ADJ_NEXT</span> <span class="o">=</span> <span class="s2">&quot;adjoint&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady</span> <span class="k">else</span> <span class="s2">&quot;adjoint_next&quot;</span>
         <span class="n">P0_spaces</span> <span class="o">=</span> <span class="p">[</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+        <span class="c1"># Loop over each subinterval in reverse</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))):</span>
+            <span class="c1"># Solve the adjoint problem on the current subinterval</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">adj_sol_gen</span><span class="p">)</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">adj_sol_gen_enriched</span><span class="p">)</span>
+
             <span class="c1"># Get Functions</span>
             <span class="n">u</span><span class="p">,</span> <span class="n">u_</span><span class="p">,</span> <span class="n">u_star</span><span class="p">,</span> <span class="n">u_star_next</span><span class="p">,</span> <span class="n">u_star_e</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{}</span>
             <span class="n">enriched_spaces</span> <span class="o">=</span> <span class="p">{</span>
@@ -337,6 +342,7 @@
     <span class="k">def</span> <span class="nf">fixed_point_iteration</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">adaptor</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">update_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">enrichment_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">adaptor_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -350,6 +356,8 @@
 <span class="sd">            sequence and the solution and indicator data objects. It should return</span>
 <span class="sd">            ``True`` if the convergence criteria checks are to be skipped for this</span>
 <span class="sd">            iteration. Otherwise, it should return ``False``.</span>
+<span class="sd">        :kwarg parameters: parameters to apply to the mesh adaptation process</span>
+<span class="sd">        :type parameters: :class:`~.GoalOrientedAdaptParameters`</span>
 <span class="sd">        :kwarg update_params: function for updating :attr:`~.MeshSeq.params` at each</span>
 <span class="sd">            iteration. Its arguments are the parameter class and the fixed point</span>
 <span class="sd">            iteration</span>
@@ -372,6 +380,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO #124: adaptor no longer needs solution and indicator data to be passed</span>
         <span class="c1">#            explicitly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">parameters</span> <span class="ow">or</span> <span class="n">GoalOrientedAdaptParameters</span><span class="p">()</span>
         <span class="n">enrichment_kwargs</span> <span class="o">=</span> <span class="n">enrichment_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">adaptor_kwargs</span> <span class="o">=</span> <span class="n">adaptor_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">solver_kwargs</span> <span class="o">=</span> <span class="n">solver_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -450,9 +459,9 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -460,13 +469,13 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -475,14 +484,14 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.go_mesh_seq</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

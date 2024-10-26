@@ -4,15 +4,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>movement.mover &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>movement.mover &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -21,7 +21,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">movement.mover</a></li> 
       </ul>
@@ -33,26 +33,35 @@
           <div class="body" role="main">
             
   <h1>Source code for movement.mover</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span></span><span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 
 <span class="kn">import</span> <span class="nn">firedrake</span>
 <span class="kn">import</span> <span class="nn">firedrake.exceptions</span> <span class="k">as</span> <span class="nn">fexc</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">ufl</span>
 <span class="kn">from</span> <span class="nn">firedrake.cython.dmcommon</span> <span class="kn">import</span> <span class="n">create_section</span>
 <span class="kn">from</span> <span class="nn">firedrake.petsc</span> <span class="kn">import</span> <span class="n">PETSc</span>
+
+<span class="kn">from</span> <span class="nn">movement.tangling</span> <span class="kn">import</span> <span class="n">MeshTanglingChecker</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PrimeMover&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="PrimeMover">
 <a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover">[docs]</a>
-<span class="k">class</span> <span class="nc">PrimeMover</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">PrimeMover</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for all mesh movers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">monitor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">raise_convergence_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mesh</span><span class="p">,</span>
+        <span class="n">monitor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">raise_convergence_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">tangling_check</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">quadrature_degree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :arg mesh: the physical mesh</span>
@@ -62,35 +71,69 @@
 <span class="sd">        :kwarg raise_convergence_errors: convergence error handling behaviour: if `True`</span>
 <span class="sd">            then :class:`~.ConvergenceError`\s are raised, else warnings are raised and</span>
 <span class="sd">            the program is allowed to continue</span>
-<span class="sd">        :kwarg raise_convergence_errors: :class:`bool`</span>
+<span class="sd">        :type raise_convergence_errors: :class:`bool`</span>
+<span class="sd">        :kwarg tangling_check: check whether the mesh has tangled elements (by default</span>
+<span class="sd">            on in the 2D case and off otherwise)</span>
+<span class="sd">        :type tangling_check: :class:`bool`</span>
+<span class="sd">        :kwarg quadrature_degree: quadrature degree to be passed to Firedrakes measures</span>
+<span class="sd">        :type quadrature_degree: :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deepcopy</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">monitor_function</span> <span class="o">=</span> <span class="n">monitor_function</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">raise_convergence_errors</span><span class="p">:</span>
             <span class="n">warn</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">.move called with raise_convergence_errors=False.&quot;</span>
-                <span class="s2">&quot; Beware: this option can produce poor quality meshes!&quot;</span>
+                <span class="s2">&quot; Beware: this option can produce poor quality meshes!&quot;</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raise_convergence_errors</span> <span class="o">=</span> <span class="n">raise_convergence_errors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">topological_dimension</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">geometric_dimension</span><span class="p">()</span>
+
+        <span class="c1"># DMPlex setup</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">topology_dm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vertex_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">getDepthStratum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edge_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">getDepthStratum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">entity_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_section</span> <span class="o">=</span> <span class="n">create_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">entity_dofs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dm_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">getCoordinateDM</span><span class="p">()</span>
+        <span class="n">dm_coords</span><span class="o">.</span><span class="n">setDefaultSection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_section</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_local_coordinates_vec</span> <span class="o">=</span> <span class="n">dm_coords</span><span class="o">.</span><span class="n">createLocalVec</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_plex_coordinates</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Cannot update DMPlex coordinates for periodic meshes.&quot;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_local_coordinates_vec</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># Measures</span>
-        <span class="n">degree</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quadrature_degree&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dS</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">dS</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">dx</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">quadrature_degree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">ds</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">quadrature_degree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dS</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">dS</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">quadrature_degree</span><span class="p">)</span>
 
-        <span class="c1"># Mesh coordinate functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_function_spaces</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_functions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_boundary_segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">exterior_facets</span><span class="o">.</span><span class="n">unique_markers</span>
+
+        <span class="c1"># Utilities</span>
+        <span class="k">if</span> <span class="n">tangling_check</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tangling_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">tangling_check</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tangling_checker</span> <span class="o">=</span> <span class="n">MeshTanglingChecker</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">raise_error</span><span class="o">=</span><span class="n">raise_convergence_errors</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_function_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coord_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">function_space</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P0</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">FunctionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="s2">&quot;DG&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Physical coordinates&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Computational coordinates&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Mesh velocity&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="n">firedrake</span><span class="o">.</span><span class="n">Function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Mesh volume&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">ufl</span><span class="o">.</span><span class="n">CellVolume</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_convergence_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -152,89 +195,96 @@
             <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; after </span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s2"> iteration</span><span class="si">{</span><span class="n">plural</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">exception</span><span class="o">=</span><span class="n">exception</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_coordinate_section</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="n">entity_dofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_section</span> <span class="o">=</span> <span class="n">create_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">entity_dofs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">dm_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">getCoordinateDM</span><span class="p">()</span>
-        <span class="n">dm_coords</span><span class="o">.</span><span class="n">setDefaultSection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_section</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_coords_local_vec</span> <span class="o">=</span> <span class="n">dm_coords</span><span class="o">.</span><span class="n">createLocalVec</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_plex_coordinates</span><span class="p">()</span>
-
     <span class="k">def</span> <span class="nf">_update_plex_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_coords_local_vec&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_coordinate_section</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_coords_local_vec</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_coords_local_vec</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">setCoordinatesLocal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coords_local_vec</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_get_edge_vector_section</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="n">entity_dofs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_vector_section</span> <span class="o">=</span> <span class="n">create_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">entity_dofs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-
-<div class="viewcode-block" id="PrimeMover.coordinate_offset">
-<a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover.coordinate_offset">[docs]</a>
-    <span class="k">def</span> <span class="nf">coordinate_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the DMPlex coordinate section offset</span>
-<span class="sd">        for a given `index`.</span>
+<span class="sd">        Update the underlying DMPlex coordinates with the coordinates of the Firedrake</span>
+<span class="sd">        mesh.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_coordinate_section&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_coordinate_section</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_section</span><span class="o">.</span><span class="n">getOffset</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_local_coordinates_vec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot update DMPlex coordinates for periodic meshes.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_local_coordinates_vec</span><span class="o">.</span><span class="n">array</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_local_coordinates_vec</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">setCoordinatesLocal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_local_coordinates_vec</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PrimeMover.edge_vector_offset">
-<a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover.edge_vector_offset">[docs]</a>
-    <span class="k">def</span> <span class="nf">edge_vector_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_coordinate_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the DMPlex edge vector section offset</span>
-<span class="sd">        for a given `index`.</span>
+<span class="sd">        Map the index of a DMPlex coordinate to the coordinate index in Firedrake.</span>
+
+<span class="sd">        :arg index: DMPlex coordinate index</span>
+<span class="sd">        :type index: :class:`int`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_section</span><span class="o">.</span><span class="n">getOffset</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span>
+
+    <span class="k">def</span> <span class="nf">_edge_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Map the index of a DMPlex edge to the edge index in Firedrake.</span>
+
+<span class="sd">        :arg index: DMPlex edge index</span>
+<span class="sd">        :type index: :class:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_edge_vector_section&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_edge_vector_section</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_vector_section</span><span class="o">.</span><span class="n">getOffset</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></div>
+            <span class="n">entity_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">entity_dofs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edge_vector_section</span> <span class="o">=</span> <span class="n">create_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">entity_dofs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_vector_section</span><span class="o">.</span><span class="n">getOffset</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PrimeMover.coordinate">
-<a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover.coordinate">[docs]</a>
-    <span class="k">def</span> <span class="nf">coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">volume_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get the mesh coordinate associated with</span>
-<span class="sd">        a given `index`.</span>
+<span class="sd">        :return: the ratio of the largest and smallest element volumes.</span>
+<span class="sd">        :rtype: :class:`float`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">data_with_halos</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_offset</span><span class="p">(</span><span class="n">index</span><span class="p">)]</span></div>
+        <span class="n">volume_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">volume_array</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="n">volume_array</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coefficient_of_variation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: the coefficient of variation (σ/μ) of element volumes.</span>
+<span class="sd">        :rtype: :class:`float`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">volume_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="o">.</span><span class="n">vector</span><span class="p">()</span><span class="o">.</span><span class="n">gather</span><span class="p">()</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">volume_array</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">volume_array</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">volume_array</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">volume_array</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">/</span> <span class="n">mean</span>
 
 <div class="viewcode-block" id="PrimeMover.move">
 <a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover.move">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Move the mesh according to the method of choice.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Implement `move` in the derived class.&quot;</span><span class="p">)</span></div>
+        <span class="k">pass</span>  <span class="c1"># pragma: no cover</span></div>
 
 
-<div class="viewcode-block" id="PrimeMover.adapt">
-<a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover.adapt">[docs]</a>
-    <span class="k">def</span> <span class="nf">adapt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Alias of `move`.</span>
+<div class="viewcode-block" id="PrimeMover.to_physical_coordinates">
+<a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover.to_physical_coordinates">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_physical_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Switch coordinates to correspond to the physical mesh :class:`\mathcal{H}_P`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;`adapt` is deprecated (use `move` instead)&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PrimeMover.to_computational_coordinates">
+<a class="viewcode-back" href="../../movement.html#movement.mover.PrimeMover.to_computational_coordinates">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_computational_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Switch coordinates to correspond to the computational mesh</span>
+<span class="sd">        :class:`\mathcal{H}_C`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">)</span></div>
 </div>
 
 
 
 <span class="k">def</span> <span class="nf">plural</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :return: &#39;s&#39; if `iterations` should be referred to in the plural sense</span>
+<span class="sd">    :rtype: :class:`str`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">iterations</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 </pre></div>
 
@@ -242,9 +292,9 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -252,13 +302,13 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -267,14 +317,14 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">movement.mover</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

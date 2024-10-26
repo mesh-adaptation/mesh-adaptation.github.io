@@ -4,15 +4,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>goalie.adjoint &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>goalie.adjoint &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
     <script src="../../_static/documentation_options.js?v=2709fde1"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -21,7 +21,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.adjoint</a></li> 
       </ul>
@@ -49,7 +49,6 @@
 <span class="kn">from</span> <span class="nn">.function_data</span> <span class="kn">import</span> <span class="n">AdjointSolutionData</span>
 <span class="kn">from</span> <span class="nn">.log</span> <span class="kn">import</span> <span class="n">pyrint</span>
 <span class="kn">from</span> <span class="nn">.mesh_seq</span> <span class="kn">import</span> <span class="n">MeshSeq</span>
-<span class="kn">from</span> <span class="nn">.options</span> <span class="kn">import</span> <span class="n">GoalOrientedParameters</span>
 <span class="kn">from</span> <span class="nn">.utility</span> <span class="kn">import</span> <span class="n">AttrDict</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AdjointMeshSeq&quot;</span><span class="p">,</span> <span class="s2">&quot;annotate_qoi&quot;</span><span class="p">]</span>
@@ -128,12 +127,8 @@
 <span class="sd">            :meth:`~.MeshSeq.get_initial_condition`</span>
 <span class="sd">        :kwarg get_form: a function as described in :meth:`~.MeshSeq.get_form`</span>
 <span class="sd">        :kwarg get_solver: a function as described in :meth:`~.MeshSeq.get_solver`</span>
-<span class="sd">        :kwarg parameters: parameters to apply to the mesh adaptation process</span>
-<span class="sd">        :type parameters: :class:`~.AdaptParameters`</span>
 <span class="sd">        :kwarg get_qoi: a function as described in :meth:`~.AdjointMeshSeq.get_qoi`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parameters&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GoalOrientedParameters</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qoi_type&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qoi_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">,</span> <span class="s2">&quot;time_integrated&quot;</span><span class="p">,</span> <span class="s2">&quot;steady&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -429,10 +424,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solutions</span> <span class="o">=</span> <span class="n">AdjointSolutionData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_partition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_spaces</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AdjointMeshSeq.solve_adjoint">
-<a class="viewcode-back" href="../../goalie.html#goalie.adjoint.AdjointMeshSeq.solve_adjoint">[docs]</a>
     <span class="nd">@PETSc</span><span class="o">.</span><span class="n">Log</span><span class="o">.</span><span class="n">EventDecorator</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">solve_adjoint</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_solve_adjoint</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">adj_solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -440,10 +433,11 @@
         <span class="n">test_checkpoint_qoi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Solve an adjoint problem on a sequence of subintervals.</span>
+<span class="sd">        A generator for solving an adjoint problem on a sequence of subintervals.</span>
 
 <span class="sd">        As well as the quantity of interest value, solution fields are computed - see</span>
-<span class="sd">        :class:`~.AdjointSolutionData` for more information.</span>
+<span class="sd">        :class:`~.AdjointSolutionData` for more information. The solution data are</span>
+<span class="sd">        yielded at the end of each subinterval, before clearing the tape.</span>
 
 <span class="sd">        :kwarg solver_kwargs: parameters for the forward solver, as well as any</span>
 <span class="sd">            parameters for the QoI, which should be included as a sub-dictionary with key</span>
@@ -458,8 +452,8 @@
 <span class="sd">        :type get_adj_values: :class:`bool`</span>
 <span class="sd">        :kwarg test_checkpoint_qoi: solve over the final subinterval when checkpointing</span>
 <span class="sd">            so that the QoI value can be checked across runs</span>
-<span class="sd">        :returns: the solution data of the forward and adjoint solves</span>
-<span class="sd">        :rtype: :class:`~.AdjointSolutionData`</span>
+<span class="sd">        :yields: the solution data of the forward and adjoint solves</span>
+<span class="sd">        :ytype: :class:`~.AdjointSolutionData`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO #125: Support get_adj_values in AdjointSolutionData</span>
         <span class="c1"># TODO #126: Separate out qoi_kwargs</span>
@@ -677,6 +671,8 @@
                             <span class="s2">&quot; subinterval is zero.&quot;</span>
                         <span class="p">)</span>
 
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span>
+
             <span class="c1"># Clear the tape to reduce the memory footprint</span>
             <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
 
@@ -689,6 +685,50 @@
                 <span class="p">)</span>
 
         <span class="n">tape</span><span class="o">.</span><span class="n">clear_tape</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AdjointMeshSeq.solve_adjoint">
+<a class="viewcode-back" href="../../goalie.html#goalie.adjoint.AdjointMeshSeq.solve_adjoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">solve_adjoint</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">adj_solver_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">get_adj_values</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">test_checkpoint_qoi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solve an adjoint problem on a sequence of subintervals.</span>
+
+<span class="sd">        As well as the quantity of interest value, solution fields are computed - see</span>
+<span class="sd">        :class:`~.AdjointSolutionData` for more information.</span>
+
+<span class="sd">        :kwarg solver_kwargs: parameters for the forward solver, as well as any</span>
+<span class="sd">            parameters for the QoI, which should be included as a sub-dictionary with key</span>
+<span class="sd">            &#39;qoi_kwargs&#39;</span>
+<span class="sd">        :type solver_kwargs: :class:`dict` with :class:`str` keys and values which may</span>
+<span class="sd">            take various types</span>
+<span class="sd">        :kwarg adj_solver_kwargs: parameters for the adjoint solver</span>
+<span class="sd">        :type adj_solver_kwargs: :class:`dict` with :class:`str` keys and values which</span>
+<span class="sd">            may take various types</span>
+<span class="sd">        :kwarg get_adj_values: if ``True``, adjoint actions are also returned at exported</span>
+<span class="sd">            timesteps</span>
+<span class="sd">        :type get_adj_values: :class:`bool`</span>
+<span class="sd">        :kwarg test_checkpoint_qoi: solve over the final subinterval when checkpointing</span>
+<span class="sd">            so that the QoI value can be checked across runs</span>
+<span class="sd">        :returns: the solution data of the forward and adjoint solves</span>
+<span class="sd">        :rtype: :class:`~.AdjointSolutionData`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Initialise the adjoint solver generator</span>
+        <span class="n">adjoint_solver_gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solve_adjoint</span><span class="p">(</span>
+            <span class="n">solver_kwargs</span><span class="o">=</span><span class="n">solver_kwargs</span><span class="p">,</span>
+            <span class="n">adj_solver_kwargs</span><span class="o">=</span><span class="n">adj_solver_kwargs</span><span class="p">,</span>
+            <span class="n">get_adj_values</span><span class="o">=</span><span class="n">get_adj_values</span><span class="p">,</span>
+            <span class="n">test_checkpoint_qoi</span><span class="o">=</span><span class="n">test_checkpoint_qoi</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Solve the adjoint problem over each subinterval</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">adjoint_solver_gen</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span></div>
 
 
@@ -749,9 +789,9 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -759,13 +799,13 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -774,14 +814,14 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">goalie.adjoint</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

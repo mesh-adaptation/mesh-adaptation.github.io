@@ -1,0 +1,45 @@
+UM2N.helper package
+===================
+
+Submodules
+----------
+
+UM2N.helper.config module
+-------------------------
+
+.. automodule:: UM2N.helper.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.helper.helper module
+-------------------------
+
+.. automodule:: UM2N.helper.helper
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.helper.plot\_util module
+-----------------------------
+
+.. automodule:: UM2N.helper.plot_util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+UM2N.helper.plotting module
+---------------------------
+
+.. automodule:: UM2N.helper.plotting
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: UM2N.helper
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -5,16 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Advection-diffusion-reaction &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>Advection-diffusion-reaction &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <script src="../_static/documentation_options.js?v=2709fde1"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -23,7 +23,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Advection-diffusion-reaction</a></li> 
       </ul>
     </div>  
@@ -38,7 +38,7 @@
 <p>We have already seen time-dependent advection equations and a steady-state
 advection-diffusion equation. In this demo, we increase the level of complexity again
 and solve the Gray-Scott advection-diffusion-reaction equation, as described in
-<span id="id1">[<a class="reference internal" href="#id5" title="Willem H Hundsdorfer, Jan G Verwer, and WH Hundsdorfer. Numerical solution of time-dependent advection-diffusion-reaction equations. Volume 33. Springer, 2003.">HVH03</a>]</span>.</p>
+<span id="id1">[]</span>.</p>
 <p>The test case consists of two tracer species, which experience different
 diffusivities and react with one another nonlinearly.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">firedrake</span> <span class="kn">import</span> <span class="o">*</span>
@@ -198,22 +198,14 @@ the timestep. This is straightforwardly done in Goalie using <code class="xref p
 problem, but splitting the solution field into multiple components.</p>
 <p>This tutorial can be dowloaded as a <a class="reference external" href="gray_scott.py">Python script</a>.</p>
 <p class="rubric">References</p>
-<div class="docutils container" id="id2">
-<div role="list" class="citation-list">
-<div class="citation" id="id5" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">HVH03</a><span class="fn-bracket">]</span></span>
-<p>Willem H Hundsdorfer, Jan G Verwer, and WH Hundsdorfer. <em>Numerical solution of time-dependent advection-diffusion-reaction equations</em>. Volume 33. Springer, 2003.</p>
-</div>
-</div>
-</div>
-</section>
+<span class="target" id="id2"></span></section>
 
 
             <div class="clearer"></div>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -222,7 +214,7 @@ problem, but splitting the solution field into multiple components.</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
@@ -230,13 +222,13 @@ problem, but splitting the solution field into multiple components.</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -245,13 +237,13 @@ problem, but splitting the solution field into multiple components.</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Advection-diffusion-reaction</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>

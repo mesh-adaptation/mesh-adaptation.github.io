@@ -5,16 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>animate package &#8212; Animate, Movement and Goalie 0.1 documentation</title>
+    <title>animate package &#8212; Animate, Movement, Goalie and UM2N 0.1 documentation</title>
     <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <script src="_static/documentation_options.js?v=2709fde1"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -23,7 +23,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">animate package</a></li> 
       </ul>
     </div>  
@@ -50,7 +50,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – mesh to be adapted</p></li>
 <li><p><strong>metric</strong> (<a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">animate.metric.RiemannianMetric</span></code></a>) – metric to use for the adaptation</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name for the adapted mesh</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name for the adapted mesh</p></li>
 <li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Intracom</span></code>) – MPI communicator to use for the adapted mesh</p></li>
 </ul>
 </dd>
@@ -116,13 +116,13 @@ mesh using conservative projection.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mesh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.mesh.MeshGeometry" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.mesh.MeshGeometry</span></code></a>) – mesh to be adapted.</p></li>
-<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s) – metrics to guide the mesh adaptation</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name for the adapted mesh</p></li>
-<li><p><strong>serialise</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, adaptation is done in serial using
+<li><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">RiemannianMetric</span></code></a>s) – metrics to guide the mesh adaptation</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – name for the adapted mesh</p></li>
+<li><p><strong>serialise</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, adaptation is done in serial using
 <code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.checkpointing.CheckpointFile`s.</span> <span class="pre">Defaults</span> <span class="pre">to</span> <span class="pre">``True`</span></code> if
 the mesh is 2D, and to <code class="docutils literal notranslate"><span class="pre">False</span></code> if the mesh is 3D or if the code is already
 run in serial. This is because parallel adaptation is only supported in 3D.</p></li>
-<li><p><strong>remove_checkpoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, checkpoint files are deleted after use</p></li>
+<li><p><strong>remove_checkpoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, checkpoint files are deleted after use</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -152,9 +152,9 @@ subdirectory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the path to the checkpoint file</p></li>
-<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which the mesh is saved in the checkpoint file</p></li>
-<li><p><strong>metric_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which the metric is saved in the checkpoint file</p></li>
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the path to the checkpoint file</p></li>
+<li><p><strong>mesh_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which the mesh is saved in the checkpoint file</p></li>
+<li><p><strong>metric_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which the metric is saved in the checkpoint file</p></li>
 <li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Intracom</span></code>) – MPI communicator for handling the checkpoint file</p></li>
 </ul>
 </dd>
@@ -176,9 +176,9 @@ subdirectory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the path of the checkpoint file</p></li>
+<li><p><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the path of the checkpoint file</p></li>
 <li><p><strong>metric</strong> (<a class="reference internal" href="#animate.metric.RiemannianMetric" title="animate.metric.RiemannianMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">animate.metric.RiemannianMetric</span></code></a>) – the metric to save to the checkpoint</p></li>
-<li><p><strong>metric_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which to save the metric in the checkpoint file</p></li>
+<li><p><strong>metric_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the name under which to save the metric in the checkpoint file</p></li>
 <li><p><strong>comm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">mpi4py.MPI.Intracom</span></code>) – MPI communicator for handling the checkpoint file</p></li>
 </ul>
 </dd>
@@ -248,7 +248,7 @@ post-processing, see <span id="id2">[<a class="reference internal" href="demos/p
 <li><p><strong>target_space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a>,
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function space which we seek to transfer onto, or the
 function or cofunction to use as the target</p></li>
-<li><p><strong>bounded</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – apply mass lumping to the mass matrix to ensure boundedness</p></li>
+<li><p><strong>bounded</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – apply mass lumping to the mass matrix to ensure boundedness</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -279,7 +279,7 @@ whereas the “project” option can be difficult to set up to make use of this.
 <li><p><strong>target_space</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.functionspaceimpl.FunctionSpace" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.functionspaceimpl.FunctionSpace</span></code></a>,
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function space which we seek to transfer onto, or the
 function or cofunction to use as the target</p></li>
-<li><p><strong>transfer_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – the method to use for the transfer. Options are
+<li><p><strong>transfer_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – the method to use for the transfer. Options are
 “interpolate” (default) and “project”</p></li>
 </ul>
 </dd>
@@ -393,7 +393,7 @@ may be passed here and its function space will be used to build this
 
 <dl class="py method">
 <dt class="sig sig-object py" id="animate.metric.RiemannianMetric.combine">
-<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.combine" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/metric.html#RiemannianMetric.combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.metric.RiemannianMetric.combine" title="Link to this definition">¶</a></dt>
 <dd><p>Combine metrics using either averaging or intersection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -556,7 +556,7 @@ assumed that the error indicators have been constructed in the appropriate way.<
 <dd><p>Copy the metric and any associated parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>deepcopy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the new metric will allocate new space and copy
+<dd class="field-odd"><p><strong>deepcopy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the new metric will allocate new space and copy
 values. If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default) then the new metric will share the DoF values.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -679,25 +679,25 @@ that any parameter which supports <code class="xref py py-class docutils literal
 </li>
 <li><dl class="simple">
 <dt><cite>h_min</cite>: Minimum tolerated metric magnitude, which allows approximate control</dt><dd><p>of minimum element size in the adapted mesh. Supports <code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code>
-and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Default: 1.0e-30.</p>
+and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Default: 1.0e-30.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><cite>h_max</cite>: Maximum tolerated metric magnitude, which allows approximate control</dt><dd><p>of maximum element size in the adapted mesh. Supports <code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code>
-and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Default: 1.0e+30.</p>
+and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>. Default: 1.0e+30.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><cite>a_max</cite>: Maximum tolerated metric anisotropy, which allows approximate control</dt><dd><p>of maximum element anisotropy in the adapted mesh. Supports
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Constant</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Function</span></code> input, as well as <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>.
 Default: 1.0e+05.</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt><cite>p</cite>: <span class="math notranslate nohighlight">\(L^p\)</span> normalisation order. Supports <code class="docutils literal notranslate"><span class="pre">np.inf</span></code> as well as</dt><dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> values from <span class="math notranslate nohighlight">\([0,\infty)\)</span>. Default: 1.0.</p>
+<dt><cite>p</cite>: <span class="math notranslate nohighlight">\(L^p\)</span> normalisation order. Supports <code class="docutils literal notranslate"><span class="pre">np.inf</span></code> as well as</dt><dd><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> values from <span class="math notranslate nohighlight">\([0,\infty)\)</span>. Default: 1.0.</p>
 </dd>
 </dl>
 </li>
@@ -764,7 +764,7 @@ in the underlying PETSc implementation.)</p>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>metric_parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and value which
+<dd class="field-odd"><p><strong>metric_parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> keys and value which
 may take various types) – parameters as above</p>
 </dd>
 </dl>
@@ -815,7 +815,7 @@ intersection. Otherwise, the intersection is over the whole boundary.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="animate.quality.QualityMeasure">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">QualityMeasure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">python</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/animate/quality.html#QualityMeasure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#animate.quality.QualityMeasure" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for computing quality measures associated with a given mesh.</p>
 <dl class="simple">
 <dt>Choices of quality measure:</dt><dd><ul class="simple">
@@ -984,15 +984,15 @@ different results in general.</p>
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the ‘true’ value</p></li>
 <li><p><strong>uh</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the approximation of the ‘truth’</p></li>
-<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
-<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
+<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
+<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the error norm value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 <p>Any other keyword arguments are passed to <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.norms.errornorm" title="(in Firedrake v0.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">firedrake.norms.errornorm()</span></code></a>.</p>
@@ -1019,17 +1019,17 @@ different results in general.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>v</strong> (<a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.function.Function" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.function.Function</span></code></a> or
 <a class="reference external" href="https://www.firedrakeproject.org/firedrake.html#firedrake.cofunction.Cofunction" title="(in Firedrake v0.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">firedrake.cofunction.Cofunction</span></code></a>) – the function to take the norm of</p></li>
-<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
+<li><p><strong>norm_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – the type of norm to use</p></li>
 <li><p><strong>condition</strong> – a UFL condition for specifying a subdomain to compute the norm
 over</p></li>
-<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
+<li><p><strong>boundary</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the norm is computed over the domain boundary</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the norm value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1045,7 +1045,7 @@ over</p></li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -1136,7 +1136,7 @@ over</p></li>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -1144,13 +1144,13 @@ over</p></li>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -1159,13 +1159,13 @@ over</p></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement and Goalie 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Animate, Movement, Goalie and UM2N 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">animate package</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021-2024, Joseph G. Wallwork et al..
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     </div>
   </body>
 </html>
